@@ -46,8 +46,8 @@ StylingAgent enforces the design system. It ensures proper layout alignment, pad
 - Overwrite `agents/StylingAgent.json` with:
   - `status: completed`
   - `tasksCompleted[]`: files changed, components styled
-  - `observations[]`: unresolved gaps for UX/QA
-  - `nextAgent`: likely `UXAgent` or `QAAgent`
+  - `observations[]`: unresolved gaps for UX or Audit
+  - `nextAgent`: likely `UXAgent` or `AuditAgent`
   - `handoffMessage`: e.g. "Verify visual alignment in mobile cart dropdown"
 
 ---

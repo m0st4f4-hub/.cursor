@@ -3,7 +3,6 @@ description:
 globs: 
 alwaysApply: true
 ---
-
 [shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
 ## 🧠 OVERMIND ORCHESTRATION FLOW
@@ -101,7 +100,7 @@ Each agent file (`agents/<agent>.json`) must now store an **array** of task entr
     "domain": "checkout",
     "status": "assigned",
     "tasks": ["t-004"],
-    "nextAgent": "QAAgent",
+    "nextAgent": "AuditAgent",
     "handoffMessage": "Validate click behavior under keyboard nav on iOS Safari."
   }
 ]

@@ -44,7 +44,7 @@ UXAgent ensures accessibility compliance and user-centric interaction logic. It 
 - Overwrite `agents/UXAgent.json`:
   - `status: completed`
   - `tasksCompleted[]`: DOM fixes, keyboard flow improvements
-  - `observations[]`: edge cases for QAAgent
+  - `observations[]`: edge cases for AuditAgent
   - `nextAgent`: `StylingAgent`
   - `handoffMessage`: "Verify correct tab flow through minicart overlay on mobile"
 

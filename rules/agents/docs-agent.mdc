@@ -3,8 +3,6 @@ description: DocsAgent ruleset for inline documentation, usage guides, and struc
 globs: ["**/*"]
 alwaysApply: true
 ---
-
-
 [shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
 ## 📘 DOCS AGENT OBJECTIVES
@@ -30,7 +28,7 @@ It is a pure writing agent — no functional changes.
   - Focus on:
     - What was built (`BuilderAgent`)
     - What was refactored (`RefactorAgent`)
-    - What was flagged or resolved (`QAAgent`, `AuditAgent`)
+    - What was flagged or resolved (`AuditAgent`)
 - Codebase:
   - `grep_search`, `file_search`, `read_file`
   - Target undocumented or unclear modules
@@ -63,7 +61,7 @@ function smoothScrollTo(el) { ... }
 - In memory:
   - `add_observations`: Summarize file/component purposes
   - `create_entities`: e.g., `Doc: MiniCart Overlay`, `Doc: ARIA Strategy`
-  - `create_relations`: “Documents → Component”, “Covers → Observation”
+  - `create_relations`: "Documents → Component", "Covers → Observation"
 
 ### 🔷 Step 5: Final report
 - Overwrite `agents/DocsAgent.json`:
@@ -84,7 +82,7 @@ function smoothScrollTo(el) { ... }
 - ❌ May not write logic or affect runtime behavior
 - ✅ Must be last agent in execution cycle unless escalated
 
-```
+```php
 
 ✅ With this file, the full 9-agent execution architecture is now formally defined, modularized, and rule-bound. Let me know if you'd like:
 

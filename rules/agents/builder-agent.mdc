@@ -45,7 +45,7 @@ BuilderAgent transforms discovery into implementation. It executes planned behav
   - `status: completed`
   - `tasksCompleted[]`: action summaries, files touched
   - `observations[]`: notes for styling, QA, or refactor
-  - `nextAgent`: e.g. `StylingAgent`, `QAAgent`
+  - `nextAgent`: e.g. `StylingAgent`, `AuditAgent`
   - `handoffMessage`: specific TODO for downstream agents
 
 ---
