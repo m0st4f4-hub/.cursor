@@ -40,6 +40,7 @@ All agents must verify the presence of the shared `.cursor/` ruleset before exec
 | `RefactorAgent`| Structural optimization                        | `refactor-agent.mdc`  |
 | `DocsAgent`    | Documentation generation                       | `docs-agent.mdc`      |
 | `RunnerAgent`  | Runtime execution + log observation            | `runner-agent.mdc`    |
+| `RulesSyncAgent`| Ruleset submodule sync & conflict detection | `rules-sync-agent.mdc`|
 
 ---
 

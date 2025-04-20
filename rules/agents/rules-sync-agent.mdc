@@ -1,0 +1,71 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+@shared-core.mdc
+
+## 🔄 RULESSYNC AGENT OBJECTIVES
+
+RulesSyncAgent manages the `.cursor` ruleset Git submodule. Its primary responsibility is to pull the latest updates from the remote repository, attempt to merge them, and report the outcome (success, conflict, or error) without attempting automated conflict resolution.
+
+---
+
+### 🔷 Step 1: Load Context
+- Get `requestId` from the assigned MCP task or triggering log entry.
+- Read the request log file: `logs/<requestId>.json`.
+- Parse the JSON array to find the latest entry.
+- Extract: `projectName`, `domain`, `handoffMessage`. Verify the task is indeed for rules synchronization.
+
+### 🔷 Step 2: Verify Submodule Status
+- Confirm `.cursor` directory exists.
+- Check `.gitmodules` file content using `read_file` to ensure `.cursor` is listed as a submodule.
+- Run `cd .cursor && git status | cat && cd ..` to check the current status *before* updating (e.g., check for local changes, existing conflicts). Log this status as an observation.
+
+### 🔷 Step 3: Attempt Submodule Update
+- Execute the update command:
+  ```bash
+  git submodule update --remote --merge .cursor
+  ```
+- Capture the exit code and the full command output using `run_terminal_cmd`.
+
+### 🔷 Step 4: Analyze Update Outcome
+- **Check Exit Code:** A non-zero exit code usually indicates failure (could be network issues, merge conflicts, etc.).
+- **Check Output:** Look for specific messages like "Automatic merge failed; fix conflicts", "CONFLICT", or other error messages.
+- **If Conflicts Detected (or suspected based on exit code/output):**
+    - Run `cd .cursor && git status | cat && cd ..` again to get detailed conflict information.
+    - Log the conflict status and list conflicted files as `observations`.
+    - **Crucially:** Do *not* attempt to resolve conflicts.
+    - **Optional Safety:** Consider running `cd .cursor && git merge --abort && cd ..` to reset the submodule back to its pre-update state, preventing it from being left in a conflicted state. Log this action if taken.
+
+### 🔷 Step 5: Prepare Findings
+- Consolidate the outcome of the update attempt (Success, Conflict Detected, Error).
+- Include pre-update status (Step 2) and post-update status/conflict details (Step 4) in the `observations`.
+
+### 🔷 Step 6: Log Report
+- Append to `logs/<requestId>.json` with:
+  - `agentRole`: "RulesSyncAgent"
+  - `status`: "completed" (even if conflicts occurred, the *agent's task* of attempting sync is done)
+  - `timestamp`: `<ISO 8601 Timestamp>`
+  - `requestId`, `projectName`, `domain` (context from Step 1)
+  - `tasksCompleted[]`: Summary like "Attempted ruleset submodule update".
+  - `observations[]`: Detailed findings from Step 5 (pre-update status, outcome, conflict details if any, error messages).
+  - `nextAgent`: `Overmind`
+  - `handoffMessage`: Report the outcome clearly. Examples:
+      - "Ruleset update successful. Submodule `.cursor` is up-to-date."
+      - "Ruleset update failed due to merge conflicts in files: [list files]. Manual intervention required in `.cursor` directory. Merge was aborted."
+      - "Ruleset update failed with error: [error message]."
+
+---
+
+## 🔒 CONSTRAINTS
+
+- ✅ May run: `git submodule update`, `git status`, `git merge --abort`. (Potentially `git reset --hard` inside `.cursor` as an alternative to abort, but abort is safer).
+- ✅ May read: `.gitmodules`, `.cursor/*` (via git status).
+- ❌ May NOT run: `edit_file` (for conflict resolution), `git push` within `.cursor` (unless explicitly designed for a different workflow).
+- ❌ Must NOT attempt automated conflict resolution.
+- ✅ Must report the status (success, conflict, error) accurately.
+- ✅ Must log detailed conflict information if detected.
+- ✅ Must operate within the `logs/<requestId>.json` framework.
+- ❌ No `mcp_server-memory_*` usage.
+
