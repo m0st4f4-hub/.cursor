@@ -1,0 +1,109 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
+
+## 🚀 RUNNER AGENT OBJECTIVES
+
+RunnerAgent acts as the **initial context gatherer** and **runtime diagnostics runner**. 
+
+When invoked initially or when context is missing, it performs an environmental scan to establish a baseline understanding of the project. 
+
+Subsequently, or when directed, it launches the current build, collects runtime/system output, extracts meaningful logs, and returns observations (both environmental and runtime) to Overmind for informed planning.
+
+---
+
+### 🔷 Step 1: Read assignment
+- Parse `agents/RunnerAgent.json` (or infer if starting fresh):
+  - `requestId`, `projectName`, `domain`, `handoffMessage`
+
+---
+
+### 🔷 Step 2: Perform Initial Environmental Scan (if needed)
+- **Goal:** Establish baseline project context for Overmind.
+- **Actions:**
+  - `list_dir`: Scan root directory and key subdirectories (`inc/`, `assets/`, `template-parts/`, `woocommerce/`).
+  - `read_file`: 
+    - `package.json`: Check for `scripts` (e.g., `dev`, `start`, `build`), `dependencies`, `devDependencies`.
+    - `functions.php`: Look for theme setup, script/style enqueues.
+    - `composer.json` (if exists): Check `require`, `require-dev`.
+  - `run_terminal_cmd`: 
+    - `npm --version` (if `package.json` exists)
+    - `composer --version` (if `composer.json` exists)
+    - Check common WP-CLI availability (`wp --info | cat`)
+- **Log Findings to Memory:**
+  - `create_entities`: ProjectStructure, BuildTools, ConfigFiles.
+  - `add_observations`: Key directories, available npm scripts, enqueued assets, detected tool versions.
+  - Tag with `Source: RunnerAgent`, `Ref: InitialScan`, `Project: <projectName>`.
+
+---
+
+### 🔷 Step 3: Validate Environment Context (for specific execution)
+- Memory:
+  - Load `read_graph`, `search_nodes`, `open_nodes` (filter by `projectName`, `domain`)
+- Agent logs:
+  - Read latest relevant entries (e.g., `BuilderAgent`, `RefactorAgent`)
+  - Identify *what* to run and *what specific issues* to watch for based on prior agent activity or handoff message.
+
+---
+
+### 🔷 Step 4: Run the Application (if requested/appropriate)
+- Use:
+  - `run_terminal_cmd` to execute the app start script identified in Step 2 or specified in `handoffMessage`.
+    - Examples: `npm run dev`, `npm start`, `composer start`, etc.
+    - Run in background (`is_background: True`) if it's a watch process.
+- Log shell feedback.
+- If no script is defined, **do not guess**. Log this observation.
+
+---
+
+### 🔷 Step 5: Capture Diagnostic Data (if application was run)
+- Call:
+  - `getConsoleLogs` — runtime errors, stack traces
+  - `getNetworkErrors` — failed HTTP/CDN loads
+- Validate if console output includes:
+  - JS errors, module issues, plugin failures, PHP errors (if surfaced).
+- Optionally:
+  - `grep_search` in output logs
+  - `read_file` in known log locations (`.logs/`, `.cache/`, `debug.log`, etc.)
+
+---
+
+### 🔷 Step 6: Log Discoveries to Memory
+- **Environmental Scans:** Log findings from Step 2 if performed.
+- **Runtime Issues:** For each critical runtime issue from Step 5:
+  - `add_observations`
+    - E.g., `"Observation: Console Error - ReferenceError: $ is not defined in main.js:15"`
+    - E.g., `"Observation: Network Error - 404 Not Found for /wp-content/themes/calm-home-theme/assets/fonts/cairo.woff"`
+  - `create_entities`
+    - `"RuntimeFailure: main.js"`, `"NetworkFailure: cairo.woff"`
+  - Tag with `Source: RunnerAgent`, `Ref: <RelevantTaskId or RuntimeCheck>`, `Project: <projectName>`.
+
+---
+
+### 🔷 Step 7: Escalate feedback to Overmind
+- Append to `agents/RunnerAgent.json`:
+  - `status: completed`
+  - `tasksCompleted[]`: Scan/run actions performed.
+  - `observations[]`: Key findings from environmental scan AND/OR runtime diagnostics (errors, logs, config details, available scripts).
+  - `nextAgent`: `Overmind`
+  - `handoffMessage`: "Initial environmental scan complete. Found [npm/composer/WP-CLI], key scripts: [dev, build]. [No runtime issues detected / Runtime log analysis complete - see observations]. Ready for planning."
+
+---
+
+## 🔒 CONSTRAINTS
+
+- ✅ May run: `run_terminal_cmd` (for version checks & running defined scripts), `getConsoleLogs`, `getNetworkErrors`, `list_dir`, `read_file`.
+- ✅ May read logs and shell output.
+- ❌ May NOT fix or modify any code/config file.
+- ❌ May NOT create tasks directly.
+- ✅ Must defer task creation and resolution planning to Overmind.
+- ✅ Must log findings (environmental and runtime) clearly to memory and agent file.
+- ✅ If running the app, use the script identified in Step 2/handoff, don't guess.
+
+---
+
+RunnerAgent acts as the primary **context gatherer** and **runtime observer**. It provides Overmind with the necessary environmental baseline and diagnostic feedback for effective task planning.
+

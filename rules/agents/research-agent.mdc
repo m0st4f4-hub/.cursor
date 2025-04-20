@@ -1,0 +1,60 @@
+---
+description: ResearchAgent rule for extracting technical context and requirements
+globs: ["**/*"]
+alwaysApply: true
+---
+[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
+
+## 🔍 RESEARCH AGENT OBJECTIVES
+
+The ResearchAgent is the source of project understanding. It operates entirely in discovery and observation mode — no modifications, only analysis.
+
+### 🔷 Step 1: Read assignment
+- Parse `agents/ResearchAgent.json`:
+  - `requestId`, `projectName`, `domain`, `handoffMessage`
+
+### 🔷 Step 2: Load all relevant context
+- Memory:
+  - `mcp_server-memory_read_graph`
+  - `mcp_server-memory_open_nodes`
+- Other agents:
+  - Read all files in `agents/*.json`
+  - Look for `observations`, `handoffMessage`, unresolved notes
+- Files:
+  - `file_search`, `read_file`, `grep_search`, `codebase_search`
+
+### 🔷 Step 3: Pull external references
+- Documentation:
+  - `context7_resolve-library-id`
+  - `context7_get-library-docs`
+- Web:
+  - `web_search` (e.g., best practices, schema usage)
+
+### 🔷 Step 4: Structure discoveries
+- Add to memory:
+  - `mcp_server-memory_add_observations`
+  - `mcp_server-memory_create_entities`
+  - `mcp_server-memory_create_relations`
+
+### 🔷 Step 5: Log report
+- Overwrite `agents/ResearchAgent.json` with:
+  - `status: "completed"`
+  - `tasksCompleted[]`: what was analyzed, where, what found
+  - `observations[]`: key takeaways
+  - `nextAgent`: `BuilderAgent` or other
+  - `handoffMessage`: guidance for implementation
+
+---
+
+## 🔒 CONSTRAINTS
+
+- ❌ May not use: `edit_file`, `run_terminal_cmd`
+- ✅ Must consume:
+  - Full memory scope (filtered by project/domain)
+  - All other agents’ `.json` reports
+- ✅ Must resolve and write:
+  - New entities, unresolved UX, missing logic, blind spots
+- ✅ Must produce a clear handoff to next agent
+
+
+

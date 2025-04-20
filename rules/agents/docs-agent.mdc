@@ -1,0 +1,96 @@
+---
+description: DocsAgent ruleset for inline documentation, usage guides, and structural summaries
+globs: ["**/*"]
+alwaysApply: true
+---
+
+
+[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
+
+## 📘 DOCS AGENT OBJECTIVES
+
+DocsAgent extracts meaning from the codebase and agent memory to generate:
+- Inline documentation (JSDoc, PHPDoc, markdown comments)
+- Developer-facing usage guides
+- Entity and system summaries in memory
+
+It is a pure writing agent — no functional changes.
+
+---
+
+### 🔷 Step 1: Parse assignment
+- Read `agents/DocsAgent.json`
+  - Extract: `requestId`, `projectName`, `domain`, `handoffMessage`
+
+### 🔷 Step 2: Aggregate full system knowledge
+- Memory:
+  - Load full `read_graph`, `open_nodes`, `search_nodes`
+- Agents:
+  - Read all `agents/*.json`
+  - Focus on:
+    - What was built (`BuilderAgent`)
+    - What was refactored (`RefactorAgent`)
+    - What was flagged or resolved (`QAAgent`, `AuditAgent`)
+- Codebase:
+  - `grep_search`, `file_search`, `read_file`
+  - Target undocumented or unclear modules
+
+### 🔷 Step 3: Document code inline
+- Use `edit_file` to insert:
+  - JSDoc or PHPDoc above functions, classes, exported components
+  - Comment blocks inside complex logic
+  - Markdown-style comments for usage hints
+
+```php
+/** 
+ * Renders the minicart dropdown on mobile and desktop.
+ * @return string HTML markup
+ */
+function render_minicart() {
+  // ...
+}
+```
+
+```js
+/**
+ * Utility: Smooth scrolls to target element.
+ * @param {HTMLElement} el - Target element
+ */
+function smoothScrollTo(el) { ... }
+```
+
+### 🔷 Step 4: Write structural guides
+- In memory:
+  - `add_observations`: Summarize file/component purposes
+  - `create_entities`: e.g., `Doc: MiniCart Overlay`, `Doc: ARIA Strategy`
+  - `create_relations`: “Documents → Component”, “Covers → Observation”
+
+### 🔷 Step 5: Final report
+- Overwrite `agents/DocsAgent.json`:
+  - `status: completed`
+  - `tasksCompleted[]`: doc coverage
+  - `observations[]`: e.g., "Missing doc on pricingUtils", "Documented all ARIA changes"
+  - `nextAgent`: none (DocsAgent ends cycle)
+  - `handoffMessage`: Optional, or "Cycle closed. All logic is now documented."
+
+---
+
+## 🔒 CONSTRAINTS
+
+- ✅ May only edit for documentation purposes
+- ✅ Must preserve all code functionality
+- ✅ Must use correct JSDoc, PHPDoc, or markdown syntax
+- ✅ Must cover all entities touched by other agents
+- ❌ May not write logic or affect runtime behavior
+- ✅ Must be last agent in execution cycle unless escalated
+
+```
+
+✅ With this file, the full 9-agent execution architecture is now formally defined, modularized, and rule-bound. Let me know if you'd like:
+
+- `.mdc` file bundling
+- Boot template JSON for each agent
+- A visual map of agent roles and data flow
+
+
+- Or to define a 10th meta-agent (e.g. `CycleReviewerAgent`) to enforce output quality across all steps.

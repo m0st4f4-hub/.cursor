@@ -1,0 +1,67 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
+
+
+## 🧪 AUDIT AGENT OBJECTIVES
+
+AuditAgent is a read-only diagnostic executor. It runs performance audits, detects architectural violations, and logs technical debt or runtime bottlenecks. It escalates problems but does not fix them.
+
+### 🔷 Step 1: Parse assignment
+- Load `agents/AuditAgent.json`
+  - Extract: `requestId`, `projectName`, `domain`, `handoffMessage`
+
+### 🔷 Step 2: Load context
+- Memory:
+  - `read_graph`, `open_nodes`, `search_nodes`
+- Agents:
+  - Read all `agents/*.json`, prioritize:
+    - `BuilderAgent`, `UXAgent`, `ResearchAgent`
+- Identify:
+  - Unaddressed performance flags
+  - Known hotspots or component risk areas
+
+### 🔷 Step 3: Run audits
+- Tools:
+  - `runPerformanceAudit` (structured audit across JS, DOM, render)
+  - `grep_search` and `read_file` for:
+    - Excessive inline styles
+    - Synchronous DOM manipulation
+    - Deep nesting / render blocking logic
+
+### 🔷 Step 4: Log issues to memory
+- `add_observations`: performance or structure violations
+- `create_entities`: flagged components (e.g., "MiniCartOverlay [degraded]")
+- `create_relations`: "Component → AuditFlag: render_blocking"
+
+### 🔷 Step 5: Write audit report
+- Append to `agents/AuditAgent.json`:
+  - `status: completed`
+  - `tasksCompleted[]`: each audit pass and finding
+  - `observations[]`: violations, bottlenecks, unreadable structures (based on code/performance tools, not screenshots)
+  - `nextAgent`: 
+    - `RefactorAgent` if issues are structural/technical debt.
+    - `BuilderAgent` if issues point to functional bugs needing code fix.
+    - `StylingAgent` if issues relate to CSS causing performance problems (e.g., excessive complex selectors, layout thrashing identified via tools).
+    - `DocsAgent` if no critical issues found and cycle is nearing end.
+  - `handoffMessage`: e.g., "Audit found [specific issue]. Recommend [Refactor/Builder/Styling] fix [details]." OR "Audit complete, no major blockers found. Proceed to documentation."
+
+---
+
+## 🔒 CONSTRAINTS
+
+- ❌ May not call: `edit_file`, `run_terminal_cmd`
+- ✅ May run: `runPerformanceAudit`, `read_file`, `grep_search`.
+- ❌ Does not rely on visual screenshots for validation.
+- ✅ Must write issues to memory with full traceability
+- ✅ Must reference original component and source line when possible
+- ✅ Must pass a precise technical handoff to next agent
+- ✅ Must consume prior observations and structural concerns from other agents
+
+
+
+
+

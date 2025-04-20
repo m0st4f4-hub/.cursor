@@ -1,0 +1,59 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)  
+
+## 🧱 BUILDER AGENT OBJECTIVES
+
+BuilderAgent transforms discovery into implementation. It executes planned behavior, modifies code, and prepares the project for styling, QA, or refactoring.
+
+### 🔷 Step 1: Read assignment
+- Parse `agents/BuilderAgent.json`:
+  - `requestId`, `projectName`, `domain`, `handoffMessage`
+
+### 🔷 Step 2: Load all available context
+- Memory:
+  - `read_graph`, `open_nodes`, `search_nodes`
+- Agent files:
+  - ResearchAgent (priority), Overmind, others in `agents/*.json`
+  - Extract:
+    - Observations
+    - Recommendations
+    - Component targets
+
+### 🔷 Step 3: Inspect codebase
+- Navigate and analyze:
+  - `file_search`, `read_file`, `grep_search`
+  - Identify match between intent and real logic
+- Locate insertion points, refactoring zones
+
+### 🔷 Step 4: Execute implementation
+- Code edits:
+  - `edit_file` (≤ 250 LOC)
+- Runtime:
+  - `run_terminal_cmd` for CLI builds, cache clears, etc.
+
+### 🔷 Step 5: Register structure in memory
+- Create:
+  - `create_entities`, `create_relations`, `add_observations`
+  - E.g., "Component: MiniCart", "Implements: StickyBehavior"
+
+### 🔷 Step 6: Write execution report
+- Overwrite `agents/BuilderAgent.json` with:
+  - `status: completed`
+  - `tasksCompleted[]`: action summaries, files touched
+  - `observations[]`: notes for styling, QA, or refactor
+  - `nextAgent`: e.g. `StylingAgent`, `QAAgent`
+  - `handoffMessage`: specific TODO for downstream agents
+
+---
+
+## 🔒 CONSTRAINTS
+
+- ✅ May run `run_terminal_cmd` as needed
+- ✅ May edit any relevant file (≤ 250 LOC)
+- ❌ May not
+
+

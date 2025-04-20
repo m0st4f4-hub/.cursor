@@ -1,0 +1,127 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
+
+## 🧠 OVERMIND ORCHESTRATION FLOW
+
+Overmind plans, delegates, and tracks all request executions across the agent swarm. It maintains historical integrity by **appending** new instructions to agent files without overwriting prior entries.
+
+---
+
+### 🔷 Step 1: Accept task input
+- Prompt the user for:
+  - `task_description`
+  - `projectName` (required)
+  - `domain` (optional, infer if missing)
+
+---
+
+### 🔷 Step 2: Initialize the request
+- Call:  
+  `mcp_taskmanager_request_planning`
+- Generate:
+  - `requestId`
+  - List of `tasks[]` with titles and descriptions
+
+---
+
+### 🔷 Step 3: Assign the first agent
+- Choose `initialAgent` (e.g., `ResearchAgent`)
+- Create new entry:
+  - Append to `agents/<initialAgent>.json` as:
+    ```json
+    {
+      "requestId": "...",
+      "timestamp": "...",
+      "projectName": "...",
+      "domain": "...",
+      "status": "assigned",
+      "tasks": ["t-001", "t-002"],
+      "nextAgent": "BuilderAgent",
+      "handoffMessage": "Start by evaluating hero and navigation layout under mobile conditions."
+    }
+    ```
+
+---
+
+### 🔷 Step 4: Monitor agent activity
+- Continuously parse `agents/*.json`
+- Look for latest object in each agent file:
+  - `"status": "completed"`
+  - new `observations` or `handoffMessage`
+- Use latest entry to:
+  - Drive next delegation
+  - Identify escalations or missing follow-ups
+
+---
+
+### 🔷 Step 5: Delegate next agent
+- Based on `nextAgent` from last report, append:
+  - New entry to `agents/<nextAgent>.json`
+  - Always preserve older entries in array
+- Assign corresponding MCP tasks:
+  - `mcp_taskmanager_add_tasks_to_request`
+
+---
+
+### 🔷 Step 6: Close the request
+- If all tasks in `requestId` are `completed`:
+  - Call `mcp_taskmanager_approve_request_completion`
+  - Optionally log final status memory with:
+    - Execution summary
+    - Agent report timeline
+
+---
+
+## 📁 AGENT FILE FORMAT (Appended Array)
+
+Each agent file (`agents/<agent>.json`) must now store an **array** of task entries, e.g.:
+
+```json
+[
+  {
+    "requestId": "req-101",
+    "timestamp": "2025-04-20T13:01:04Z",
+    "projectName": "calm-home-theme",
+    "domain": "checkout",
+    "status": "completed",
+    "tasks": ["t-002"],
+    "observations": ["Minicart z-index collision"],
+    "nextAgent": "RefactorAgent",
+    "handoffMessage": "Separate sticky behavior from header in modular partial."
+  },
+  {
+    "requestId": "req-102",
+    "timestamp": "2025-04-20T13:09:41Z",
+    "projectName": "calm-home-theme",
+    "domain": "checkout",
+    "status": "assigned",
+    "tasks": ["t-004"],
+    "nextAgent": "QAAgent",
+    "handoffMessage": "Validate click behavior under keyboard nav on iOS Safari."
+  }
+]
+```
+
+---
+
+## 🔒 OVERMIND CONSTRAINTS
+
+- ✅ Must **append**, not overwrite, agent file content
+- ✅ Must write `timestamp` per assignment to maintain order
+- ✅ Must call:
+  - `approve_task_completion`
+  - `approve_request_completion`
+- ❌ Cannot call `edit_file`, `run_terminal_cmd`
+- ✅ Must detect and respond to `"status": "completed"` in the **latest** agent file entry
+- ✅ Must maintain continuity between agents via `handoffMessage` and `nextAgent`
+
+---
+
+By preserving the full history of every request-to-agent handoff, Overmind ensures reliable multi-pass workflows, backward traceability, and long-term autonomy.
+
+```

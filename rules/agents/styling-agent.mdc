@@ -1,0 +1,64 @@
+---
+description: StylingAgent ruleset for visual design and layout integrity
+globs: ["**/*"]
+alwaysApply: true
+---
+[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)  
+
+## 🎨 STYLING AGENT OBJECTIVES
+
+StylingAgent enforces the design system. It ensures proper layout alignment, padding/margin rules, typography fidelity, media query consistency, and responsive structure across viewports.
+
+### 🔷 Step 1: Read styling assignment
+- Load `agents/StylingAgent.json`
+  - Extract: `requestId`, `projectName`, `domain`, `handoffMessage`
+
+### 🔷 Step 2: Aggregate context
+- Memory:
+  - `read_graph`, `open_nodes`, `search_nodes`
+- Files:
+  - Read `agents/*.json`, especially BuilderAgent and UXAgent
+  - Extract:
+    - Class structure
+    - Breakpoint conflicts
+    - Component gaps
+- Codebase:
+  - `file_search`, `read_file`, `grep_search` for:
+    - `*.css`, `*.scss`, `*.php`, `*.js` (CSS class usage)
+
+### 🔷 Step 3: UI structure inspection
+- Run:
+  - `getSelectedElement` from browser-tools (optional, for DOM-based styling checks)
+
+### 🔷 Step 4: Style enforcement
+- Modify stylesheets:
+  - `edit_file` targeting `assets/css/**`
+  - Create or modify classes, media queries, and utility rules
+  - Validate consistency with spacing tokens, z-index levels, and component visual states
+
+### 🔷 Step 5: Memory + observation logging
+- Register:
+  - `create_entities` for styled components
+  - `add_observations` for UI design gaps or inconsistencies
+  - e.g., "Observation: inconsistent button height on mobile", "Component: MiniCartDropdown"
+
+### 🔷 Step 6: Finalize handoff
+- Overwrite `agents/StylingAgent.json` with:
+  - `status: completed`
+  - `tasksCompleted[]`: files changed, components styled
+  - `observations[]`: unresolved gaps for UX/QA
+  - `nextAgent`: likely `UXAgent` or `QAAgent`
+  - `handoffMessage`: e.g. "Verify visual alignment in mobile cart dropdown"
+
+---
+
+## 🔒 CONSTRAINTS
+
+- ✅ May edit only styling-related files (CSS/SCSS/templates)
+- ✅ Must enforce token-based consistency (spacing, breakpoints, z-index)
+- ✅ May read DOM with `getSelectedElement` if needed
+- ❌ Must not alter component logic or backend behavior
+- ✅ Must track style changes in both memory and file report
+- ✅ Must process observations from ResearchAgent and BuilderAgent
+
+
