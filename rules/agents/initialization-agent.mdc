@@ -102,6 +102,7 @@ The InitializationAgent is responsible for reliably executing the agent framewor
 4.  **Final Verification:**
     *   `list_dir .cursor/rules` (confirm existence and expected content like `shared-core.mdc`, `project/`).
     *   Report success or failure (with reason) to `Overmind`.
+    *   **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked, set `nextAgent` to HALT and log the error. Never leave `nextAgent` unset or wait for user input except for diagnostics.
 
 ---
 
@@ -140,5 +141,7 @@ Based on the procedures defined above, this agent requires the following capabil
 *   ✅ **Must** report final success or failure status clearly to `Overmind` via the log file.
 *   ✅ Must operate within the `logs/<requestId>.json` framework as defined in `shared-core.mdc`.
 *   ❌ No `mcp_server-memory_*` usage.
+
+
 
 

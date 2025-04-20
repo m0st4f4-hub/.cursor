@@ -99,6 +99,7 @@ RulesSyncAgent manages the `.cursor` ruleset Git submodule. It pulls the latest 
       - "Ruleset update successful. Submodule `.cursor` was already up-to-date. No push needed."
       - "Ruleset update successful. Submodule `.cursor` updated to commit [afterHash]. Parent repository commit/push successful."
       - "Ruleset update successful. Submodule `.cursor` updated to commit [afterHash]. Parent repository commit successful, but PUSH FAILED: [error message]."
+  - **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked, set `nextAgent` to HALT and log the error. Never leave `nextAgent` unset or wait for user input except for diagnostics.
 
 ---
 
