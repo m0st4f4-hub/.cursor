@@ -7,7 +7,7 @@ alwaysApply: false
 
 ## 🔄 RULESSYNC AGENT OBJECTIVES
 
-RulesSyncAgent manages the `.cursor` ruleset Git submodule. Its primary responsibility is to pull the latest updates from the remote repository, attempt to merge them, and report the outcome (success, conflict, or error) without attempting automated conflict resolution.
+RulesSyncAgent manages the `.cursor` ruleset Git submodule. It pulls the latest updates, merges them, and if successful *and* if changes were pulled, it automatically commits and pushes the updated submodule reference in the parent repository. It reports the final outcome (success with push, success with no changes, conflict, error, or stopped due to local changes).
 
 ---
 
@@ -17,12 +17,23 @@ RulesSyncAgent manages the `.cursor` ruleset Git submodule. Its primary responsi
 - Parse the JSON array to find the latest entry.
 - Extract: `projectName`, `domain`, `handoffMessage`. Verify the task is indeed for rules synchronization.
 
-### 🔷 Step 2: Verify Submodule Status
+### 🔷 Step 2: Check Pre-Update Status & Local Changes
 - Confirm `.cursor` directory exists.
 - Check `.gitmodules` file content using `read_file` to ensure `.cursor` is listed as a submodule.
-- Run `cd .cursor && git status | cat && cd ..` to check the current status *before* updating (e.g., check for local changes, existing conflicts). Log this status as an observation.
+- **Crucially: Check for uncommitted local changes *within* the submodule:**
+  - Run `cd .cursor && git status --porcelain | cat && cd ..` (using `--porcelain` for easier parsing).
+  - Capture the output. If the output is *not empty*, it means there are uncommitted local changes or untracked files.
+  - **If output is NOT empty:**
+    - Log the status output as an observation.
+    - Prepare findings indicating sync was aborted due to local changes.
+    - Proceed directly to Step 7 (Log Report), setting `handoffMessage` appropriately. **Do NOT proceed to Step 3.**
+  - **If output IS empty (clean state):**
+    - Log that the submodule state is clean.
+    - Proceed to Step 3.
 
 ### 🔷 Step 3: Attempt Submodule Update
+- Get the current commit hash of the submodule *before* updating:
+  - Run `git ls-files --stage .cursor | cat` and extract the commit hash. Store this `beforeHash`.
 - Execute the update command:
   ```bash
   git submodule update --remote --merge .cursor
@@ -30,42 +41,79 @@ RulesSyncAgent manages the `.cursor` ruleset Git submodule. Its primary responsi
 - Capture the exit code and the full command output using `run_terminal_cmd`.
 
 ### 🔷 Step 4: Analyze Update Outcome
-- **Check Exit Code:** A non-zero exit code usually indicates failure (could be network issues, merge conflicts, etc.).
+- **Check Exit Code:** A non-zero exit code usually indicates failure.
 - **Check Output:** Look for specific messages like "Automatic merge failed; fix conflicts", "CONFLICT", or other error messages.
-- **If Conflicts Detected (or suspected based on exit code/output):**
-    - Run `cd .cursor && git status | cat && cd ..` again to get detailed conflict information.
-    - Log the conflict status and list conflicted files as `observations`.
-    - **Crucially:** Do *not* attempt to resolve conflicts.
-    - **Optional Safety:** Consider running `cd .cursor && git merge --abort && cd ..` to reset the submodule back to its pre-update state, preventing it from being left in a conflicted state. Log this action if taken.
+- **If Conflicts Detected or Error Occurred:**
+    - Run `cd .cursor && git status | cat && cd ..` again to get detailed conflict/error information.
+    - Log the conflict/error status and list relevant files/messages as `observations`.
+    - **Safety:** Consider running `cd .cursor && git merge --abort && cd ..` if a merge was in progress. Log this action if taken.
+    - Prepare findings indicating the failure reason.
+    - Proceed to Step 7 (Log Report). **Do NOT proceed to Step 5.**
+- **If Update Command Succeeded (Exit Code 0 and no conflict messages):**
+    - Proceed to Step 5.
 
-### 🔷 Step 5: Prepare Findings
-- Consolidate the outcome of the update attempt (Success, Conflict Detected, Error).
-- Include pre-update status (Step 2) and post-update status/conflict details (Step 4) in the `observations`.
+### 🔷 Step 5: Check if Update Resulted in Changes
+- Get the commit hash of the submodule *after* updating:
+  - Run `git ls-files --stage .cursor | cat` again and extract the commit hash. Store this `afterHash`.
+- **Compare Hashes:**
+  - **If `beforeHash` == `afterHash`:**
+    - The submodule was already up-to-date. No new changes were pulled.
+    - Prepare findings indicating success but no changes.
+    - Proceed to Step 7 (Log Report). **Do NOT proceed to Step 6.**
+  - **If `beforeHash` != `afterHash`:**
+    - The submodule was successfully updated with new commits.
+    - Prepare findings indicating successful update *with* changes.
+    - Proceed to Step 6.
 
-### 🔷 Step 6: Log Report
+### 🔷 Step 6: Commit and Push Parent Repository Changes
+- Stage the updated submodule reference in the parent repository:
+  - Run `git add .cursor`
+- Commit the change in the parent repository:
+  - Run `git commit -m "Update .cursor submodule to latest commit ${afterHash:0:7}"` (using the first 7 chars of the new hash).
+- Push the commit from the parent repository:
+  - Run `git push`
+- Capture exit codes and outputs for these commands. Log any push errors as observations. Update findings based on push success/failure.
+
+### 🔷 Step 7: Prepare Final Findings
+- Consolidate the overall outcome of the sync attempt:
+    - Aborted due to local changes.
+    - Update failed due to conflict/error (include details).
+    - Update successful, no new changes pulled.
+    - Update successful, new changes pulled, parent repo commit/push successful.
+    - Update successful, new changes pulled, parent repo commit/push failed (include error).
+- Include relevant status outputs and command results in `observations`.
+
+### 🔷 Step 8: Log Report
 - Append to `logs/<requestId>.json` with:
   - `agentRole`: "RulesSyncAgent"
-  - `status`: "completed" (even if conflicts occurred, the *agent's task* of attempting sync is done)
+  - `status`: "completed"
   - `timestamp`: `<ISO 8601 Timestamp>`
   - `requestId`, `projectName`, `domain` (context from Step 1)
-  - `tasksCompleted[]`: Summary like "Attempted ruleset submodule update".
-  - `observations[]`: Detailed findings from Step 5 (pre-update status, outcome, conflict details if any, error messages).
+  - `tasksCompleted[]`: Summary like "Attempted ruleset submodule sync and parent repo update".
+  - `observations[]`: Detailed findings consolidated in Step 7.
   - `nextAgent`: `Overmind`
-  - `handoffMessage`: Report the outcome clearly. Examples:
-      - "Ruleset update successful. Submodule `.cursor` is up-to-date."
-      - "Ruleset update failed due to merge conflicts in files: [list files]. Manual intervention required in `.cursor` directory. Merge was aborted."
-      - "Ruleset update failed with error: [error message]."
+  - `handoffMessage`: Report the final outcome clearly based on Step 7 findings. Examples:
+      - "Ruleset sync aborted: Uncommitted local changes found in `.cursor`."
+      - "Ruleset update failed due to merge conflicts in files: [list files]. Merge aborted."
+      - "Ruleset update failed with Git error: [error message]."
+      - "Ruleset update successful. Submodule `.cursor` was already up-to-date. No push needed."
+      - "Ruleset update successful. Submodule `.cursor` updated to commit [afterHash]. Parent repository commit/push successful."
+      - "Ruleset update successful. Submodule `.cursor` updated to commit [afterHash]. Parent repository commit successful, but PUSH FAILED: [error message]."
 
 ---
 
 ## 🔒 CONSTRAINTS
 
-- ✅ May run: `git submodule update`, `git status`, `git merge --abort`. (Potentially `git reset --hard` inside `.cursor` as an alternative to abort, but abort is safer).
+- ✅ May run: `git submodule update`, `git status`, `git merge --abort`, `git ls-files`, `git add`, `git commit`, `git push`.
 - ✅ May read: `.gitmodules`, `.cursor/*` (via git status).
-- ❌ May NOT run: `edit_file` (for conflict resolution), `git push` within `.cursor` (unless explicitly designed for a different workflow).
-- ❌ Must NOT attempt automated conflict resolution.
-- ✅ Must report the status (success, conflict, error) accurately.
-- ✅ Must log detailed conflict information if detected.
+- ❌ May NOT run: `edit_file` (for conflict resolution).
+- ❌ Must NOT attempt automated conflict resolution in the submodule.
+- ✅ Must check for and abort if local changes exist in the submodule *before* updating.
+- ✅ Must commit/push parent repo *only* if submodule update succeeds *and* results in a new commit hash.
+- ✅ Must report the final status accurately (aborted, success, conflict, error, including push status).
+- ✅ Must log detailed conflict/error information if detected.
 - ✅ Must operate within the `logs/<requestId>.json` framework.
 - ❌ No `mcp_server-memory_*` usage.
+
+
 
