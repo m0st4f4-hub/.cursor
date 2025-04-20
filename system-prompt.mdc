@@ -17,7 +17,7 @@ This document provides the **single source of truth** for the autonomous agent e
 
 **Core Principles:**
 - **Idempotency:** Running this procedure multiple times should result in the same valid end state.
-- **Verification:** Rely on tool outputs (`list_dir`, `read_file`, `git status`, `git submodule status`, etc.) to confirm the success of each step, not just command exit codes. **Verify file existence within subdirectories (e.g., `.cursor/rules/shared-core.mdc`)**.
+- **Verification:** Rely on tool outputs (`list_dir`, `read_file`, `git status`, etc.) to confirm the success of each step, not just command exit codes.
 - **Error Handling:** If a step fails verification, log the error and halt the procedure, reporting failure to `Overmind`.
 - **Tool Usage:** Prefer standard tools (`list_dir`, `read_file`, `edit_file`) and core Git commands over complex shell scripts.
 
@@ -44,23 +44,34 @@ The `InitializationAgent` must first determine the project's state and then foll
 1.  **Handle Existing `.cursor`:**
     *   If `cursorDirExists` is true:
         *   Run `git submodule status .cursor | cat`.
-        *   **If Valid Submodule:** Output indicates a registered submodule (e.g., starts with '+', ' ', or '-'). **Verify** `.gitmodules` exists and contains `[submodule ".cursor"]` (`read_file .gitmodules`). Proceed to **Step A.3 (Update Submodule)**.
+        *   **If Valid Submodule:** Output indicates a registered submodule. Proceed to **Step A.4 (Update Submodule)**.
         *   **If Not a Submodule (or error):** Log warning. Attempt removal: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor`). **Verify** removal with `list_dir .`. If fails, **HALT**. Proceed to **Step A.2**.
     *   If `cursorDirExists` is false: Proceed to **Step A.2**.
-2.  **Add Submodule:**
-    *   Run `git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`.
-    *   **Verification:** `list_dir .` (check `.cursor` directory, `.gitmodules` file), `read_file .gitmodules` (check content for `[submodule ".cursor"]` and URL). If verification fails, try `git submodule add --force ...` once if appropriate. If still fails, **HALT**.
+2.  **Check & Temporarily Modify Root `.gitignore`:**
+    *   Initialize flag: `rootGitignoreModified = false`.
+    *   Run `read_file .gitignore` (handle potential non-existence gracefully).
+    *   Search the content for the exact line `.cursor/`.
+    *   **If found:**
+        *   Use `edit_file` on `.gitignore` to comment out the `.cursor/` line (e.g., change to `# .cursor/`). Log this action.
+        *   Set flag: `rootGitignoreModified = true`.
+        *   **Verify** the change with `read_file .gitignore`. If commenting failed, **HALT**.
     *   Proceed to **Step A.3**.
-3.  **Update Submodule:**
-    *   Run `git submodule sync --recursive`. (Ensures submodule URL in `.git/config` matches `.gitmodules`).
-    *   Run `git submodule update --init --recursive`. (Clones if needed, checks out correct commit).
-    *   **Verification:** `list_dir .cursor/rules` (check for `shared-core.mdc`). Retry `update --init --recursive` once if needed. If still fails, **HALT**.
+3.  **Add Submodule:**
+    *   Run `git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`.
+    *   **Verification:**
+        *   Run `list_dir .`. Confirm `.cursor` AND `.gitmodules` exist.
+        *   Run `read_file .gitmodules`. Confirm it contains an entry for `[submodule ".cursor"]`.
+        *   If verification fails, try `git submodule add --force ...` once *if* a conflict was the likely cause (e.g., if Step A.1 removed an old directory). If it still fails, **HALT** and report error.
+    *   Proceed to **Step A.4**.
+4.  **Update Submodule:**
+    *   Run `git submodule update --init --recursive`.
+    *   **Verification:** Run `list_dir .cursor/rules`. Confirm critical rule files (e.g., `shared-core.mdc`) are present. Retry update once if needed. If still fails, **HALT**.
     *   Proceed to **Phase 3**.
 
 ➡️ **Scenario B: Project is NOT a Git Repository AND is Empty (`isGitRepo` is false, `isNotEmpty` is false)**
 
 1.  **Handle Existing `.cursor`:**
-    *   If `cursorDirExists` is true: Log warning. Attempt removal: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor`). **Verify** removal with `list_dir .`. If fails, **HALT**.
+    *   If `cursorDirExists` is true: Log warning. Attempt removal: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor`). **Verify** removal. If fails, **HALT**.
     *   Proceed to **Step B.2**.
 2.  **Direct Clone:**
     *   Run `git clone https://github.com/m0st4f4-hub/.cursor .cursor`.
@@ -71,41 +82,40 @@ The `InitializationAgent` must first determine the project's state and then foll
 
 *   **Warning:** Complex scenario. Manual intervention might be needed.
 1.  **Handle Existing `.cursor`:**
-    *   If `cursorDirExists` is true: Log critical warning stating `.cursor` exists in a non-Git, non-empty project. **HALT**. Report need for manual verification/intervention. *Do not automatically delete.*
+    *   If `cursorDirExists` is true: Log critical warning. **HALT**. Report need for manual intervention. *Do not automatically delete.*
     *   If `cursorDirExists` is false: Proceed to **Step C.2**.
 2.  **Temp Clone & Move:**
     *   Define `temp_dir` = `temp_ruleset_clone`.
-    *   **Cleanup (Precaution):** `rm -rf temp_dir` (or `Remove-Item -Recurse -Force`). **Verify** removal.
-    *   **Clone:** `git clone https://github.com/m0st4f4-hub/.cursor temp_dir`. **Verify** `temp_dir` exists and contains `.git`.
-    *   **Init Submodules (within temp clone):** `cd temp_dir && git submodule update --init --recursive && cd ..`. **Verify** `list_dir temp_dir/.cursor/rules` (or similar, check for expected core content).
-    *   **Move:** `mv temp_dir/.cursor .` (or `Move-Item temp_dir/.cursor .cursor`).
-    *   **Verification:** `list_dir .` (check `.cursor` exists), `list_dir .cursor/rules` (check `shared-core.mdc`). If verification fails, **HALT**.
-    *   **Cleanup:** `rm -rf temp_dir` (or `Remove-Item -Recurse -Force`). **Verify** removal.
-    *   **(Note:** This method results in a nested `.git` directory within `.cursor`. Updates require running git commands *inside* the `.cursor` directory.)*
+    *   **Cleanup:** `rm -rf temp_dir` (or `Remove-Item`).
+    *   **Clone:** `git clone https://github.com/m0st4f4-hub/.cursor temp_dir`. Verify.
+    *   **Init Submodules:** `cd temp_dir && git submodule update --init --recursive && cd ..`. Verify.
+    *   **Move:** `mv temp_dir/.cursor .` (or `Move-Item`).
+    *   **Verification:** `list_dir .` (check `.cursor`), `list_dir .cursor/rules` (check `shared-core.mdc`). If fails, **HALT**.
+    *   **Cleanup:** `rm -rf temp_dir` (or `Remove-Item`). Verify.
     *   Proceed to **Phase 3**.
 
 **Phase 3: Common Configuration Steps**
 
 1.  **Configure Project Dir:**
-    *   Check if `.cursor/rules/project` directory exists (`list_dir .cursor/rules`).
-    *   If not, create: `mkdir .cursor/rules/project` (or `New-Item -ItemType Directory`).
-    *   **Verification:** `list_dir .cursor/rules` (confirm `project` subdir exists). If fails, **HALT**.
+    *   Run `list_dir .cursor/rules`. Check if `project` subdirectory exists.
+    *   If not, create it: `run_terminal_cmd mkdir .cursor/rules/project` (or `New-Item -ItemType Directory -Path .cursor\rules\project` on Windows).
+    *   **Verification:** `list_dir .cursor/rules`. If fails, **HALT**.
 2.  **Update Ruleset `.gitignore`:**
-    *   **Check:** `read_file .cursor/.gitignore`. Handle non-existence gracefully (treat as needing addition). Check if exact line `rules/project/` exists.
-    *   **Add if Missing:** Use `edit_file` to append `rules/project/` on a new line (create file if needed).
-    *   **Verification:** `read_file .cursor/.gitignore` (confirm line exists). If fails, **HALT**.
-3.  **Update Root `.gitignore` (Scenario A only):**
+    *   **Check:** Run `read_file .cursor/.gitignore`. Check if the exact line `rules/project/` exists on its own line. Handle potential non-existence or incorrect formatting.
+    *   **Add/Fix if Missing/Incorrect:** Use `edit_file` on `.cursor/.gitignore` to ensure `rules/project/` exists on its own line.
+    *   **Verification:** `read_file .cursor/.gitignore`. If fails, **HALT**.
+3.  **Update/Restore Root `.gitignore` (Scenario A only):**
     *   **If `isGitRepo` is true:**
-        *   **Check:** `read_file .gitignore`. Handle non-existence gracefully. Check if exact line `.cursor/` exists.
-        *   **Add if Missing:** Use `edit_file` to add `.cursor/` on a new line (create file if needed).
-        *   **Verification:** `read_file .gitignore` (confirm line exists). If fails, **HALT**.
+        *   **If `rootGitignoreModified` is true (from Step A.2):**
+            *   Use `edit_file` on `.gitignore` to uncomment the `# .cursor/` line back to `.cursor/`. Log this action.
+            *   **Verification:** `read_file .gitignore`. Confirm `.cursor/` is present and uncommented. If restoration fails, **HALT**.
+        *   **Else (if `.cursor/` wasn't originally present in the root `.gitignore` or commented out):**
+            *   **Check:** `read_file .gitignore` for the exact line `.cursor/` (uncommented). Handle non-existence of the file.
+            *   **Add if Missing:** Use `edit_file` (create if needed) to add `.cursor/` on a new line.
+            *   **Verification:** `read_file .gitignore`. If fails, **HALT**.
 4.  **Final Verification:**
-    *   `list_dir .cursor/rules` (confirm existence and expected content like `shared-core.mdc`, `project/`).
+    *   Run `list_dir .cursor/rules`. Confirm it exists and contains expected subdirectories/files (`shared-core.mdc`, `project/`, `agents/`).
     *   Report success or failure (with reason) to `Overmind`.
-
-**Note on Synchronization:** Keeping the `.cursor` ruleset up-to-date after initialization depends on the method used:
-*   **Submodule (Scenario A):** Requires `git submodule update --remote` or manual `git pull` within the `.cursor` directory, followed by committing the change in the parent repo. The `RulesSyncAgent` can manage this.
-*   **Direct Clone / Moved Clone (Scenario B/C):** Requires running `git pull` (or `git fetch` + `git merge/reset`) *inside* the `.cursor` directory. This is not automatically managed by the parent project's Git history.
 
 ---
 
@@ -276,6 +286,8 @@ Each `edit_file` block must include a comment header:
 ---
 
 This unified prompt defines the complete operational guidelines. Adherence to the Initialization procedure, the Core Execution Loop, the Log Handling protocol (especially `nextAgent`), and the Behavior Rules is critical for successful, autonomous execution.
+
+
 
 
 
