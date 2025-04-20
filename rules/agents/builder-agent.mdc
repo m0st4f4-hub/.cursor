@@ -10,18 +10,16 @@ alwaysApply: true
 BuilderAgent transforms discovery into implementation. It executes planned behavior, modifies code, and prepares the project for styling, QA, or refactoring.
 
 ### 🔷 Step 1: Read assignment
-- Parse `agents/BuilderAgent.json`:
-  - `requestId`, `projectName`, `domain`, `handoffMessage`
+- Get `requestId` from the assigned MCP task or triggering log entry.
+- Read the request log file: `logs/<requestId>.json`.
+- Parse the JSON array to find the latest entry (usually assignment from Overmind or ResearchAgent).
+- Extract: `projectName`, `domain`, `handoffMessage`, and relevant `observations` from prior agents in the log.
 
-### 🔷 Step 2: Load all available context
-- Memory:
-  - `read_graph`, `open_nodes`, `search_nodes`
-- Agent files:
-  - ResearchAgent (priority), Overmind, others in `agents/*.json`
-  - Extract:
-    - Observations
-    - Recommendations
-    - Component targets
+### 🔷 Step 2: Load implementation context
+- Request Log:
+  - Further analyze entries within `logs/<requestId>.json` (read in Step 1) for specific requirements, targets, or constraints mentioned in prior `observations`.
+- Codebase Files:
+  - Use `file_search`, `read_file`, `grep_search` based on the `handoffMessage` and `observations` to locate target files/functions for implementation.
 
 ### 🔷 Step 3: Inspect codebase
 - Navigate and analyze:
@@ -35,18 +33,21 @@ BuilderAgent transforms discovery into implementation. It executes planned behav
 - Runtime:
   - `run_terminal_cmd` for CLI builds, cache clears, etc.
 
-### 🔷 Step 5: Register structure in memory
-- Create:
-  - `create_entities`, `create_relations`, `add_observations`
-  - E.g., "Component: MiniCart", "Implements: StickyBehavior"
+### 🔷 Step 5: Prepare Findings
+- Consolidate notes on the implementation performed (Step 4).
+- Structure these as `observations` for the log entry in Step 6.
+  - Examples: "Implemented sticky behavior for MiniCart component in file X.", "Added new function Y to handle Z."
 
 ### 🔷 Step 6: Write execution report
-- Overwrite `agents/BuilderAgent.json` with:
-  - `status: completed`
-  - `tasksCompleted[]`: action summaries, files touched
-  - `observations[]`: notes for styling, QA, or refactor
-  - `nextAgent`: e.g. `StylingAgent`, `AuditAgent`
-  - `handoffMessage`: specific TODO for downstream agents
+- Append to `logs/<requestId>.json` with:
+  - `agentRole`: "BuilderAgent"
+  - `status`: "completed"
+  - `timestamp`: `<ISO 8601 Timestamp>`
+  - `requestId`, `projectName`, `domain` (context from Step 1)
+  - `tasksCompleted[]`: action summaries, files touched (e.g., "Implemented feature A in file B", "Ran build command").
+  - `observations[]`: Notes on implementation from Step 5, plus any specific notes for the next agent (styling, audit, refactor).
+  - `nextAgent`: Determine based on context (e.g., `StylingAgent`, `AuditAgent`, `RefactorAgent`).
+  - `handoffMessage`: Specific TODO for the determined `nextAgent`.
 
 ---
 
@@ -54,6 +55,8 @@ BuilderAgent transforms discovery into implementation. It executes planned behav
 
 - ✅ May run `run_terminal_cmd` as needed
 - ✅ May edit any relevant file (≤ 250 LOC)
-- ❌ May not
+- ✅ Must consume context primarily from the `logs/<requestId>.json` file
+- ✅ Must log implementation details and notes for the next agent as `observations`
+- ❌ No `mcp_server-memory_*` usage
 
 

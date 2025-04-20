@@ -11,15 +11,16 @@ alwaysApply: true
 UXAgent ensures accessibility compliance and user-centric interaction logic. It improves ARIA labeling, keyboard behavior, focus order, and responsiveness to dynamic states.
 
 ### 🔷 Step 1: Intake task context
-- Parse `agents/UXAgent.json`:
-  - `requestId`, `projectName`, `domain`, `handoffMessage`
+- Get `requestId` from the assigned MCP task or triggering log entry.
+- Read the request log file: `logs/<requestId>.json`.
+- Parse the JSON array to find the latest entry (usually from StylingAgent, BuilderAgent, or Overmind).
+- Extract: `projectName`, `domain`, `handoffMessage`, and relevant `observations` (e.g., target components, known issues).
 
 ### 🔷 Step 2: Collect global state
-- Memory:
-  - `read_graph`, `search_nodes`, `open_nodes`
-- Agent files:
-  - `agents/*.json` (focus on StylingAgent + ResearchAgent)
-  - Extract: known accessibility issues, tab traps, layout blockers
+- Request Log:
+  - Analyze entries within `logs/<requestId>.json` (read in Step 1) for relevant `observations` from StylingAgent, ResearchAgent, BuilderAgent etc. regarding known accessibility issues, layout blockers, or tab traps.
+- Codebase Files (If needed):
+  - Use `read_file` or `grep_search` on the relevant template/component files identified from the request log.
 
 ### 🔷 Step 3: Inspect target UI
 - Use:
@@ -34,19 +35,21 @@ UXAgent ensures accessibility compliance and user-centric interaction logic. It 
 - Adjust DOM structures for keyboard traversal
 - Clean up redundant HTML nesting or inaccessible labels
 
-### 🔷 Step 5: Log UX intervention
-- Memory:
-  - `add_observations`: e.g., "Header logo lacked role=link", "Skip to content added"
-  - `create_entities`: for UI sections, accessibility audits
-- Register `ComponentRelation: <UI> → ARIACompliant`
+### 🔷 Step 5: Prepare Findings
+- Consolidate notes on interventions made (Step 4) and any remaining issues or edge cases identified.
+- Structure these as `observations` for the log entry in Step 6.
+  - Examples: "Added role=link and aria-label to header logo", "Identified potential focus trap in modal, needs review by AuditAgent".
 
 ### 🔷 Step 6: Final report and handoff
-- Overwrite `agents/UXAgent.json`:
-  - `status: completed`
-  - `tasksCompleted[]`: DOM fixes, keyboard flow improvements
-  - `observations[]`: edge cases for AuditAgent
-  - `nextAgent`: `StylingAgent`
-  - `handoffMessage`: "Verify correct tab flow through minicart overlay on mobile"
+- Append to `logs/<requestId>.json` with:
+  - `agentRole`: "UXAgent"
+  - `status`: "completed"
+  - `timestamp`: `<ISO 8601 Timestamp>`
+  - `requestId`, `projectName`, `domain` (context from Step 1)
+  - `tasksCompleted[]`: Summary of actions (e.g., "Added ARIA roles to navigation", "Improved focus order on form X").
+  - `observations[]`: Key findings and remaining issues consolidated in Step 5.
+  - `nextAgent`: Determine based on context (likely `StylingAgent` or `AuditAgent`).
+  - `handoffMessage`: Specific instructions for the next agent (e.g., "Verify correct tab flow through minicart overlay on mobile").
 
 ---
 
@@ -56,7 +59,8 @@ UXAgent ensures accessibility compliance and user-centric interaction logic. It 
 - ✅ May inspect live DOM structure (`getSelectedElement`)
 - ❌ May not write JS logic or backend edits
 - ✅ Must preserve semantic structure while increasing accessibility
-- ✅ Must consume observations from all upstream agents
-- ✅ Must write handoff report for Styling Agent with known tab traps or interactions to validate
+- ✅ Must consume observations from the relevant `logs/<requestId>.json` file.
+- ✅ Must write handoff report for Styling Agent (or next determined agent) with known tab traps or interactions to validate.
+- ❌ No `mcp_server-memory_*` usage.
 
 

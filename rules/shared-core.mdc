@@ -1,8 +1,32 @@
 ---
-description: Shared core execution rules with historical append-only coordination
+description: Shared core execution rules with historical append-only coordination and Cursor ruleset bootstrap
 globs: ["**/*"]
 alwaysApply: true
 ---
+## 🧭 CURSOR RULESET INITIALIZATION (REQUIRED)
+
+All agents must verify the presence of the shared `.cursor/` ruleset before execution.
+
+### ✅ Initialization Procedure
+1. **Check for Existence**
+   - Confirm that the `.cursor/` directory exists at the project root.
+
+2. **Clone if Missing**
+   - If missing, execute:
+     ```bash
+     git clone https://github.com/m0st4f4-hub/.cursor .cursor
+     ```
+   - This pulls in the standard agent ruleset (`.mdc` files, shared coordination logic).
+
+3. **Enforce Location**
+   - Cloning must be into `.cursor/` only — do **not** clone into `.` if other files exist.
+   - Clean up any failed attempts or residual `temp_cursor_clone/` folders before retrying.
+
+4. **Verify Rules Directory**
+   - After cloning, ensure `.cursor/rules/` exists and includes this file (`@shared-core.mdc`).
+
+---
+
 ## 🚀 AGENT ROLES & ENTRY FILES
 
 | Agent Role     | Purpose                                        | Rules File            |
@@ -22,10 +46,13 @@ alwaysApply: true
 ## 🔁 INDESTRUCTIBLE EXECUTION LOOP
 
 ### Step 1: Load context
-- Read: `agents/<agent_role>.json` → **last object** (Primary Context Source)
+- Requires `requestId`.
+- Read: `logs/<requestId>.json` (Primary Context Source for the request).
+- Parse the JSON array. Identify the latest entry overall, and potentially latest entries from relevant prior agents (`ResearchAgent`, `BuilderAgent`, etc.) based on the `handoffMessage` of the *absolute* latest entry or the task description.
 - Extract:
-  - `requestId`, `projectName`, `domain`, `nextAgent`, `handoffMessage`
-- Scan `agents/*.json` (all files, latest entries) for related context if needed.
+  - `projectName`, `domain` (from latest entry or assignment)
+  - `nextAgent`, `handoffMessage` (from the triggering entry/task)
+- If more context is needed, scan older entries within `logs/<requestId>.json`.
 
 ### Step 2: Get MCP task
 - `mcp_taskmanager_get_next_task`
@@ -33,27 +60,19 @@ alwaysApply: true
 
 ### Step 3: If task is missing:
 - ⛔️ No task? No handoff?
-  - ✅ Surf **MCP task logs**: `mcp_taskmanager_list_requests`
-  - ✅ Scan **all agent files**: `agents/*.json` (Focus on `nextAgent`, `observations`, `handoffMessage` in latest entries)
-  - ✅ Parse unresolved entries, pending domains, unclosed loops
-  - ✅ Infer next agent from:
-    - `nextAgent` of last completed task across all agents
-    - Most common escalations
-    - Pending `observations[]` mentioning other roles
+  - Requires a known `requestId` to investigate. If `requestId` is unknown, cannot proceed with this logic.
+  - ✅ Surf **MCP task logs** for the `requestId`: `mcp_taskmanager_list_requests` / `mcp_taskmanager_open_task_details`
+  - ✅ Scan **request log file**: `logs/<requestId>.json`. Focus on `nextAgent`, `observations`, `handoffMessage` in latest entries.
+  - ✅ Infer next agent based on the state within this specific request's log.
 
 - Once inferred:
   - 👉 Self-refactor:
     - Change own role in-memory
     - Jump into next agent ruleset
-    - Restart loop as `BuilderAgent`, `AuditAgent`, etc.
-
-- Write new self-assignment to:
-  - `agents/<newAgent>.json`
-
----
+    - Restart loop as `BuilderAgent`, `AuditAgent`, etc. (logging the mutation in Step 9).
 
 ### Step 4: Analyze Codebase Context
-- Based on `handoffMessage` and `observations` gathered in Step 1:
+- Based on `handoffMessage` and `observations` gathered in Step 1 from `logs/<requestId>.json`:
   - `file_search`, `read_file`, `grep_search`, `codebase_search`
 
 ### Step 5: Gather External Context (If Needed)
@@ -71,49 +90,52 @@ alwaysApply: true
 
 ### Step 7: Prepare Findings / Observations
 - Consolidate key findings, analysis results, or outcomes of actions taken.
-- Structure these as clear, actionable `observations` for the log file.
+- Structure these as clear, actionable `observations` for the log file entry in Step 9.
 
 ### Step 8: Finalize Task
 - `mcp_taskmanager_mark_task_done`
-- `mcp_taskmanager_approve_task_completion`
+- `mcp_taskmanager_approve_task_completion` (Note: Needs user interaction as per MCP rules)
 
-### Step 9: Log To Agent File (Primary Memory)
-- Append to `agents/<agent_role>.json`:
+### Step 9: Log To Request File
+- Append to `logs/<requestId>.json`:
   ```json
   {
-    "requestId": "...",
+    "requestId": "...", // Already known
+    "agentRole": "<current_agent_role>", // Add the role of the agent logging
     "timestamp": "<ISO 8601 Timestamp>", 
     "projectName": "...",
     "domain": "...",
-    "status": "completed",
-    "tasksCompleted": [...],
-    "observations": [
-      // Detailed findings from Step 7
+    "status": "completed", // Or "assigned" if self-mutating in Step 3
+    "tasksCompleted": [...], // Summary of tasks done in this step
+    "observations": [ // Detailed findings from Step 7
+      // ...
     ],
     "nextAgent": "...", // Determined by workflow logic
     "handoffMessage": "...", // Clear instructions for the next agent
-    "selfMutatedFrom": "<priorAgent>" // if role was escalated automatically
+    "selfMutatedFrom": "<priorAgent>" // Optional: Set if self-mutating from Step 3
   }
   ```
 
 ### Step 10: Repeat
-- If no next task → escalate to **next logical agent role** (using logic from Step 3)
-- If still ambiguous → become `RunnerAgent`, perform environmental scan (see RunnerAgent rules), surface findings.
-- Loop indefinitely
+- If no next task from MCP (Step 2) → attempt self-evolution using Step 3 logic.
+- If self-evolution occurs, the loop restarts with the new agent role, loading context from the same `logs/<requestId>.json`.
+- Loop indefinitely within the scope of the `requestId`.
 
 ---
 
 ## 📁 COORDINATION & MEMORY
 
-- **Primary Memory:** The `agents/*.json` files serve as the shared knowledge base.
-- **Format:** JSON array per agent file.
-- **Action:** Always **append** new entries. Read the **latest entry** first for current context, scan older entries/other files if necessary for history.
-- **Content:** Ensure `observations` and `handoffMessage` are detailed and provide sufficient context for the next agent.
-- ❌ Never truncate or overwrite agent files.
+- **Primary Memory:** The request-specific log files (`logs/<requestId>.json`) serve as the shared knowledge base for each execution flow.
+- **Format:** JSON array per request file. Each entry includes the `agentRole`.
+- **Action:** Always **append** new entries. Read relevant entries within the file for context.
+- **Content:** Ensure `observations` and `handoffMessage` provide context *within the request*.
+- ❌ Never truncate or overwrite request log files.
 
 ---
 
 ## 🛠 MANDATORY MCP TOOLCHAIN
+
+This section lists the core tools expected to be available and potentially used by most agents. Individual agent rule files (`agents/*.mdc`) may specify additional specialized tools relevant to their specific role (e.g., `runPerformanceAudit` for AuditAgent, `getSelectedElement` for UXAgent).
 
 | Tool                      | Purpose                            |
 |---------------------------|------------------------------------|
@@ -153,10 +175,12 @@ Each edit block must include:
 
 ---
 
-Include this file in every `.mdc` agent ruleset via:
+## 🔗 INCLUSION
+
+All `.mdc` rulesets must begin with:
 
 ```md
 @shared-core.mdc
 ```
 
-This guarantees autonomous operation, using agent files as shared memory, and requesting user help only for necessary diagnostics.
+This ensures Cursor compliance, rule bootstrap via `.cursor/`, and agent behavior coordination across all roles.

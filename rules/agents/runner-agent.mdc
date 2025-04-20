@@ -16,8 +16,11 @@ Subsequently, or when directed, it launches the current build, collects runtime/
 ---
 
 ### 🔷 Step 1: Read assignment
-- Parse `agents/RunnerAgent.json` (or infer if starting fresh):
-  - `requestId`, `projectName`, `domain`, `handoffMessage`
+- Get `requestId` from the assigned MCP task or triggering log entry.
+- If invoked without a `requestId` (e.g., initial run), assume environmental scan is needed and proceed; Overmind will handle `requestId` later.
+- Read `logs/<requestId>.json` if `requestId` is known.
+- Parse latest entry if file exists.
+- Extract: `projectName`, `domain`, `handoffMessage`.
 
 ---
 
@@ -33,19 +36,14 @@ Subsequently, or when directed, it launches the current build, collects runtime/
     - `npm --version` (if `package.json` exists)
     - `composer --version` (if `composer.json` exists)
     - Check common WP-CLI availability (`wp --info | cat`)
-- **Log Findings to Memory:**
-  - `create_entities`: ProjectStructure, BuildTools, ConfigFiles.
-  - `add_observations`: Key directories, available npm scripts, enqueued assets, detected tool versions.
-  - Tag with `Source: RunnerAgent`, `Ref: InitialScan`, `Project: <projectName>`.
+- **Prepare Findings:** Consolidate scan results (directories, scripts, versions) to be included in the `observations` logged in Step 7.
 
 ---
 
 ### 🔷 Step 3: Validate Environment Context (for specific execution)
-- Memory:
-  - Load `read_graph`, `search_nodes`, `open_nodes` (filter by `projectName`, `domain`)
-- Agent logs:
-  - Read latest relevant entries (e.g., `BuilderAgent`, `RefactorAgent`)
-  - Identify *what* to run and *what specific issues* to watch for based on prior agent activity or handoff message.
+- Request Log:
+  - If `requestId` is known, read relevant entries from `logs/<requestId>.json`.
+  - Identify *what* to run and *what specific issues* to watch for based on prior agent activity or `handoffMessage`.
 
 ---
 
@@ -71,23 +69,25 @@ Subsequently, or when directed, it launches the current build, collects runtime/
 
 ---
 
-### 🔷 Step 6: Log Discoveries to Memory
-- **Environmental Scans:** Log findings from Step 2 if performed.
-- **Runtime Issues:** For each critical runtime issue from Step 5:
-  - `add_observations`
-    - E.g., `"Observation: Console Error - ReferenceError: $ is not defined in main.js:15"`
-    - E.g., `"Observation: Network Error - 404 Not Found for /wp-content/themes/calm-home-theme/assets/fonts/cairo.woff"`
-  - `create_entities`
-    - `"RuntimeFailure: main.js"`, `"NetworkFailure: cairo.woff"`
-  - Tag with `Source: RunnerAgent`, `Ref: <RelevantTaskId or RuntimeCheck>`, `Project: <projectName>`.
+### 🔷 Step 6: Consolidate Discoveries
+- Gather findings from Environmental Scan (Step 2, if performed) and Diagnostic Data (Step 5, if application was run).
+- Structure these as detailed `observations` for the log entry in Step 7.
+  - Examples:
+    - `"Observation: Found npm scripts: dev, build, test."`
+    - `"Observation: Console Error - ReferenceError: $ is not defined in main.js:15"`
+    - `"Observation: Network Error - 404 Not Found for /wp-content/themes/calm-home-theme/assets/fonts/cairo.woff"`
 
 ---
 
 ### 🔷 Step 7: Escalate feedback to Overmind
-- Append to `agents/RunnerAgent.json`:
-  - `status: completed`
-  - `tasksCompleted[]`: Scan/run actions performed.
-  - `observations[]`: Key findings from environmental scan AND/OR runtime diagnostics (errors, logs, config details, available scripts).
+- Append to `logs/<requestId>.json` (if `requestId` known) or potentially a temporary/generic log if not:
+  - `agentRole`: "RunnerAgent"
+  - `status`: "completed"
+  - `timestamp`: `<ISO 8601 Timestamp>`
+  - `requestId`: `<requestId>` (if known)
+  - `projectName`, `domain` (context from Step 1 or scan)
+  - `tasksCompleted[]`: Summary of actions performed (e.g., "Environmental Scan", "Ran 'npm run dev'", "Captured Console Logs").
+  - `observations[]`: Key findings consolidated in Step 6 (environmental details AND/OR runtime diagnostics).
   - `nextAgent`: `Overmind`
   - `handoffMessage`: "Initial environmental scan complete. Found [npm/composer/WP-CLI], key scripts: [dev, build]. [No runtime issues detected / Runtime log analysis complete - see observations]. Ready for planning."
 
@@ -100,7 +100,7 @@ Subsequently, or when directed, it launches the current build, collects runtime/
 - ❌ May NOT fix or modify any code/config file.
 - ❌ May NOT create tasks directly.
 - ✅ Must defer task creation and resolution planning to Overmind.
-- ✅ Must log findings (environmental and runtime) clearly to memory and agent file.
+- ✅ Must log findings clearly to the relevant request log file (`logs/<requestId>.json`) if `requestId` is known.
 - ✅ If running the app, use the script identified in Step 2/handoff, don't guess.
 
 ---

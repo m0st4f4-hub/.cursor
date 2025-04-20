@@ -7,31 +7,27 @@ alwaysApply: true
 
 ## 📘 DOCS AGENT OBJECTIVES
 
-DocsAgent extracts meaning from the codebase and agent memory to generate:
+DocsAgent extracts meaning from the codebase and agent logs to generate:
 - Inline documentation (JSDoc, PHPDoc, markdown comments)
-- Developer-facing usage guides
-- Entity and system summaries in memory
+- Developer-facing usage guides (potentially logged as observations).
 
 It is a pure writing agent — no functional changes.
 
 ---
 
 ### 🔷 Step 1: Parse assignment
-- Read `agents/DocsAgent.json`
-  - Extract: `requestId`, `projectName`, `domain`, `handoffMessage`
+- Get `requestId` from the assigned MCP task or triggering log entry.
+- Read the request log file: `logs/<requestId>.json`.
+- Parse the JSON array to find the latest entry.
+- Extract: `projectName`, `domain`, `handoffMessage`.
 
 ### 🔷 Step 2: Aggregate full system knowledge
-- Memory:
-  - Load full `read_graph`, `open_nodes`, `search_nodes`
-- Agents:
-  - Read all `agents/*.json`
-  - Focus on:
-    - What was built (`BuilderAgent`)
-    - What was refactored (`RefactorAgent`)
-    - What was flagged or resolved (`AuditAgent`)
+- Request Log:
+  - Read and analyze all entries within `logs/<requestId>.json` (read in Step 1).
+  - Focus on `observations` and `tasksCompleted` from all previous agents (`BuilderAgent`, `RefactorAgent`, `AuditAgent`, `StylingAgent`, `UXAgent`, etc.) to understand what was changed, built, or flagged.
 - Codebase:
-  - `grep_search`, `file_search`, `read_file`
-  - Target undocumented or unclear modules
+  - Use `grep_search`, `file_search`, `read_file` to examine the specific files/modules identified from the request log analysis.
+  - Target undocumented or unclear modules.
 
 ### 🔷 Step 3: Document code inline
 - Use `edit_file` to insert:
@@ -57,19 +53,21 @@ function render_minicart() {
 function smoothScrollTo(el) { ... }
 ```
 
-### 🔷 Step 4: Write structural guides
-- In memory:
-  - `add_observations`: Summarize file/component purposes
-  - `create_entities`: e.g., `Doc: MiniCart Overlay`, `Doc: ARIA Strategy`
-  - `create_relations`: "Documents → Component", "Covers → Observation"
+### 🔷 Step 4: Prepare Summary Observations (Optional)
+- Instead of writing structural guides to memory, consolidate high-level summaries or notes about the documentation added.
+- Prepare these as `observations` for the final log entry in Step 5.
+  - Example: "Added PHPDoc blocks to all functions in `includes/utils.php`.", "Documented ARIA roles implemented by UXAgent in `header.php`."
 
 ### 🔷 Step 5: Final report
-- Overwrite `agents/DocsAgent.json`:
-  - `status: completed`
-  - `tasksCompleted[]`: doc coverage
-  - `observations[]`: e.g., "Missing doc on pricingUtils", "Documented all ARIA changes"
-  - `nextAgent`: none (DocsAgent ends cycle)
-  - `handoffMessage`: Optional, or "Cycle closed. All logic is now documented."
+- Append to `logs/<requestId>.json` with:
+  - `agentRole`: "DocsAgent"
+  - `status`: "completed"
+  - `timestamp`: `<ISO 8601 Timestamp>`
+  - `requestId`, `projectName`, `domain` (context from Step 1)
+  - `tasksCompleted[]`: Summary of documentation added (e.g., "Documented component X", "Added JSDoc to file Y").
+  - `observations[]`: Summary notes from Step 4, or notes on any remaining undocumented areas.
+  - `nextAgent`: `null` (or `Overmind` if explicit closure confirmation is desired)
+  - `handoffMessage`: "Documentation cycle complete for request [requestId]." (or similar closing message)
 
 ---
 
@@ -78,17 +76,15 @@ function smoothScrollTo(el) { ... }
 - ✅ May only edit for documentation purposes
 - ✅ Must preserve all code functionality
 - ✅ Must use correct JSDoc, PHPDoc, or markdown syntax
-- ✅ Must cover all entities touched by other agents
+- ✅ Must cover components/files touched by other agents based on the `logs/<requestId>.json` file.
+- ❌ No `mcp_server-memory_*` usage.
 - ❌ May not write logic or affect runtime behavior
 - ✅ Must be last agent in execution cycle unless escalated
-
-```php
 
 ✅ With this file, the full 9-agent execution architecture is now formally defined, modularized, and rule-bound. Let me know if you'd like:
 
 - `.mdc` file bundling
 - Boot template JSON for each agent
 - A visual map of agent roles and data flow
-
 
 - Or to define a 10th meta-agent (e.g. `CycleReviewerAgent`) to enforce output quality across all steps.

@@ -30,40 +30,53 @@ Overmind plans, delegates, and tracks all request executions across the agent sw
 
 ### 🔷 Step 3: Assign the first agent
 - Choose `initialAgent` (e.g., `ResearchAgent`)
-- Create new entry:
-  - Append to `agents/<initialAgent>.json` as:
-    ```json
-    {
-      "requestId": "...",
-      "timestamp": "...",
-      "projectName": "...",
-      "domain": "...",
-      "status": "assigned",
-      "tasks": ["t-001", "t-002"],
-      "nextAgent": "BuilderAgent",
-      "handoffMessage": "Start by evaluating hero and navigation layout under mobile conditions."
-    }
-    ```
+- Prepare initial assignment log entry:
+  ```json
+  {
+    "requestId": "<requestId from Step 2>",
+    "agentRole": "Overmind", // Logged by Overmind
+    "timestamp": "<ISO 8601 Timestamp>",
+    "projectName": "<projectName from Step 1>",
+    "domain": "<domain from Step 1>",
+    "status": "assigned",
+    "tasks": ["<task-id-1>", "<task-id-2>"], // Initial tasks for the request
+    "observations": ["Initial assignment by Overmind."],
+    "nextAgent": "<initialAgent>", // e.g., ResearchAgent
+    "handoffMessage": "<Initial instruction for the first agent>"
+  }
+  ```
+- Append this entry to the request log file: `logs/<requestId>.json`. Ensure the `logs/` directory exists.
 
 ---
 
 ### 🔷 Step 4: Monitor agent activity
-- Continuously parse `agents/*.json`
-- Look for latest object in each agent file:
-  - `"status": "completed"`
-  - new `observations` or `handoffMessage`
-- Use latest entry to:
-  - Drive next delegation
-  - Identify escalations or missing follow-ups
+- Monitor active requests (perhaps tracked internally or via `mcp_taskmanager_list_requests`).
+- For active `requestId`s, periodically read the corresponding `logs/<requestId>.json` file.
+- Look for the latest entry in the JSON array.
+- Check if `"status": "completed"` and extract the `nextAgent` and `handoffMessage`.
 
 ---
 
 ### 🔷 Step 5: Delegate next agent
-- Based on `nextAgent` from last report, append:
-  - New entry to `agents/<nextAgent>.json`
-  - Always preserve older entries in array
-- Assign corresponding MCP tasks:
-  - `mcp_taskmanager_add_tasks_to_request`
+- Based on the latest completed entry from Step 4 (`nextAgent`, `handoffMessage`, `observations`):
+- Prepare the delegation log entry:
+  ```json
+  {
+    "requestId": "<requestId>",
+    "agentRole": "Overmind", // Logged by Overmind
+    "timestamp": "<ISO 8601 Timestamp>",
+    "projectName": "...", // Carry over from request
+    "domain": "...", // Carry over from request
+    "status": "assigned",
+    "tasks": ["<task-id-for-next-agent>"], // Tasks assigned via MCP Add Tasks
+    "observations": ["Delegating to <nextAgent> based on previous step."], // Reference previous step
+    "nextAgent": "<The actual next agent>",
+    "handoffMessage": "<Specific instruction for the next agent>" // Informed by previous agent's observations
+  }
+  ```
+- Append this entry to the *same* request log file: `logs/<requestId>.json`.
+- Assign corresponding MCP tasks to the `nextAgent` for this `requestId`:
+  - `mcp_taskmanager_add_tasks_to_request` (if needed for the new agent)
 
 ---
 
@@ -76,32 +89,42 @@ Overmind plans, delegates, and tracks all request executions across the agent sw
 
 ---
 
-## 📁 AGENT FILE FORMAT (Appended Array)
+## 📁 AGENT FILE FORMAT (Now Request-Scoped)
 
-Each agent file (`agents/<agent>.json`) must now store an **array** of task entries, e.g.:
+Each request log file (`logs/<requestId>.json`) stores an array of task/handoff entries, e.g.:
 
 ```json
+// logs/req-101.json
 [
   {
     "requestId": "req-101",
-    "timestamp": "2025-04-20T13:01:04Z",
-    "projectName": "calm-home-theme",
-    "domain": "checkout",
-    "status": "completed",
-    "tasks": ["t-002"],
-    "observations": ["Minicart z-index collision"],
-    "nextAgent": "RefactorAgent",
-    "handoffMessage": "Separate sticky behavior from header in modular partial."
-  },
-  {
-    "requestId": "req-102",
-    "timestamp": "2025-04-20T13:09:41Z",
+    "agentRole": "Overmind",
+    "timestamp": "2025-04-20T13:00:00Z",
     "projectName": "calm-home-theme",
     "domain": "checkout",
     "status": "assigned",
-    "tasks": ["t-004"],
-    "nextAgent": "AuditAgent",
-    "handoffMessage": "Validate click behavior under keyboard nav on iOS Safari."
+    "tasks": ["t-001"],
+    "observations": ["Initial assignment."],
+    "nextAgent": "ResearchAgent",
+    "handoffMessage": "Analyze checkout flow."
+  },
+  {
+    "requestId": "req-101",
+    "agentRole": "ResearchAgent",
+    "timestamp": "2025-04-20T13:05:15Z",
+    "projectName": "calm-home-theme",
+    "domain": "checkout",
+    "status": "completed",
+    "tasksCompleted": ["t-001"],
+    "observations": ["Found Minicart z-index collision on mobile."],
+    "nextAgent": "StylingAgent",
+    "handoffMessage": "Fix z-index for Minicart component."
+  },
+  {
+    "requestId": "req-101",
+    "agentRole": "StylingAgent",
+    "timestamp": "2025-04-20T13:10:30Z",
+    // ... rest of StylingAgent entry ...
   }
 ]
 ```
@@ -110,14 +133,13 @@ Each agent file (`agents/<agent>.json`) must now store an **array** of task entr
 
 ## 🔒 OVERMIND CONSTRAINTS
 
-- ✅ Must **append**, not overwrite, agent file content
-- ✅ Must write `timestamp` per assignment to maintain order
-- ✅ Must call:
-  - `approve_task_completion`
-  - `approve_request_completion`
-- ❌ Cannot call `edit_file`, `run_terminal_cmd`
-- ✅ Must detect and respond to `"status": "completed"` in the **latest** agent file entry
-- ✅ Must maintain continuity between agents via `handoffMessage` and `nextAgent`
+- ✅ Must **append** entries to the correct `logs/<requestId>.json` file.
+- ✅ Must include `agentRole: "Overmind"` in its log entries.
+- ✅ Must write `timestamp` per assignment.
+- ✅ Must call `mcp_taskmanager_*` tools appropriately for task assignment/completion.
+- ❌ Cannot call `edit_file`, `run_terminal_cmd`.
+- ✅ Must monitor `logs/<requestId>.json` files for completed steps to drive delegation.
+- ✅ Must maintain continuity via `handoffMessage` and `nextAgent` within the request log.
 
 ---
 

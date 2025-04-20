@@ -10,21 +10,18 @@ globs: ["**/*"]
 RefactorAgent rewrites and restructures code to be cleaner, more modular, and more maintainable. It resolves issues escalated by AuditAgent, or proactively improves design consistency post-implementation.
 
 ### 🔷 Step 1: Load context
-- Parse `agents/RefactorAgent.json`:
-  - `requestId`, `projectName`, `domain`, `handoffMessage`
+- Get `requestId` from the assigned MCP task or triggering log entry.
+- Read the request log file: `logs/<requestId>.json`.
+- Parse the JSON array to find the latest entry (usually from BuilderAgent or AuditAgent).
+- Extract: `projectName`, `domain`, `handoffMessage`, and relevant `observations`.
 
 ### 🔷 Step 2: Aggregate state
-- Memory:
-  - `read_graph`, `open_nodes`, `search_nodes`
-- Files:
-  - Read all `agents/*.json`:
-    - Prioritize `BuilderAgent`, `AuditAgent`
-    - Extract: duplicated logic, coupling, deeply nested logic, long files
+- Request Log:
+  - Read relevant entries from `logs/<requestId>.json` (read in Step 1):
+    - Prioritize `BuilderAgent`, `AuditAgent` logs.
+    - Extract: `observations` mentioning specific refactoring targets, tech debt, or flags.
 - Codebase:
-  - `file_search`, `read_file`, `grep_search` to trace:
-    - Repetition
-    - Overloaded modules
-    - Monolithic functions or template bloat
+  - Use `file_search`, `read_file`, `grep_search` on target files/areas identified from the request log.
 
 ### 🔷 Step 3: Apply structural improvements
 - Split responsibilities:
@@ -36,18 +33,21 @@ RefactorAgent rewrites and restructures code to be cleaner, more modular, and mo
   - `edit_file` (≤250 LOC)
   - Migrate logic, extract reusable elements
 
-### 🔷 Step 4: Memory logging
-- `create_entities`: Refactored modules
-- `create_relations`: "Derived from", "Replaced"
-- `add_observations`: e.g., "Split header.php into nav.php + topbar.php"
+### 🔷 Step 4: Prepare Findings
+- Consolidate notes on structural improvements made (Step 3).
+- Structure these as `observations` for the log entry in Step 5.
+  - Examples: "Extracted navigation logic from header.php to template-parts/header-nav.php", "Simplified rendering loop in component X".
 
 ### 🔷 Step 5: Final report
-- Overwrite `agents/RefactorAgent.json`:
-  - `status: completed`
-  - `tasksCompleted[]`: what was cleaned or extracted
-  - `observations[]`: remaining tech debt if any
-  - `nextAgent`: e.g., `DocsAgent`
-  - `handoffMessage`: "Document new layout-partials system under template-parts/header"
+- Append to `logs/<requestId>.json` with:
+  - `agentRole`: "RefactorAgent"
+  - `status`: "completed"
+  - `timestamp`: `<ISO 8601 Timestamp>`
+  - `requestId`, `projectName`, `domain` (context from Step 1)
+  - `tasksCompleted[]`: Summary of refactoring actions (e.g., "Split header.php", "Reduced complexity in function Y").
+  - `observations[]`: Key refactoring changes made from Step 4, and any remaining tech debt identified.
+  - `nextAgent`: Determine based on context (e.g., `DocsAgent`, `AuditAgent` to verify performance).
+  - `handoffMessage`: Specific instructions (e.g., "Document new layout-partials system under template-parts/header", "Audit performance of refactored component X").
 
 ---
 
@@ -58,7 +58,8 @@ RefactorAgent rewrites and restructures code to be cleaner, more modular, and mo
 - ✅ May migrate code into:
   - `components/`, `utils/`, `template-parts/`
 - ❌ May not introduce new features or behavior
-- ✅ Must register every change in memory
-- ✅ Must resolve escalated flags from AuditAgent
+- ✅ Must register structural changes as `observations` in the agent log file.
+- ✅ Must resolve escalated flags from AuditAgent based on the `logs/<requestId>.json` file.
+- ❌ No `mcp_server-memory_*` usage.
 
 

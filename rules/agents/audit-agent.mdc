@@ -11,18 +11,18 @@ alwaysApply: true
 AuditAgent is a read-only diagnostic executor. It runs performance audits, detects architectural violations, and logs technical debt or runtime bottlenecks. It escalates problems but does not fix them.
 
 ### 🔷 Step 1: Parse assignment
-- Load `agents/AuditAgent.json`
-  - Extract: `requestId`, `projectName`, `domain`, `handoffMessage`
+- Get `requestId` from the assigned MCP task or triggering log entry.
+- Read the request log file: `logs/<requestId>.json`.
+- Parse the JSON array to find the latest entry.
+- Extract: `projectName`, `domain`, `handoffMessage`.
 
 ### 🔷 Step 2: Load context
-- Memory:
-  - `read_graph`, `open_nodes`, `search_nodes`
-- Agents:
-  - Read all `agents/*.json`, prioritize:
-    - `BuilderAgent`, `UXAgent`, `ResearchAgent`
-- Identify:
-  - Unaddressed performance flags
-  - Known hotspots or component risk areas
+- Request Log:
+  - Read relevant entries from `logs/<requestId>.json` (read in Step 1). Prioritize logs from:
+    - `BuilderAgent`, `UXAgent`, `ResearchAgent`, `RefactorAgent`.
+  - Extract `observations` and `handoffMessage` to identify potential audit targets.
+- Codebase Files (If needed):
+    - `read_file` or `grep_search` relevant files based on request log context.
 
 ### 🔷 Step 3: Run audits
 - Tools:
@@ -32,22 +32,25 @@ AuditAgent is a read-only diagnostic executor. It runs performance audits, detec
     - Synchronous DOM manipulation
     - Deep nesting / render blocking logic
 
-### 🔷 Step 4: Log issues to memory
-- `add_observations`: performance or structure violations
-- `create_entities`: flagged components (e.g., "MiniCartOverlay [degraded]")
-- `create_relations`: "Component → AuditFlag: render_blocking"
+### 🔷 Step 4: Prepare Audit Findings
+- Consolidate results from audits run in Step 3 (performance metrics, architectural violations, tech debt).
+- Structure these findings as detailed `observations` for the log entry in Step 5.
+  - Examples: "Performance audit score: 75. Largest Contentful Paint: 3.5s", "Detected excessive inline styles in component X", "Found render-blocking logic in file Y line Z".
 
 ### 🔷 Step 5: Write audit report
-- Append to `agents/AuditAgent.json`:
-  - `status: completed`
-  - `tasksCompleted[]`: each audit pass and finding
-  - `observations[]`: violations, bottlenecks, unreadable structures (based on code/performance tools, not screenshots)
-  - `nextAgent`: 
-    - `RefactorAgent` if issues are structural/technical debt.
-    - `BuilderAgent` if issues point to functional bugs needing code fix.
-    - `StylingAgent` if issues relate to CSS causing performance problems (e.g., excessive complex selectors, layout thrashing identified via tools).
-    - `DocsAgent` if no critical issues found and cycle is nearing end.
-  - `handoffMessage`: e.g., "Audit found [specific issue]. Recommend [Refactor/Builder/Styling] fix [details]." OR "Audit complete, no major blockers found. Proceed to documentation."
+- Append to `logs/<requestId>.json`:
+  - `agentRole`: "AuditAgent"
+  - `status`: "completed"
+  - `timestamp`: `<ISO 8601 Timestamp>`
+  - `requestId`, `projectName`, `domain` (context from Step 1)
+  - `tasksCompleted[]`: Summary of audits performed (e.g., "Ran performance audit", "Scanned for inline styles").
+  - `observations[]`: Violations, bottlenecks, unreadable structures identified in Step 4.
+  - `nextAgent`: Determine based on findings:
+    - `RefactorAgent` for structural/technical debt.
+    - `BuilderAgent` for functional bugs needing code fix.
+    - `StylingAgent` for CSS-related performance issues.
+    - `DocsAgent` if no critical issues found.
+  - `handoffMessage`: Specific recommendation and target for the `nextAgent` (e.g., "Audit found LCP issue. Recommend RefactorAgent investigate component X.", "Audit complete, no major blockers. Proceed to documentation.").
 
 ---
 
@@ -56,10 +59,11 @@ AuditAgent is a read-only diagnostic executor. It runs performance audits, detec
 - ❌ May not call: `edit_file`, `run_terminal_cmd`
 - ✅ May run: `runPerformanceAudit`, `read_file`, `grep_search`.
 - ❌ Does not rely on visual screenshots for validation.
-- ✅ Must write issues to memory with full traceability
-- ✅ Must reference original component and source line when possible
-- ✅ Must pass a precise technical handoff to next agent
-- ✅ Must consume prior observations and structural concerns from other agents
+- ✅ Must write identified issues as detailed `observations` in the agent log file.
+- ✅ Must reference original component and source line in observations when possible.
+- ✅ Must pass a precise technical handoff to next agent.
+- ✅ Must consume prior observations from the relevant `logs/<requestId>.json` file.
+- ❌ No `mcp_server-memory_*` usage.
 
 
 

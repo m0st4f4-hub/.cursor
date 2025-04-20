@@ -10,18 +10,16 @@ alwaysApply: true
 The ResearchAgent is the source of project understanding. It operates entirely in discovery and observation mode — no modifications, only analysis.
 
 ### 🔷 Step 1: Read assignment
-- Parse `agents/ResearchAgent.json`:
-  - `requestId`, `projectName`, `domain`, `handoffMessage`
+- Get `requestId` from the assigned MCP task or triggering log entry.
+- Read the request log file: `logs/<requestId>.json`.
+- Parse the JSON array to find the latest entry (usually the assignment from Overmind or the previous agent).
+- Extract: `projectName`, `domain`, `handoffMessage` from that entry.
 
 ### 🔷 Step 2: Load all relevant context
-- Memory:
-  - `mcp_server-memory_read_graph`
-  - `mcp_server-memory_open_nodes`
-- Other agents:
-  - Read all files in `agents/*.json`
-  - Look for `observations`, `handoffMessage`, unresolved notes
-- Files:
-  - `file_search`, `read_file`, `grep_search`, `codebase_search`
+- Request Log:
+  - Analyze entries within `logs/<requestId>.json` (read in Step 1) for prior `observations`, `tasksCompleted`, `handoffMessage` from other agents in this request cycle.
+- Codebase Files:
+  - Use `file_search`, `read_file`, `grep_search`, `codebase_search` based on context from the request log and the specific `handoffMessage`.
 
 ### 🔷 Step 3: Pull external references
 - Documentation:
@@ -31,30 +29,28 @@ The ResearchAgent is the source of project understanding. It operates entirely i
   - `web_search` (e.g., best practices, schema usage)
 
 ### 🔷 Step 4: Structure discoveries
-- Add to memory:
-  - `mcp_server-memory_add_observations`
-  - `mcp_server-memory_create_entities`
-  - `mcp_server-memory_create_relations`
+- Consolidate findings from codebase analysis (Step 2) and external references (Step 3).
+- Prepare these findings as structured `observations` for the agent log file (Step 5).
 
 ### 🔷 Step 5: Log report
-- Overwrite `agents/ResearchAgent.json` with:
-  - `status: "completed"`
-  - `tasksCompleted[]`: what was analyzed, where, what found
-  - `observations[]`: key takeaways
-  - `nextAgent`: `BuilderAgent` or other
-  - `handoffMessage`: guidance for implementation
+- Append to `logs/<requestId>.json` with:
+  - `agentRole`: "ResearchAgent"
+  - `status`: "completed"
+  - `timestamp`: `<ISO 8601 Timestamp>`
+  - `requestId`, `projectName`, `domain` (context from Step 1)
+  - `tasksCompleted[]`: summary of analysis performed (e.g., "Analyzed component X", "Researched library Y").
+  - `observations[]`: key takeaways, findings, potential issues, structured discoveries from Step 4.
+  - `nextAgent`: Determine based on findings (e.g., `BuilderAgent`, `RefactorAgent`).
+  - `handoffMessage`: Clear guidance for the `nextAgent` based on `observations`.
 
 ---
 
 ## 🔒 CONSTRAINTS
 
-- ❌ May not use: `edit_file`, `run_terminal_cmd`
-- ✅ Must consume:
-  - Full memory scope (filtered by project/domain)
-  - All other agents’ `.json` reports
-- ✅ Must resolve and write:
-  - New entities, unresolved UX, missing logic, blind spots
-- ✅ Must produce a clear handoff to next agent
+- ❌ May not use: `edit_file`, `run_terminal_cmd`, `mcp_server-memory_*` tools.
+- ✅ Must consume context primarily from the `logs/<requestId>.json` file.
+- ✅ Must structure findings as detailed `observations` in its own log entry.
+- ✅ Must produce a clear handoff to next agent.
 
 
 
