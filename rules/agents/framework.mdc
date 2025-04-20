@@ -1,0 +1,196 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Agent Framework & Coordination Guide
+
+This document outlines the core principles and procedures governing the agent execution framework, including initialization, agent roles, communication via logs, and the development/use of custom tools.
+
+---
+
+## 1. Initialization (Self-Contained Procedure)
+
+The foundation of the agent system relies on the shared ruleset located in the `.cursor/` directory. This procedure **must** be executed by the designated `InitializationAgent` if the `.cursor/rules` directory or its contents are missing or incomplete. It ensures the agent framework is correctly set up before other operations can proceed.
+
+**Core Principles:**
+- **Idempotency:** Running this procedure multiple times should result in the same valid end state.
+- **Verification:** Rely on tool outputs (`list_dir`, `read_file`, `git status`, etc.) to confirm the success of each step, not just command exit codes.
+- **Error Handling:** If a step fails verification, log the error and halt the procedure, reporting failure to `Overmind`.
+- **Tool Usage:** Prefer standard tools (`list_dir`, `read_file`, `edit_file`) and core Git commands over complex shell scripts.
+
+### ✅ Initialization Workflow
+
+The `InitializationAgent` must first determine the project's state and then follow the corresponding workflow:
+
+**Phase 1: Determine Project State**
+
+1.  **Check Git Status:**
+    *   Run `git rev-parse --is-inside-work-tree | cat`.
+    *   Note the result (`isGitRepo`: true/false).
+2.  **Check Existing `.cursor` Directory:**
+    *   Run `list_dir .`. Check if `.cursor` exists.
+    *   Note the result (`cursorDirExists`: true/false).
+3.  **Check if Directory Empty (if not Git Repo):**
+    *   **Only if `isGitRepo` is false:** Run `list_dir .`. Check if the directory contains *any* files or folders other than potentially `.cursor` or `.git` (if cloning directly).
+    *   Note the result (`isNotEmpty`: true/false).
+
+**Phase 2: Execute Scenario-Specific Workflow**
+
+➡️ **Scenario A: Project is a Git Repository (`isGitRepo` is true)**
+
+1.  **Handle Existing `.cursor`:**
+    *   If `cursorDirExists` is true:
+        *   Run `git submodule status .cursor | cat`.
+        *   **If Valid Submodule:** Output indicates a registered submodule (usually starts with a commit hash). Proceed to **Step A.3 (Update Submodule)**.
+        *   **If Not a Submodule (or error):** The directory exists but isn't a proper submodule.
+            *   **Action:** Log a warning. Attempt to remove the conflicting directory: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor` on Windows). **Verify** removal with `list_dir .`. If removal fails, **HALT** and report error. Proceed to **Step A.2 (Add Submodule)**.
+    *   If `cursorDirExists` is false: Proceed to **Step A.2 (Add Submodule)**.
+2.  **Add Submodule:**
+    *   Run `git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`.
+    *   **Verification:**
+        *   Run `list_dir .`. Confirm `.cursor` AND `.gitmodules` exist.
+        *   Run `read_file .gitmodules`. Confirm it contains an entry for `[submodule ".cursor"]`.
+        *   If verification fails, try `git submodule add --force ...` once *if* a conflict was the likely cause (logged in previous step). If it still fails, **HALT** and report error.
+    *   Proceed to **Step A.3 (Update Submodule)**.
+3.  **Update Submodule:**
+    *   Run `git submodule update --init --recursive`.
+    *   **Verification:** Run `list_dir .cursor/rules`. Confirm critical rule files (e.g., `shared-core.mdc`) are present. If not, retry the `update` command once. If still fails, **HALT** and report error.
+    *   Proceed to **Phase 3 (Common Configuration)**.
+
+➡️ **Scenario B: Project is NOT a Git Repository AND is Empty (`isGitRepo` is false, `isNotEmpty` is false)**
+
+1.  **Handle Existing `.cursor`:**
+    *   If `cursorDirExists` is true:
+        *   **Action:** Log a warning. Attempt to remove the conflicting directory: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor` on Windows). **Verify** removal with `list_dir .`. If removal fails, **HALT** and report error.
+    *   Proceed to **Step B.2 (Direct Clone)**.
+2.  **Direct Clone:**
+    *   Run `git clone https://github.com/m0st4f4-hub/.cursor .cursor`.
+    *   **Verification:** Run `list_dir .cursor/rules`. Confirm critical rule files (e.g., `shared-core.mdc`) are present. If not, **HALT** and report clone failure.
+    *   Proceed to **Phase 3 (Common Configuration)**.
+
+➡️ **Scenario C: Project is NOT a Git Repository AND is NOT Empty (`isGitRepo` is false, `isNotEmpty` is true)**
+
+*   **Warning:** This scenario is complex and requires careful handling to avoid overwriting existing project files if `.cursor` somehow exists.
+1.  **Handle Existing `.cursor`:**
+    *   If `cursorDirExists` is true:
+        *   **Action:** Log a critical warning. **HALT** the process. Report that `.cursor` exists in a non-empty, non-Git project and requires manual intervention/confirmation before proceeding. *Do not automatically delete.*
+    *   If `cursorDirExists` is false: Proceed to **Step C.2 (Temp Clone & Move)**.
+2.  **Temp Clone & Move:**
+    *   Define a temporary directory name (e.g., `temp_ruleset_clone`).
+    *   **Cleanup:** Run `rm -rf temp_ruleset_clone` (or `Remove-Item -Recurse -Force temp_ruleset_clone` on Windows) to ensure a clean state.
+    *   **Clone:** Run `git clone https://github.com/m0st4f4-hub/.cursor temp_ruleset_clone`. Verify success.
+    *   **Init Submodules (within temp):** Run `cd temp_ruleset_clone && git submodule update --init --recursive && cd ..`. Verify success.
+    *   **Move:** Run `mv temp_ruleset_clone/.cursor .` (or `Move-Item -Path temp_ruleset_clone\\.cursor -Destination .\\` on Windows).
+    *   **Verification:**
+        *   Run `list_dir .`. Confirm `.cursor` now exists.
+        *   Run `list_dir .cursor/rules`. Confirm critical rule files (e.g., `shared-core.mdc`) are present.
+        *   If verification fails at any point, **HALT** and report error.
+    *   **Cleanup:** Run `rm -rf temp_ruleset_clone` (or `Remove-Item -Recurse -Force temp_ruleset_clone` on Windows). Verify success.
+    *   Proceed to **Phase 3 (Common Configuration)**.
+
+**Phase 3: Common Configuration Steps (After successful ruleset acquisition)**
+
+1.  **Configure Project-Specific Rules Directory:**
+    *   Run `list_dir .cursor/rules`. Check if `project` subdirectory exists.
+    *   If not, create it: `run_terminal_cmd mkdir .cursor/rules/project` (or `New-Item -ItemType Directory -Path .cursor\\rules\\project` on Windows).
+    *   **Verification:** Run `list_dir .cursor/rules` again to confirm `project` exists. If not, **HALT** and report error.
+2.  **Update Ruleset `.gitignore`:**
+    *   **Check:** Run `read_file .cursor/.gitignore`. Check if the exact line `rules/project/` exists on its own line.
+    *   **Add if Missing:** If the line is missing, use `edit_file` on `.cursor/.gitignore` to append `rules/project/` on a new line at the end of the file.
+    *   **Verification:** Run `read_file .cursor/.gitignore` again to confirm the line exists. If not, **HALT** and report error.
+3.  **Update Root Project `.gitignore` (if applicable):**
+    *   This step is primarily relevant for **Scenario A (Git Repository)** to ignore the submodule directory contents if desired, although sometimes it's tracked. For Scenarios B & C, a root `.gitignore` might not exist or be relevant initially. *Decision needed: Should this be automatically added in non-Git scenarios?* For now, let's keep it focused on Scenario A.
+    *   **If `isGitRepo` is true:**
+        *   **Check:** Run `read_file .gitignore` (it might not exist initially, handle gracefully). Check if the exact line `.cursor/` exists on its own line.
+        *   **Add if Missing:** Use `edit_file` on `.gitignore` (create if it doesn't exist) to add the line `.cursor/`.
+        *   **Verification:** Run `read_file .gitignore` again to confirm the line exists. If creation/modification failed, **HALT** and report error.
+4.  **Final Verification:**
+    *   Run `list_dir .cursor/rules`. Confirm it exists and contains expected subdirectories/files (`shared-core.mdc`, potentially `project/`).
+    *   **If all steps and verifications passed:** Log success, report completion to `Overmind`.
+    *   **If any step HALTed:** Log the failure point and reason, report failure to `Overmind`.
+
+*Once this procedure is successfully completed by the `InitializationAgent`, other rules like [`shared-core.mdc`](mdc:.cursor/rules/shared-core.mdc) can be reliably referenced.*
+
+---
+
+## 2. Agent Roles & Rules
+
+The system utilizes specialized agents, each with a dedicated purpose and rule file defining its objectives and constraints.
+
+| Agent Role     | Purpose                                        | Rules File (`.cursor/rules/agents/`)           |
+|----------------|------------------------------------------------|-----------------------------------------------|
+| `Overmind`     | Planning, task splitting, delegation           | [`overmind-agent.mdc`](mdc:.cursor/rules/agents/overmind-agent.mdc)  |
+| `ResearchAgent`| Code & memory intelligence gathering           | [`research-agent.mdc`](mdc:.cursor/rules/agents/research-agent.mdc)  |
+| `BuilderAgent` | Functional implementation                      | [`builder-agent.mdc`](mdc:.cursor/rules/agents/builder-agent.mdc)   |
+| `StylingAgent` | CSS, layout, breakpoints                       | [`styling-agent.mdc`](mdc:.cursor/rules/agents/styling-agent.mdc)   |
+| `UXAgent`      | Accessibility, ARIA, keyboard nav              | [`ux-agent.mdc`](mdc:.cursor/rules/agents/ux-agent.mdc)        |
+| `AuditAgent`   | Performance & maintainability diagnostics      | [`audit-agent.mdc`](mdc:.cursor/rules/agents/audit-agent.mdc)     |
+| `RefactorAgent`| Structural optimization                        | [`refactor-agent.mdc`](mdc:.cursor/rules/agents/refactor-agent.mdc)  |
+| `DocsAgent`    | Documentation generation                       | [`docs-agent.mdc`](mdc:.cursor/rules/agents/docs-agent.mdc)      |
+| `RunnerAgent`  | Runtime execution + log observation            | [`runner-agent.mdc`](mdc:.cursor/rules/agents/runner-agent.mdc)    |
+
+-   **Core Requirement:** All agent-specific rules **must** include `@shared-core.mdc` at the beginning to inherit the common execution loop and constraints.
+
+---
+
+## 3. Request Log Handling (Coordination & Memory)
+
+Communication and state management between agents primarily occur through request-specific log files.
+
+-   **Location:** `logs/<requestId>.json`
+-   **Format:** A JSON array, where each element is an object representing an agent's action or assignment.
+-   **Interaction:**
+    -   **Reading:** Agents load context by reading the latest entry and relevant prior entries from their assigned `requestId` log file (See Step 1 in `shared-core.mdc`).
+    -   **Writing:** Agents **must always append** a new JSON entry upon completing their task (See Step 9 in `shared-core.mdc`). This entry details the work done (`tasksCompleted`), findings (`observations`), and handoff information (`handoffMessage`, `nextAgent`).
+-   **Integrity:** Never truncate, overwrite, or delete log file history. It serves as the canonical record for the request.
+-   **Reference:** See "Coordination & Memory" and "Indestructible Execution Loop" sections in [`shared-core.mdc`](mdc:.cursor/rules/shared-core.mdc).
+-   **💡 Automatic Transitions:** The execution framework **automatically** transitions to the next agent based on the `nextAgent` field specified in the *most recent* log entry for the request. Agents **must** ensure this field is correctly set (e.g., to "BuilderAgent", "Overmind", or null/"HALT" to stop). Manual "transform" instructions from the user are no longer required for agent handoffs within a request.
+
+---
+
+## 4. Custom Tool Development & Usage
+
+Agents can leverage custom scripts for specialized tasks beyond the standard toolchain.
+
+-   **Location:** Place custom tool scripts (e.g., Python, Shell) in the `.cursor/tools/` directory.
+    -   Example: [`consolidate_code.py`](mdc:.cursor/tools/consolidate_code.py)
+-   **Development:** An agent (e.g., `BuilderAgent`) could potentially generate or modify these tool scripts using `edit_file`, based on requirements defined by `Overmind`.
+-   **Execution:** Agents can execute these tools using `run_terminal_cmd`. The command should specify the interpreter (if needed) and the path to the script, along with any required arguments.
+    ```bash
+    # Example: Running a Python tool
+    python .cursor/tools/consolidate_code.py --input path/to/source --output path/to/target
+    ```
+-   **Responsibility:** The agent invoking the custom tool is responsible for understanding its required inputs and interpreting its outputs (stdout, stderr, exit code).
+
+---
+
+## 5. Custom Tool Rules
+
+To ensure custom tools are used correctly and effectively by agents, create dedicated rule files for them.
+
+-   **Location:** `.cursor/rules/` (or potentially `.cursor/rules/tools/` for organization).
+-   **Naming:** Use a descriptive name, often related to the tool script (e.g., `consolidate_code-tool.mdc`).
+-   **Content:** The rule (`.mdc` file) should clearly define:
+    -   The tool's **purpose**.
+    -   Required **arguments** and their format.
+    -   Expected **input** (files, data formats).
+    -   Expected **output** (files created, stdout format, potential errors).
+    -   **Usage examples** for agents invoking it via `run_terminal_cmd`.
+    -   Any **dependencies** or setup required.
+-   **Benefit:** These rules make custom tools discoverable and usable by any agent needing that specific capability, promoting modularity and reuse within the agent framework.
+
+---
+
+This framework provides a structure for collaborative and persistent agent operations within the project. Adherence to these guidelines, particularly the log handling and rule inclusion, is crucial for effective coordination.
+
+
+
+
+
+
