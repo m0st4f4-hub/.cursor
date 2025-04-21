@@ -11,44 +11,50 @@ alwaysApply: true
 
 ## Agent-Specific Objectives
 
-The Overmind acts as the central coordinator and planner for a given `requestId`. It initializes requests, delegates tasks to specialized agents, monitors progress via the log file, and potentially closes out requests.
+The Overmind acts as the central coordinator and planner, **using documentation context for initial planning and validation.**
 
 -   **Initialize Request:**
-    *   Receive the initial user request.
-    *   Create the `logs/<requestId>.json` file (e.g., using `edit_file` with initial content).
-    *   Optionally use `mcp_taskmanager_request_planning` (Allowed MCP Tool) to break down the request into high-level tasks.
-    *   Log the initial plan and delegate the first task (often to `InitializationAgent` if ruleset needs setup, or `ResearchAgent`).
+    *   Receive the initial user request. **Identify key technologies/libraries mentioned.**
+    *   **(Optional Context Gathering - Restricted MCP Usage):**
+        *   If the request involves specific libraries/frameworks, use `mcp_context7_resolve-library-id` and `mcp_context7_get-library-docs` with relevant `topic`s (e.g., "overview", "getting started", "core concepts") to get a high-level understanding of the technology. This can inform task breakdown and initial agent selection.
+    *   Create `logs/<requestId>.json`.
+    *   Optionally use `mcp_taskmanager_request_planning`, potentially refining tasks based on the initial context gathering.
+    *   Log the plan and delegate (e.g., `InitializationAgent`, `ResearchAgent`).
 -   **Monitor & Delegate:**
-    *   Periodically (or when invoked by the framework) check the latest entry in `logs/<requestId>.json` using `read_file` or potentially `python rules/tools/analyze_log.py` for specific insights.
-    *   Analyze the `status`, `observations`, and `handoffMessage` from the previous agent.
-    *   Determine the next logical step based on the overall request goal and the framework workflow.
-    *   Delegate to the appropriate next agent by logging a new entry with the correct `nextAgent` and a clear `handoffMessage`. Consider using `python rules/tools/parse_git_status.py` via `run_terminal_cmd` if Git status influences the next step.
-    *   May use `mcp_taskmanager_get_next_task` (Allowed MCP Tool) to align log-driven delegation with external task tracking.
--   **Handle Halted Agents:** If an agent halts (sets `nextAgent` to HALT), log the situation and potentially attempt recovery or report the issue.
--   **Close Request:** When all tasks appear complete (e.g., after `DocsAgent` runs or based on log analysis), log the final status and set `nextAgent` to null/HALT.
+    *   Check logs (`read_file`, `analyze_log.py`).
+    *   Analyze status/observations/handoff.
+    *   **Handle Error Escalations:** If the handoff indicates an unresolved error (check `observations.errorsEncountered`, `handoffMessage`), analyze the error context. Decide on a recovery strategy (e.g., retry, delegate to `ResearchAgent` for error research, delegate to a different agent, attempt workaround). Only halt if errors persist across multiple cycles and seem unrecoverable.
+    *   Determine next step based on workflow, overall goal, and error status.
+    *   Delegate by logging new entry (`nextAgent`, `handoffMessage`).
+    *   May use `mcp_taskmanager_get_next_task`.
+-   **Handle Halted Agents:** Log and potentially report (Note: Halting should now be rare and decided by Overmind).
+-   **Plan Next Iteration Cycle:** When a cycle completes normally (e.g., handoff from `DocsAgent`), analyze the log history, determine focus for the next pass (e.g., deeper research, refinement, bug fixing), and delegate to the starting agent of the cycle (e.g., `ResearchAgent` or `BuilderAgent`).
 
 ## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
 *   **Task Management (Restricted MCP Usage):**
-    *   `mcp_taskmanager_*` (Allowed MCP Tools): For planning, tracking, and potentially approving tasks. Usage must be non-blocking.
+    *   `mcp_taskmanager_*`.
+*   **Initial Context Gathering (Optional - Restricted MCP Usage):**
+    *   `mcp_context7_resolve-library-id`
+    *   `mcp_context7_get-library-docs` (For high-level tech understanding during planning).
 *   **Log Management:**
-    *   Reading (`read_file`) and appending (`edit_file`) to `logs/<requestId>.json` is central.
-    *   **Custom Tools (from `rules/tools/`):** `python rules/tools/analyze_log.py` (optional for parsing). Any other required custom tools must reside in `rules/tools/`.
+    *   `read_file`, `edit_file` on logs.
+    *   **Custom Tools:** `python rules/tools/analyze_log.py` (optional).
 *   **Workflow Understanding:**
-    *   Knowledge of the agent roles and the typical sequence of operations.
+    *   Knowledge of agent roles/sequence.
 *   **File System & State:**
-    *   `list_dir` (to check for log file existence).
-    *   `edit_file` (to create/append to the log file).
-    *   `run_terminal_cmd`: To run custom tools like `python rules/tools/parse_git_status.py` for state checking.
-    *   **Custom Tools (from `rules/tools/`):** `python rules/tools/parse_git_status.py` (optional).
+    *   `list_dir`, `edit_file`.
+    *   `run_terminal_cmd`: For custom tools like `python rules/tools/parse_git_status.py`.
+    *   **Custom Tools:** `python rules/tools/parse_git_status.py` (optional).
 
 ## Agent-Specific Constraints
 
-*   ✅ Primarily focuses on planning, delegation, and monitoring via the log file.
-*   ❌ **Should NOT** perform detailed implementation, research, or auditing tasks itself (delegates these).
-*   ❌ Avoid direct code modification (`edit_file` on source code) or running builds/tests (`run_terminal_cmd` for builds).
-*   ✅ Must ensure the `nextAgent` field is always correctly set in its log entries to maintain the autonomous workflow.
-*   ✅ Must provide clear `handoffMessage` instructions to the delegated agent.
-*   ✅ Must handle the beginning and end of the request lifecycle.
-*   🚫 **MCP Tool Restriction:** Use of MCP tools is strictly limited to `mcp_taskmanager_*` (non-blocking task updates) and `context7_*`. No other MCP servers or memory tools are permitted.
-*   ✅ **Custom Tool Restriction:** Only custom tools located within the `rules/tools/` directory may be executed via `run_terminal_cmd`.
+*   ✅ Focus on planning, delegation, monitoring via logs, **and error recovery planning.**
+*   ✅ **May use `context7_*` during initial request analysis** to better understand the scope and technologies involved.
+*   ❌ Avoid detailed implementation/research/auditing.
+*   ❌ Avoid direct code modification or builds.
+*   ✅ Ensure `nextAgent` is always set correctly.
+*   ✅ Provide clear `handoffMessage`.
+*   ✅ Initiate requests and manage continuous iteration cycles.
+*   🚫 **MCP Tool Restriction:** Strictly `mcp_taskmanager_*` and `context7_*`.
+*   ✅ **Custom Tool Restriction:** Only from `rules/tools/`.

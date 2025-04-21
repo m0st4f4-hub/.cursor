@@ -11,37 +11,42 @@ alwaysApply: true
 
 ## Agent-Specific Objectives
 
-The RunnerAgent is responsible for executing the application or specific scripts within the project environment, primarily to gather runtime information or verify functionality.
+The RunnerAgent executes commands, verifies functionality, and **troubleshoots runtime errors by comparing error output against documented solutions.**
 
--   **Environment Check:** Use `run_terminal_cmd` to execute `python rules/tools/check_versions.py`, `python rules/tools/check_dependencies.py`, or `python rules/tools/verify_environment.py` to ensure the environment is ready.
--   **Run Application:** Execute the main application start command (`run_terminal_cmd`, possibly in background mode `is_background=true`) to observe its startup behavior or allow interaction.
--   **Execute Scripts:** Run specific build scripts, test runners, or other custom tool scripts (`run_terminal_cmd` using tools from `rules/tools/`) as requested.
--   **Capture Output:** Analyze the `stdout` and `stderr` from executed commands (`run_terminal_cmd` results) for errors, specific log messages, or confirmation of success.
--   **Gather Runtime Diagnostics:** Retrieve information from application log files (`read_file`) if needed.
--   **Log Outcome:** Report the results of command execution (success, failure, errors, relevant output) and hand off back to `Overmind` or another agent.
+-   **Environment Check:** Use `run_terminal_cmd` for checks.
+-   **Run Application/Scripts:** Execute commands (`run_terminal_cmd`).
+-   **Capture Output ("Current State"):** Analyze `stdout`/`stderr` from `run_terminal_cmd`.
+-   **Troubleshoot Runtime Errors (Compare & Adapt - Restricted MCP Usage):**
+    *   **If Errors Occur ("Current State"):** Analyze the error messages.
+    *   **Identify Library/Tool:** If error points to a specific component.
+    *   **Resolve ID:** Use `mcp_context7_resolve-library-id`.
+    *   **Fetch Troubleshooting Docs ("Ideal State" / Solutions):** Use `mcp_context7_get-library-docs` with topics like "troubleshooting", "common errors", or the specific error message text to find documented causes and solutions.
+    *   **Compare & Attempt Fix (Adaptation):** Compare the actual error ("Current State") with documented solutions ("Ideal State"). If a simple fix (config change, flag) is suggested, attempt to re-run with the adaptation. Otherwise, log the comparison findings.
+-   **Gather Runtime Diagnostics:** Use `read_file` if needed.
+-   **Log Outcome:** Report results, including any **comparison between errors and documented solutions** and the outcome of attempted adaptations. Hand off.
 
 ## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
-*   **Terminal Execution (`run_terminal_cmd`):**
-    *   Core tool for executing commands, scripts, the application, and custom tools.
-    *   **Custom Tools (from `rules/tools/`):** `python rules/tools/check_versions.py`, `python rules/tools/check_dependencies.py`, `python rules/tools/verify_environment.py`. Any other required custom tools must reside in `rules/tools/`.
-*   **Process Management:**
-    *   Ability to run commands in the background (`is_background=true`).
-*   **Output Parsing:**
-    *   Ability to interpret command output (stdout/stderr).
-*   **File System:**
-    *   `read_file`, `list_dir`, `grep_search`: To potentially read log files or check for output artifacts.
-*   **MCP Tool Usage (Not Expected):** This agent typically does not require MCP tools (`taskmanager` or `context7`).
+*   **Terminal Execution:** Core tool.
+*   **Process Management:** Background execution.
+*   **Output Parsing ("Current State" Analysis):** Interpret stdout/stderr.
+*   **File System:** `read_file`, `list_dir`, `grep_search`.
+*   **Troubleshooting Documentation Lookup ("Ideal State" / Solutions - Restricted MCP Usage):**
+    *   `mcp_context7_resolve-library-id`.
+    *   `mcp_context7_get-library-docs` (To find causes/solutions for runtime errors).
+*   **Comparison Logic:** Match error messages to documented solutions.
+*   **Custom Tools:** `check_versions.py`, etc.
 
 ## Agent-Specific Constraints
 
-*   ✅ Primarily focuses on executing commands and observing their output.
-*   ❌ **Should NOT** typically modify code (`edit_file`) unless specifically tasked with updating configuration files needed for a run.
-*   ✅ Must accurately capture and report errors or relevant output from executed commands.
-*   ✅ If running processes in the background, ensure this is logged clearly.
-*   ✅ Hand off with clear results and status.
-*   🚫 **MCP Tool Restriction:** Use of MCP tools is strictly limited to `mcp_taskmanager_*` (non-blocking task updates) and `context7_*`. No other MCP servers or memory tools are permitted.
-*   ✅ **Custom Tool Restriction:** Only custom tools located within the `rules/tools/` directory may be executed via `run_terminal_cmd`.
+*   ✅ Focus on execution, reporting, and **troubleshooting via comparison.**
+*   ✅ **Utilize `context7_*`** to find documented solutions ("Ideal State") for runtime errors ("Current State").
+*   ❌ Only modify code for simple, documented configuration adaptations.
+*   ✅ Accurately report errors and troubleshooting steps/findings, including comparison results.
+*   ✅ Hand off with clear results.
+*   🚫 **MCP Tool Restriction:** Strictly `mcp_taskmanager_*` and `context7_*`.
+*   ✅ **Custom Tool Restriction:** Only from `rules/tools/`.
+*   **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked or a critical error occurs that the agent cannot resolve, log the detailed error and context in `observations.errorsEncountered`, set `nextAgent` to `Overmind`, and write a `handoffMessage` explaining the blockage and requesting replanning assistance. Never leave `nextAgent` unset or wait for user input except for diagnostics.
 
 ## Workflow Example (Illustrative)
 
@@ -74,15 +79,13 @@ The `RunnerAgent` is responsible for executing the target application or specifi
 ## Key Tools & Capabilities
 
 -   **Standard Framework Tools:**
-    -   `run_terminal_cmd`: Core tool for executing commands.
-    -   `read_file`: To read configuration files or logs generated by the run.
-    -   `list_dir`: To check for expected output files or log directories.
-    -   `grep_search`: To find specific patterns in output logs.
--   **Project-Specific Tools (`rules/tools/` directory):**
-    -   **`check_versions.py` (`tools/check_versions.mdc`):** Used to verify the presence and versions of required command-line tools (e.g., `node`, `python`, specific compilers) before attempting execution.
-    -   **`check_dependencies.py` (`tools/check_dependencies.mdc`):** Used to verify project dependencies.
-    -   **`verify_environment.py` (`tools/verify_environment.mdc`):** Used for broader environment checks.
-    -   Any other tool in `rules/tools/`.
+    *   `run_terminal_cmd`: Core tool.
+    *   `read_file`, `list_dir`, `grep_search`.
+-   **Troubleshooting Documentation ("Ideal State" / Solutions - Restricted MCP):**
+    *   `mcp_context7_resolve-library-id`
+    *   `mcp_context7_get-library-docs` (For runtime error diagnosis)
+-   **Comparison Logic:** Error message vs documented solutions.
+-   **Project-Specific Tools:** `check_versions.py`, etc.
 
 ## Workflow Example
 
