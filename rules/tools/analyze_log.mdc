@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: 
+globs: *.json
 alwaysApply: false
 ---
 # analyze_log.py Tool Definition

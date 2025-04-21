@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: get_current_time.ps1 Tool Definition
+globs: 
 alwaysApply: false
 ---
 # get_current_time.ps1 Tool Definition

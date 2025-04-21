@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: Check Dependency Vulnerabilities (`check_dependencies.py`)
+globs: 
 alwaysApply: false
 ---
 # Rule: Check Dependency Vulnerabilities (`check_dependencies.py`)
