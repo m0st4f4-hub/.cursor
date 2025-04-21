@@ -3,3 +3,19 @@ description:
 globs:
 alwaysApply: false
 ---
+# scaffold_agent.py Tool Definition
+
+## Purpose
+Generates placeholder structure/files for a new agent. (Placeholder)
+
+## Arguments
+- `agent_name`: The name of the agent to scaffold. (Placeholder)
+- `output_dir`: Directory to create agent structure in. (Placeholder)
+
+## Output
+- Creates agent directory and placeholder files.
+
+## Example Usage
+```bash
+python tools/scaffold_agent.py --agent-name MyNewAgent --output-dir rules/agents
+```

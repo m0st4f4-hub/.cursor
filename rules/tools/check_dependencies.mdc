@@ -3,3 +3,89 @@ description:
 globs:
 alwaysApply: false
 ---
+# Rule: Check Dependency Vulnerabilities (`check_dependencies.py`)
+
+## Purpose
+
+This rule defines how agents should utilize the `check_dependencies.py` script located in the `tools/` directory. The script runs the relevant package manager's audit command to detect known security vulnerabilities in project dependencies.
+
+## Tool Description
+
+-   **Script Path:** `tools/check_dependencies.py`
+-   **Execution:** Run using `python tools/check_dependencies.py <manager_type>`.
+-   **Arguments:**
+    -   `manager_type`: (Required) The package manager to use. Currently supported values (case-insensitive): `npm`, `pip`.
+-   **Prerequisites:**
+    -   For `npm`: Requires `npm` (version 6 or higher recommended for `--json` support) to be installed and a `package-lock.json` or `npm-shrinkwrap.json` file to exist.
+    -   For `pip`: Requires `pip-audit` to be installed (`pip install pip-audit`) and project dependencies defined (e.g., in `requirements.txt` or via installed packages).
+-   **Input:** Reads project dependency files (e.g., `package-lock.json`, `requirements.txt`) based on the specified manager type.
+-   **Output:**
+    -   Prints a JSON string summary to standard output.
+    -   The summary includes `tool` (manager used), `vulnerabilities_found` (count), `severity_counts` (breakdown by severity), `vulnerable_packages` (list with details), and an `error` field if issues occurred.
+    -   Debugging information is printed to standard error.
+-   **Exit Code:**
+    -   `0`: If the audit completes successfully and finds **no** vulnerabilities.
+    -   `1`: If the audit completes successfully but **finds** vulnerabilities, OR if an error occurs during execution (e.g., command not found, parsing error).
+
+## When to Use
+
+-   **`AuditAgent`:** Primary user. Run as part of routine security and quality checks.
+-   **`BuilderAgent` / `RunnerAgent` (Potentially):** Before deploying or running code, as a final check.
+-   **`Overmind` (Potentially):** During initial project assessment or before finalizing a release.
+
+## How to Use
+
+1.  **Identify Project Type:** Determine the package manager used by the project (e.g., check for `package.json`, `requirements.txt`).
+2.  **Construct Command:** Create the command string, e.g., `python tools/check_dependencies.py npm` or `python tools/check_dependencies.py pip`.
+3.  **Execute:** Use `run_terminal_cmd` with the constructed command.
+4.  **Check Exit Code & Parse Output:** The agent receives the command result, including the exit code and the JSON string in standard output. Parse the JSON.
+5.  **Act on Results:** Report findings. High/critical severity vulnerabilities often require immediate attention. Use the exit code (0 for clean, 1 for issues/errors) for simple pass/fail checks.
+
+## Example Usage (Agent Step)
+
+```json
+// Agent Log Entry Snippet (e.g., AuditAgent)
+{
+  // ... other fields ...
+  "tasksCompleted": [
+    "Ran dependency vulnerability scan using npm."
+  ],
+  "observations": [
+    {
+      "type": "dependency_audit",
+      "tool": "npm",
+      "exit_code": 1, // Indicates vulns found or error
+      "audit_summary": {
+        "tool": "npm",
+        "vulnerabilities_found": 5,
+        "severity_counts": { "info": 0, "low": 2, "moderate": 1, "high": 2, "critical": 0 },
+        "vulnerable_packages": [
+          { "name": "lodash", "severity": "high", "fixAvailable": true, "via": ["some-other-package"] },
+          { "name": "request", "severity": "high", "fixAvailable": false, "via": ["another-package"] }
+          // ... more packages ...
+        ],
+        "error": null
+      }
+    }
+    // Or if pip-audit wasn't installed:
+    // {
+    //   "type": "dependency_audit_failed",
+    //   "tool": "pip",
+    //   "exit_code": 1,
+    //   "audit_summary": {
+    //     "tool": "pip",
+    //     "error": "'pip-audit' command not found. Please install it (pip install pip-audit)."
+    //   }
+    // }
+  ],
+  "nextAgent": "BuilderAgent", // Or Overmind to report critical issues
+  "handoffMessage": "Dependency audit completed. Found 2 high severity vulnerabilities (lodash, request). Lodash has an available fix. Please investigate."
+}
+```
+
+## Considerations
+
+-   **Installation:** Ensure the underlying audit tools (`npm`, `pip-audit`) are installed in the execution environment.
+-   **Network Access:** Audit commands usually require network access to fetch vulnerability databases.
+-   **Project Context:** The script must be run from the directory containing the relevant dependency manifest files (`package.json`, `requirements.txt`, etc.).
+-   **Extensibility:** To support other package managers (Yarn, pnpm, Composer, etc.), the `AUDIT_COMMANDS` dictionary and parsing logic within `tools/check_dependencies.py` need to be updated.

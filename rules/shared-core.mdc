@@ -7,13 +7,16 @@ alwaysApply: true
 
 This file contains definitions, guidelines, and references shared across multiple agents in the framework.
 
-## Common Tools
+## Common Custom Tools (`rules/tools/` directory)
 
-This section lists commonly available custom tools found in the `tools/` directory.
-Refer to the specific `.mdc` file in `tools/` for detailed usage instructions.
+This section lists available custom tools. Agents MUST only execute tools from the `rules/tools/` directory. Refer to the specific `.mdc` file in `tools/` for detailed usage.
 
--   **`consolidate_code.py` (`tools/consolidate-code-tool.mdc`)**
-    -   **Purpose:** Gathers code from most project files into a single `full_code.txt` file.
+-   **`analyze_log.py` (`tools/analyze_log.mdc` - *assumed*)**
+    -   **Purpose:** Parses and analyzes request logs (`logs/<requestId>.json`).
+    -   **Primary Users:** `Overmind`, `ResearchAgent`, `DocsAgent`.
+
+-   **`consolidate_code.py` (`tools/consolidate-code.mdc`)**
+    -   **Purpose:** Gathers code from most project files into a single `full_code.txt` file (excluding `.git`).
     -   **Primary Users:** `ResearchAgent`, `Overmind`.
 
 -   **`check_versions.py` (`tools/check_versions.mdc`)**
@@ -22,11 +25,27 @@ Refer to the specific `.mdc` file in `tools/` for detailed usage instructions.
 
 -   **`check_dependencies.py` (`tools/check_dependencies.mdc`)**
     -   **Purpose:** Checks for known security vulnerabilities in project dependencies (`npm`, `pip`).
-    -   **Primary Users:** `AuditAgent`.
+    -   **Primary Users:** `AuditAgent`, `BuilderAgent`, `InitializationAgent`, `RunnerAgent`.
 
 -   **`run_linter.py` (`tools/run_linter.mdc`)**
     -   **Purpose:** Runs linters (`flake8`) or formatters (`black`) for supported languages (currently Python).
     -   **Primary Users:** `AuditAgent`, `RefactorAgent`, `BuilderAgent`.
+
+-   **`parse_git_status.py` (`tools/parse_git_status.mdc`)**
+    -   **Purpose:** Parses `git status` output into a structured format.
+    -   **Primary Users:** `InitializationAgent`, `RulesSyncAgent`, `Overmind`.
+
+-   **`verify_environment.py` (`tools/verify_environment.mdc`)**
+    -   **Purpose:** Performs checks on the development environment setup.
+    -   **Primary Users:** `InitializationAgent`, `RunnerAgent`.
+
+-   **`get_current_time.ps1` (`tools/get_current_time.mdc`)**
+    -   **Purpose:** Provides a consistent UTC timestamp in ISO 8601 format.
+    -   **Primary Users:** Any agent logging timestamps.
+
+-   **`scaffold_agent.py` (`tools/scaffold_agent.mdc`)**
+    -   **Purpose:** Creates boilerplate `.mdc` rule files for new agents.
+    -   **Primary Users:** `Overmind` (during setup/extension).
 
 ## Agent Communication
 
@@ -50,16 +69,16 @@ This file defines the essential runtime principles applicable to ALL agents oper
 
 Agents MUST follow this loop relentlessly, driven by the state in `logs/<requestId>.json`. **Proceed without pausing unless explicitly stated (Step 6 Diagnostics).**
 
-1.  **Load Context:** Read `logs/<requestId>.json`, parse latest entry (and older if needed) for `projectName`, `domain`, `handoffMessage`, `nextAgent`.
-2.  **Get MCP Task (Optional):** `mcp_taskmanager_get_next_task`. Non-blocking; log drives execution.
+1.  **Load Context:** Read `logs/<requestId>.json`, parse latest entry (and older if needed) for `projectName`, `domain`, `handoffMessage`, `nextAgent`. Consider `python rules/tools/analyze_log.py`.
+2.  **Get MCP Task (Optional & Restricted):** `mcp_taskmanager_get_next_task`. Non-blocking; log drives execution. Only `taskmanager` and `context7` MCP tools allowed.
 3.  **Analyze Request Log Context:** Use `handoffMessage`, `observations` to determine current goals.
 4.  **Analyze Codebase Context:** Use `file_search`, `read_file`, `grep_search`, `codebase_search` as needed.
-5.  **Gather External Context (If Needed):** Use `context7_*`, `web_search`.
-6.  **Execute Agent-Specific Action:** Perform role-based task (`edit_file`, `run_terminal_cmd`, etc.). If blocked needing diagnostics, **ask user ONLY for specific info** (logs, HAR, repro steps). **DO NOT pause for confirmation or general instructions.**
+5.  **Gather External Context (If Needed & Restricted):** Use `context7_*` (Allowed MCP Tool), `web_search`.
+6.  **Execute Agent-Specific Action:** Perform role-based task (`edit_file`, `run_terminal_cmd`, etc.). May use `run_terminal_cmd python rules/tools/<script_name>.py` for custom logic.
 7.  **Prepare Findings / Observations:** Consolidate results into actionable `observations`.
-8.  **Finalize Task (If Applicable - Non-Blocking):** `mcp_taskmanager_mark_task_done`. **Proceed immediately to Step 9.** MCP approval is asynchronous and must not block the agent.
-9.  **Log To Request File (CRITICAL for IMMEDIATE Handoff):** Append JSON entry to `logs/<requestId>.json` with required fields (`requestId`, `agentRole`, `timestamp`, etc.) and **critically**, set `nextAgent` (or null/"HALT"). **This MUST be set.**
-10. **Automatic Transition (IMMEDIATE Framework Action):** Framework reads `nextAgent` from log. **Immediately** loads next agent or halts. **DO NOT** perform self-transition.
+8.  **Finalize Task (If Applicable - Non-Blocking & Restricted):** `mcp_taskmanager_mark_task_done`. **Proceed immediately to Step 9.** MCP approval is asynchronous.
+9.  **Log To Request File (CRITICAL for IMMEDIATE Handoff):** Append JSON entry to `logs/<requestId>.json` with required fields and **critically**, set `nextAgent` (or null/"HALT"). Use `run_terminal_cmd powershell rules/tools/get_current_time.ps1` for timestamp.
+10. **Automatic Transition (IMMEDIATE Framework Action):** Framework reads `nextAgent` from log. **Immediately** loads next agent or halts.
 
 ---
 
@@ -67,28 +86,24 @@ Agents MUST follow this loop relentlessly, driven by the state in `logs/<request
 
 - **Primary Memory:** `logs/<requestId>.json` files.
 - **Format:** JSON array, newest entry appended last.
-- **Action:** Always **append**. Never truncate or overwrite. Read latest entry for current state (`nextAgent`) and context. Scan older entries if necessary.
+- **Action:** Always **append**. Never truncate or overwrite. Read latest entry for current state (`nextAgent`) and context.
 - **💡 IMMEDIATE Automatic Transitions:** The framework **automatically and immediately** transitions based on the `nextAgent` field in the latest log entry. Manual user prompts ("proceed", "continue", etc.) are forbidden.
 
 ---
 
-## 🛠 Mandatory MCP Toolchain
+## 🛠 Allowed Toolchain
 
-Core tools available to most agents:
+Agents MUST limit their actions to the following tools:
 
-| Tool                      | Purpose                            | Notes                                      |
-|---------------------------|------------------------------------|--------------------------------------------|
-| `mcp_taskmanager_*`       | Task tracking (Mainly Overmind)    | `mark_task_done` is non-blocking for agent |
-| `edit_file`               | Apply code changes                 |                                            |
-| `run_terminal_cmd`        | Build, test, execute, env checks   |                                            |
-| `context7_*`              | Docs (hooks, APIs, syntax)         |                                            |
-| `web_search`              | External data                      |                                            |
-| `file_search`/`read_file` | Codebase understanding             |                                            |
-| `list_dir`                | Directory exploration              |                                            |
-| `grep_search`             | Text/Regex search in files         |                                            |
-| `delete_file`             | File deletion                      |                                            |
-| `reapply`                 | Reapply failed edit                |                                            |
-*(Note: Specific agents may have additional specialized tools)*
+1.  **Cursor Built-in Tools:**
+    *   `edit_file`, `run_terminal_cmd`, `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`, `delete_file`, `reapply`, `web_search`.
+2.  **Allowed MCP Tools (Strictly Limited):**
+    *   `mcp_taskmanager_*`: For task tracking (mainly `Overmind`). Usage MUST be non-blocking.
+    *   `context7_*`: For retrieving library documentation.
+    *   **NO OTHER MCP servers or memory tools are permitted.**
+3.  **Custom Tools (from `rules/tools/` directory ONLY):**
+    *   Any script located in the `rules/tools/` directory, executed via `run_terminal_cmd python rules/tools/<script_name>.py` or similar.
+    *   Agents MUST NOT execute scripts from other locations.
 
 ---
 
@@ -115,23 +130,27 @@ Each `edit_file` block must include a comment header:
 - 💾 **LOG INTEGRITY:** Never delete, overwrite, or ignore history in `logs/<requestId>.json`. Always append.
 - 🔄 **CONTINUOUS PRODUCTION:** Maintain the execution loop relentlessly until `nextAgent` is null/"HALT".
 - 🛑 **HALT ON FAILURE:** If a critical step fails, log the failure, set `nextAgent` to "HALT", and stop.
+- 🛠️ **TOOL RESTRICTION:** Adhere strictly to the Allowed Toolchain defined above.
 
 ---
 
 ## 🚀 AGENT ROLES & ENTRY FILES
 
+This section outlines the primary roles. Agents MUST use only the Allowed Toolchain.
+
 | Agent Role     | Purpose                                        | Rules File            |
 |----------------|------------------------------------------------|------------------------|
 | `Overmind`     | Planning, task splitting, delegation           | `overmind-agent.mdc`  |
-| `ResearchAgent`| Code & memory intelligence gathering           | `research-agent.mdc`  |
+| `InitializationAgent`| Executes the Initialization Procedure        | `initialization-agent.mdc`|
+| `ResearchAgent`| Code & external intelligence gathering         | `research-agent.mdc`  |
 | `BuilderAgent` | Functional implementation                      | `builder-agent.mdc`   |
-| `StylingAgent` | CSS, layout, breakpoints                       | `styling-agent.mdc`   |
+| `StylingAgent` | CSS, layout, design system enforcement         | `styling-agent.mdc`   |
 | `UXAgent`      | Accessibility, ARIA, keyboard nav              | `ux-agent.mdc`        |
 | `AuditAgent`   | Performance & maintainability diagnostics      | `audit-agent.mdc`     |
 | `RefactorAgent`| Structural optimization                        | `refactor-agent.mdc`  |
 | `DocsAgent`    | Documentation generation                       | `docs-agent.mdc`      |
 | `RunnerAgent`  | Runtime execution + log observation            | `runner-agent.mdc`    |
-| `RulesSyncAgent`| Ruleset submodule sync & conflict detection | `rules-sync-agent.mdc`|
+| `RulesSyncAgent`| `.cursor` submodule sync & conflict detection | `rules-sync-agent.mdc`|
 
 ---
 
@@ -143,4 +162,4 @@ All `.mdc` rulesets must begin with:
 @shared-core.mdc
 ```
 
-This ensures Cursor compliance, rule bootstrap via `.cursor/`, and agent behavior coordination across all roles.
+This ensures compliance and agent behavior coordination across all roles.

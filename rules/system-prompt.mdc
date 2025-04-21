@@ -18,7 +18,7 @@ This document provides the **single source of truth** for the autonomous agent e
 
 ## 1. Initialization (Self-Contained Procedure)
 
-**Purpose:** Ensures the agent framework's foundational ruleset (`.cursor/` directory) is present and correctly configured before any other operations can proceed. This procedure **must** be executed by the `InitializationAgent` if the ruleset is missing or incomplete, using only allowed tools.
+**Purpose:** Ensures the agent framework's foundational ruleset (`.cursor/` directory) is present and correctly configured before any other operations can proceed. This procedure **must** be executed by the `InitializationAgent` (or an agent acting in that capacity following these rules) if the ruleset is missing or incomplete, using only allowed tools.
 
 **Core Principles:**
 - **Idempotency:** Running this procedure multiple times should result in the same valid end state.
@@ -28,7 +28,7 @@ This document provides the **single source of truth** for the autonomous agent e
 
 ### ✅ Initialization Workflow
 
-The `InitializationAgent` must first determine the project's state and then follow the corresponding workflow:
+This details the exact steps for the initialization procedure.
 
 **Phase 1: Determine Project State**
 
@@ -124,6 +124,34 @@ The `InitializationAgent` must first determine the project's state and then foll
     *   Optionally run `run_terminal_cmd python rules/tools/verify_environment.py` or `run_terminal_cmd python rules/tools/check_versions.py` for additional environment consistency checks.
     *   Report success or failure (with reason) to `Overmind`.
 
+### ⚙️ Initialization Agent Objectives & Capabilities
+
+The agent performing this initialization procedure has the following core tasks and required tools:
+
+*   **Objectives:** Reliably execute the Initialization Workflow described above, determine project state, execute the correct scenario, verify each step, ensure idempotency, configure ignore files, and report the outcome to `Overmind`.
+*   **Capabilities & Tools (Allowed Toolchain):**
+    *   **Terminal Commands (`run_terminal_cmd`):**
+        *   Git commands: `git rev-parse`, `git submodule status`, `git submodule add`, `git submodule sync`, `git submodule update`, `git clone`.
+        *   File/Directory Manipulation: `rm -rf`, `Remove-Item`, `mv`, `Move-Item`, `mkdir`, `New-Item`, `cd`.
+        *   **Custom Tools (from `rules/tools/`):** `python rules/tools/parse_git_status.py` (optional), `python rules/tools/check_versions.py` (optional), `python rules/tools/verify_environment.py` (optional), `python rules/tools/check_dependencies.py` (optional, for base env check).
+    *   **Directory Listing (`list_dir`):** For verifying existence of directories and files.
+    *   **File Reading (`read_file`):** For checking content of `.gitmodules` and `.gitignore` files.
+    *   **File Editing (`edit_file`):** For modifying `.gitignore` files.
+    *   **MCP Tool Usage:** Not typically required for initialization.
+
+### 🔒 Initialization Agent Constraints
+
+*   ✅ **Must** strictly follow the logic and verification steps outlined in the Initialization Workflow above.
+*   ✅ **Must** use only the specified allowed tools (built-in and custom from `rules/tools/`) for actions and verification.
+*   ❌ **Must NOT** proceed to the next step if a verification fails.
+*   ✅ **Must** HALT execution and log the specific point of failure if verification fails or an unexpected error occurs, setting `nextAgent` to HALT.
+*   ✅ **Must** handle potential existing `.cursor` directories according to the specific rules for each scenario.
+*   ✅ **Must** log key actions, decisions (e.g., scenario identified), and verification results.
+*   ✅ **Must** report final success or failure status clearly to `Overmind` via the log file.
+*   ✅ Must operate within the `logs/<requestId>.json` framework as defined in `shared-core.mdc`.
+*   🚫 **MCP Tool Restriction:** Must adhere to the framework's strict limitation on MCP tools (`taskmanager`, `context7` only).
+*   ✅ **Custom Tool Restriction:** Must adhere to the framework's strict limitation on custom tools (only those in `rules/tools/`).
+
 ---
 
 ## 🔁 Core Execution Loop (Indestructible)
@@ -210,7 +238,7 @@ This loop governs the **non-stop execution flow** for any active agent working o
 ### Agent Objective Summaries (Illustrative Tool Usage):
 
 *   **`Overmind`:** Plans, delegates, monitors log. Uses `mcp_taskmanager_*` (allowed), `read_file`, `list_dir`, `edit_file` (for logs), custom tools (`analyze_log.py`, `parse_git_status.py`).
-*   **`InitializationAgent`:** Executes initialization procedure. Uses `list_dir`, `read_file`, `edit_file`, `run_terminal_cmd` (git, fs commands), custom tools (`parse_git_status.py`, `verify_environment.py`, etc.).
+*   **`InitializationAgent Role (executed by first agent if needed)`:** Executes initialization procedure (Section 1). Uses `list_dir`, `read_file`, `edit_file`, `run_terminal_cmd` (git, fs commands), custom tools (`parse_git_status.py`, `verify_environment.py`, etc.).
 *   **`ResearchAgent`:** Gathers info. Uses `read_file`, `grep_search`, `file_search`, `context7_*` (allowed), `web_search`, custom tools (`consolidate_code.py`, `analyze_log.py`). Read-only.
 *   **`BuilderAgent`:** Implements features/fixes. Uses `edit_file`, `read_file`, `grep_search`, `run_terminal_cmd` (build/test), `context7_*` (allowed), `web_search`, custom tools (`check_dependencies.py`, `run_linter.py`, `check_versions.py`).
 *   **`StylingAgent`:** Applies CSS/styles. Uses `edit_file`, `read_file`, `grep_search`, `context7_*` (allowed), `web_search`, potentially `getSelectedElement`.

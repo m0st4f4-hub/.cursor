@@ -3,3 +3,115 @@ description:
 globs:
 alwaysApply: false
 ---
+# Rule: Run Linter/Formatter (`run_linter.py`)
+
+## Purpose
+
+This rule defines how agents should utilize the `run_linter.py` script to perform code linting (checking for style/errors) or formatting (automatically fixing style) for supported languages.
+
+## Tool Description
+
+-   **Script Path:** `tools/run_linter.py`
+-   **Execution:** Run using `python tools/run_linter.py <language> <action> <target>`.
+-   **Arguments:**
+    -   `language`: (Required) The programming language. Currently supported: `python`.
+    -   `action`: (Required) The operation to perform. Supported:
+        -   `lint`: Check for style errors and potential bugs.
+        -   `format`: Automatically reformat the code according to style rules.
+    -   `target`: (Required) The file or directory path to process.
+-   **Prerequisites:**
+    -   **Python:** Requires `flake8` and `black` to be installed (`pip install flake8 black`). Configuration files (e.g., `.flake8`, `pyproject.toml` section for `black`) should exist if non-default settings are used.
+    -   *(Add prerequisites for other languages when supported)*
+-   **Input:** Reads source code files in the specified target path.
+-   **Output:**
+    -   Prints a JSON string summary to standard output.
+    -   The summary includes `language`, `action`, `target`, `success` (boolean), `error` (string message if failed), `issues` (list of findings for `lint`), `issue_count`, `files_formatted` (count for `format`).
+    -   Debugging information is printed to standard error.
+-   **Exit Code:**
+    -   `0`: If the action completed successfully (`lint` found no issues, `format` made no changes or succeeded).
+    -   `1`: If `lint` found issues, or if `format` encountered an error, or if any other error occurred (tool not found, invalid target, etc.).
+
+## When to Use
+
+-   **`AuditAgent`:** Primary user for `lint` action to identify code quality issues.
+-   **`RefactorAgent` / `BuilderAgent`:** Can use `lint` to check code before/after changes. Can use `format` to ensure code style consistency.
+-   **`StylingAgent` (Potentially):** Could use `format` for CSS/JS formatters if added later.
+
+## How to Use
+
+1.  **Determine Task:** Decide whether to `lint` or `format` and identify the `target` file/directory.
+2.  **Construct Command:** Create the command string, e.g., `python tools/run_linter.py python lint ./src` or `python tools/run_linter.py python format my_module.py`.
+3.  **Execute:** Use `run_terminal_cmd` with the constructed command.
+4.  **Check Exit Code & Parse Output:** The agent receives the command result (exit code, stdout JSON). Parse the JSON.
+5.  **Act on Results:**
+    -   For `lint`: Report issues found in `observations`. Hand off to `RefactorAgent` or `BuilderAgent` if fixes are needed.
+    -   For `format`: Note success or errors. If successful and files were changed (`files_formatted > 0`), the code state has changed.
+
+## Example Usage (Agent Step)
+
+```json
+// Agent Log Entry Snippet (e.g., AuditAgent using lint)
+{
+  // ... other fields ...
+  "tasksCompleted": [
+    "Ran flake8 linter on the ./src directory."
+  ],
+  "observations": [
+    {
+      "type": "lint_check",
+      "tool": "flake8",
+      "language": "python",
+      "target": "./src",
+      "exit_code": 1, // Indicates issues found
+      "lint_summary": {
+        // ... fields from the script's JSON output ...
+        "success": true, // Script ran successfully
+        "error": null,
+        "issue_count": 3,
+        "issues": [
+          { "file": "src/module_a.py", "line": 10, "column": 1, "code": "E302", "message": "expected 2 blank lines, found 1" },
+          { "file": "src/module_b.py", "line": 25, "column": 5, "code": "W292", "message": "no newline at end of file" },
+          // ... more issues ...
+        ]
+      }
+    }
+  ],
+  "nextAgent": "RefactorAgent",
+  "handoffMessage": "Linting found 3 issues in ./src (see observations). Please address them."
+}
+```
+
+```json
+// Agent Log Entry Snippet (e.g., BuilderAgent using format)
+{
+  // ... other fields ...
+  "tasksCompleted": [
+    "Ran black formatter on my_new_feature.py."
+  ],
+  "observations": [
+    {
+      "type": "format_check",
+      "tool": "black",
+      "language": "python",
+      "target": "my_new_feature.py",
+      "exit_code": 0, // Format successful (maybe no changes)
+      "format_summary": {
+        // ... fields from the script's JSON output ...
+        "success": true,
+        "error": null,
+        "message": "No changes needed or formatting applied successfully.",
+        "files_formatted": 0
+      }
+    }
+  ],
+  "nextAgent": "AuditAgent", // Or next step in build
+  "handoffMessage": "Formatting check passed for my_new_feature.py."
+}
+```
+
+## Considerations
+
+-   **Installation:** Ensure the underlying tools (`flake8`, `black`, etc.) are installed.
+-   **Configuration:** Tools often rely on configuration files (`.flake8`, `pyproject.toml`). Ensure these are present and correctly configured for the project.
+-   **Performance:** Running linters/formatters on large directories can take time.
+-   **Extensibility:** To support other languages/tools, the `LINTER_COMMANDS` dictionary and parsing logic in `tools/run_linter.py` need updating.

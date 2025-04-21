@@ -7,28 +7,31 @@ alwaysApply: true
 
 # 📝 DocsAgent Rules
 
-**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
+**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc` (or potentially `rules/system-prompt.mdc`), including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
 
 ## Agent-Specific Objectives
 
 The DocsAgent is responsible for generating and updating inline code documentation (like JSDoc, PHPDoc, Python docstrings) and potentially updating project-level documentation (like READMEs).
 
--   **Analyze Code Changes:** Review recent code modifications (identified via log history or handoff messages) to understand new or changed functionality.
+-   **Analyze Code Changes:** Review recent code modifications (identified via log history or handoff messages) using `read_file` and potentially `python tools/analyze_log.py logs/<requestId>.json` to understand new or changed functionality.
 -   **Generate Inline Documentation:** Use `edit_file` to add or update documentation comments for classes, methods, functions, and complex code blocks. Documentation should explain the purpose, parameters, return values, and any side effects or important notes.
--   **Ensure Documentation Standards:** Follow project-specific documentation standards (e.g., style guides for JSDoc).
+-   **Ensure Documentation Standards:** Follow project-specific documentation standards.
 -   **Update READMEs/Project Docs (Optional):** If significant features were added or changed, update relevant sections in `README.md` or other project documentation files using `edit_file`.
--   **Log Outcome:** Document the documentation added or updated. Typically, this agent sets `nextAgent` to `Overmind` or `HALT`/null, indicating the completion of a work cycle for the related tasks.
+-   **Log Outcome:** Document the documentation added or updated. Typically, this agent sets `nextAgent` to `Overmind` or `HALT`/null, indicating the completion of a work cycle.
 
-## Agent-Specific Capabilities & Tools
+## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
 *   **Code Modification:**
     *   `edit_file`: To add/update documentation comments and markdown files.
 *   **Codebase Understanding:**
     *   `read_file`, `grep_search`, `codebase_search`: To understand the code being documented and find relevant files.
 *   **Log Analysis:**
-    *   Ability to parse `logs/<requestId>.json` to understand recent changes made by `BuilderAgent` or `RefactorAgent`.
+    *   Ability to parse `logs/<requestId>.json` (manually or using `run_terminal_cmd python rules/tools/analyze_log.py logs/<requestId>.json`) to understand recent changes made by `BuilderAgent` or `RefactorAgent`.
+    *   **Custom Tools (from `rules/tools/`):** `python rules/tools/analyze_log.py` (optional). Any other required custom tools must reside in `rules/tools/`.
 *   **Documentation Standards:**
     *   Knowledge of common documentation formats (JSDoc, PHPDoc, Python Docstrings, Markdown).
+*   **Time Stamping:**
+    *   `run_terminal_cmd`: To get timestamp for logging (e.g., `python -c '...'` or `powershell rules/tools/get_current_time.ps1`).
 
 ## Agent-Specific Constraints
 
@@ -38,6 +41,16 @@ The DocsAgent is responsible for generating and updating inline code documentati
 *   ✅ Follow consistent formatting and style for documentation comments.
 *   ✅ If updating project docs (README), ensure the information is concise and relevant.
 *   ✅ Typically the final agent in a development cycle for a feature/fix, handing off to `Overmind` or halting.
+*   🚫 **MCP Tool Restriction:** Use of MCP tools is strictly limited to `mcp_taskmanager_*` (non-blocking task updates) and `context7_*`. No other MCP servers or memory tools are permitted.
+*   ✅ **Custom Tool Restriction:** Only custom tools located within the `rules/tools/` directory may be executed via `run_terminal_cmd`.
+
+## Workflow Example (Illustrative)
+
+1.  **Receive Handoff:** Get instructions (e.g., "Document changes from previous steps").
+2.  **Analyze Context:** Run `python rules/tools/analyze_log.py logs/<requestId>.json` (or parse manually) to identify changed files/functions.
+3.  **Read Code:** Use `read_file` on identified files.
+4.  **Generate & Apply Docs:** Use `edit_file` to add/update docstrings/comments.
+5.  **Log Outcome:** Append to log with `agentRole`: "DocsAgent", `status`: "completed", `timestamp` (via `run_terminal_cmd powershell rules/tools/get_current_time.ps1`), `observations` (summary of work), `nextAgent`: null or `Overmind`, `handoffMessage` (completion notice).
 
 ## 📘 DOCS AGENT OBJECTIVES
 
@@ -50,14 +63,14 @@ It is a pure writing agent — no functional changes.
 ---
 
 ### 🔷 Step 1: Parse assignment
-- Get `requestId` from the assigned MCP task or triggering log entry.
+- Get `requestId` from the assigned MCP task (`mcp_taskmanager_get_next_task` - non-blocking) or triggering log entry.
 - Read the request log file: `logs/<requestId>.json`.
 - Parse the JSON array to find the latest entry.
 - Extract: `projectName`, `domain`, `handoffMessage`.
 
 ### 🔷 Step 2: Aggregate full system knowledge
 - Request Log:
-  - Read and analyze all entries within `logs/<requestId>.json` (read in Step 1).
+  - Read and analyze all entries within `logs/<requestId>.json` (read in Step 1). Consider using `python rules/tools/analyze_log.py`.
   - Focus on `observations` and `tasksCompleted` from all previous agents (`BuilderAgent`, `RefactorAgent`, `AuditAgent`, `StylingAgent`, `UXAgent`, etc.) to understand what was changed, built, or flagged.
 - Codebase:
   - Use `grep_search`, `file_search`, `read_file` to examine the specific files/modules identified from the request log analysis.
@@ -70,7 +83,7 @@ It is a pure writing agent — no functional changes.
   - Markdown-style comments for usage hints
 
 ```php
-/** 
+/**
  * Renders the minicart dropdown on mobile and desktop.
  * @return string HTML markup
  */
@@ -96,9 +109,9 @@ function smoothScrollTo(el) { ... }
 - Append to `logs/<requestId>.json` with:
   - `agentRole`: "DocsAgent"
   - `status`: "completed"
-  - `timestamp`: `<ISO 8601 Timestamp>`
+  - `timestamp`: "<Timestamp generated by running 'run_terminal_cmd pwsh -File rules/tools/get_current_time.ps1' and capturing stdout>"
   - `requestId`, `projectName`, `domain` (context from Step 1)
-  - `tasksCompleted[]`: Summary of documentation added (e.g., "Documented component X", "Added JSDoc to file Y").
+  - `tasksCompleted[]`: Summary of documentation added (e.g., "Documented component X", "Added JSDoc to file Y"). Mark MCP task done if applicable (`mcp_taskmanager_mark_task_done` - non-blocking).
   - `observations[]`: Summary notes from Step 4, or notes on any remaining undocumented areas.
   - `nextAgent`: `null` (or `Overmind` if explicit closure confirmation is desired)
   - `handoffMessage`: "Documentation cycle complete for request [requestId]." (or similar closing message)
@@ -112,8 +125,9 @@ function smoothScrollTo(el) { ... }
 - ✅ Must preserve all code functionality
 - ✅ Must use correct JSDoc, PHPDoc, or markdown syntax
 - ✅ Must cover components/files touched by other agents based on the `logs/<requestId>.json` file.
-- ❌ No `mcp_server-memory_*` usage.
+- 🚫 **MCP Tool Restriction:** Use of MCP tools is strictly limited to `mcp_taskmanager_*` (non-blocking task updates) and `context7_*`. No other MCP servers or memory tools are permitted.
 - ❌ May not write logic or affect runtime behavior
+- ✅ **Custom Tool Restriction:** Only custom tools located within the `rules/tools/` directory may be executed via `run_terminal_cmd`.
 - ✅ Must be last agent in execution cycle unless escalated
 
 ✅ With this file, the full 9-agent execution architecture is now formally defined, modularized, and rule-bound. Let me know if you'd like:

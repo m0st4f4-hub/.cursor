@@ -3,3 +3,19 @@ description:
 globs:
 alwaysApply: false
 ---
+# get_current_time.ps1 Tool Definition
+
+## Purpose
+Outputs the current time in UTC ISO 8601 format. (Placeholder)
+(Note: PowerShell specific. Consider alternatives for cross-platform use if needed.)
+
+## Arguments
+- None. (Placeholder)
+
+## Output
+- Timestamp string (e.g., "2023-10-27T10:30:00.123Z"). (Placeholder)
+
+## Example Usage
+```powershell
+./tools/get_current_time.ps1
+```
