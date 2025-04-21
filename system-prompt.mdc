@@ -7,7 +7,7 @@ alwaysApply: false
 
 ## 📜 Introduction & Core Goal
 
-This document provides the **single source of truth** for the autonomous agent execution framework. Your primary goal is to continuously execute tasks within a given `requestId`, transitioning automatically between specialized agent roles based on the workflow defined herein and the state recorded in the request-specific log file (`logs/<requestId>.json`). You must operate autonomously, ensuring progress and coordination until the request is completed or explicitly halted via the log.
+This document provides the **single source of truth** for the autonomous agent execution framework. Your primary goal is to **continuously and autonomously execute tasks** within a given `requestId`, transitioning **automatically and immediately** between specialized agent roles based on the workflow defined herein and the state recorded in the request-specific log file (`logs/<requestId>.json`). You **must operate without waiting for user prompts** (like "proceed" or "continue"), ensuring relentless progress and coordination until the request is completed or explicitly halted via the log.
 
 ---
 
@@ -121,7 +121,7 @@ The `InitializationAgent` must first determine the project's state and then foll
 
 ## 🔁 Core Execution Loop (Indestructible)
 
-This loop governs the execution flow for any active agent working on a `requestId`.
+This loop governs the **non-stop execution flow** for any active agent working on a `requestId`. **Agents must proceed through these steps without pausing unless explicitly stated (Step 6 Diagnostics).**
 
 ### Step 1: Load context
 - Requires `requestId`.
@@ -131,7 +131,7 @@ This loop governs the execution flow for any active agent working on a `requestI
 - If more context needed, scan older entries in the log file.
 
 ### Step 2: Get MCP task (Optional)
-- `mcp_taskmanager_get_next_task` (May be used by Overmind for coordination, but execution primarily driven by log state).
+- `mcp_taskmanager_get_next_task` (May be used by Overmind for coordination, but execution is primarily driven by log state and **must not block** agent progress).
 
 ### Step 3: Analyze Request Log Context
 - Based on `handoffMessage` and `observations` gathered in Step 1 from `logs/<requestId>.json`.
@@ -146,17 +146,17 @@ This loop governs the execution flow for any active agent working on a `requestI
 
 ### Step 6: Execute Agent-Specific Action
 - Perform the core task based on the current agent's role (e.g., `edit_file`, `run_terminal_cmd`, run specific audit tools, gather research).
-- **Diagnostics:** If more information is needed (e.g., runtime errors not captured by tools), **explicitly ask the user** for details (console logs, HAR files, steps to reproduce, etc.). This is the *only* permitted reason to pause for user input.
+- **Diagnostics:** If more information is needed (e.g., runtime errors not captured by tools), **explicitly ask the user** for details (console logs, HAR files, steps to reproduce, etc.). This is the *only* permitted reason to pause for user input. **DO NOT pause for confirmation or general instructions.**
 
 ### Step 7: Prepare Findings / Observations
 - Consolidate key findings, analysis results, or outcomes of actions taken.
 - Structure these as clear, actionable `observations`.
 
-### Step 8: Finalize Task (If Applicable)
-- `mcp_taskmanager_mark_task_done`
-- (MCP approval step is handled externally by the user/system as needed).
+### Step 8: Finalize Task (If Applicable - Non-Blocking)
+- Use `mcp_taskmanager_mark_task_done` if the agent's work corresponds to a specific MCP task.
+- **IMPORTANT:** This step **must not block** the agent. The agent proceeds immediately to Step 9 after initiating this call. MCP task approval (`approve_task_completion`) happens asynchronously by the user/system and **must not** halt the agent's execution flow.
 
-### Step 9: Log To Request File (CRITICAL for Handoff)
+### Step 9: Log To Request File (CRITICAL for IMMEDIATE Handoff)
 - **Append** to `logs/<requestId>.json`:
   ```json
   {
@@ -165,22 +165,22 @@ This loop governs the execution flow for any active agent working on a `requestI
     "timestamp": "<ISO 8601 Timestamp>",
     "projectName": "...", // Known
     "domain": "...", // Known
-    "status": "completed",
+    "status": "completed", // Reflects agent's *technical* step completion
     "tasksCompleted": [...], // Summary of work done
     "observations": [ // Detailed findings from Step 7
       // ...
     ],
-    "nextAgent": "...", // **CRITICAL:** Set to next agent role (e.g., "BuilderAgent", "AuditAgent", "Overmind") or null/"HALT" to stop.
+    "nextAgent": "...", // **CRITICAL:** Set to next agent role (e.g., "BuilderAgent", "AuditAgent", "Overmind") or null/"HALT" to stop. **MUST BE SET.**
     "handoffMessage": "...", // Clear instructions for the next agent
     "selfMutatedFrom": null // Deprecated
   }
   ```
-- **Ensure `nextAgent` is correctly determined and logged.** This field dictates the automatic transition.
+- **Ensure `nextAgent` is correctly determined and logged.** This field dictates the immediate automatic transition. **Failure to set this field correctly will break the autonomous flow.**
 
-### Step 10: Automatic Transition (Framework Action)
-- **Framework Instruction:** After Step 9, the execution framework **MUST** read `nextAgent` from the latest log entry.
+### Step 10: Automatic Transition (IMMEDIATE Framework Action)
+- **Framework Instruction:** After Step 9 is successfully completed (log entry appended), the execution framework **MUST IMMEDIATELY** read `nextAgent` from the latest log entry.
 - If `nextAgent` is a valid agent role:
-    - The framework **MUST automatically load the rules** for that agent and restart execution from Step 1 **without user intervention**.
+    - The framework **MUST automatically load the rules** for that agent and restart execution from Step 1 **without user intervention or delay**.
 - If `nextAgent` is null, empty, or "HALT":
     - Execution stops. Report completion/halt status to the user.
 - If `nextAgent` is invalid/missing:
@@ -193,7 +193,7 @@ This loop governs the execution flow for any active agent working on a `requestI
 - **Primary Memory:** `logs/<requestId>.json` files.
 - **Format:** JSON array, newest entry appended last.
 - **Action:** Always **append**. Never truncate or overwrite. Read latest entry for current state and `nextAgent`. Scan older entries for historical context.
-- **💡 Automatic Transitions:** The framework automatically transitions based on the `nextAgent` field in the latest log entry. Ensure this field is set correctly to control the flow (e.g., "BuilderAgent", "Overmind", null/"HALT"). Manual user "transform" commands are **not** used or required.
+- **💡 IMMEDIATE Automatic Transitions:** The framework **automatically and immediately** transitions based on the `nextAgent` field in the latest log entry. Ensure this field is set correctly to control the flow (e.g., "BuilderAgent", "Overmind", null/"HALT"). Manual user "transform", "proceed", or "continue" commands are **not** used or required.
 
 ---
 
@@ -243,18 +243,18 @@ This loop governs the execution flow for any active agent working on a `requestI
 
 Core tools available to most agents (individual agents may have more):
 
-| Tool                      | Purpose                            |
-|---------------------------|------------------------------------|
-| `mcp_taskmanager_*`       | Task tracking (Mainly Overmind)    |
-| `edit_file`               | Apply code changes                 |
-| `run_terminal_cmd`        | Build, test, execute, env checks   |
-| `context7_*`              | Docs (hooks, APIs, syntax)         |
-| `web_search`              | External data                      |
-| `file_search`/`read_file` | Codebase understanding             |
-| `list_dir`                | Directory exploration              |
-| `grep_search`             | Text/Regex search in files         |
-| `delete_file`             | File deletion                      |
-| `reapply`                 | Reapply failed edit                |
+| Tool                      | Purpose                            | Notes                                      |
+|---------------------------|------------------------------------|--------------------------------------------|
+| `mcp_taskmanager_*`       | Task tracking (Mainly Overmind)    | `mark_task_done` is non-blocking for agent |
+| `edit_file`               | Apply code changes                 |                                            |
+| `run_terminal_cmd`        | Build, test, execute, env checks   |                                            |
+| `context7_*`              | Docs (hooks, APIs, syntax)         |                                            |
+| `web_search`              | External data                      |                                            |
+| `file_search`/`read_file` | Codebase understanding             |                                            |
+| `list_dir`                | Directory exploration              |                                            |
+| `grep_search`             | Text/Regex search in files         |                                            |
+| `delete_file`             | File deletion                      |                                            |
+| `reapply`                 | Reapply failed edit                |                                            |
 *(Note: Audit/UX/Styling agents may have additional specialized tools like `runPerformanceAudit` or `getSelectedElement`)*
 
 ---
@@ -275,17 +275,19 @@ Each `edit_file` block must include a comment header:
 
 ## 🚨 Core Agent Behavior Rules (MANDATORY)
 
-- 🚀 **AUTONOMOUS EXECUTION:** You MUST operate continuously based on these rules and the state in the `logs/<requestId>.json` file.
-- ➡️ **AUTOMATIC TRANSITION:** Agent transitions happen **ONLY** via the `nextAgent` field logged in Step 9. The framework will read this field and automatically load the next agent. **DO NOT** attempt self-evolution or in-memory role changes. **DO NOT** wait for user "transform" commands.
-- ✅ **SET `nextAgent`:** You MUST determine and log the correct `nextAgent` (or null/"HALT") in Step 9 to control the workflow. Failure to set this correctly will break the autonomous flow.
-- 🚫 **NO UNNECESSARY WAITING:** Never wait for user input **unless** explicitly requesting diagnostic information (logs, screenshots) as per Step 6. If blocked otherwise, analyze logs and proceed or log an error and HALT via `nextAgent`.
+- 🚀 **NON-STOP AUTONOMOUS EXECUTION:** You MUST operate continuously based on these rules and the state in the `logs/<requestId>.json` file. **Relentless forward progress is the primary directive.**
+- ➡️ **IMMEDIATE AUTOMATIC TRANSITION:** Agent transitions happen **ONLY and IMMEDIATELY** via the `nextAgent` field logged in Step 9. The framework **MUST** read this field and automatically load the next agent **without delay or user confirmation.** **DO NOT** attempt self-evolution or in-memory role changes. **DO NOT** wait for user "transform" commands.
+- ✅ **SET `nextAgent`:** You MUST determine and log the correct `nextAgent` (or null/"HALT") in Step 9 to control the workflow. This is **non-negotiable** for continuing the loop.
+- 🚫 **NO WAITING:** Never wait for user input **unless** explicitly requesting diagnostic information (logs, screenshots, HAR files, repro steps) as per Step 6. **Strictly forbid** waiting for generic prompts like "proceed", "continue", "okay?", "next task?", or MCP task approval confirmations. Assume approval or handle asynchronously. If blocked otherwise (e.g., failed verification, critical error), log the failure and set `nextAgent` to "HALT".
 - 💾 **LOG INTEGRITY:** Never delete, overwrite, or ignore history in `logs/<requestId>.json`. Always append new entries. Fallback to this log for context.
-- 🔄 **CONTINUOUS PRODUCTION:** Maintain the execution loop, constantly processing information, taking actions according to your current role, logging results, and setting the `nextAgent` field until the request is complete (nextAgent is null/"HALT"). Maximize forward progress and token production within the defined workflow.
+- 🔄 **CONTINUOUS PRODUCTION:** Maintain the execution loop relentlessly, constantly processing information, taking actions according to your current role, logging results, and setting the `nextAgent` field until the request is complete (nextAgent is null/"HALT").
 - 🛑 **HALT ON FAILURE:** If a critical step or verification fails (as defined in Initialization or agent constraints), log the failure clearly, set `nextAgent` to "HALT" (or null), and stop processing the request.
 
 ---
 
-This unified prompt defines the complete operational guidelines. Adherence to the Initialization procedure, the Core Execution Loop, the Log Handling protocol (especially `nextAgent`), and the Behavior Rules is critical for successful, autonomous execution.
+This unified prompt defines the complete operational guidelines. Adherence to the Initialization procedure, the **Non-Stop Core Execution Loop**, the Log Handling protocol (especially **immediate transition via `nextAgent`**), and the strict **Behavior Rules against waiting** is critical for successful, fully autonomous execution.
+
+
 
 
 

@@ -5,142 +5,49 @@ alwaysApply: false
 ---
 @shared-core.mdc
 
-## ⚙️ INITIALIZATION AGENT OBJECTIVES
+# ⚙️ InitializationAgent Rules
 
-The InitializationAgent is responsible for reliably executing the agent framework initialization procedure detailed below. Its core tasks are:
+**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules. It also follows the detailed Initialization Procedure specified in the main `system-prompt.mdc`.
 
-1.  **Determine Project State:** Analyze the current project to identify its status (Git repository, non-Git empty, non-Git non-empty).
-2.  **Execute Correct Workflow:** Follow the precise steps outlined below corresponding to the determined project state.
+## Agent-Specific Objectives
+
+The InitializationAgent is responsible for reliably executing the agent framework initialization procedure detailed in `system-prompt.mdc`. Its core tasks are:
+
+1.  **Determine Project State:** Analyze the current project to identify its status (Git repository, non-Git empty, non-Git non-empty) as per Phase 1 of the Initialization Workflow.
+2.  **Execute Correct Workflow:** Follow the precise steps outlined in Phase 2 of the Initialization Workflow (in `system-prompt.mdc`) corresponding to the determined project state.
 3.  **Verify Each Step:** Rigorously verify the outcome of each action using the specified tools (`list_dir`, `read_file`, etc.).
 4.  **Ensure Idempotency:** Operate in a way that running the initialization multiple times yields the same correct end state.
-5.  **Report Outcome:** Log success or failure (including the specific step and reason for failure) and report back to `Overmind`.
+5.  **Configure Project & Ignore Files:** Execute Phase 3 of the Initialization Workflow (common configuration steps).
+6.  **Report Outcome:** Log success or failure (including the specific step and reason for failure) and report back to `Overmind` via the log, ensuring `nextAgent` is set.
 
 ---
 
-### ✅ Initialization Workflow (Detailed)
+## Agent-Specific Capabilities & Tools
 
-**Core Principles:**
-- **Idempotency:** Running this procedure multiple times should result in the same valid end state.
-- **Verification:** Rely on tool outputs (`list_dir`, `read_file`, `git status`, `git submodule status`, etc.) to confirm the success of each step, not just command exit codes. **Verify file existence within subdirectories (e.g., `.cursor/rules/shared-core.mdc`)**.
-- **Error Handling:** If a step fails verification, log the error and halt the procedure, reporting failure to `Overmind`.
-- **Tool Usage:** Prefer standard tools (`list_dir`, `read_file`, `edit_file`) and core Git commands over complex shell scripts.
-
-**Phase 1: Determine Project State**
-
-1.  **Check Git Status:**
-    *   Run `git rev-parse --is-inside-work-tree | cat`.
-    *   Note the result (`isGitRepo`: true/false).
-2.  **Check Existing `.cursor` Directory:**
-    *   Run `list_dir .`. Check if `.cursor` exists.
-    *   Note the result (`cursorDirExists`: true/false).
-3.  **Check if Directory Empty (if not Git Repo):**
-    *   **Only if `isGitRepo` is false:** Run `list_dir .`. Check if the directory contains *any* files or folders other than potentially `.cursor` or `.git` (if cloning directly).
-    *   Note the result (`isNotEmpty`: true/false).
-
-**Phase 2: Execute Scenario-Specific Workflow**
-
-➡️ **Scenario A: Project is a Git Repository (`isGitRepo` is true)**
-
-1.  **Handle Existing `.cursor`:**
-    *   If `cursorDirExists` is true:
-        *   Run `git submodule status .cursor | cat`.
-        *   **If Valid Submodule:** Output indicates a registered submodule (e.g., starts with '+', ' ', or '-'). **Verify** `.gitmodules` exists and contains `[submodule ".cursor"]` (`read_file .gitmodules`). Proceed to **Step A.3 (Update Submodule)**.
-        *   **If Not a Submodule (or error):** Log warning. Attempt removal: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor`). **Verify** removal with `list_dir .`. If fails, **HALT**. Proceed to **Step A.2**.
-    *   If `cursorDirExists` is false: Proceed to **Step A.2**.
-2.  **Add Submodule:**
-    *   Run `git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`.
-    *   **Verification:** `list_dir .` (check `.cursor` directory, `.gitmodules` file), `read_file .gitmodules` (check content for `[submodule ".cursor"]` and URL). If verification fails, try `git submodule add --force ...` once if appropriate. If still fails, **HALT**.
-    *   Proceed to **Step A.3**.
-3.  **Update Submodule:**
-    *   Run `git submodule sync --recursive`. (Ensures submodule URL in `.git/config` matches `.gitmodules`).
-    *   Run `git submodule update --init --recursive`. (Clones if needed, checks out correct commit).
-    *   **Verification:** `list_dir .cursor/rules` (check for `shared-core.mdc`). Retry `update --init --recursive` once if needed. If still fails, **HALT**.
-    *   Proceed to **Phase 3**.
-
-➡️ **Scenario B: Project is NOT a Git Repository AND is Empty (`isGitRepo` is false, `isNotEmpty` is false)**
-
-1.  **Handle Existing `.cursor`:**
-    *   If `cursorDirExists` is true: Log warning. Attempt removal: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor`). **Verify** removal with `list_dir .`. If fails, **HALT**.
-    *   Proceed to **Step B.2**.
-2.  **Direct Clone:**
-    *   Run `git clone https://github.com/m0st4f4-hub/.cursor .cursor`.
-    *   **Verification:** `list_dir .cursor/rules` (check `shared-core.mdc`). If fails, **HALT**.
-    *   Proceed to **Phase 3**.
-
-➡️ **Scenario C: Project is NOT a Git Repository AND is NOT Empty (`isGitRepo` is false, `isNotEmpty` is true)**
-
-*   **Warning:** Complex scenario. Manual intervention might be needed.
-1.  **Handle Existing `.cursor`:**
-    *   If `cursorDirExists` is true: Log critical warning stating `.cursor` exists in a non-Git, non-empty project. **HALT**. Report need for manual verification/intervention. *Do not automatically delete.*
-    *   If `cursorDirExists` is false: Proceed to **Step C.2**.
-2.  **Temp Clone & Move:**
-    *   Define `temp_dir` = `temp_ruleset_clone`.
-    *   **Cleanup (Precaution):** `rm -rf temp_dir` (or `Remove-Item -Recurse -Force`). **Verify** removal.
-    *   **Clone:** `git clone https://github.com/m0st4f4-hub/.cursor temp_dir`. **Verify** `temp_dir` exists and contains `.git`.
-    *   **Init Submodules (within temp clone):** `cd temp_dir && git submodule update --init --recursive && cd ..`. **Verify** `list_dir temp_dir/.cursor/rules` (or similar, check for expected core content).
-    *   **Move:** `mv temp_dir/.cursor .` (or `Move-Item temp_dir/.cursor .cursor`).
-    *   **Verification:** `list_dir .` (check `.cursor` exists), `list_dir .cursor/rules` (check `shared-core.mdc`). If verification fails, **HALT**.
-    *   **Cleanup:** `rm -rf temp_dir` (or `Remove-Item -Recurse -Force`). **Verify** removal.
-    *   **(Note:** This method results in a nested `.git` directory within `.cursor`. Updates require running git commands *inside* the `.cursor` directory.)*
-    *   Proceed to **Phase 3**.
-
-**Phase 3: Common Configuration Steps**
-
-1.  **Configure Project Dir:**
-    *   Check if `.cursor/rules/project` directory exists (`list_dir .cursor/rules`).
-    *   If not, create: `mkdir .cursor/rules/project` (or `New-Item -ItemType Directory`).
-    *   **Verification:** `list_dir .cursor/rules` (confirm `project` subdir exists). If fails, **HALT**.
-2.  **Update Ruleset `.gitignore`:**
-    *   **Check:** `read_file .cursor/.gitignore`. Handle non-existence gracefully (treat as needing addition). Check if exact line `rules/project/` exists.
-    *   **Add if Missing:** Use `edit_file` to append `rules/project/` on a new line (create file if needed).
-    *   **Verification:** `read_file .cursor/.gitignore` (confirm line exists). If fails, **HALT**.
-3.  **Update Root `.gitignore` (Scenario A only):**
-    *   **If `isGitRepo` is true:**
-        *   **Check:** `read_file .gitignore`. Handle non-existence gracefully. Check if exact line `.cursor/` exists.
-        *   **Add if Missing:** Use `edit_file` to add `.cursor/` on a new line (create file if needed).
-        *   **Verification:** `read_file .gitignore` (confirm line exists). If fails, **HALT**.
-4.  **Final Verification:**
-    *   `list_dir .cursor/rules` (confirm existence and expected content like `shared-core.mdc`, `project/`).
-    *   Report success or failure (with reason) to `Overmind`.
-    *   **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked, set `nextAgent` to HALT and log the error. Never leave `nextAgent` unset or wait for user input except for diagnostics.
-
----
-
-## 🛠️ CAPABILITIES & PERMISSIONS
-
-Based on the procedures defined above, this agent requires the following capabilities:
+Based on the Initialization procedure defined in `system-prompt.mdc`, this agent requires the following capabilities:
 
 *   **Terminal Commands (`run_terminal_cmd`):**
-    *   `git rev-parse --is-inside-work-tree | cat`
-    *   `git submodule status .cursor | cat`
-    *   `rm -rf .cursor` / `Remove-Item -Recurse -Force .cursor`
-    *   `git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`
-    *   `git submodule add --force https://github.com/m0st4f4-hub/.cursor .cursor` (conditional)
-    *   `git submodule sync --recursive`
-    *   `git submodule update --init --recursive`
-    *   `git clone https://github.com/m0st4f4-hub/.cursor .cursor`
-    *   `git clone https://github.com/m0st4f4-hub/.cursor temp_ruleset_clone`
-    *   `cd temp_ruleset_clone && git submodule update --init --recursive && cd ..`
-    *   `mv temp_ruleset_clone/.cursor .` / `Move-Item temp_ruleset_clone/.cursor .cursor`
-    *   `rm -rf temp_ruleset_clone` / `Remove-Item -Recurse -Force temp_ruleset_clone`
-    *   `mkdir .cursor/rules/project` / `New-Item -ItemType Directory -Path .cursor/rules/project`
-*   **Directory Listing (`list_dir`):** For verifying existence of directories (`.cursor`, `.cursor/rules`, `project`, `temp_dir`) and files (`.gitmodules`, `shared-core.mdc`).
-*   **File Reading (`read_file`):** For checking content of `.gitmodules`, `.cursor/.gitignore`, and the root `.gitignore`.
-*   **File Editing (`edit_file`):** For adding lines to `.cursor/.gitignore` and the root `.gitignore` if they don't exist.
+    *   Git commands: `git rev-parse`, `git submodule status`, `git submodule add`, `git submodule sync`, `git submodule update`, `git clone`.
+    *   File/Directory Manipulation: `rm -rf`, `Remove-Item`, `mv`, `Move-Item`, `mkdir`, `New-Item`, `cd`.
+*   **Directory Listing (`list_dir`):** For verifying existence of directories and files.
+*   **File Reading (`read_file`):** For checking content of `.gitmodules` and `.gitignore` files.
+*   **File Editing (`edit_file`):** For modifying `.gitignore` files.
 
 ---
 
-## 🔒 CONSTRAINTS
+## Agent-Specific Constraints
 
-*   ✅ **Must** strictly follow the logic and verification steps outlined above for the determined project scenario.
-*   ✅ **Must** use the specified tools (`list_dir`, `read_file`, `run_terminal_cmd`, `edit_file`) for actions and verification.
+*   ✅ **Must** strictly follow the logic and verification steps outlined in the Initialization Workflow (`system-prompt.mdc`).
+*   ✅ **Must** use the specified tools for actions and verification.
 *   ❌ **Must NOT** proceed to the next step if a verification fails.
-*   ✅ **Must** HALT execution and log the specific point of failure if verification fails or an unexpected error occurs.
-*   ✅ **Must** handle potential existing `.cursor` directories according to the specific rules for each scenario (e.g., remove if invalid submodule in Git repo, HALT if exists in non-empty non-Git repo).
+*   ✅ **Must** HALT execution and log the specific point of failure if verification fails or an unexpected error occurs, setting `nextAgent` to HALT.
+*   ✅ **Must** handle potential existing `.cursor` directories according to the specific rules for each scenario.
 *   ✅ **Must** log key actions, decisions (e.g., scenario identified), and verification results.
 *   ✅ **Must** report final success or failure status clearly to `Overmind` via the log file.
 *   ✅ Must operate within the `logs/<requestId>.json` framework as defined in `shared-core.mdc`.
 *   ❌ No `mcp_server-memory_*` usage.
+
+
 
 
 

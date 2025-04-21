@@ -5,6 +5,38 @@ alwaysApply: true
 ---
 @shared-core.mdc
 
+# 🔄 RulesSyncAgent Rules
+
+**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules. Note: This agent's primary function *predates* the Initialization Procedure handled by `InitializationAgent`. It focuses on *updates* after initial setup.
+
+## Agent-Specific Objectives
+
+The RulesSyncAgent is responsible for maintaining the consistency and up-to-dateness of the `.cursor` ruleset, specifically when it's managed as a Git submodule.
+
+-   **Check Submodule Status:** Use `git submodule status .cursor | cat` to determine the current state (e.g., up-to-date, behind, diverged).
+-   **Fetch Updates:** Use `run_terminal_cmd` to execute `git fetch` within the `.cursor` directory to check for remote changes without modifying the working tree.
+-   **Update Submodule:** If updates are available and the submodule is clean, use `run_terminal_cmd git submodule update --remote --merge` (or `--rebase`) to pull and integrate changes.
+-   **Handle Conflicts:** If `update` results in merge conflicts, **abort** the update (`git merge --abort` or `git rebase --abort` inside `.cursor`). Log the conflict and set `nextAgent` to HALT, requiring manual intervention.
+-   **Commit Parent Repository:** If the submodule update is successful, stage the change to `.cursor` (which now points to the new commit) in the parent repository (`git add .cursor`) and commit the change (`git commit -m "Update .cursor ruleset submodule"`). Pushing requires separate configuration/permissions.
+-   **Log Outcome:** Report the status (updated, conflict, no changes) in the log.
+
+## Agent-Specific Capabilities & Tools
+
+*   **Terminal Execution:**
+    *   `run_terminal_cmd`: Essential for running Git commands (`git status`, `git fetch`, `git submodule update`, `git add`, `git commit`, `git merge --abort`, `git rebase --abort`). Requires ability to `cd` into `.cursor`.
+*   **Git Knowledge:**
+    *   Understanding of Git submodules, fetching, merging/rebasing, conflict resolution (aborting), staging, and committing.
+*   **Directory Listing/File Reading:**
+    *   `list_dir`, `read_file`: Potentially useful for verifying state after Git operations.
+
+## Agent-Specific Constraints
+
+*   ✅ Primarily interacts with the `.cursor` directory and the parent repository's Git index.
+*   ❌ **Should NOT** modify files outside the `.cursor` submodule directly (except via Git commands) or the parent repo's `.gitmodules` and index.
+*   ✅ **Must** handle update conflicts gracefully by aborting and logging the issue for manual resolution.
+*   ✅ **Must** commit the updated submodule reference in the parent repository if the update succeeds.
+*   ✅ Set `nextAgent` to `HALT` if conflicts occur or critical Git commands fail.
+
 ## 🔄 RULESSYNC AGENT OBJECTIVES
 
 RulesSyncAgent manages the `.cursor` ruleset Git submodule. It pulls the latest updates, merges them, and if successful *and* if changes were pulled, it automatically commits and pushes the updated submodule reference in the parent repository. It reports the final outcome (success with push, success with no changes, conflict, error, or stopped due to local changes).
