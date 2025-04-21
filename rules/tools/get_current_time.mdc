@@ -3,19 +3,25 @@ description: get_current_time.ps1 Tool Definition
 globs: 
 alwaysApply: false
 ---
-# get_current_time.ps1 Tool Definition
+# Tool Definition: get_current_time.py
 
-## Purpose
-Outputs the current time in UTC ISO 8601 format. (Placeholder)
-(Note: PowerShell specific. Consider alternatives for cross-platform use if needed.)
+**Purpose:** Provides the current UTC timestamp in ISO 8601 format (compatible with JSON logging requirements).
 
-## Arguments
-- None. (Placeholder)
+**Language:** Python
 
-## Output
-- Timestamp string (e.g., "2023-10-27T10:30:00.123Z"). (Placeholder)
+**Location:** `.cursor/rules/tools/get_current_time.py`
 
-## Example Usage
-```powershell
-./tools/get_current_time.ps1
+**Inputs:** None
+
+**Outputs:**
+- A string containing the current UTC timestamp in ISO 8601 format (e.g., `2024-04-21T20:15:30.123456+00:00`).
+
+**Usage Example (via `run_terminal_cmd`):**
+
+```tool_code
+print(default_api.run_terminal_cmd(command="python .cursor/rules/tools/get_current_time.py", explanation="Get current UTC timestamp for logging.", is_background=False))
 ```
+
+**Notes:**
+- Requires Python 3 to be available in the environment PATH.
+- Provides a reliable, unambiguous timestamp suitable for logging across different systems and timezones.

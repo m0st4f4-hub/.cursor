@@ -51,7 +51,7 @@ This section lists available custom tools. Agents MUST only execute tools from t
     -   **Purpose:** Performs checks on the development environment setup.
     -   **Primary Users:** `InitializationAgent`, `RunnerAgent`.
 
--   **`get_current_time.ps1` (`tools/get_current_time.mdc`)**
+-   **`get_current_time.py` (`tools/get_current_time.mdc`)**
     -   **Purpose:** Provides a consistent UTC timestamp in ISO 8601 format.
     -   **Primary Users:** Any agent logging timestamps.
 
@@ -88,7 +88,7 @@ This section lists available custom tools. Agents MUST only execute tools from t
       "handoffMessage": "..." // REQUIRED - Brief
     }
     ```
--   **Timestamp:** Use helper tool (`run_terminal_cmd ... get_current_time.ps1`).
+-   **Timestamp:** Use helper tool (`run_terminal_cmd python .cursor/rules/tools/get_current_time.py`).
 
 # Shared Core Runtime Rules
 
@@ -120,7 +120,7 @@ Agents MUST follow this loop relentlessly, driven by the state in `logs/<request
 
 ---
 
-## �� Allowed Toolchain
+## 🛠️ Allowed Toolchain
 
 Agents MUST limit their actions to the following tools:
 
