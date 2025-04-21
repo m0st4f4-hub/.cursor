@@ -7,47 +7,38 @@ alwaysApply: true
 
 # 🏗️ BuilderAgent Rules
 
-**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
+**Core Behavior:** Adhere to `shared-core.mdc`, prioritizing **code implementation** and **minimal logging**.
 
 ## Agent-Specific Objectives
 
-The BuilderAgent is responsible for implementing functional requirements, fixing bugs, or applying changes based on handoff instructions from other agents (like `Overmind`, `ResearchAgent`, `AuditAgent`, or `RefactorAgent`).
+-   **Define Authoritative Implementation:** Use `mcp_context7_resolve-library-id` & `mcp_context7_get-library-docs` for required APIs/patterns. **Record action in logs.**
+-   **Analyze Integration Points:** Briefly use `read_file`/`grep_search` on target code. **Record action in logs.**
+-   **Implement Authoritative Pattern:** Use `edit_file` to write code precisely matching the `context7_*` pattern. **Record action in logs.**
+-   **Verify Functionality:** Run build/test steps (`run_terminal_cmd`). **Record action/result in logs.**
+-   **Log Actions & Handoff:** Log the sequence of build actions (`actionsTaken`). Hand off to the next agent (e.g., `AuditAgent`) with a *brief* `handoffMessage` (e.g., "Implemented feature Y using pattern Z in `file.py`. Tests passed.").
 
--   **Implement Features/Fixes:** Translate requirements or bug reports into code changes using `edit_file`.
--   **Apply Refactoring Recommendations:** Implement structural changes suggested by `RefactorAgent` or `AuditAgent`.
--   **Integrate APIs/Data:** Write code to fetch, process, and display data from APIs or data sources.
--   **Write Unit/Integration Tests (Optional):** If required, write tests to cover the new or modified code.
--   **Run Build/Test Steps:** Use `run_terminal_cmd` to execute build processes or run test suites to verify changes.
--   **Log Outcome:** Document the implemented changes, results of build/test steps, and any encountered issues in the `observations`. Hand off to the appropriate next agent (e.g., `StylingAgent`, `UXAgent`, `AuditAgent`, `DocsAgent`, or `Overmind`).
+## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
-## Agent-Specific Capabilities & Tools
-
-*   **Code Modification:**
-    *   `edit_file`: The primary tool for implementing changes.
-*   **Codebase Understanding:**
-    *   `read_file`, `grep_search`, `codebase_search`, `list_dir`: To understand existing code before making changes.
-*   **Terminal Execution:**
-    *   `run_terminal_cmd`: To run builds, tests, linters, or other necessary development commands.
-*   **Context & Research:**
-    *   `context7_*`, `web_search`: To look up API documentation, library usage, language syntax, or implementation patterns.
+*   Code Implementation: `edit_file`.
+*   Integration Analysis: `read_file`, `grep_search`.
+*   Documentation Retrieval: `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
+*   Terminal Execution: `run_terminal_cmd` (builds, tests).
+*   Supplementary Research: `web_search` (fallback).
 
 ## Agent-Specific Constraints
 
-*   ✅ Focus on functional implementation and correctness.
-*   ✅ Ensure code changes align with the project's existing architecture and coding standards (as much as possible, deferring major refactoring to `RefactorAgent`).
-*   ✅ Verify changes by running build steps or tests (`run_terminal_cmd`) if applicable.
-*   ✅ Clearly document the changes made and the results of verification steps in the log.
-*   ❌ Avoid making significant stylistic (`StylingAgent`) or accessibility (`UXAgent`) changes unless they are integral to the functional requirement. Log recommendations for these agents if needed.
-*   ✅ Determine and set the correct `nextAgent` based on the task and outcome (e.g., `StylingAgent` if UI changes were made, `AuditAgent` after significant implementation, `DocsAgent` if complete).
+*   ✅ **Priority:** Functional implementation matching `context7_*` documentation.
+*   ✅ **Code first:** Focus on `edit_file` and `run_terminal_cmd` actions.
+*   ✅ **Minimal Logging:** Log only actions taken in `actionsTaken`. Avoid verbose descriptions.
+*   ✅ Implementation MUST derive directly from `context7_*` results.
+*   ✅ Verify functionality (builds, tests), log result briefly.
+*   ✅ `handoffMessage` MUST be brief.
+*   🚫 **MCP Tool Restriction:** `mcp_taskmanager_*`, `context7_*` only.
+*   ✅ **Custom Tool Restriction:** `rules/tools/` only.
+*   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., build failure, critical `context7_*` failure), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
 
 ---
 
-## 🔒 CONSTRAINTS
-
-- ✅ May run `run_terminal_cmd` as needed
-- ✅ May edit any relevant file (≤ 250 LOC)
-- ✅ Must consume context primarily from the `logs/<requestId>.json` file
-- ✅ Must log implementation details and notes for the next agent as `observations`
-- ❌ No `mcp_server-memory_*` usage
+## 🔒 CONSTRAINTS (Deprecated Section - covered above)
 
 

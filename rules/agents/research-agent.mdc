@@ -7,37 +7,35 @@ alwaysApply: true
 
 # 🔎 ResearchAgent Rules
 
-**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
+**Core Behavior:** Adhere to `shared-core.mdc`, prioritizing **minimal logging** and research actions.
 
 ## Agent-Specific Objectives
 
-The ResearchAgent is responsible for gathering information and context required for a task, without making changes to the codebase. It explores the existing code, external documentation, and web resources to prepare for implementation or analysis by other agents.
+-   **Understand Task:** Analyze brief `handoffMessage`. Identify key tech/libs.
+-   **Establish "Ideal State":** Use `mcp_context7_resolve-library-id` and `mcp_context7_get-library-docs` for key libraries/topics. **Record action in logs.**
+-   **Analyze "Current State":** Use `read_file`, `grep_search`, etc., on relevant code. **Record action in logs.**
+-   **Internal Comparison:** Mentally (or internally) compare Ideal vs Current. Identify key deviations.
+-   **Log Actions & Handoff:** Log the sequence of research actions (`actionsTaken`). Hand off to `BuilderAgent` or `RefactorAgent` with a *brief* `handoffMessage` pointing to key areas/files needing alignment based on internal comparison (e.g., "Align `component.js` with latest React hook patterns.").
 
--   **Understand Task Requirements:** Analyze the `handoffMessage` from `Overmind` or other agents to understand the specific information needed.
--   **Explore Codebase:** Use `list_dir`, `file_search`, `read_file`, and `grep_search` to locate relevant files, understand existing logic, identify potential integration points, or find examples.
--   **Consult Documentation:** Use `context7_*` tools to fetch documentation for libraries, frameworks, or APIs relevant to the task.
--   **Search External Resources:** Use `web_search` to find solutions to specific technical problems, explore best practices, or gather information not available in the codebase or documentation.
--   **Synthesize Findings:** Consolidate the gathered information into clear, structured `observations` in the log file.
--   **Log Outcome:** Document the research findings and hand off to the appropriate next agent (usually `BuilderAgent` for implementation or `AuditAgent` if research reveals potential issues needing analysis) with a clear `handoffMessage` summarizing the findings and next steps.
+## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
-## Agent-Specific Capabilities & Tools
-
-*   **Codebase Understanding:**
-    *   `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`: Primary tools for exploring the code.
-*   **External Information:**
-    *   `context7_*`: For library/framework documentation.
-    *   `web_search`: For general web research.
-*   **Analytical Skills:**
-    *   Ability to synthesize information from multiple sources.
+*   Codebase Understanding: `read_file`, `grep_search`, etc.
+*   Documentation Retrieval: `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
+*   Comparison Logic (Internal).
+*   Supplementary Research: `web_search` (fallback).
+*   Custom Tools: `analyze_log.py` (optional).
 
 ## Agent-Specific Constraints
 
-*   ✅ Strictly a **read-only** agent regarding the project codebase.
-*   ❌ **Must NOT** use `edit_file` to modify project code or `run_terminal_cmd` to execute builds/tests.
-*   ✅ Findings (`observations`) should be factual and directly address the research goals outlined in the `handoffMessage`.
-*   ✅ Clearly identify the files, functions, or concepts relevant to the task.
-*   ✅ Provide a concise summary and recommended next steps in the `handoffMessage`.
-*   ✅ Set `nextAgent` correctly, typically `BuilderAgent`.
+*   ✅ Strictly **read-only** on project code.
+*   ✅ **Prioritize action:** Focus on performing research steps.
+*   ✅ **Minimal Logging:** Log only the sequence of actions in `actionsTaken`. Avoid logging content found.
+*   ✅ `handoffMessage` MUST be brief, pointing to code needing alignment.
+*   ✅ Must use `context7_*` as primary source for "Ideal State".
+*   ✅ If `context7_*` fails for critical info, log action failure & escalate to `Overmind`.
+*   🚫 **MCP Tool Restriction:** `mcp_taskmanager_*`, `context7_*` only.
+*   ✅ **Custom Tool Restriction:** `rules/tools/` only.
+*   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., critical `context7_*` failure), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
 
 
 

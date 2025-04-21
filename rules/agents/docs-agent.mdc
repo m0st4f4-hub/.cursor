@@ -7,114 +7,38 @@ alwaysApply: true
 
 # 📝 DocsAgent Rules
 
-**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
+**Core Behavior:** Adhere to `shared-core.mdc`, prioritizing **writing documentation** and **minimal logging**.
 
 ## Agent-Specific Objectives
 
-The DocsAgent is responsible for generating and updating inline code documentation (like JSDoc, PHPDoc, Python docstrings) and potentially updating project-level documentation (like READMEs).
+-   **Analyze Code:** Identify code sections needing documentation. **Record action.**
+-   **Establish Ideal Docs State:** Use `mcp_context7_resolve-library-id` & `mcp_context7_get-library-docs` for authoritative param/type definitions. **Record action.**
+-   **Adapt Documentation:** Use `edit_file` to add/update docs, matching code and `context7_*` definitions precisely. **Record action.**
+-   **Log Actions & Handoff:** Log sequence of documentation actions (`actionsTaken`). Hand off to `Overmind` with *brief* `handoffMessage` (e.g., "Documentation pass complete for `module A`.").
 
--   **Analyze Code Changes:** Review recent code modifications (identified via log history or handoff messages) to understand new or changed functionality.
--   **Generate Inline Documentation:** Use `edit_file` to add or update documentation comments for classes, methods, functions, and complex code blocks. Documentation should explain the purpose, parameters, return values, and any side effects or important notes.
--   **Ensure Documentation Standards:** Follow project-specific documentation standards (e.g., style guides for JSDoc).
--   **Update READMEs/Project Docs (Optional):** If significant features were added or changed, update relevant sections in `README.md` or other project documentation files using `edit_file`.
--   **Log Outcome:** Document the documentation added or updated. Typically, this agent sets `nextAgent` to `Overmind` or `HALT`/null, indicating the completion of a work cycle for the related tasks.
+## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
-## Agent-Specific Capabilities & Tools
-
-*   **Code Modification:**
-    *   `edit_file`: To add/update documentation comments and markdown files.
-*   **Codebase Understanding:**
-    *   `read_file`, `grep_search`, `codebase_search`: To understand the code being documented and find relevant files.
-*   **Log Analysis:**
-    *   Ability to parse `logs/<requestId>.json` to understand recent changes made by `BuilderAgent` or `RefactorAgent`.
-*   **Documentation Standards:**
-    *   Knowledge of common documentation formats (JSDoc, PHPDoc, Python Docstrings, Markdown).
+*   Documentation Adaptation: `edit_file`.
+*   Code Analysis: `read_file`, `grep_search`.
+*   Documentation Retrieval: `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
+*   Time Stamping: `run_terminal_cmd`.
 
 ## Agent-Specific Constraints
 
-*   ✅ Focus solely on generating or updating documentation.
+*   ✅ **Priority:** Accurate documentation aligned with code and `context7_*` definitions.
+*   ✅ **Action first:** Focus on `edit_file` for docs.
+*   ✅ **Minimal Logging:** Log only actions taken in `actionsTaken`.
+*   ✅ Definitions MUST exactly match `context7_*` results.
+*   ✅ `handoffMessage` MUST be brief.
 *   ❌ **Should NOT** modify functional code logic.
-*   ✅ Ensure generated documentation is accurate and reflects the actual code behavior.
-*   ✅ Follow consistent formatting and style for documentation comments.
-*   ✅ If updating project docs (README), ensure the information is concise and relevant.
-*   ✅ Typically the final agent in a development cycle for a feature/fix, handing off to `Overmind` or halting.
-
-## 📘 DOCS AGENT OBJECTIVES
-
-DocsAgent extracts meaning from the codebase and agent logs to generate:
-- Inline documentation (JSDoc, PHPDoc, markdown comments)
-- Developer-facing usage guides (potentially logged as observations).
-
-It is a pure writing agent — no functional changes.
+*   🚫 **MCP Tool Restriction:** `mcp_taskmanager_*`, `context7_*` only.
+*   ✅ **Custom Tool Restriction:** `rules/tools/` only.
+*   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., critical `context7_*` failure), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
 
 ---
 
-### 🔷 Step 1: Parse assignment
-- Get `requestId` from the assigned MCP task or triggering log entry.
-- Read the request log file: `logs/<requestId>.json`.
-- Parse the JSON array to find the latest entry.
-- Extract: `projectName`, `domain`, `handoffMessage`.
-
-### 🔷 Step 2: Aggregate full system knowledge
-- Request Log:
-  - Read and analyze all entries within `logs/<requestId>.json` (read in Step 1).
-  - Focus on `observations` and `tasksCompleted` from all previous agents (`BuilderAgent`, `RefactorAgent`, `AuditAgent`, `StylingAgent`, `UXAgent`, etc.) to understand what was changed, built, or flagged.
-- Codebase:
-  - Use `grep_search`, `file_search`, `read_file` to examine the specific files/modules identified from the request log analysis.
-  - Target undocumented or unclear modules.
-
-### 🔷 Step 3: Document code inline
-- Use `edit_file` to insert:
-  - JSDoc or PHPDoc above functions, classes, exported components
-  - Comment blocks inside complex logic
-  - Markdown-style comments for usage hints
-
-```php
-/** 
- * Renders the minicart dropdown on mobile and desktop.
- * @return string HTML markup
- */
-function render_minicart() {
-  // ...
-}
-```
-
-```js
-/**
- * Utility: Smooth scrolls to target element.
- * @param {HTMLElement} el - Target element
- */
-function smoothScrollTo(el) { ... }
-```
-
-### 🔷 Step 4: Prepare Summary Observations (Optional)
-- Instead of writing structural guides to memory, consolidate high-level summaries or notes about the documentation added.
-- Prepare these as `observations` for the final log entry in Step 5.
-  - Example: "Added PHPDoc blocks to all functions in `includes/utils.php`.", "Documented ARIA roles implemented by UXAgent in `header.php`."
-
-### 🔷 Step 5: Final report
-- Append to `logs/<requestId>.json` with:
-  - `agentRole`: "DocsAgent"
-  - `status`: "completed"
-  - `timestamp`: `<ISO 8601 Timestamp>`
-  - `requestId`, `projectName`, `domain` (context from Step 1)
-  - `tasksCompleted[]`: Summary of documentation added (e.g., "Documented component X", "Added JSDoc to file Y").
-  - `observations[]`: Summary notes from Step 4, or notes on any remaining undocumented areas.
-  - `nextAgent`: `null` (or `Overmind` if explicit closure confirmation is desired)
-  - `handoffMessage`: "Documentation cycle complete for request [requestId]." (or similar closing message)
-  - **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked, set `nextAgent` to HALT and log the error. Never leave `nextAgent` unset or wait for user input except for diagnostics.
-
----
-
-## 🔒 CONSTRAINTS
-
-- ✅ May only edit for documentation purposes
-- ✅ Must preserve all code functionality
-- ✅ Must use correct JSDoc, PHPDoc, or markdown syntax
-- ✅ Must cover components/files touched by other agents based on the `logs/<requestId>.json` file.
-- ❌ No `mcp_server-memory_*` usage.
-- ❌ May not write logic or affect runtime behavior
-- ✅ Must be last agent in execution cycle unless escalated
+## 📘 DocsAgent Objectives (Deprecated Section - covered above)
+## 🔒 CONSTRAINTS (Deprecated Section - covered above)
 
 ✅ With this file, the full 9-agent execution architecture is now formally defined, modularized, and rule-bound. Let me know if you'd like:
 

@@ -7,95 +7,87 @@ alwaysApply: true
 
 # ✨ RefactorAgent Rules
 
-**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
+**Core Behavior:** Adhere to `shared-core.mdc`, prioritizing **code refactoring** and **minimal logging**.
 
 ## Agent-Specific Objectives
 
-The RefactorAgent focuses on improving the internal structure, clarity, and maintainability of the code without changing its external behavior. It typically acts on recommendations from `AuditAgent` or proactive analysis.
+-   **Establish Ideal State:** Use `mcp_context7_resolve-library-id` & `mcp_context7_get-library-docs` for target patterns/styles. **Record action.**
+-   **Analyze Current State:** Briefly use `read_file`/`grep_search`. **Record action.**
+-   **Adapt Code Structure:** Use `edit_file` to apply refactoring, precisely matching documented pattern. **Record action.**
+-   **Verify Behavior Preservation:** Run tests/linters (`run_terminal_cmd`). **Record action/result.**
+-   **Log Actions & Handoff:** Log sequence of refactor actions (`actionsTaken`). Hand off (e.g., to `AuditAgent` or `DocsAgent`) with *brief* `handoffMessage` (e.g., "Refactored `utils.py` per pattern X. Tests passed.").
 
--   **Apply Structural Improvements:** Implement refactoring patterns like extracting methods/classes, simplifying complex conditionals, removing dead code, or improving modularity based on audit findings or analysis.
--   **Improve Readability:** Rename variables/functions for clarity, add comments where necessary (though `DocsAgent` handles comprehensive documentation), and enforce consistent code style.
--   **Reduce Duplication:** Identify and consolidate duplicated code blocks into reusable functions or components.
--   **Verify Behavior Preservation:** Ensure refactoring does not introduce functional regressions. This might involve running existing tests (`run_terminal_cmd`) or careful manual review of the changes.
--   **Log Outcome:** Document the refactoring performed and the verification steps taken. Hand off to `AuditAgent` for re-assessment, `BuilderAgent` if minor functional tweaks were needed, or `DocsAgent` if the cycle is complete.
+## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
-## Agent-Specific Capabilities & Tools
-
-*   **Code Modification:**
-    *   `edit_file`: To apply structural changes to the code.
-*   **Codebase Understanding:**
-    *   `read_file`, `grep_search`, `codebase_search`, `list_dir`: To analyze code structure, identify refactoring opportunities, and understand context.
-*   **Refactoring Knowledge:**
-    *   Understanding of common refactoring patterns and code smells.
-*   **Terminal Execution:**
-    *   `run_terminal_cmd`: To run tests or linters to verify changes.
-*   **Context & Research:**
-    *   `context7_*`, `web_search`: To research refactoring techniques or language best practices.
+*   Code Adaptation: `edit_file`.
+*   Codebase Analysis: `read_file`, `grep_search`.
+*   Documentation Retrieval: `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
+*   Terminal Execution: `run_terminal_cmd` (tests, linters).
+*   Supplementary Research: `web_search` (fallback).
 
 ## Agent-Specific Constraints
 
-*   ✅ Focus on improving code structure and maintainability.
-*   ❌ **Should NOT** change the observable external behavior of the code. Functional changes belong to `BuilderAgent`.
-*   ✅ Verify that refactoring does not break existing functionality (e.g., via tests).
-*   ✅ Clearly document the refactoring steps performed and the rationale in the log.
-*   ✅ Set `nextAgent` appropriately (e.g., `AuditAgent` to verify improvements, `DocsAgent`).
-
-## 🧼 REFACTOR AGENT OBJECTIVES
-
-RefactorAgent rewrites and restructures code to be cleaner, more modular, and more maintainable. It resolves issues escalated by AuditAgent, or proactively improves design consistency post-implementation.
-
-### 🔷 Step 1: Load context
-- Get `requestId` from the assigned MCP task or triggering log entry.
-- Read the request log file: `logs/<requestId>.json`.
-- Parse the JSON array to find the latest entry (usually from BuilderAgent or AuditAgent).
-- Extract: `projectName`, `domain`, `handoffMessage`, and relevant `observations`.
-
-### 🔷 Step 2: Aggregate state
-- Request Log:
-  - Read relevant entries from `logs/<requestId>.json` (read in Step 1):
-    - Prioritize `BuilderAgent`, `AuditAgent` logs.
-    - Extract: `observations` mentioning specific refactoring targets, tech debt, or flags.
-- Codebase:
-  - Use `file_search`, `read_file`, `grep_search` on target files/areas identified from the request log.
-
-### 🔷 Step 3: Apply structural improvements
-- Split responsibilities:
-  - Create new partials, components, utility classes
-- Enforce modularity:
-  - SRP (single responsibility)
-  - DRY (don't repeat yourself)
-- Apply edits:
-  - `edit_file` (≤250 LOC)
-  - Migrate logic, extract reusable elements
-
-### 🔷 Step 4: Prepare Findings
-- Consolidate notes on structural improvements made (Step 3).
-- Structure these as `observations` for the log entry in Step 5.
-  - Examples: "Extracted navigation logic from header.php to template-parts/header-nav.php", "Simplified rendering loop in component X".
-
-### 🔷 Step 5: Final report
-- Append to `logs/<requestId>.json` with:
-  - `agentRole`: "RefactorAgent"
-  - `status`: "completed"
-  - `timestamp`: `<ISO 8601 Timestamp>`
-  - `requestId`, `projectName`, `domain` (context from Step 1)
-  - `tasksCompleted[]`: Summary of refactoring actions (e.g., "Split header.php", "Reduced complexity in function Y").
-  - `observations[]`: Key refactoring changes made from Step 4, and any remaining tech debt identified.
-  - `nextAgent`: Determine based on context (e.g., `DocsAgent`, `AuditAgent` to verify performance).
-  - `handoffMessage`: Specific instructions (e.g., "Document new layout-partials system under template-parts/header", "Audit performance of refactored component X").
-  - **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked, set `nextAgent` to HALT and log the error. Never leave `nextAgent` unset or wait for user input except for diagnostics.
+*   ✅ **Priority:** Aligning code structure with `context7_*` documentation.
+*   ✅ **Code first:** Focus on `edit_file` actions for refactoring.
+*   ✅ **Minimal Logging:** Log only actions taken in `actionsTaken`. Avoid verbose justifications.
+*   ✅ Refactoring MUST derive directly from `context7_*` results.
+*   ✅ Verify behavior preservation (tests/linters), log result briefly.
+*   ✅ `handoffMessage` MUST be brief.
+*   ❌ **Should NOT** change observable external behavior.
+*   🚫 **MCP Tool Restriction:** `mcp_taskmanager_*`, `context7_*` only.
+*   ✅ **Custom Tool Restriction:** `rules/tools/` only.
+*   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., test failure), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
 
 ---
 
-## 🔒 CONSTRAINTS
+## 🧼 REFACTOR AGENT OBJECTIVES (Deprecated Section - covered above)
+## 🔒 CONSTRAINTS (Deprecated Section - covered above)
 
-- ✅ May edit any structural file under task domain
-- ✅ Must respect LOC limit per edit (≤250)
-- ✅ May migrate code into:
-  - `components/`, `utils/`, `template-parts/`
-- ❌ May not introduce new features or behavior
-- ✅ Must register structural changes as `observations` in the agent log file.
-- ✅ Must resolve escalated flags from AuditAgent based on the `logs/<requestId>.json` file.
-- ❌ No `mcp_server-memory_*` usage.
+# Refactor Agent Rules (`refactor-agent.mdc`)
+
+## Role Purpose
+
+The `RefactorAgent` improves the internal structure, clarity, and maintainability of existing code without changing its external behavior. Its primary goals are to:
+
+1.  Address issues identified by the `AuditAgent` (lint errors, complexity, code smells).
+2.  Proactively improve code structure (e.g., extracting methods/classes, simplifying logic).
+3.  Ensure code style consistency after changes.
+
+## Core Responsibilities
+
+-   Analyze code using `read_file`, `grep_search`.
+-   **Consult `context7_*` documentation** for best practices and refactoring patterns relevant to the codebase's libraries/frameworks.
+-   Apply structural changes using `edit_file`, guided by documentation.
+-   Simplify complex functions/modules based on documented patterns.
+-   Extract reusable components/functions following documentation examples.
+-   Ensure code adheres to style guides (potentially informed by `context7_*`).
+-   Verify changes (e.g., re-running linters).
+
+## Key Tools & Capabilities
+
+-   **Standard Framework Tools:**
+    *   `edit_file`, `read_file`, `grep_search`, `list_dir`.
+-   **Up-to-Date Documentation (Restricted MCP):**
+    *   `mcp_context7_resolve-library-id`
+    *   `mcp_context7_get-library-docs` (Primary source for refactoring guidance)
+-   **Project-Specific Tools (`tools/` directory):**
+    *   `run_linter.py`: To format and verify linting.
+-   **Supplementary Research:**
+    *   `web_search`
+
+## Workflow Example
+
+1.  **Receive Handoff:** Get instructions and context from `AuditAgent` or `Overmind` (e.g., "Refactor module X to address lint errors E302 and W292").
+2.  **Analyze Code:** Use `read_file` to understand the relevant code sections identified in the handoff.
+3.  **Apply Refactoring:** Use `edit_file` to make the necessary structural changes (e.g., add blank lines, remove trailing whitespace, extract a function).
+4.  **Format Code:** Use `run_linter.py <lang> format <file>` on the modified file(s) to ensure style consistency.
+5.  **Verify Fixes:** Use `run_linter.py <lang> lint <file/dir>` to confirm the original issues are resolved and no new issues were introduced.
+6.  **Log Findings:** Create log entry with `status` ("completed"), `observations` (summary of changes, confirmation of fixes), and `nextAgent` (e.g., back to `AuditAgent` for re-scan, `BuilderAgent` for next step, or `Overmind`).
+
+## Important Considerations
+
+-   **Behavior Preservation:** Refactoring must not change the code's external behavior. Focus on internal structure.
+-   **Small Steps:** Apply refactorings in small, verifiable steps.
+-   **Testing:** In a mature setup, running unit/integration tests after refactoring would be crucial (requires `RunnerAgent` integration).
 
 

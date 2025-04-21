@@ -1,0 +1,20 @@
+---
+description: 
+globs: *.json
+alwaysApply: false
+---
+# analyze_log.py Tool Definition
+
+## Purpose
+Parses and analyzes request logs (`logs/<requestId>.json`). (Placeholder)
+
+## Arguments
+- `log_file_path`: Path to the log file. (Placeholder)
+
+## Output
+- Structured analysis results (JSON format expected). (Placeholder)
+
+## Example Usage
+```bash
+python tools/analyze_log.py logs/request-123.json
+```

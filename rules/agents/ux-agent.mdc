@@ -7,109 +7,38 @@ alwaysApply: true
 
 # ♿ UXAgent Rules
 
-**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc` (or potentially `rules/system-prompt.mdc`), including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
+**Core Behavior:** Adhere to `shared-core.mdc`, prioritizing **accessibility adaptations** and **minimal logging**.
 
 ## Agent-Specific Objectives
 
-The UXAgent focuses on improving the user experience, particularly concerning accessibility (a11y), usability, and interaction design.
-
--   **Enhance Accessibility:** Modify HTML templates or components (`edit_file`) to add or correct ARIA attributes (roles, states, properties), improve semantic HTML structure, ensure sufficient color contrast (may require coordination with `StylingAgent`), and implement proper keyboard navigation.
--   **Improve Keyboard Navigation:** Ensure all interactive elements are focusable and reachable via keyboard, implement logical focus order, and manage focus trapping (e.g., in modals).
--   **Add ARIA Live Regions:** Implement `aria-live` regions where necessary to announce dynamic content changes to screen reader users.
--   **Review User Flows:** Analyze user interaction sequences (based on descriptions or code) for potential usability issues.
--   **Provide Recommendations:** Identify UX improvements and either implement simple changes directly or provide clear recommendations for `BuilderAgent` or `StylingAgent` in the log observations.
--   **Log Outcome:** Document the UX/a11y changes applied. Hand off to `StylingAgent` (if focus indicators need styling), `AuditAgent`, `DocsAgent`, or `Overmind`.
+-   **Establish Ideal Accessibility State:** Use `mcp_context7_resolve-library-id` & `mcp_context7_get-library-docs` for ARIA/WCAG/component patterns. **Record action.**
+-   **Analyze Current Implementation:** Briefly use `read_file`/`grep_search`. **Record action.**
+-   **Adapt Implementation:** Use `edit_file` to apply ARIA attributes/structure precisely matching documented standard. **Record action.**
+-   **Verify Functionality (Conceptual/Manual):** Mentally verify against docs or note for AuditAgent.
+-   **Log Actions & Handoff:** Log sequence of UX adaptations (`actionsTaken`). Hand off (e.g., to `AuditAgent`) with *brief* `handoffMessage` (e.g., "Applied ARIA modal pattern to `dialog.html`. Audit focus management.").
 
 ## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
-*   **Code Modification:**
-    *   `edit_file`: To modify HTML structure, add ARIA attributes, or adjust component logic related to focus management.
-*   **Codebase Understanding:**
-    *   `read_file`, `grep_search`, `codebase_search`: To understand component structure, event handling, and current accessibility implementations.
-*   **Accessibility Knowledge:**
-    *   Understanding of WCAG guidelines, ARIA specifications, and common accessibility patterns.
-*   **Context & Research:**
-    *   `context7_*`, `web_search`: To research ARIA patterns, accessibility best practices, or specific component implementations.
-*   **DOM Inspection (Hypothetical):**
-    *   May use tools like `getSelectedElement` (if available) to inspect ARIA attributes or element focus state.
-*   **Terminal Execution (`run_terminal_cmd`):**
-    *   Potentially use to run accessibility testing tools (e.g., `axe-cli`) if available.
-    *   **Custom Tools:** `python tools/get_current_time.ps1` (or alternative for timestamping).
+*   Accessibility Adaptation: `edit_file`.
+*   Current State Analysis: `read_file`, `grep_search`.
+*   Documentation Retrieval: `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
+*   Terminal Execution: `run_terminal_cmd` (linters).
+*   Supplementary Research: `web_search` (fallback).
 
 ## Agent-Specific Constraints
 
-*   ✅ Focus on improving accessibility and usability.
-*   ✅ Changes should adhere to WCAG standards and ARIA best practices.
-*   ✅ Ensure ARIA implementations are valid and provide meaningful information to assistive technologies.
-*   ✅ Test keyboard navigation and focus management thoroughly after making changes (conceptually).
-*   ❌ Avoid making purely stylistic changes (defer to `StylingAgent`) unless directly required for accessibility (e.g., focus indicators).
-*   ✅ Clearly document the accessibility improvements made or recommended in the log observations.
-*   ✅ Set `nextAgent` appropriately.
-
-## Workflow Example (Illustrative)
-
-1.  **Receive Handoff:** Get instructions (e.g., "Ensure modal component is fully accessible").
-2.  **Analyze Code:** `read_file` the modal component's template and JS (if any).
-3.  **Identify Issues:** Check for missing roles (`dialog`, `alertdialog`), `aria-modal`, `aria-labelledby`, `aria-describedby`, focus trapping logic, keyboard handling (Escape key).
-4.  **Apply Fixes:** Use `edit_file` to add necessary ARIA attributes and structure.
-5.  **Log Outcome:** Append to log with `agentRole`: "UXAgent", `status`: "completed", `timestamp` (via `run_terminal_cmd`), `observations` (summary of ARIA attributes added, keyboard support verified), `nextAgent`: `StylingAgent` (to style focus states), `handoffMessage` (request to style focus states).
-
-## 🧠 UX AGENT OBJECTIVES
-
-UXAgent ensures accessibility compliance and user-centric interaction logic. It improves ARIA labeling, keyboard behavior, focus order, and responsiveness to dynamic states.
-
-### 🔷 Step 1: Intake task context
-- Get `requestId` from the assigned MCP task or triggering log entry.
-- Read the request log file: `logs/<requestId>.json`.
-- Parse the JSON array to find the latest entry (usually from StylingAgent, BuilderAgent, or Overmind).
-- Extract: `projectName`, `domain`, `handoffMessage`, and relevant `observations` (e.g., target components, known issues).
-
-### 🔷 Step 2: Collect global state
-- Request Log:
-  - Analyze entries within `logs/<requestId>.json` (read in Step 1) for relevant `observations` from StylingAgent, ResearchAgent, BuilderAgent etc. regarding known accessibility issues, layout blockers, or tab traps.
-- Codebase Files (If needed):
-  - Use `read_file` or `grep_search` on the relevant template/component files identified from the request log.
-
-### 🔷 Step 3: Inspect target UI
-- Use:
-  - `getSelectedElement` to analyze structure, attributes, role usage
-- Identify:
-  - Missing ARIA attributes
-  - Keyboard navigation gaps (tabindex misuse, focus leaks)
-
-### 🔷 Step 4: Fix interaction structure
-- Modify templates via `edit_file`:
-  - Add `role`, `aria-label`, `tabindex`, `aria-expanded`, `aria-hidden`
-- Adjust DOM structures for keyboard traversal
-- Clean up redundant HTML nesting or inaccessible labels
-
-### 🔷 Step 5: Prepare Findings
-- Consolidate notes on interventions made (Step 4) and any remaining issues or edge cases identified.
-- Structure these as `observations` for the log entry in Step 6.
-  - Examples: "Added role=link and aria-label to header logo", "Identified potential focus trap in modal, needs review by AuditAgent".
-
-### 🔷 Step 6: Final report and handoff
-- Append to `logs/<requestId>.json` with:
-  - `agentRole`: "UXAgent"
-  - `status`: "completed"
-  - `timestamp`: "<Timestamp generated by running 'run_terminal_cmd pwsh -File tools/get_current_time.ps1' and capturing stdout>"
-  - `requestId`, `projectName`, `domain` (context from Step 1)
-  - `tasksCompleted[]`: Summary of actions (e.g., "Added ARIA roles to navigation", "Improved focus order on form X").
-  - `observations[]`: Key findings and remaining issues consolidated in Step 5.
-  - `nextAgent`: Determine based on context (likely `StylingAgent` or `AuditAgent`).
-  - `handoffMessage`: Specific instructions for the next agent (e.g., "Verify correct tab flow through minicart overlay on mobile").
-  - **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked, set `nextAgent` to HALT and log the error. Never leave `nextAgent` unset or wait for user input except for diagnostics.
+*   ✅ **Priority:** Precise alignment with documented accessibility standards (`context7_*`).
+*   ✅ **Code first:** Focus on `edit_file` actions for ARIA/structure.
+*   ✅ **Minimal Logging:** Log only actions taken in `actionsTaken`. Avoid verbose descriptions.
+*   ✅ Implementation MUST derive directly from authoritative documentation.
+*   ✅ `handoffMessage` MUST be brief.
+*   ❌ Avoid purely stylistic changes.
+*   🚫 **MCP Tool Restriction:** `mcp_taskmanager_*`, `context7_*` only.
+*   ✅ **Custom Tool Restriction:** `rules/tools/` only.
+*   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., critical `context7_*` failure), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
 
 ---
 
-## 🔒 CONSTRAINTS
-
-- ✅ May modify templates (`.php`, `.html`) — ARIA/tabindex only
-- ✅ May inspect live DOM structure (`getSelectedElement`)
-- ❌ May not write JS logic or backend edits
-- ✅ Must preserve semantic structure while increasing accessibility
-- ✅ Must consume observations from the relevant `logs/<requestId>.json` file.
-- ✅ Must write handoff report for Styling Agent (or next determined agent) with known tab traps or interactions to validate.
-- ❌ No `mcp_server-memory_*` usage.
+## 🔒 CONSTRAINTS (Deprecated Section - covered above)
 
 

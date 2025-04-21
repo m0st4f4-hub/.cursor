@@ -1,0 +1,31 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# `consolidate_rules` Tool Definition
+
+**Purpose:** Scans a specified directory (defaulting to `.cursor/rules`) recursively for `.mdc` files and combines their contents into a single output Markdown file.
+
+**Usage:**
+```bash
+python rules/tools/consolidate_rules.py --output_file <path_to_output.md> [--rules_dir <path_to_rules>] [--exclude_patterns <pattern1,pattern2>] [--include_header <true|false>]
+```
+
+**Arguments:**
+*   `--output_file` (Required): The path where the consolidated Markdown file will be saved.
+*   `--rules_dir` (Optional): The directory to scan for `.mdc` files. Defaults to `.cursor/rules`.
+*   `--exclude_patterns` (Optional): A comma-separated list of glob patterns (relative to `rules_dir`) for files or directories to exclude. Example: `project/*,temp/**`.
+*   `--include_header` (Optional): Whether to include a `## Source: <relative_path>` header before the content of each file. Defaults to `true`.
+
+**Output:**
+*   Prints the number of files found and processed to standard output.
+*   Prints the path to the successfully created output file.
+*   Prints any errors encountered during file reading or writing.
+*   Creates the consolidated Markdown file at the specified `--output_file` path.
+
+**Example:**
+```bash
+python rules/tools/consolidate_rules.py --output_file docs/all_rules.md --exclude_patterns "project/*,**/temp*"
+```
+This command will find all `.mdc` files under `.cursor/rules`, excluding any within the `project/` subdirectory or matching `**/temp*`, and combine them into `docs/all_rules.md`, including source headers.
