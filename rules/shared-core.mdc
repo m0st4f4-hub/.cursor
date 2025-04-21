@@ -1,8 +1,45 @@
 ---
 description: Shared core execution rules with historical append-only coordination and Cursor ruleset bootstrap
-globs: ["**/*"]
+globs:
 alwaysApply: true
 ---
+# Shared Core Rules & Definitions
+
+This file contains definitions, guidelines, and references shared across multiple agents in the framework.
+
+## Common Tools
+
+This section lists commonly available custom tools found in the `tools/` directory.
+Refer to the specific `.mdc` file in `tools/` for detailed usage instructions.
+
+-   **`consolidate_code.py` (`tools/consolidate-code-tool.mdc`)**
+    -   **Purpose:** Gathers code from most project files into a single `full_code.txt` file.
+    -   **Primary Users:** `ResearchAgent`, `Overmind`.
+
+-   **`check_versions.py` (`tools/check_versions.mdc`)**
+    -   **Purpose:** Verifies the presence and version of specified command-line tools (e.g., `python`, `node`, `git`).
+    -   **Primary Users:** `InitializationAgent`, `RunnerAgent`, `BuilderAgent`.
+
+-   **`check_dependencies.py` (`tools/check_dependencies.mdc`)**
+    -   **Purpose:** Checks for known security vulnerabilities in project dependencies (`npm`, `pip`).
+    -   **Primary Users:** `AuditAgent`.
+
+-   **`run_linter.py` (`tools/run_linter.mdc`)**
+    -   **Purpose:** Runs linters (`flake8`) or formatters (`black`) for supported languages (currently Python).
+    -   **Primary Users:** `AuditAgent`, `RefactorAgent`, `BuilderAgent`.
+
+## Agent Communication
+
+-   **Handoff:** Use the `handoffMessage` field in the log entry to provide clear, actionable instructions for the `nextAgent`.
+-   **Observations:** Structure `observations` clearly, often as key-value pairs or lists of findings.
+
+## Logging Standards
+
+-   Log entries MUST include `requestId`, `agentRole`, `timestamp`, `status`, `nextAgent`, and `handoffMessage`.
+-   `observations` should be detailed and specific.
+
+*(Add more shared guidelines as needed)*
+
 # Shared Core Runtime Rules
 
 This file defines the essential runtime principles applicable to ALL agents operating within the Unified Agent Framework. Refer to `system-prompt.mdc` for the complete framework specification and detailed explanations. **Agents MUST adhere strictly to these rules to ensure autonomous, non-stop operation.**

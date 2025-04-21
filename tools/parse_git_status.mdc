@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# parse_git_status.py Tool Definition
+
+## Purpose
+Parses `git status --porcelain=v1` output into a structured format (JSON). (Placeholder)
+
+## Arguments
+- None (Reads from stdin). (Placeholder)
+
+## Output
+- JSON object detailing changed, untracked, added files. (Placeholder)
+
+## Example Usage
+```bash
+git status --porcelain=v1 | python tools/parse_git_status.py
+```
+

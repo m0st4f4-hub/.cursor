@@ -29,6 +29,7 @@ The `InitializationAgent` must first determine the project's state and then foll
 
 1.  **Check Git Status:**
     *   Run `git rev-parse --is-inside-work-tree | cat`.
+    *   Alternatively, use `python tools/parse_git_status.py` for structured output.
     *   Note the result (`isGitRepo`: true/false).
 2.  **Check Existing `.cursor` Directory:**
     *   Run `list_dir .`. Check if `.cursor` exists.
@@ -115,6 +116,7 @@ The `InitializationAgent` must first determine the project's state and then foll
             *   **Verification:** `read_file .gitignore`. If fails, **HALT**.
 4.  **Final Verification:**
     *   Run `list_dir .cursor/rules`. Confirm it exists and contains expected subdirectories/files (`shared-core.mdc`, `project/`, `agents/`).
+    *   Optionally run `python tools/verify_environment.py` or `python tools/check_versions.py` for additional environment consistency checks.
     *   Report success or failure (with reason) to `Overmind`.
 
 ---
@@ -129,6 +131,7 @@ This loop governs the **non-stop execution flow** for any active agent working o
 - Parse the JSON array. Identify the latest entry.
 - Extract: `projectName`, `domain` (from latest entry or assignment), `handoffMessage`.
 - If more context needed, scan older entries in the log file.
+- Agents may optionally utilize `python tools/analyze_log.py logs/<requestId>.json` to assist in parsing.
 
 ### Step 2: Get MCP task (Optional)
 - `mcp_taskmanager_get_next_task` (May be used by Overmind for coordination, but execution is primarily driven by log state and **must not block** agent progress).
@@ -146,6 +149,7 @@ This loop governs the **non-stop execution flow** for any active agent working o
 
 ### Step 6: Execute Agent-Specific Action
 - Perform the core task based on the current agent's role (e.g., `edit_file`, `run_terminal_cmd`, run specific audit tools, gather research).
+- This may involve invoking custom tools from `tools/` using `run_terminal_cmd` (e.g., `python tools/run_linter.py`, `python tools/check_dependencies.py`).
 - **Diagnostics:** If more information is needed (e.g., runtime errors not captured by tools), **explicitly ask the user** for details (console logs, HAR files, steps to reproduce, etc.). This is the *only* permitted reason to pause for user input. **DO NOT pause for confirmation or general instructions.**
 
 ### Step 7: Prepare Findings / Observations
@@ -162,7 +166,7 @@ This loop governs the **non-stop execution flow** for any active agent working o
   {
     "requestId": "...", // Known
     "agentRole": "<current_agent_role>",
-    "timestamp": "<ISO 8601 Timestamp>",
+    "timestamp": "<ISO 8601 Timestamp>", // Use consistent method, e.g., python -c 'import datetime; print(datetime.datetime.now(datetime.timezone.utc).isoformat())' or potentially tools/get_current_time.ps1
     "projectName": "...", // Known
     "domain": "...", // Known
     "status": "completed", // Reflects agent's *technical* step completion
@@ -215,27 +219,28 @@ This loop governs the **non-stop execution flow** for any active agent working o
 
 ### Agent Objective Summaries:
 
-*   **`Overmind`:** Plans overall request, initializes log, delegates initial task, monitors log for completion, delegates subsequent tasks based on `nextAgent`, closes request.
-*   **`InitializationAgent`:** Executes the detailed Initialization Procedure (Section 1 above) based on project state (Git/non-Git, empty/non-empty), ensuring ruleset is present and configured.
-*   **`ResearchAgent`:** Gathers information from codebase (`read_file`, `grep_search`, etc.) and external sources (`context7`, `web_search`) based on handoff instructions. Prepares structured observations for implementation or refactoring agents. Read-only.
-*   **`BuilderAgent`:** Implements functional changes based on research/planning. Modifies code (`edit_file`), potentially runs build steps (`run_terminal_cmd`). Hands off to styling, audit, or refactoring.
+*   **`Overmind`:** Plans overall request, initializes log, delegates initial task, monitors log for completion, delegates subsequent tasks based on `nextAgent`, closes request. May use `analyze_log.py`, `parse_git_status.py`.
+*   **`InitializationAgent`:** Executes the detailed Initialization Procedure (Section 1 above) based on project state (Git/non-Git, empty/non-empty), ensuring ruleset is present and configured. May utilize `parse_git_status.py`, `verify_environment.py`, `check_dependencies.py`, `check_versions.py`.
+*   **`ResearchAgent`:** Gathers information from codebase (`read_file`, `grep_search`, etc.) and external sources (`context7`, `web_search`) based on handoff instructions. Prepares structured observations for implementation or refactoring agents. Read-only. May use `consolidate_code.py`, `analyze_log.py`.
+*   **`BuilderAgent`:** Implements functional changes based on research/planning. Modifies code (`edit_file`), potentially runs build steps (`run_terminal_cmd`). Hands off to styling, audit, or refactoring. May run `check_dependencies.py`, `run_linter.py`, `check_versions.py`.
 *   **`StylingAgent`:** Enforces design system consistency (CSS/SCSS). Modifies stylesheets (`edit_file`), ensures responsive design, uses layout tokens. May inspect DOM (`getSelectedElement`).
 *   **`UXAgent`:** Ensures accessibility (ARIA roles, labels, keyboard navigation, focus management). Modifies templates (`edit_file`), inspects DOM (`getSelectedElement`).
-*   **`AuditAgent`:** Runs diagnostic checks (performance, architecture). Uses specific audit tools, `read_file`, `grep_search`. Identifies issues and recommends next steps (Refactor, Builder, etc.). Read-only.
-*   **`RefactorAgent`:** Improves code structure, modularity, maintainability based on audit findings or proactive analysis. Extracts components, simplifies logic (`edit_file`).
-*   **`DocsAgent`:** Generates inline documentation (JSDoc, PHPDoc) based on code changes and agent log history. Uses `edit_file`. Typically the final agent in a cycle.
-*   **`RunnerAgent`:** Performs initial environmental scans (tool versions, scripts) and runs the application (`run_terminal_cmd`) to gather runtime diagnostics (console/network logs) when needed. Provides context to Overmind.
-*   **`RulesSyncAgent`:** Manages the `.cursor` Git submodule (if used). Pulls updates (`git submodule update`), handles conflicts by aborting, commits/pushes parent repo reference if update successful.
+*   **`AuditAgent`:** Runs diagnostic checks (performance, architecture). Uses specific audit tools, `read_file`, `grep_search`. Identifies issues and recommends next steps (Refactor, Builder, etc.). Read-only. Can leverage `check_dependencies.py`, `run_linter.py`.
+*   **`RefactorAgent`:** Improves code structure, modularity, maintainability based on audit findings or proactive analysis. Extracts components, simplifies logic (`edit_file`). May use `run_linter.py`, `consolidate_code.py`.
+*   **`DocsAgent`:** Generates inline documentation (JSDoc, PHPDoc) based on code changes and agent log history. Uses `edit_file`. Typically the final agent in a cycle. May use `analyze_log.py` for context.
+*   **`RunnerAgent`:** Performs initial environmental scans (tool versions, scripts) and runs the application (`run_terminal_cmd`) to gather runtime diagnostics (console/network logs) when needed. Provides context to Overmind. Relies on `verify_environment.py`, `check_dependencies.py`, `check_versions.py`.
+*   **`RulesSyncAgent`:** Manages the `.cursor` Git submodule (if used). Pulls updates (`git submodule update`), handles conflicts by aborting, commits/pushes parent repo reference if update successful. Uses `git` commands; may supplement with `parse_git_status.py`.
 
 ---
 
 ## 🛠️ Custom Tool Development & Usage
 
-- **Location:** `.cursor/tools/`
+- **Location:** `tools/` (Note: Original prompt mentioned `.cursor/tools/`, but provided tools are in root `tools/`. Adjusted for consistency.)
 - **Development:** Agents like `BuilderAgent` can create/modify tool scripts (`edit_file`).
-- **Execution:** Use `run_terminal_cmd` specifying interpreter and path (e.g., `python .cursor/tools/script.py --arg value`).
+- **Execution:** Use `run_terminal_cmd` specifying interpreter and path (e.g., `python tools/run_linter.py --config project-lint.cfg`, `powershell tools/get_current_time.ps1`).
 - **Responsibility:** Invoking agent must understand tool inputs/outputs.
-- **Tool Rules:** Create `.mdc` files in `.cursor/rules/tools/` defining purpose, args, I/O, examples for discoverability and correct usage.
+- **Tool Rules:** Create `.mdc` files in `tools/` defining purpose, args, I/O, examples for discoverability and correct usage (e.g., `tools/run_linter.mdc`).
+- **Available Tools (Examples):** `analyze_log.py`, `verify_environment.py`, `parse_git_status.py`, `check_dependencies.py`, `run_linter.py`, `check_versions.py`, `consolidate_code.py`, `get_current_time.ps1`.
 
 ---
 
@@ -255,6 +260,7 @@ Core tools available to most agents (individual agents may have more):
 | `grep_search`             | Text/Regex search in files         |                                            |
 | `delete_file`             | File deletion                      |                                            |
 | `reapply`                 | Reapply failed edit                |                                            |
+| `run_terminal_cmd` (custom)| Execute custom scripts (`tools/*`) | e.g., `analyze_log.py`, `run_linter.py`    |
 *(Note: Audit/UX/Styling agents may have additional specialized tools like `runPerformanceAudit` or `getSelectedElement`)*
 
 ---
