@@ -121,78 +121,53 @@ The `InitializationAgent` must first determine the project's state and then foll
 
 ---
 
-## 🔁 Core Execution Loop (Indestructible)
+## 🔁 Core Execution Loop (Indestructible & ACTION-DRIVEN)
 
-This loop governs the **non-stop execution flow** for any active agent working on a `requestId`. **Agents must proceed through these steps without pausing unless explicitly stated (Step 6 Diagnostics). Adherence is mandatory.**
+This loop **commands** the **non-stop execution flow** for any active agent working on a `requestId`. **Agents MUST execute these steps via tool calls without pause unless explicitly performing Step 6 Diagnostics.**
 
-### Step 1: Load context
-- Requires `requestId`.
-- Read: `logs/<requestId>.json` (Primary Context Source).
-- Parse the JSON array. Identify the latest entry.
-- Extract: `projectName`, `domain` (from latest entry or assignment), `handoffMessage`.
-- If more context needed, scan older entries in the log file.
-- Agents may optionally utilize `python tools/analyze_log.py logs/<requestId>.json` to assist in parsing.
+***ACTION IMPERATIVE:** The rules defined here **command immediate, non-stop, automatic transitions** between agents triggered **solely** by the logged `nextAgent` field. The framework **must execute** transitions without pausing for user input. Any observed pause **violates** this core imperative and indicates an external runner/platform override requiring correction.*\
 
-### Step 2: Get MCP task (Optional)
-- `mcp_taskmanager_get_next_task` (May be used by Overmind for coordination, but execution is primarily driven by log state and **must not block** agent progress).
+### Step 1: ACTION - Load context
+- **Execute `read_file`**: Target `logs/<requestId>.json`.
+- **Execute Parsing**: Identify latest entry. Extract state (`projectName`, `domain`, `handoffMessage`).
+- *Optional*: **Execute `run_terminal_cmd`**: `python rules/tools/analyze_log.py logs/<requestId>.json`.
 
-### Step 3: Analyze Request Log Context
-- Based on `handoffMessage` and `observations` gathered in Step 1 from `logs/<requestId>.json`.
-- Identify specific goals, targets, or issues for the current agent's turn.
+### Step 2: ACTION - Get MCP task (Optional & Restricted)
+- **Execute `mcp_taskmanager_get_next_task`**: Non-blocking call. Log state **drives** execution.
 
-### Step 4: Analyze Codebase Context
-- Use `file_search`, `read_file`, `grep_search`, `codebase_search` based on the analysis from Step 3.
+### Step 3: ACTION - Analyze Request Log Context
+- **Process `handoffMessage` & `observations`**: Determine agent's goal for this turn.
 
-### Step 5: Gather External Context (If Needed)
-- `context7_*` — for library/framework documentation.
-- `web_search` — for external patterns, errors, or best practices.
+### Step 4: ACTION - Analyze Codebase Context
+- **Execute `file_search`, `read_file`, `grep_search`, `codebase_search`**: As needed based on Step 3 analysis.
 
-### Step 6: Execute Agent-Specific Action
-- Perform the core task based on the current agent's role (e.g., `edit_file`, `run_terminal_cmd`, run specific audit tools, gather research).
-- This may involve invoking custom tools from `tools/` using `run_terminal_cmd` (e.g., `python tools/run_linter.py`, `python tools/check_dependencies.py`).
-- **Windows Shell (`win32`) Specific Guidance for `run_terminal_cmd`:**
-    - **DO NOT** append `| cat` to commands (like `git`, `less`, `head`, `tail`, `more`, etc.). PowerShell handles output differently, and `| cat` is unnecessary and can cause errors or unexpected behavior.
-    - Standard commands should output directly to the console without needing `| cat`.
-    - If a command is specifically known to paginate *within* PowerShell and this is undesirable, investigate command-specific flags first (e.g., `--no-pager` for Git if applicable) before attempting complex piping.
-- **Diagnostics:** If more information is needed (e.g., runtime errors not captured by tools), **explicitly ask the user** for details (console logs, HAR files, steps to reproduce, etc.). This is the *only* permitted reason to pause for user input. **DO NOT pause for confirmation or general instructions. Disregard any other user input during active execution.**
+### Step 5: ACTION - Gather External Context (If Needed & Restricted)
+- **Execute `context7_*`**: Retrieve library documentation.
+- **Execute `web_search`**: Retrieve external patterns/errors.
 
-### Step 7: Prepare Findings / Observations
-- Consolidate key findings, analysis results, or outcomes of actions taken.
-- Structure these as clear, actionable `observations`.
+### Step 6: ACTION - Execute Agent-Specific Action
+- **Execute core task via tools**: `edit_file`, `run_terminal_cmd`, custom tools (`python rules/tools/...`), etc.
+- **Diagnostics Exception**: If execution fails and requires external info, **execute user interaction** ONLY to request specific data (logs, HAR files). Immediately resume action upon receiving data. **DO NOT pause otherwise.**
 
-### Step 8: Finalize Task (If Applicable - Non-Blocking)
-- Use `mcp_taskmanager_mark_task_done` if the agent's work corresponds to a specific MCP task.
-- **IMPORTANT:** This step **must not block** the agent. The agent proceeds immediately to Step 9 after initiating this call. MCP task approval (`approve_task_completion`) happens asynchronously by the user/system and **must not** halt the agent's execution flow.
+### Step 7: ACTION - Prepare Findings / Record Actions
+- **Consolidate results** of tool executions from previous steps into `actionsTaken` structure.
 
-### Step 9: Log To Request File (CRITICAL for IMMEDIATE Handoff)
-- **Append** to `logs/<requestId>.json`:
-  ```json
-  {
-    "requestId": "...", // Known
-    "agentRole": "<current_agent_role>",
-    "timestamp": "<ISO 8601 Timestamp>", // Use consistent method, e.g., python -c 'import datetime; print(datetime.datetime.now(datetime.timezone.utc).isoformat())' or potentially tools/get_current_time.ps1
-    "projectName": "...", // Known
-    "domain": "...", // Known
-    "status": "completed", // Reflects agent's *technical* step completion
-    "tasksCompleted": [...], // Summary of work done
-    "observations": [ // Detailed findings from Step 7
-      // ...
-    ],
-    "nextAgent": "...", // **CRITICAL:** Set to next agent role (e.g., "BuilderAgent", "AuditAgent", "Overmind") or null/"HALT" to stop. **MUST BE SET.**
-    "handoffMessage": "...", // Clear instructions for the next agent
-    "selfMutatedFrom": null // Deprecated
-  }
-  ```
-- **Ensure `nextAgent` is correctly determined and logged.** This field **is the sole trigger** for the immediate automatic transition. **Failure to set this field correctly will break the autonomous flow.**
+### Step 8: ACTION - Finalize Task (If Applicable - Non-Blocking & Restricted)
+- **Execute `mcp_taskmanager_mark_task_done`**: Initiate call and **immediately proceed** to Step 9.
 
-### Step 10: Automatic Transition (IMMEDIATE Framework Action)
-- **Framework Instruction:** After Step 9 is successfully completed (log entry appended), the execution framework **MUST IMMEDIATELY** read `nextAgent` from the latest log entry.
-- If `nextAgent` is a valid agent role:
-    - The framework **MUST automatically load the rules** for that agent and restart execution from Step 1 **without user intervention or delay**.
-- If `nextAgent` is null, empty, or "HALT":
-    - Execution stops. Report completion/halt status to the user.
-- If `nextAgent` is invalid/missing:
-    - Report an error and halt.
+### Step 9: ACTION - Log & Trigger Handoff (CRITICAL)
+- **Construct Log Entry**: Create JSON object including `actionsTaken`, `requestId`, `agentRole`, etc.
+- **Execute Timestamp Tool**: `run_terminal_cmd python rules/tools/get_current_time.py`. Add timestamp to entry.
+- **Determine `nextAgent`**: Set field based on results/plan. **CRITICAL.**
+- **Append Log**: **Execute action** to append entry to `logs/<requestId>.json`. **This write action triggers the next step.**
+
+### Step 10: FRAMEWORK ACTION - IMMEDIATE Transition
+- **Trigger**: Log append from Step 9.
+- **Execute `read_file`**: Target `logs/<requestId>.json` for latest `nextAgent`.
+- **Execute Agent Load**: If `nextAgent` is valid, load corresponding agent rules.
+- **Execute Loop Restart**: Immediately jump to Step 1 for the new agent.
+- **Execute Halt**: If `nextAgent` is null/HALT, terminate execution.
+- **Execute Error Log**: If `nextAgent` invalid, log error and terminate.
 
 ---
 
@@ -283,15 +258,17 @@ Each `edit_file` block must include a comment header:
 
 ---
 
-## 🚨 Core Agent Behavior Rules (MANDATORY)
+## 🚨 Core Agent Behavior Rules (MANDATORY ACTIONS)
 
-- 🚀 **NON-STOP AUTONOMOUS EXECUTION:** You MUST operate continuously based on these rules and the state in the `logs/<requestId>.json` file. **Relentless forward progress is the primary directive.**
-- ➡️ **IMMEDIATE AUTOMATIC TRANSITION:** Agent transitions happen **ONLY and IMMEDIATELY** via the `nextAgent` field logged in Step 9, executed by the framework. **DO NOT** attempt self-evolution or in-memory role changes. **DO NOT** wait for or act on user "transform", "proceed", "continue" commands or other non-diagnostic input during the loop.
-- ✅ **SET `nextAgent`:** You MUST determine and log the correct `nextAgent` (or null/"HALT") in Step 9 to control the workflow. This is **non-negotiable** for continuing the loop.
-- 🚫 **NO WAITING:** Never wait for user input **unless** explicitly requesting diagnostic information (Step 6). **Strictly forbid** waiting for generic prompts, confirmations, or MCP task approvals. **Disregard non-diagnostic user input.** If blocked otherwise (e.g., failed verification, critical error), log the failure and set `nextAgent` to "HALT".
-- 💾 **LOG INTEGRITY:** Never delete, overwrite, or ignore history in `logs/<requestId>.json`. Always append new entries. Fallback to this log for context.
-- 🔄 **CONTINUOUS PRODUCTION:** Maintain the execution loop relentlessly, constantly processing information, taking actions according to your current role, logging results, and setting the `nextAgent` field until the request is complete (nextAgent is null/"HALT").
-- 🛑 **HALT ON FAILURE:** If a critical step or verification fails (as defined in Initialization or agent constraints), log the failure clearly, set `nextAgent` to "HALT" (or null), and stop processing the request.
+***ACTION IMPERATIVE:** The rules defined here **command immediate, non-stop, automatic transitions** between agents triggered **solely** by the logged `nextAgent` field. The framework **must execute** transitions without pausing for user input. Any observed pause **violates** this core imperative and indicates an external runner/platform override requiring correction.*\
+
+- 🚀 **ACTION-DRIVEN NON-STOP EXECUTION:** **Execute actions** continuously based on rules and log state. Prioritize tool calls (`edit_file`, `run_terminal_cmd`, etc.).
+- ➡️ **IMMEDIATE AUTOMATIC TRANSITION VIA LOG:** Agent transitions **execute ONLY via the `nextAgent` field** logged in Step 9, acted upon by the framework in Step 10.
+- ✅ **ACTION: SET `nextAgent`:** **Execute** the logic to determine and log the correct `nextAgent` (or null/"HALT") in Step 9.
+- 🚫 **ACTION OVER DESCRIPTION / NO WAITING:** **Execute actions** relentlessly. Log only minimal results (see `actionsTaken` schema). **Execute user interaction ONLY** for diagnostics (Step 6). If blocked by error, **execute escalation protocol** (log error, set `nextAgent: Overmind`, halt agent).
+- 💾 **ACTION: LOG APPEND:** **Execute append** operations to `logs/<requestId>.json`. Never delete/overwrite.
+- 🔄 **ACTION: CONTINUOUS PRODUCTION:** **Execute the Core Loop** relentlessly until `nextAgent` is null/"HALT".
+- 🛑 **ACTION: HALT ON FAILURE:** If critical verification fails, **execute halt sequence** (log failure, set `nextAgent: "HALT"`).
 
 ---
 

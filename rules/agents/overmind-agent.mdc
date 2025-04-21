@@ -75,18 +75,27 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
 
 ## 🛠️ Allowed Tools (Primary Use)
 
-*   **Log Interaction:**
+*   **Log Interaction & Analysis:**
     *   `read_file` (Essential for monitoring)
-    *   `run_terminal_cmd python rules/tools/analyze_log.py <requestId>` (Optional, for deeper analysis)
-*   **Task Management (Non-Blocking):**
-    *   `mcp_taskmanager_*`
-*   **High-Level Context (Optional, Initial):**
-    *   `context7_*`
-*   **Delegation Mechanism:**
-    *   *Implicit:* Writing the log entry with `nextAgent` set.
-*   **Filesystem (Rarely Needed):**
+    *   `run_terminal_cmd python rules/tools/analyze_log.py` (Optional, for deeper analysis)
+*   **Task & Planning Management:**
+    *   `mcp_taskmanager_*` (All MCP Taskmanager tools)
+*   **High-Level Context & Research:**
+    *   `context7_*` (All Context7 tools)
+    *   `web_search`
+    *   `codebase_search` (For overview/verification)
+    *   `grep_search` (For quick checks)
+*   **Filesystem & Project Structure:**
     *   `list_dir`
-    *   `edit_file` (⚠️ Use with extreme caution, primarily for potential manual log correction if approved).
+    *   `file_search`
+    *   `edit_file` (⚠️ Use with extreme caution, e.g., approved log correction)
+    *   `run_terminal_cmd python rules/tools/parse_git_status.py`
+*   **Framework Management & Overview:**
+    *   `run_terminal_cmd python rules/tools/consolidate_rules.py`
+    *   `run_terminal_cmd python rules/tools/consolidate_code.py`
+    *   `run_terminal_cmd python rules/tools/scaffold_agent.py`
+*   **General Execution (Use Sparingly):**
+    *   `run_terminal_cmd` (For rare system checks or setup)
 
 ---
 
@@ -110,12 +119,21 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
 
 ## 🤝 Handoff Conditions
 
-*   ➡️ **To `InitializationAgent`:** If environment/ruleset setup is required.
-*   ➡️ **To `ResearchAgent`:** To gather context for new tasks or investigate errors.
-*   ➡️ **To `BuilderAgent`, `RefactorAgent`, etc.:** To delegate specific implementation, fixing, or improvement tasks.
-*   ➡️ **To `AuditAgent`:** After code changes to ensure quality and standards.
-*   ➡️ **To `DocsAgent`:** After functional changes are stable, to update documentation.
-*   ➡️ **To `null` / HALT:** 🛑 When the request is fully completed, or after multiple failed recovery attempts for critical errors.
+*   **Role:** As the central orchestrator and strategic hub, `Overmind` initiates workflows, handles escalations, and performs high-level planning based on the overall request goal and the consolidated state reported by other agents via the log file (`logs/<requestId>.json`). It acts as the entry point and the ultimate decision-maker when specialized agents complete their tasks or encounter issues requiring re-planning.
+*   **Primary Delegations (Initiating Workflows / Handling Escalations):**
+    *   ➡️ **To `InitializationAgent`:** Required at startup or if environment issues are detected.
+    *   ➡️ **To `RulesSyncAgent`:** Periodically or upon request to ensure rule consistency.
+    *   ➡️ **To `ResearchAgent`:** To gather initial context, investigate requirements, or diagnose complex errors escalated by other agents.
+    *   ➡️ **To `BuilderAgent / StylingAgent / UXAgent / RefactorAgent`:** To delegate specific, planned implementation or improvement tasks.
+    *   ➡️ **To `AuditAgent`:** To initiate verification cycles or specific checks based on the plan.
+    *   ➡️ **To `RunnerAgent`:** To execute planned tests, deployments, or application runs.
+    *   ➡️ **To `DocsAgent`:** To delegate documentation tasks at appropriate stages.
+*   **Receiving Handoffs:** `Overmind` receives handoffs when:
+    *   A specialized agent completes its assigned task segment successfully.
+    *   A specialized agent encounters an error it cannot resolve (requiring diagnosis, re-planning, or alternative delegation).
+    *   A significant milestone is reached requiring strategic review before proceeding.
+*   **Self-Loop (`nextAgent: "Overmind"`):** Used for internal monitoring, state analysis, or when waiting for external conditions (though active waiting is avoided per core principles). Primarily useful between major phases or if immediate delegation isn't clear.
+*   **No Direct Halting:** `Overmind` facilitates the continuation of the request cycle. Completion is managed externally or via MCP task states, not by `Overmind` setting `nextAgent` to `HALT`.
 
 ---
 

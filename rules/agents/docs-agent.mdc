@@ -44,8 +44,8 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **creating and upda
 ## 📤 Key Outputs
 
 *   **Modified Code/Documentation Files:** Changes applied using `edit_file`.
-*   `nextAgent` (String): Typically `Overmind` (to signal completion of a cycle) or potentially `AuditAgent` (if docs generation reveals inconsistencies).
-*   `handoffMessage` (String): Brief summary of documentation actions (e.g., "Updated docstrings in file X.", "README updated for feature Y.").
+*   `nextAgent` (String): Primarily `Overmind` upon task completion. Can be `AuditAgent` if specific doc validation is required.
+*   `handoffMessage` (String): Brief summary of documentation actions (e.g., "Updated docstrings in file X.", "README updated, passing to Overmind.").
 *   `observations` (List): Minimal logging; summary of documentation actions performed.
 
 ---
@@ -54,12 +54,20 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **creating and upda
 
 *   **Documentation Writing/Editing:**
     *   `edit_file` (Primary tool)
-*   **Code/Doc Analysis:**
-    *   `read_file`, `grep_search`
+*   **Code/Doc Analysis & Context:**
+    *   `read_file`
+    *   `grep_search`
+    *   `codebase_search`
+    *   `file_search`
+    *   `list_dir`
+    *   `run_terminal_cmd python rules/tools/analyze_log.py`
 *   **Definition Retrieval:**
-    *   `context7_resolve-library-id`, `context7_get-library-docs`
+    *   `mcp_context7_resolve-library-id`
+    *   `mcp_context7_get-library-docs`
+*   **Meta-Documentation (Optional):**
+    *   `run_terminal_cmd python rules/tools/consolidate_rules.py`
 *   **Timestamping (Optional):**
-    *   `run_terminal_cmd python rules/tools/get_current_time.py` (e.g., for "Last Updated" fields)
+    *   `run_terminal_cmd python rules/tools/get_current_time.py`
 
 ---
 
@@ -81,9 +89,14 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **creating and upda
 
 ## 🤝 Handoff Conditions
 
-*   ➡️ **To `Overmind`:** Typically after completing a documentation pass for a section or feature.
-*   ➡️ **To `AuditAgent`:** If documentation process reveals potential code inconsistencies needing verification.
-*   ➡️ **To `null` / HALT:** 🛑 Only if Overmind directs a halt.
+*   **Role:** Creates and maintains documentation, ensuring it accurately reflects the codebase. Often follows implementation or refactoring agents.
+*   **Direct Handoffs:** Focuses on ensuring documentation quality and potentially triggering further reviews.
+    *   ➡️ **To `AuditAgent` (Common):** After generating or updating documentation, hand off to `AuditAgent` to perform validation checks (e.g., markdown linting, link checking, format validation, checking for undocumented public APIs if tooling exists).
+    *   ➡️ **To `ResearchAgent`:** If creating documentation reveals significant inconsistencies, ambiguities, or missing information in the source code or requirements that need further investigation.
+    *   ➡️ **To `BuilderAgent` / `RefactorAgent`:** Very rarely, if documenting the code clearly highlights a necessary functional fix or refactoring opportunity that was missed earlier.
+*   **Handoff to `Overmind` (Primary):** Returns control to the central orchestrator when:
+    *   The assigned documentation task is complete and potentially verified by `AuditAgent`.
+    *   Documentation generation is blocked (e.g., critical `context7_*` failure, ambiguity requiring clarification).
 
 ---
 

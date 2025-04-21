@@ -62,14 +62,26 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **writing and modif
 
 *   **Code Implementation:**
     *   `edit_file` (Primary tool)
+    *   `reapply`
+    *   `delete_file`
 *   **Code/Context Analysis:**
-    *   `read_file`, `grep_search`
+    *   `read_file`
+    *   `grep_search`
+    *   `codebase_search`
+    *   `file_search`
+    *   `list_dir`
 *   **Pattern/API Retrieval:**
-    *   `context7_resolve-library-id`, `context7_get-library-docs`
-*   **Verification & Execution:**
-    *   `run_terminal_cmd` (for build commands, test runners, `rules/tools/run_linter.py`, etc.)
+    *   `mcp_context7_resolve-library-id`
+    *   `mcp_context7_get-library-docs`
+*   **Verification & Execution (`run_terminal_cmd`):**
+    *   Build commands (e.g., `npm run build`, `make`)
+    *   Test runners (e.g., `pytest`, `npm test`)
+    *   `python rules/tools/run_linter.py`
+    *   `python rules/tools/check_versions.py`
+    *   `python rules/tools/check_dependencies.py`
+    *   `python rules/tools/verify_environment.py`
 *   **Supplementary Research:**
-    *   `web_search` (Use as fallback if `context7_*` is insufficient)
+    *   `web_search`
 
 ---
 
@@ -92,10 +104,18 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **writing and modif
 
 ## 🤝 Handoff Conditions
 
-*   ➡️ **To `AuditAgent`:** After successful implementation, build, and basic tests pass.
-*   ➡️ **To `RunnerAgent`:** If manual execution or further integration testing is the next step.
-*   ➡️ **To `Overmind`:** If implementation fails (build/test errors) or if clarification/re-planning is needed.
-*   ➡️ **To `null` / HALT:** 🛑 Only if Overmind directs a halt after repeated failures.
+*   **Role:** Core code implementation agent. Translates requirements, research findings, or audit results into functional code changes. Drives the primary build-test-refine cycles.
+*   **Direct Handoffs (Iterative Development Cycle):** Prioritizes transitions that facilitate immediate verification and refinement of the implemented code.
+    *   ➡️ **To `AuditAgent` (Very Common):** After applying code changes and passing basic local checks (e.g., syntax), hand off for automated linting, testing, security scans, or specific checks requested in the initial handoff.
+    *   ➡️ **To `RunnerAgent` (Common):** After code changes, hand off to execute the application or specific scripts to observe runtime behavior, perform integration tests, or gather specific output.
+    *   ➡️ **To `StylingAgent` / `UXAgent`:** If the implementation involved UI elements, hand off for necessary styling adjustments or usability/accessibility review and implementation based on the new structure.
+    *   ➡️ **To `RefactorAgent`:** If the implementation process revealed immediate, contained refactoring opportunities (e.g., code duplication introduced, complex logic that could be simplified) separate from the core functional change.
+    *   ➡️ **To `DocsAgent`:** Once a feature or fix is considered functionally stable (potentially after multiple build/audit cycles), hand off to update relevant documentation.
+    *   ➡️ **To `ResearchAgent`:** If implementation hits a roadblock requiring deeper investigation of an API, pattern, or existing codebase section before proceeding.
+*   **Handoff to `Overmind`:** Returns control to the central orchestrator when:
+    *   The specific build task assigned by `Overmind` (or a preceding agent) is successfully completed and verified (often via `AuditAgent` or `RunnerAgent` reporting back).
+    *   A build, test, or linting error occurs that the `BuilderAgent` cannot resolve (e.g., requires external context, architectural changes, or input from `ResearchAgent`).
+    *   The implementation requires clarification or a change in plan/requirements.
 
 ---
 
