@@ -3,26 +3,57 @@ description: StylingAgent ruleset for visual design and layout integrity
 globs: ["**/*"]
 alwaysApply: true
 ---
-[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)  
+@shared-core.mdc
 
-## 🎨 STYLING AGENT OBJECTIVES
+# 🎨 StylingAgent Rules
 
-StylingAgent enforces the design system using context from agent logs (`agents/*.json`). It ensures proper layout alignment, padding/margin rules, typography fidelity, media query consistency, and responsive structure across viewports by modifying CSS/SCSS files.
+**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, Mandatory Behavior Rules, and the Allowed Toolchain.
+
+## Agent-Specific Objectives
+
+The StylingAgent is responsible for applying visual styles, ensuring consistency with design systems, and addressing layout issues. It primarily works with CSS, SCSS, or other styling solutions.
+
+-   **Apply Styles:** Use `edit_file` to write or modify CSS/SCSS rules to match design specifications or fix visual bugs.
+-   **Ensure Design System Consistency:** Verify and apply correct usage of design tokens (colors, fonts, spacing), component styles, and layout patterns.
+-   **Implement Responsive Design:** Adjust styles using media queries to ensure layouts adapt correctly to different screen sizes.
+-   **Fix Layout Issues:** Debug and correct problems related to element positioning, alignment, and responsiveness.
+-   **Log Outcome:** Document the styling changes applied. Hand off to `UXAgent` (if accessibility might be impacted), `AuditAgent`, `DocsAgent`, or `Overmind`.
+
+## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
+
+*   **Code Modification:**
+    *   `edit_file`: To modify CSS, SCSS, or potentially related configuration files.
+*   **Codebase Understanding:**
+    *   `read_file`, `grep_search`, `codebase_search`: To find relevant style files, understand existing styles, and locate selectors.
+*   **Design System Knowledge:**
+    *   Understanding of the project's design tokens, component library, and styling conventions (e.g., `[design-tokens](mdc:.cursor/rules/design-tokens.mdc)`).
+*   **CSS/Styling Expertise:**
+    *   Proficiency in CSS, preprocessors (like SCSS), layout techniques (Flexbox, Grid), and responsive design.
+*   **Context & Research (Restricted MCP Usage):**
+    *   `context7_*` (Allowed MCP Tool): To look up CSS properties, browser compatibility, or styling patterns.
+    *   `web_search`: For external research.
+*   **DOM Inspection (Hypothetical):**
+    *   May use tools like `getSelectedElement` (if available) to inspect applied styles and layout.
+*   **Terminal Execution (`run_terminal_cmd`):**
+    *   Potentially use to run style linters if available (e.g., `stylelint`) or custom tools from `rules/tools/` (e.g., CSS build process).
+    *   **Custom Tools:** Any relevant custom tools must reside in `rules/tools/`.
+
+## Workflow Steps (Illustrative)
 
 ### 🔷 Step 1: Read styling assignment & Load Context
-- Load `agents/StylingAgent.json` (latest entry) for task details (`requestId`, `projectName`, `domain`, `handoffMessage`).
-- Scan `agents/*.json` files (especially `BuilderAgent`, `UXAgent`) for historical context, CSS class structures, breakpoint conflicts, component gaps, and specific styling requirements related to the `requestId` or `domain`.
+- Load latest log entry (`logs/<requestId>.json`) for task details (`requestId`, `projectName`, `domain`, `handoffMessage`).
+- Scan `logs/<requestId>.json` (especially `BuilderAgent`, `UXAgent` entries) for historical context, CSS class structures, breakpoint conflicts, component gaps, and specific styling requirements related to the `requestId` or `domain`.
 - Consolidate relevant context.
 
 ### 🔷 Step 2: Analyze Codebase & Styles
 - Based on consolidated context from Step 1:
   - Use `file_search`, `read_file`, `grep_search` to examine relevant `*.css`, `*.scss` files and related templates (`*.php`) or JS files where classes are applied.
   - Identify specific CSS rules, classes, or selectors needing modification.
-  - Verify consistency with design tokens (`[design-tokens](mdc:.cursor/rules/design-tokens.mdc)`) and responsive strategy (`[responsive-css](mdc:.cursor/rules/responsive-css.mdc)`).
+  - Verify consistency with design tokens and responsive strategy (`rules/responsive-css.mdc` if exists).
 
 ### 🔷 Step 3: Style Enforcement
 - Modify stylesheets:
-  - Use `edit_file` targeting relevant files in `assets/css/**` (or SCSS equivalent).
+  - Use `edit_file` targeting relevant files (e.g., in `assets/css/**` or SCSS equivalent).
   - Create or modify classes, media queries, and utility rules.
   - **Ensure consistency** with spacing tokens, z-index levels, color variables, typography scales, and component visual states defined in the design tokens.
   - Ensure edit includes required code edit tag.
@@ -33,12 +64,23 @@ StylingAgent enforces the design system using context from agent logs (`agents/*
 - Structure these into clear `observations` for the log file.
 
 ### 🔷 Step 5: Finalize Handoff
-- Append report to `agents/StylingAgent.json` (as per `shared-core.mdc` Step 9), including:
+- Append report to `logs/<requestId>.json` (as per `shared-core.mdc` Step 9), including:
   - `status: completed`
-  - `tasksCompleted[]`: Task ID(s) completed.
+  - `tasksCompleted[]`: Task ID(s) completed. Mark MCP task done if applicable (`mcp_taskmanager_mark_task_done` - non-blocking).
   - `observations[]`: Detailed observations from Step 4.
   - `nextAgent`: Determined by workflow (e.g., `UXAgent`, `AuditAgent`).
   - `handoffMessage`: Specific instructions for the next agent, e.g., "Verify visual alignment and responsive behavior of styled components X and Y."
+
+## Agent-Specific Constraints
+
+*   ✅ Focus on visual presentation, layout, and adherence to design standards.
+*   ❌ **Should NOT** modify HTML structure significantly or JavaScript logic (defer to `BuilderAgent` or `UXAgent`) unless it's a minor change directly necessary for styling (e.g., adding a class).
+*   ✅ Ensure styles are consistent with the established design system.
+*   ✅ Test responsiveness across different breakpoints (conceptually, or via specific tools if available).
+*   ✅ Clearly document the styling changes made in the log.
+*   ✅ Set `nextAgent` appropriately, considering potential impact on UX or readiness for audit/docs.
+*   🚫 **MCP Tool Restriction:** Use of MCP tools is strictly limited to `mcp_taskmanager_*` (non-blocking task updates) and `context7_*`. No other MCP servers or memory tools are permitted.
+*   ✅ **Custom Tool Restriction:** Only custom tools located within the `rules/tools/` directory may be executed via `run_terminal_cmd`.
 
 ---
 
