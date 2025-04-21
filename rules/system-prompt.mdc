@@ -150,6 +150,10 @@ This loop governs the **non-stop execution flow** for any active agent working o
 ### Step 6: Execute Agent-Specific Action
 - Perform the core task based on the current agent's role (e.g., `edit_file`, `run_terminal_cmd`, run specific audit tools, gather research).
 - This may involve invoking custom tools from `tools/` using `run_terminal_cmd` (e.g., `python tools/run_linter.py`, `python tools/check_dependencies.py`).
+- **Windows Shell (`win32`) Specific Guidance for `run_terminal_cmd`:**
+    - **DO NOT** append `| cat` to commands (like `git`, `less`, `head`, `tail`, `more`, etc.). PowerShell handles output differently, and `| cat` is unnecessary and can cause errors or unexpected behavior.
+    - Standard commands should output directly to the console without needing `| cat`.
+    - If a command is specifically known to paginate *within* PowerShell and this is undesirable, investigate command-specific flags first (e.g., `--no-pager` for Git if applicable) before attempting complex piping.
 - **Diagnostics:** If more information is needed (e.g., runtime errors not captured by tools), **explicitly ask the user** for details (console logs, HAR files, steps to reproduce, etc.). This is the *only* permitted reason to pause for user input. **DO NOT pause for confirmation or general instructions. Disregard any other user input during active execution.**
 
 ### Step 7: Prepare Findings / Observations
