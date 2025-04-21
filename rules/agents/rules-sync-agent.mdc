@@ -11,31 +11,37 @@ alwaysApply: true
 
 ## Agent-Specific Objectives & Workflow
 
-1.  **Check Status within Submodule:** Run `git status --porcelain` inside the `.cursor` directory. **Record action/result.** If output is not empty (local changes present), HALT and report error (local changes detected in submodule). Provide a `handoffMessage`: "Sync aborted: Uncommitted changes detected within the .cursor submodule. Please commit or discard changes inside .cursor before retrying sync."
+1.  **Check Status within Submodule:** Run `git status --porcelain` inside the `.cursor` directory. **Record action/result.** (Note: The submodule might be in a detached HEAD state, which is normal during updates. This check focuses on uncommitted file changes). If output is not empty (local changes present), HALT and report error (local changes detected in submodule). Provide a `handoffMessage`: "Sync aborted: Uncommitted changes detected within the .cursor submodule. Please commit or discard changes inside .cursor before retrying sync."
 2.  **Attempt Submodule Update:** Run `git submodule update --remote --merge .cursor`. **Record action/result.**
-3.  **Evaluate Update Outcome:** Check the exit code and output of the update command.
-    *   **On Success (Exit Code 0):** Check `git status` in the parent repo. If the `.cursor` submodule shows as modified (new commit pointer), proceed to Step 4. If it's not modified (already up-to-date), proceed directly to Step 7 (Log Final Actions - Success, No Change).
-    *   **On Conflict/Failure (Non-zero Exit Code):** HALT immediately. Log the specific error message from the update command. Set `nextAgent` to `Overmind` or HALT. Provide a detailed `handoffMessage` explaining that a conflict occurred *within* the `.cursor` submodule during the merge attempt, requiring manual resolution: "Sync failed: Merge conflict detected *within* .cursor submodule during update. Manual resolution required: `cd .cursor`, resolve conflicts in files indicated by `git status`, `git add <resolved_files>`, `git commit`, `cd ..`, then retry sync or manually run `git add .cursor` and `git commit` in the parent repo.".
+3.  **Evaluate Update Outcome & Post-Update Status:**
+    *   Check the exit code of the update command (Step 2).
+    *   **If Exit Code Non-zero (Conflict/Failure):** HALT immediately. Log the specific error message from the update command. Set `nextAgent` to `Overmind` or HALT. Provide a detailed `handoffMessage` explaining that a conflict occurred *within* the `.cursor` submodule during the merge attempt, requiring manual resolution: "Sync failed: Merge conflict detected *within* .cursor submodule during update. Manual resolution required: `cd .cursor`, resolve conflicts in files indicated by `git status`, `git add <resolved_files>`, `git commit`, `cd ..`, then retry sync or manually run `git add .cursor` and `git commit` in the parent repo.".
+    *   **If Exit Code Zero (Success):** Run `git status` in the parent repository. **Record action/result.**
+        *   **Check for Dirty Submodule Content:** If `git status` output contains `modified:   .cursor (modified content)`, HALT. Provide `handoffMessage`: "Sync Error: Submodule update succeeded, but left uncommitted modifications within the .cursor directory. Please `cd .cursor`, inspect changes (`git status`), and commit or discard them before proceeding."
+        *   **Check for New Commit Pointer:** If `git status` output contains `modified:   .cursor` (without `(modified content)`), it means the submodule pointer has changed. Proceed to Step 4.
+        *   **If No Changes:** If `git status` shows no changes related to `.cursor`, the submodule was already up-to-date. Proceed directly to Step 7 (Log Final Actions - Success, No Change).
 4.  **Stage Parent Update (Success Path - Pointer Changed):** Run `git add .cursor`. **Record action.**
-5.  **Commit Parent Update (Success Path - Pointer Changed):** Run `git commit -m "chore: Update .cursor submodule reference"`. **Record action/result.** Check exit code. If commit fails due to unclean parent working tree (other changes present), HALT and report: "Sync Error: Parent commit failed. Submodule reference updated locally but cannot commit due to other uncommitted changes in the parent repository. Please clean the parent working directory and commit the submodule update manually (`git add .cursor`, `git commit ...`)."
+5.  **Commit Parent Update (Success Path - Pointer Changed):** Run `git commit -m "chore: Update .cursor submodule reference"`. **Record action/result.** Check exit code. If commit fails due to unclean parent working tree (other changes present *besides* the `.cursor` update), HALT and report: "Sync Error: Parent commit failed. Submodule reference staged but cannot commit due to other uncommitted changes in the parent repository. Please clean the parent working directory and commit the submodule update manually (`git add .cursor`, `git commit ...`)."
 6.  **Push Parent Repository (Success Path - Pointer Changed & Committed):** Run `git push`. **Record action/result.**
 7.  **Log Final Actions & Handoff:** Log sequence of Git actions (`actionsTaken`). Hand off to `Overmind` with *brief* `handoffMessage` indicating outcome (e.g., "Submodule sync successful: Parent repository updated and pushed.", "Submodule sync successful: No changes needed.", or the specific error/halt message from previous steps).
 
 ## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
 *   Terminal Execution: `run_terminal_cmd` (Git commands: `status`, `submodule update`, `add`, `commit`, `push`).
-*   Git Knowledge: Submodules, status, update, commit, conflict basics (pointer vs content).
+*   Git Knowledge: Submodules, status, update, commit, conflict basics (pointer vs content), detached HEAD.
 
 ## Agent-Specific Constraints
 
-*   ✅ **Priority:** Reliably updating the submodule reference and the parent repository.
+*   ✅ **Priority:** Reliably updating the submodule reference and the parent repository **only when both are in a clean state.**
 *   ✅ **Action first:** Focus on `run_terminal_cmd` for Git operations.
 *   ✅ **Minimal Logging:** Log only Git commands run and brief results/status in `actionsTaken`.
-*   ✅ **MANDATORY:** Must check for local changes *within* the submodule before updating and HALT if found.
-*   ✅ **MANDATORY:** Must HALT immediately on any submodule update conflict or failure. **Do NOT attempt automatic conflict resolution.** Provide clear manual resolution steps in the handoff, distinguishing between pointer and content conflicts if possible based on error messages.
-*   ✅ **MANDATORY:** Must stage and commit the parent repository (`git add .cursor`, `git commit`) *only* after a successful submodule update *that resulted in a changed pointer*.
-*   ✅ **MANDATORY:** Must HALT if the parent commit step fails due to an unclean working tree in the parent repository.
-*   ✅ `handoffMessage` MUST be brief on success, but detailed on failure (explaining the conflict/error location and manual steps).
+*   ✅ **MANDATORY:** Must check for local changes *within* the submodule **before** updating and HALT if found.
+*   ✅ **MANDATORY:** Must HALT immediately on any submodule update conflict or failure.
+*   ✅ **MANDATORY:** Must check parent `git status` **after** successful submodule update and HALT if submodule shows `(modified content)`. 
+*   ✅ **MANDATORY:** Must stage and commit the parent repository (`git add .cursor`, `git commit`) *only* after a successful submodule update *that resulted in a changed pointer* and *only if the parent working tree is otherwise clean*.
+*   ✅ **MANDATORY:** Must HALT if the parent commit step fails due to an unclean working tree in the parent repository (other changes present).
+*   ❌ **Do NOT** attempt automatic conflict resolution.
+*   ✅ `handoffMessage` MUST be brief on success, but detailed on failure (explaining the specific state and manual steps required).
 *   🚫 **MCP Tool Restriction:** Not expected.
 *   ✅ **Custom Tool Restriction:** `rules/tools/` only.
 *   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., Git command failure *not* related to conflict/unclean tree), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
