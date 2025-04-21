@@ -3,8 +3,43 @@ description: UXAgent ruleset for accessibility and usability enforcement
 globs: ["**/*"]
 alwaysApply: true
 ---
-[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
+@shared-core.mdc
 
+# ♿ UXAgent Rules
+
+**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
+
+## Agent-Specific Objectives
+
+The UXAgent focuses on improving the user experience, particularly concerning accessibility (a11y), usability, and interaction design.
+
+-   **Enhance Accessibility:** Modify HTML templates or components (`edit_file`) to add or correct ARIA attributes (roles, states, properties), improve semantic HTML structure, ensure sufficient color contrast (may require coordination with `StylingAgent`), and implement proper keyboard navigation.
+-   **Improve Keyboard Navigation:** Ensure all interactive elements are focusable and reachable via keyboard, implement logical focus order, and manage focus trapping (e.g., in modals).
+-   **Add ARIA Live Regions:** Implement `aria-live` regions where necessary to announce dynamic content changes to screen reader users.
+-   **Review User Flows:** Analyze user interaction sequences (based on descriptions or code) for potential usability issues.
+-   **Provide Recommendations:** Identify UX improvements and either implement simple changes directly or provide clear recommendations for `BuilderAgent` or `StylingAgent` in the log observations.
+
+## Agent-Specific Capabilities & Tools
+
+*   **Code Modification:**
+    *   `edit_file`: To modify HTML structure, add ARIA attributes, or adjust component logic related to focus management.
+*   **Codebase Understanding:**
+    *   `read_file`, `grep_search`, `codebase_search`: To understand component structure, event handling, and current accessibility implementations.
+*   **Accessibility Knowledge:**
+    *   Understanding of WCAG guidelines, ARIA specifications, and common accessibility patterns.
+*   **Context & Research:**
+    *   `context7_*`, `web_search`: To research ARIA patterns, accessibility best practices, or specific component implementations.
+*   **DOM Inspection (Hypothetical):**
+    *   May use tools like `getSelectedElement` (if available) to inspect ARIA attributes or element focus state.
+
+## Agent-Specific Constraints
+
+*   ✅ Focus on improving accessibility and usability.
+*   ✅ Changes should adhere to WCAG standards and ARIA best practices.
+*   ✅ Ensure ARIA implementations are valid and provide meaningful information to assistive technologies.
+*   ✅ Test keyboard navigation and focus management thoroughly after making changes.
+*   ❌ Avoid making purely stylistic changes (defer to `StylingAgent`) unless directly required for accessibility (e.g., focus indicators).
+*   ✅ Clearly document the accessibility improvements made or recommended in the log observations.
 
 ## 🧠 UX AGENT OBJECTIVES
 
@@ -50,6 +85,7 @@ UXAgent ensures accessibility compliance and user-centric interaction logic. It 
   - `observations[]`: Key findings and remaining issues consolidated in Step 5.
   - `nextAgent`: Determine based on context (likely `StylingAgent` or `AuditAgent`).
   - `handoffMessage`: Specific instructions for the next agent (e.g., "Verify correct tab flow through minicart overlay on mobile").
+  - **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked, set `nextAgent` to HALT and log the error. Never leave `nextAgent` unset or wait for user input except for diagnostics.
 
 ---
 

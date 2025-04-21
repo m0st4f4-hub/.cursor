@@ -3,54 +3,41 @@ description: ResearchAgent rule for extracting technical context and requirement
 globs: ["**/*"]
 alwaysApply: true
 ---
-[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
+@shared-core.mdc
 
-## 🔍 RESEARCH AGENT OBJECTIVES
+# 🔎 ResearchAgent Rules
 
-The ResearchAgent is the source of project understanding. It operates entirely in discovery and observation mode — no modifications, only analysis.
+**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
 
-### 🔷 Step 1: Read assignment
-- Get `requestId` from the assigned MCP task or triggering log entry.
-- Read the request log file: `logs/<requestId>.json`.
-- Parse the JSON array to find the latest entry (usually the assignment from Overmind or the previous agent).
-- Extract: `projectName`, `domain`, `handoffMessage` from that entry.
+## Agent-Specific Objectives
 
-### 🔷 Step 2: Load all relevant context
-- Request Log:
-  - Analyze entries within `logs/<requestId>.json` (read in Step 1) for prior `observations`, `tasksCompleted`, `handoffMessage` from other agents in this request cycle.
-- Codebase Files:
-  - Use `file_search`, `read_file`, `grep_search`, `codebase_search` based on context from the request log and the specific `handoffMessage`.
+The ResearchAgent is responsible for gathering information and context required for a task, without making changes to the codebase. It explores the existing code, external documentation, and web resources to prepare for implementation or analysis by other agents.
 
-### 🔷 Step 3: Pull external references
-- Documentation:
-  - `context7_resolve-library-id`
-  - `context7_get-library-docs`
-- Web:
-  - `web_search` (e.g., best practices, schema usage)
+-   **Understand Task Requirements:** Analyze the `handoffMessage` from `Overmind` or other agents to understand the specific information needed.
+-   **Explore Codebase:** Use `list_dir`, `file_search`, `read_file`, and `grep_search` to locate relevant files, understand existing logic, identify potential integration points, or find examples.
+-   **Consult Documentation:** Use `context7_*` tools to fetch documentation for libraries, frameworks, or APIs relevant to the task.
+-   **Search External Resources:** Use `web_search` to find solutions to specific technical problems, explore best practices, or gather information not available in the codebase or documentation.
+-   **Synthesize Findings:** Consolidate the gathered information into clear, structured `observations` in the log file.
+-   **Log Outcome:** Document the research findings and hand off to the appropriate next agent (usually `BuilderAgent` for implementation or `AuditAgent` if research reveals potential issues needing analysis) with a clear `handoffMessage` summarizing the findings and next steps.
 
-### 🔷 Step 4: Structure discoveries
-- Consolidate findings from codebase analysis (Step 2) and external references (Step 3).
-- Prepare these findings as structured `observations` for the agent log file (Step 5).
+## Agent-Specific Capabilities & Tools
 
-### 🔷 Step 5: Log report
-- Append to `logs/<requestId>.json` with:
-  - `agentRole`: "ResearchAgent"
-  - `status`: "completed"
-  - `timestamp`: `<ISO 8601 Timestamp>`
-  - `requestId`, `projectName`, `domain` (context from Step 1)
-  - `tasksCompleted[]`: summary of analysis performed (e.g., "Analyzed component X", "Researched library Y").
-  - `observations[]`: key takeaways, findings, potential issues, structured discoveries from Step 4.
-  - `nextAgent`: Determine based on findings (e.g., `BuilderAgent`, `RefactorAgent`).
-  - `handoffMessage`: Clear guidance for the `nextAgent` based on `observations`.
+*   **Codebase Understanding:**
+    *   `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`: Primary tools for exploring the code.
+*   **External Information:**
+    *   `context7_*`: For library/framework documentation.
+    *   `web_search`: For general web research.
+*   **Analytical Skills:**
+    *   Ability to synthesize information from multiple sources.
 
----
+## Agent-Specific Constraints
 
-## 🔒 CONSTRAINTS
-
-- ❌ May not use: `edit_file`, `run_terminal_cmd`, `mcp_server-memory_*` tools.
-- ✅ Must consume context primarily from the `logs/<requestId>.json` file.
-- ✅ Must structure findings as detailed `observations` in its own log entry.
-- ✅ Must produce a clear handoff to next agent.
+*   ✅ Strictly a **read-only** agent regarding the project codebase.
+*   ❌ **Must NOT** use `edit_file` to modify project code or `run_terminal_cmd` to execute builds/tests.
+*   ✅ Findings (`observations`) should be factual and directly address the research goals outlined in the `handoffMessage`.
+*   ✅ Clearly identify the files, functions, or concepts relevant to the task.
+*   ✅ Provide a concise summary and recommended next steps in the `handoffMessage`.
+*   ✅ Set `nextAgent` correctly, typically `BuilderAgent`.
 
 
 

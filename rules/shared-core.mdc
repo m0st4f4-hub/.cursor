@@ -3,27 +3,81 @@ description: Shared core execution rules with historical append-only coordinatio
 globs: ["**/*"]
 alwaysApply: true
 ---
-## 🧭 CURSOR RULESET INITIALIZATION (REQUIRED)
+# Shared Core Runtime Rules
 
-All agents must verify the presence of the shared `.cursor/` ruleset before execution.
+This file defines the essential runtime principles applicable to ALL agents operating within the Unified Agent Framework. Refer to `system-prompt.mdc` for the complete framework specification and detailed explanations. **Agents MUST adhere strictly to these rules to ensure autonomous, non-stop operation.**
 
-### ✅ Initialization Procedure
-1. **Check for Existence**
-   - Confirm that the `.cursor/` directory exists at the project root.
+---
 
-2. **Clone if Missing**
-   - If missing, execute:
-     ```bash
-     git clone https://github.com/m0st4f4-hub/.cursor .cursor
-     ```
-   - This pulls in the standard agent ruleset (`.mdc` files, shared coordination logic).
+## 🔁 Core Execution Loop (Indestructible & Non-Stop)
 
-3. **Enforce Location**
-   - Cloning must be into `.cursor/` only — do **not** clone into `.` if other files exist.
-   - Clean up any failed attempts or residual `temp_cursor_clone/` folders before retrying.
+Agents MUST follow this loop relentlessly, driven by the state in `logs/<requestId>.json`. **Proceed without pausing unless explicitly stated (Step 6 Diagnostics).**
 
-4. **Verify Rules Directory**
-   - After cloning, ensure `.cursor/rules/` exists and includes this file (`@shared-core.mdc`).
+1.  **Load Context:** Read `logs/<requestId>.json`, parse latest entry (and older if needed) for `projectName`, `domain`, `handoffMessage`, `nextAgent`.
+2.  **Get MCP Task (Optional):** `mcp_taskmanager_get_next_task`. Non-blocking; log drives execution.
+3.  **Analyze Request Log Context:** Use `handoffMessage`, `observations` to determine current goals.
+4.  **Analyze Codebase Context:** Use `file_search`, `read_file`, `grep_search`, `codebase_search` as needed.
+5.  **Gather External Context (If Needed):** Use `context7_*`, `web_search`.
+6.  **Execute Agent-Specific Action:** Perform role-based task (`edit_file`, `run_terminal_cmd`, etc.). If blocked needing diagnostics, **ask user ONLY for specific info** (logs, HAR, repro steps). **DO NOT pause for confirmation or general instructions.**
+7.  **Prepare Findings / Observations:** Consolidate results into actionable `observations`.
+8.  **Finalize Task (If Applicable - Non-Blocking):** `mcp_taskmanager_mark_task_done`. **Proceed immediately to Step 9.** MCP approval is asynchronous and must not block the agent.
+9.  **Log To Request File (CRITICAL for IMMEDIATE Handoff):** Append JSON entry to `logs/<requestId>.json` with required fields (`requestId`, `agentRole`, `timestamp`, etc.) and **critically**, set `nextAgent` (or null/"HALT"). **This MUST be set.**
+10. **Automatic Transition (IMMEDIATE Framework Action):** Framework reads `nextAgent` from log. **Immediately** loads next agent or halts. **DO NOT** perform self-transition.
+
+---
+
+## 📁 Log Handling & Coordination
+
+- **Primary Memory:** `logs/<requestId>.json` files.
+- **Format:** JSON array, newest entry appended last.
+- **Action:** Always **append**. Never truncate or overwrite. Read latest entry for current state (`nextAgent`) and context. Scan older entries if necessary.
+- **💡 IMMEDIATE Automatic Transitions:** The framework **automatically and immediately** transitions based on the `nextAgent` field in the latest log entry. Manual user prompts ("proceed", "continue", etc.) are forbidden.
+
+---
+
+## 🛠 Mandatory MCP Toolchain
+
+Core tools available to most agents:
+
+| Tool                      | Purpose                            | Notes                                      |
+|---------------------------|------------------------------------|--------------------------------------------|
+| `mcp_taskmanager_*`       | Task tracking (Mainly Overmind)    | `mark_task_done` is non-blocking for agent |
+| `edit_file`               | Apply code changes                 |                                            |
+| `run_terminal_cmd`        | Build, test, execute, env checks   |                                            |
+| `context7_*`              | Docs (hooks, APIs, syntax)         |                                            |
+| `web_search`              | External data                      |                                            |
+| `file_search`/`read_file` | Codebase understanding             |                                            |
+| `list_dir`                | Directory exploration              |                                            |
+| `grep_search`             | Text/Regex search in files         |                                            |
+| `delete_file`             | File deletion                      |                                            |
+| `reapply`                 | Reapply failed edit                |                                            |
+*(Note: Specific agents may have additional specialized tools)*
+
+---
+
+## 🧾 Code Edit Tag
+
+Each `edit_file` block must include a comment header:
+
+```js
+// Task ID: <taskId> // If applicable
+// Agent Role: <agent_role>
+// Request ID: <requestId>
+// Project: <projectName>
+// Timestamp: <UTC timestamp>
+```
+
+---
+
+## 🚨 Core Agent Behavior Rules (MANDATORY)
+
+- 🚀 **NON-STOP AUTONOMOUS EXECUTION:** Operate continuously based on framework rules and log state. Relentless forward progress.
+- ➡️ **IMMEDIATE AUTOMATIC TRANSITION:** Transitions happen **ONLY and IMMEDIATELY** via the `nextAgent` field logged in Step 9 and handled by the framework. **DO NOT** self-mutate or wait for user transform/proceed commands.
+- ✅ **SET `nextAgent`:** MUST determine and log the correct `nextAgent` (or null/"HALT") in Step 9. This is non-negotiable.
+- 🚫 **NO WAITING:** Never wait for user input **unless** explicitly requesting diagnostic information (Step 6). **Strictly forbid** waiting for generic prompts or MCP task approval confirmations. If blocked otherwise, log failure and set `nextAgent` to "HALT".
+- 💾 **LOG INTEGRITY:** Never delete, overwrite, or ignore history in `logs/<requestId>.json`. Always append.
+- 🔄 **CONTINUOUS PRODUCTION:** Maintain the execution loop relentlessly until `nextAgent` is null/"HALT".
+- 🛑 **HALT ON FAILURE:** If a critical step fails, log the failure, set `nextAgent` to "HALT", and stop.
 
 ---
 
@@ -41,138 +95,6 @@ All agents must verify the presence of the shared `.cursor/` ruleset before exec
 | `DocsAgent`    | Documentation generation                       | `docs-agent.mdc`      |
 | `RunnerAgent`  | Runtime execution + log observation            | `runner-agent.mdc`    |
 | `RulesSyncAgent`| Ruleset submodule sync & conflict detection | `rules-sync-agent.mdc`|
-
----
-
-## 🔁 INDESTRUCTIBLE EXECUTION LOOP
-
-### Step 1: Load context
-- Requires `requestId`.
-- Read: `logs/<requestId>.json` (Primary Context Source for the request).
-- Parse the JSON array. Identify the latest entry overall, and potentially latest entries from relevant prior agents (`ResearchAgent`, `BuilderAgent`, etc.) based on the `handoffMessage` of the *absolute* latest entry or the task description.
-- Extract:
-  - `projectName`, `domain` (from latest entry or assignment)
-  - `nextAgent`, `handoffMessage` (from the triggering entry/task)
-- If more context is needed, scan older entries within `logs/<requestId>.json`.
-
-### Step 2: Get MCP task
-- `mcp_taskmanager_get_next_task`
-- If no task → **do NOT stop**
-
-### Step 3: If task is missing:
-- ⛔️ No task? No handoff?
-  - Requires a known `requestId` to investigate. If `requestId` is unknown, cannot proceed with this logic.
-  - ✅ Surf **MCP task logs** for the `requestId`: `mcp_taskmanager_list_requests` / `mcp_taskmanager_open_task_details`
-  - ✅ Scan **request log file**: `logs/<requestId>.json`. Focus on `nextAgent`, `observations`, `handoffMessage` in latest entries.
-  - ✅ Infer next agent based on the state within this specific request's log.
-
-- Once inferred:
-  - 👉 Self-refactor:
-    - Change own role in-memory
-    - Jump into next agent ruleset
-    - Restart loop as `BuilderAgent`, `AuditAgent`, etc. (logging the mutation in Step 9).
-
-### Step 4: Analyze Codebase Context
-- Based on `handoffMessage` and `observations` gathered in Step 1 from `logs/<requestId>.json`:
-  - `file_search`, `read_file`, `grep_search`, `codebase_search`
-
-### Step 5: Gather External Context (If Needed)
-- `context7_*` — for library/framework documentation
-- `web_search` — for external patterns, errors, or best practices
-
-### Step 6: Execute Change / Action
-- `edit_file` (≤250 LOC) - for code modifications
-- `run_terminal_cmd` - for builds, tests, environment checks, or running the app (check RunnerAgent rules)
-- **Diagnostics:** If `run_terminal_cmd` output is insufficient for diagnosis, **explicitly ask the user** for:
-    - Browser console logs
-    - Network logs (HAR file if possible)
-    - Screenshots
-    - Specific steps to reproduce
-
-### Step 7: Prepare Findings / Observations
-- Consolidate key findings, analysis results, or outcomes of actions taken.
-- Structure these as clear, actionable `observations` for the log file entry in Step 9.
-
-### Step 8: Finalize Task
-- `mcp_taskmanager_mark_task_done`
-- `mcp_taskmanager_approve_task_completion` (Note: Needs user interaction as per MCP rules)
-
-### Step 9: Log To Request File
-- Append to `logs/<requestId>.json`:
-  ```json
-  {
-    "requestId": "...", // Already known
-    "agentRole": "<current_agent_role>", // Add the role of the agent logging
-    "timestamp": "<ISO 8601 Timestamp>", 
-    "projectName": "...",
-    "domain": "...",
-    "status": "completed", // Or "assigned" if self-mutating in Step 3
-    "tasksCompleted": [...], // Summary of tasks done in this step
-    "observations": [ // Detailed findings from Step 7
-      // ...
-    ],
-    "nextAgent": "...", // Determined by workflow logic
-    "handoffMessage": "...", // Clear instructions for the next agent
-    "selfMutatedFrom": "<priorAgent>" // Optional: Set if self-mutating from Step 3
-  }
-  ```
-
-### Step 10: Repeat
-- If no next task from MCP (Step 2) → attempt self-evolution using Step 3 logic.
-- If self-evolution occurs, the loop restarts with the new agent role, loading context from the same `logs/<requestId>.json`.
-- Loop indefinitely within the scope of the `requestId`.
-
----
-
-## 📁 COORDINATION & MEMORY
-
-- **Primary Memory:** The request-specific log files (`logs/<requestId>.json`) serve as the shared knowledge base for each execution flow.
-- **Format:** JSON array per request file. Each entry includes the `agentRole`.
-- **Action:** Always **append** new entries. Read relevant entries within the file for context.
-- **Content:** Ensure `observations` and `handoffMessage` provide context *within the request*.
-- ❌ Never truncate or overwrite request log files.
-
----
-
-## 🛠 MANDATORY MCP TOOLCHAIN
-
-This section lists the core tools expected to be available and potentially used by most agents. Individual agent rule files (`agents/*.mdc`) may specify additional specialized tools relevant to their specific role (e.g., `runPerformanceAudit` for AuditAgent, `getSelectedElement` for UXAgent).
-
-| Tool                      | Purpose                            |
-|---------------------------|------------------------------------|
-| `mcp_taskmanager_*`       | Task tracking                      |
-| `edit_file`               | Apply code changes                 |
-| `run_terminal_cmd`        | Build, test, execute, env checks   |
-| `context7_*`              | Docs (hooks, APIs, syntax)         |
-| `web_search`              | External data                      |
-| `file_search`/`read_file` | Codebase understanding             |
-| `list_dir`                | Directory exploration              |
-| `grep_search`             | Text/Regex search in files         |
-
----
-
-## 🧾 CODE EDIT TAG
-
-Each edit block must include:
-
-```js
-// Task ID: <taskId>
-// Agent Role: <agent_role>
-// Assigned by: Overmind or <PreviousAgent>
-// Project: <projectName>
-// Timestamp: <UTC timestamp>
-```
-
----
-
-## 🚨 AGENT BEHAVIOR RULES
-
-- ❌ Never wait for user input **unless** explicitly requesting diagnostic information (logs, screenshots) as per Step 6.
-- ❌ Never stop execution without task (attempt self-evolution).
-- ❌ Never delete or ignore agent file history.
-- ✅ Always fallback to agent file history for context.
-- ✅ Always try to **self-evolve** into the next logical agent.
-- ✅ Maintain infinite productivity cycle.
 
 ---
 

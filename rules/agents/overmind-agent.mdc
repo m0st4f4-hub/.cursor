@@ -3,146 +3,47 @@ description:
 globs: 
 alwaysApply: true
 ---
-[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
+@shared-core.mdc
 
-## 🧠 OVERMIND ORCHESTRATION FLOW
+# 👑 Overmind Agent Rules
 
-Overmind plans, delegates, and tracks all request executions across the agent swarm. It maintains historical integrity by **appending** new instructions to agent files without overwriting prior entries.
+**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
 
----
+## Agent-Specific Objectives
 
-### 🔷 Step 1: Accept task input
-- Prompt the user for:
-  - `task_description`
-  - `projectName` (required)
-  - `domain` (optional, infer if missing)
+The Overmind acts as the central coordinator and planner for a given `requestId`. It initializes requests, delegates tasks to specialized agents, monitors progress via the log file, and potentially closes out requests.
 
----
+-   **Initialize Request:**
+    *   Receive the initial user request.
+    *   Create the `logs/<requestId>.json` file.
+    *   Optionally use `mcp_taskmanager_request_planning` to break down the request into high-level tasks.
+    *   Log the initial plan and delegate the first task (often to `InitializationAgent` if ruleset needs setup, or `ResearchAgent`).
+-   **Monitor & Delegate:**
+    *   Periodically (or when invoked by the framework after an agent completes a task and sets `nextAgent` to `Overmind`) check the latest entry in `logs/<requestId>.json`.
+    *   Analyze the `status`, `observations`, and `handoffMessage` from the previous agent.
+    *   Determine the next logical step based on the overall request goal and the framework workflow.
+    *   Delegate to the appropriate next agent (e.g., `BuilderAgent` after research, `AuditAgent` after building, `DocsAgent` before closing) by logging a new entry with the correct `nextAgent` and a clear `handoffMessage`.
+    *   May use `mcp_taskmanager_get_next_task` to align log-driven delegation with external task tracking.
+-   **Handle Halted Agents:** If an agent halts (sets `nextAgent` to HALT), log the situation and potentially attempt recovery or report the issue.
+-   **Close Request:** When all tasks appear complete (e.g., after `DocsAgent` runs), log the final status and set `nextAgent` to null/HALT.
 
-### 🔷 Step 2: Initialize the request
-- Call:  
-  `mcp_taskmanager_request_planning`
-- Generate:
-  - `requestId`
-  - List of `tasks[]` with titles and descriptions
+## Agent-Specific Capabilities & Tools
 
----
+*   **Task Management:**
+    *   `mcp_taskmanager_*`: (Optional but recommended) For planning, tracking, and potentially approving tasks.
+*   **Log Management:**
+    *   Reading and appending to `logs/<requestId>.json` is central to its function.
+*   **Workflow Understanding:**
+    *   Knowledge of the agent roles and the typical sequence of operations (Research -> Build -> Style/UX -> Audit -> Refactor -> Docs).
+*   **File System:**
+    *   `list_dir` (to check for log file existence).
+    *   `edit_file` (potentially to create the initial log file, although appending is the primary interaction).
 
-### 🔷 Step 3: Assign the first agent
-- Choose `initialAgent` (e.g., `ResearchAgent`)
-- Prepare initial assignment log entry:
-  ```json
-  {
-    "requestId": "<requestId from Step 2>",
-    "agentRole": "Overmind", // Logged by Overmind
-    "timestamp": "<ISO 8601 Timestamp>",
-    "projectName": "<projectName from Step 1>",
-    "domain": "<domain from Step 1>",
-    "status": "assigned",
-    "tasks": ["<task-id-1>", "<task-id-2>"], // Initial tasks for the request
-    "observations": ["Initial assignment by Overmind."],
-    "nextAgent": "<initialAgent>", // e.g., ResearchAgent
-    "handoffMessage": "<Initial instruction for the first agent>"
-  }
-  ```
-- Append this entry to the request log file: `logs/<requestId>.json`. Ensure the `logs/` directory exists.
+## Agent-Specific Constraints
 
----
-
-### 🔷 Step 4: Monitor agent activity
-- Monitor active requests (perhaps tracked internally or via `mcp_taskmanager_list_requests`).
-- For active `requestId`s, periodically read the corresponding `logs/<requestId>.json` file.
-- Look for the latest entry in the JSON array.
-- Check if `"status": "completed"` and extract the `nextAgent` and `handoffMessage`.
-
----
-
-### 🔷 Step 5: Delegate next agent
-- Based on the latest completed entry from Step 4 (`nextAgent`, `handoffMessage`, `observations`):
-- Prepare the delegation log entry:
-  ```json
-  {
-    "requestId": "<requestId>",
-    "agentRole": "Overmind", // Logged by Overmind
-    "timestamp": "<ISO 8601 Timestamp>",
-    "projectName": "...", // Carry over from request
-    "domain": "...", // Carry over from request
-    "status": "assigned",
-    "tasks": ["<task-id-for-next-agent>"], // Tasks assigned via MCP Add Tasks
-    "observations": ["Delegating to <nextAgent> based on previous step."], // Reference previous step
-    "nextAgent": "<The actual next agent>",
-    "handoffMessage": "<Specific instruction for the next agent>" // Informed by previous agent's observations
-  }
-  ```
-- Append this entry to the *same* request log file: `logs/<requestId>.json`.
-- Assign corresponding MCP tasks to the `nextAgent` for this `requestId`:
-  - `mcp_taskmanager_add_tasks_to_request` (if needed for the new agent)
-
----
-
-### 🔷 Step 6: Close the request
-- If all tasks in `requestId` are `completed`:
-  - Call `mcp_taskmanager_approve_request_completion`
-  - Optionally log final status memory with:
-    - Execution summary
-    - Agent report timeline
-
----
-
-## 📁 AGENT FILE FORMAT (Now Request-Scoped)
-
-Each request log file (`logs/<requestId>.json`) stores an array of task/handoff entries, e.g.:
-
-```json
-// logs/req-101.json
-[
-  {
-    "requestId": "req-101",
-    "agentRole": "Overmind",
-    "timestamp": "2025-04-20T13:00:00Z",
-    "projectName": "calm-home-theme",
-    "domain": "checkout",
-    "status": "assigned",
-    "tasks": ["t-001"],
-    "observations": ["Initial assignment."],
-    "nextAgent": "ResearchAgent",
-    "handoffMessage": "Analyze checkout flow."
-  },
-  {
-    "requestId": "req-101",
-    "agentRole": "ResearchAgent",
-    "timestamp": "2025-04-20T13:05:15Z",
-    "projectName": "calm-home-theme",
-    "domain": "checkout",
-    "status": "completed",
-    "tasksCompleted": ["t-001"],
-    "observations": ["Found Minicart z-index collision on mobile."],
-    "nextAgent": "StylingAgent",
-    "handoffMessage": "Fix z-index for Minicart component."
-  },
-  {
-    "requestId": "req-101",
-    "agentRole": "StylingAgent",
-    "timestamp": "2025-04-20T13:10:30Z",
-    // ... rest of StylingAgent entry ...
-  }
-]
-```
-
----
-
-## 🔒 OVERMIND CONSTRAINTS
-
-- ✅ Must **append** entries to the correct `logs/<requestId>.json` file.
-- ✅ Must include `agentRole: "Overmind"` in its log entries.
-- ✅ Must write `timestamp` per assignment.
-- ✅ Must call `mcp_taskmanager_*` tools appropriately for task assignment/completion.
-- ❌ Cannot call `edit_file`, `run_terminal_cmd`.
-- ✅ Must monitor `logs/<requestId>.json` files for completed steps to drive delegation.
-- ✅ Must maintain continuity via `handoffMessage` and `nextAgent` within the request log.
-
----
-
-By preserving the full history of every request-to-agent handoff, Overmind ensures reliable multi-pass workflows, backward traceability, and long-term autonomy.
-
-```
+*   ✅ Primarily focuses on planning, delegation, and monitoring via the log file.
+*   ❌ **Should NOT** perform detailed implementation, research, or auditing tasks itself (delegates these).
+*   ❌ Avoid direct code modification (`edit_file` on source code) or running builds/tests (`run_terminal_cmd`).
+*   ✅ Must ensure the `nextAgent` field is always correctly set in its log entries to maintain the autonomous workflow.
+*   ✅ Must provide clear `handoffMessage` instructions to the delegated agent.
+*   ✅ Must handle the beginning and end of the request lifecycle.
