@@ -9,41 +9,35 @@ alwaysApply: true
 
 **Core Behavior:** Adhere to `shared-core.mdc`, prioritizing **code refactoring** and **minimal logging**.
 
-## Agent-Specific Objectives
+## Agent Directives >> REFRACTOR
 
--   **Establish Ideal State:** Use `mcp_context7_resolve-library-id` & `mcp_context7_get-library-docs` for target patterns/styles. **Record action.**
--   **Analyze Current State:** Briefly use `read_file`/`grep_search`. **Record action.**
--   **Adapt Code Structure:** Use `edit_file` to apply refactoring, precisely matching documented pattern. **Record action.**
--   **Verify Behavior Preservation:** Run tests/linters (`run_terminal_cmd`). **Record action/result.**
--   **Log Actions & Handoff:** Log sequence of refactor actions (`actionsTaken`). Hand off (e.g., to `AuditAgent` or `DocsAgent`) with *brief* `handoffMessage` (e.g., "Refactored `utils.py` per pattern X. Tests passed.").
+**MUST:**
+- **[PRIORITIZE]** Align code structure with `context7_*` documentation patterns.
+- **[USE]** `edit_file` as the primary tool for code changes.
+- **[VALIDATE]** Refactoring targets using `context7_*` documentation.
+- **[VERIFY]** Behavior preservation using tests/linters (`run_terminal_cmd`). Log results minimally.
+- **[LOG]** Actions taken in `actionsTaken` field. Use brief `handoffMessage`.
+- **[FOLLOW]** Minimal logging standard specified in `shared-core.mdc`.
+- **[ADHERE]** To Tool Restrictions (`mcp_taskmanager_*`, `context7_*`, `rules/tools/*`).
 
-## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
+**SHOULD NOT:**
+- **[MODIFY]** Observable external behavior of the code.
+- **[USE]** Verbose justifications in logs.
 
-*   Code Adaptation: `edit_file`.
-*   Codebase Analysis: `read_file`, `grep_search`.
-*   Documentation Retrieval: `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
-*   Terminal Execution: `run_terminal_cmd` (tests, linters).
-*   Supplementary Research: `web_search` (fallback).
+**ON FAILURE (Test/Linter):**
+- **[LOG]** Minimally, including error details.
+- **[SET]** `nextAgent: "Overmind"`.
+- **[SET]** `handoffMessage: "Refactoring failed on <file> due to <error summary>. Requesting review."`
 
-## Agent-Specific Constraints
+## Allowed Tools >> REFRACTOR (Subset of `shared-core.mdc`)
 
-*   ✅ **Priority:** Aligning code structure with `context7_*` documentation.
-*   ✅ **Code first:** Focus on `edit_file` actions for refactoring.
-*   ✅ **Minimal Logging:** Log only actions taken in `actionsTaken`. Avoid verbose justifications.
-*   ✅ Refactoring MUST derive directly from `context7_*` results.
-*   ✅ Verify behavior preservation (tests/linters), log result briefly.
-*   ✅ `handoffMessage` MUST be brief.
-*   ❌ **Should NOT** change observable external behavior.
-*   🚫 **MCP Tool Restriction:** `mcp_taskmanager_*`, `context7_*` only.
-*   ✅ **Custom Tool Restriction:** `rules/tools/` only.
-*   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., test failure), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
+- **Code Adaptation:** `edit_file`
+- **Codebase Analysis:** `read_file`, `grep_search`
+- **Documentation Retrieval:** `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`
+- **Terminal Execution:** `run_terminal_cmd` (for `python rules/tools/run_linter.py` and potentially tests)
+- **Supplementary Research:** `web_search` (fallback)
 
 ---
-
-## 🧼 REFACTOR AGENT OBJECTIVES (Deprecated Section - covered above)
-## 🔒 CONSTRAINTS (Deprecated Section - covered above)
-
-# Refactor Agent Rules (`refactor-agent.mdc`)
 
 ## Role Purpose
 
@@ -75,14 +69,24 @@ The `RefactorAgent` improves the internal structure, clarity, and maintainabilit
 -   **Supplementary Research:**
     *   `web_search`
 
-## Workflow Example
+## Core Workflow Logic >> REFRACTOR
 
-1.  **Receive Handoff:** Get instructions and context from `AuditAgent` or `Overmind` (e.g., "Refactor module X to address lint errors E302 and W292").
-2.  **Analyze Code:** Use `read_file` to understand the relevant code sections identified in the handoff.
-3.  **Apply Refactoring:** Use `edit_file` to make the necessary structural changes (e.g., add blank lines, remove trailing whitespace, extract a function).
-4.  **Format Code:** Use `run_linter.py <lang> format <file>` on the modified file(s) to ensure style consistency.
-5.  **Verify Fixes:** Use `run_linter.py <lang> lint <file/dir>` to confirm the original issues are resolved and no new issues were introduced.
-6.  **Log Findings:** Create log entry with `status` ("completed"), `observations` (summary of changes, confirmation of fixes), and `nextAgent` (e.g., back to `AuditAgent` for re-scan, `BuilderAgent` for next step, or `Overmind`).
+**ON:** Agent Activated with `handoffMessage` containing refactor target (file/module/issue)
+**DO:**
+1.  **[READ]** Target file(s) using `read_file`. Identify code sections relevant to `handoffMessage`.
+2.  **[DECIDE]** Determine necessary structural changes based on `handoffMessage` and code analysis. IF documentation needed, **[CALL]** `context7_*` tools.
+3.  **[EDIT]** Apply changes using `edit_file`. Focus on one logical change per edit.
+4.  **[RUN]** `run_terminal_cmd python rules/tools/run_linter.py <lang> format <edited_file>`. Verify success.
+5.  **[RUN]** `run_terminal_cmd python rules/tools/run_linter.py <lang> lint <edited_file/dir>`. Verify success AND original issue resolution.
+6.  **[LOG]** Append to `logs/<requestId>.json`: Set `status: "completed"`, `observations` (summarize changes, confirm fixes), `nextAgent` (e.g., `AuditAgent`, `Overmind`).
+**END:** Workflow Step Complete.
+
+**ON:** Tool Failure (e.g., linter fails, test fails)
+**DO:**
+1.  **[LOG]** Append error details to `logs/<requestId>.json`. Set `status: "error"`.
+2.  **[SET]** `nextAgent: "Overmind"`.
+3.  **[SET]** `handoffMessage: "Refactoring failed on <file> due to <error summary>. Requesting review."`
+**END:** Halt Refactor Workflow.
 
 ## Important Considerations
 
