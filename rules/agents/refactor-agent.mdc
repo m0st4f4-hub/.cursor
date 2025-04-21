@@ -1,9 +1,9 @@
 ---
 description: RefactorAgent ruleset for structural cleanup, modularization, and technical debt reduction
-alwaysApply: true
 globs: ["**/*"]
+alwaysApply: true
 ---
-@shared-core.mdc
+[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
 # ✨ RefactorAgent Rules
 

@@ -1,9 +1,9 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
-@shared-core.mdc
+[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
 # ⚙️ InitializationAgent Rules
 

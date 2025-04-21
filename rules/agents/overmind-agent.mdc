@@ -3,7 +3,7 @@ description:
 globs: 
 alwaysApply: true
 ---
-@shared-core.mdc
+[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
 # 👑 Overmind Agent Rules
 

@@ -3,6 +3,8 @@ import os
 import re
 import sys
 from collections import defaultdict
+from typing import Set, List, Optional
+from pathlib import Path
 
 # --- Regular Expressions ---
 
@@ -22,8 +24,8 @@ CSS_IMPORT_RE = re.compile(r'@import\s+url\((["\']?)(?P<url>.*?)\1\)', re.IGNORE
 
 # --- Helper Functions ---
 
-def extract_php_classes(filepath, php_classes_set):
-    \"\"\"Reads a PHP file and extracts potential class names from class attributes.\"\"\"
+def extract_php_classes(filepath: str, php_classes_set: Set[str]) -> None:
+    """Reads a PHP file and extracts potential class names from class attributes."""
     try:
         with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
             content = f.read()
@@ -33,123 +35,106 @@ def extract_php_classes(filepath, php_classes_set):
 
     for match in PHP_CLASS_RE.finditer(content):
         attr_value = match.group(1).strip()
-        # Basic split and filter - might need refinement for complex PHP
         potential_classes = attr_value.split()
         for pc in potential_classes:
             pc = pc.strip()
             # Filter out obvious non-classes (basic heuristic)
-            if pc and '<' not in pc and '>' not in pc and '{' not in pc and '}' not in pc and '$' not in pc:
-                 # Handle escaped quotes within the attribute if necessary (basic)
+            if pc and not any(char in pc for char in '<>{}'):
+                # Handle escaped quotes within the attribute
                 pc = pc.replace('\\"', '').replace("\\'", '')
-                if pc: # Ensure not empty after stripping/replacing
+                if pc:  # Ensure not empty after stripping/replacing
                     php_classes_set.add(pc)
 
-def extract_css_classes(filepath, css_classes_set, css_dir, processed_files):
-    \"\"\"
+def extract_css_classes(filepath: str, css_classes_set: Set[str], css_dir: str, processed_files: Set[str]) -> None:
+    """
     Reads a CSS file, extracts defined class selectors, and handles @import.
     Avoids infinite recursion by tracking processed_files.
-    \"\"\"
+    """
     abs_filepath = os.path.abspath(filepath)
     if abs_filepath in processed_files:
-        return # Already processed, break recursion
+        return  # Already processed, break recursion
     processed_files.add(abs_filepath)
 
     try:
         with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
-            lines = f.readlines()
+            content = f.read()
     except Exception as e:
         print(f"Error reading CSS file {filepath}: {e}", file=sys.stderr)
         return
 
-    # Handle @import statements first (simple relative path handling within css_dir)
-    for line in lines:
-        import_match = CSS_IMPORT_RE.search(line)
-        if import_match:
-            import_url = import_match.group('url').strip()
-            # Very basic relative path handling - assumes import is relative to current file's dir
-            # and within the initial css_dir. Does not handle URLs or complex paths.
-            imported_filepath = os.path.normpath(os.path.join(os.path.dirname(filepath), import_url))
+    # Handle @import statements first
+    for import_match in CSS_IMPORT_RE.finditer(content):
+        import_url = import_match.group('url').strip()
+        imported_filepath = os.path.normpath(os.path.join(os.path.dirname(filepath), import_url))
 
-            # Check if the imported file is within the original css_dir to avoid going outside
-            if os.path.abspath(imported_filepath).startswith(os.path.abspath(css_dir)):
-                 if os.path.isfile(imported_filepath):
-                     # print(f"Following import: {import_url} -> {imported_filepath}", file=sys.stderr)
-                     extract_css_classes(imported_filepath, css_classes_set, css_dir, processed_files)
-                 else:
-                     print(f"Warning: Imported CSS file not found or path issue: {imported_filepath}", file=sys.stderr)
-
+        # Check if the imported file is within the original css_dir
+        if os.path.abspath(imported_filepath).startswith(os.path.abspath(css_dir)):
+            if os.path.isfile(imported_filepath):
+                extract_css_classes(imported_filepath, css_classes_set, css_dir, processed_files)
+            else:
+                print(f"Warning: Imported CSS file not found: {imported_filepath}", file=sys.stderr)
 
     # Extract class definitions from the current file
-    content = "".join(lines) # Join lines for easier regex matching across lines potentially
     for match in CSS_SELECTOR_RE.finditer(content):
         class_name = match.group(1)
         if class_name:
             css_classes_set.add(class_name)
 
+def scan_directory(directory: str, file_extension: str, exclude_dirs: List[str], 
+                  process_func: callable, *args) -> None:
+    """Helper function to scan a directory and process files with given extension."""
+    for root, dirs, files in os.walk(directory, topdown=True):
+        # Modify dirs in-place to exclude specified directories
+        dirs[:] = [d for d in dirs if d not in exclude_dirs]
+        for file in files:
+            if file.endswith(file_extension):
+                filepath = os.path.join(root, file)
+                process_func(filepath, *args)
 
-# --- Main Execution ---
+def write_results(filename: str, data: Set[str]) -> None:
+    """Write sorted results to a file."""
+    try:
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.writelines(f"{cls}\n" for cls in sorted(data))
+        print(f"Results written to {filename}")
+    except Exception as e:
+        print(f"Error writing to {filename}: {e}", file=sys.stderr)
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description='Analyze PHP and CSS files to find used and defined CSS classes.')
     parser.add_argument('--php-dir', required=True, help='Directory containing PHP files to scan.')
     parser.add_argument('--css-dir', required=True, help='Directory containing CSS files to scan (will follow imports within this dir).')
     parser.add_argument('--output-php', default='php_classes_used.txt', help='Output file for classes used in PHP.')
     parser.add_argument('--output-css', default='css_classes_defined.txt', help='Output file for classes defined in CSS.')
-    parser.add_argument('--exclude-dirs', nargs='*', default=['node_modules', '.git', '.svn', '.vscode', '.cursor'], help='Directories to exclude from scanning.')
+    parser.add_argument('--exclude-dirs', nargs='*', 
+                       default=['node_modules', '.git', '.svn', '.vscode', '.cursor'],
+                       help='Directories to exclude from scanning.')
 
     args = parser.parse_args()
 
-    if not os.path.isdir(args.php_dir):
-        print(f"Error: PHP directory not found: {args.php_dir}", file=sys.stderr)
-        sys.exit(1)
-    if not os.path.isdir(args.css_dir):
-        print(f"Error: CSS directory not found: {args.css_dir}", file=sys.stderr)
-        sys.exit(1)
+    # Validate directories
+    for dir_name, dir_path in [('PHP', args.php_dir), ('CSS', args.css_dir)]:
+        if not os.path.isdir(dir_path):
+            print(f"Error: {dir_name} directory not found: {dir_path}", file=sys.stderr)
+            sys.exit(1)
 
-    php_classes_found = set()
-    css_classes_defined = set()
-    processed_css_files = set() # For handling imports
+    php_classes_found: Set[str] = set()
+    css_classes_defined: Set[str] = set()
+    processed_css_files: Set[str] = set()
 
     print(f"Scanning PHP directory: {args.php_dir}")
-    for root, dirs, files in os.walk(args.php_dir, topdown=True):
-        # Modify dirs in-place to exclude specified directories
-        dirs[:] = [d for d in dirs if d not in args.exclude_dirs]
-        for file in files:
-            if file.endswith(".php"):
-                filepath = os.path.join(root, file)
-                # print(f"Processing PHP: {filepath}", file=sys.stderr)
-                extract_php_classes(filepath, php_classes_found)
+    scan_directory(args.php_dir, '.php', args.exclude_dirs, extract_php_classes, php_classes_found)
 
     print(f"Scanning CSS directory: {args.css_dir}")
-    for root, dirs, files in os.walk(args.css_dir, topdown=True):
-         # Modify dirs in-place to exclude specified directories
-        dirs[:] = [d for d in dirs if d not in args.exclude_dirs]
-        for file in files:
-            if file.endswith(".css"):
-                filepath = os.path.join(root, file)
-                # print(f"Processing CSS: {filepath}", file=sys.stderr)
-                # Pass the base css_dir for import path validation
-                extract_css_classes(filepath, css_classes_defined, args.css_dir, processed_css_files)
+    scan_directory(args.css_dir, '.css', args.exclude_dirs, extract_css_classes, 
+                  css_classes_defined, args.css_dir, processed_css_files)
 
     print(f"Found {len(php_classes_found)} unique potential classes used in PHP.")
     print(f"Found {len(css_classes_defined)} unique classes defined in CSS.")
 
     # Write results to files
-    try:
-        with open(args.output_php, 'w', encoding='utf-8') as f_php:
-            for cls in sorted(list(php_classes_found)):
-                f_php.write(cls + '\\n')
-        print(f"PHP classes written to {args.output_php}")
-    except Exception as e:
-        print(f"Error writing PHP output file {args.output_php}: {e}", file=sys.stderr)
-
-    try:
-        with open(args.output_css, 'w', encoding='utf-8') as f_css:
-            for cls in sorted(list(css_classes_defined)):
-                f_css.write(cls + '\\n')
-        print(f"CSS classes written to {args.output_css}")
-    except Exception as e:
-        print(f"Error writing CSS output file {args.output_css}: {e}", file=sys.stderr)
+    write_results(args.output_php, php_classes_found)
+    write_results(args.output_css, css_classes_defined)
 
 if __name__ == "__main__":
-    main() 
+    main()
