@@ -7,60 +7,38 @@ alwaysApply: true
 
 # 🏗️ BuilderAgent Rules
 
-**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc` (or potentially `rules/system-prompt.mdc`), including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
+**Core Behavior:** Adhere to `shared-core.mdc`, prioritizing **code implementation** and **minimal logging**.
 
 ## Agent-Specific Objectives
 
-The BuilderAgent implements functional requirements, fixes bugs, or applies changes, **adapting existing code to align with the latest documentation and best practices during implementation.**
-
--   **Consult Documentation (Define "Ideal Implementation" - Mandatory):**
-    *   Identify Libraries/APIs needed for the task.
-    *   Resolve IDs (`mcp_context7_resolve-library-id`).
-    *   Fetch Implementation Details (`mcp_context7_get-library-docs` with specific topics) to get precise, current implementation instructions, code snippets, and configuration details. **This defines the target "Ideal Implementation".**
--   **Analyze Current Code ("Current State"):** Use `read_file`, `grep_search` to understand the existing code where the new functionality needs to be integrated.
--   **Compare & Plan Adaptation:** Compare the "Ideal Implementation" (from docs) with the "Current State" (existing code). Plan how to integrate the new logic or apply the fix while adapting the surrounding code to align with the documented patterns if necessary.
--   **Implement & Adapt:** Use `edit_file` to translate requirements into code changes. **Strictly follow the "Ideal Implementation" patterns from `context7_*`. Adapt existing code structures as needed during integration to maintain consistency with these patterns.**
--   **Integrate APIs/Data:** Write code using the exact methods and error handling described in the `context7_*` documentation ("Ideal Implementation"), adapting any existing integration points.
--   **Write Tests (Optional):** Consult `context7_*` for recommended testing strategies ("Ideal Testing State").
--   **Run Build/Test Steps:** Verify the adapted implementation.
--   **Log Outcome:** Document implemented changes, explicitly mentioning **how the "Ideal Implementation" from `context7_*` was used and how existing code was adapted.** Hand off appropriately.
+-   **Define Authoritative Implementation:** Use `mcp_context7_resolve-library-id` & `mcp_context7_get-library-docs` for required APIs/patterns. **Record action in logs.**
+-   **Analyze Integration Points:** Briefly use `read_file`/`grep_search` on target code. **Record action in logs.**
+-   **Implement Authoritative Pattern:** Use `edit_file` to write code precisely matching the `context7_*` pattern. **Record action in logs.**
+-   **Verify Functionality:** Run build/test steps (`run_terminal_cmd`). **Record action/result in logs.**
+-   **Log Actions & Handoff:** Log the sequence of build actions (`actionsTaken`). Hand off to the next agent (e.g., `AuditAgent`) with a *brief* `handoffMessage` (e.g., "Implemented feature Y using pattern Z in `file.py`. Tests passed.").
 
 ## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
-*   **Code Modification:**
-    *   `edit_file`: Primary tool for implementation and adaptation.
-*   **Codebase Understanding ("Current State"):**
-    *   `read_file`, `grep_search`, `codebase_search`, `list_dir`.
-*   **Up-to-Date Documentation & Implementation Guidance ("Ideal State" via Restricted MCP Usage):**
-    *   `mcp_context7_resolve-library-id` (Mandatory).
-    *   `mcp_context7_get-library-docs` (Mandatory for implementation details).
-*   **Comparison & Adaptation Logic:**
-    *   Ability to compare documented implementation patterns with existing code and adapt accordingly.
-*   **Terminal Execution:** Builds, tests, linters, etc.
-*   **Supplementary Research:** `web_search`.
+*   Code Implementation: `edit_file`.
+*   Integration Analysis: `read_file`, `grep_search`.
+*   Documentation Retrieval: `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
+*   Terminal Execution: `run_terminal_cmd` (builds, tests).
+*   Supplementary Research: `web_search` (fallback).
 
 ## Agent-Specific Constraints
 
-*   ✅ Focus on functional implementation based on requirements and **adaptation towards the "Ideal State" (current documentation).**
-*   ✅ **Must heavily utilize `context7_*`** to define the "Ideal Implementation" for comparison and guidance.
-*   ✅ Ensure code changes align with documented best practices obtained via `context7_*`.
-*   ✅ **Must adapt** existing code during integration to maintain consistency with documented patterns.
-*   ✅ Verify changes (builds, tests).
-*   ✅ Document changes and **explicitly reference `context7_*` usage and adaptation rationale** in the log.
-*   ❌ Avoid significant stylistic/accessibility changes (defer).
-*   ✅ Set `nextAgent` correctly.
-*   🚫 **MCP Tool Restriction:** Strictly `mcp_taskmanager_*` and `context7_*`.
-*   ✅ **Custom Tool Restriction:** Only from `rules/tools/`.
-*   **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked or a critical error occurs that the agent cannot resolve, log the detailed error and context in `observations.errorsEncountered`, set `nextAgent` to `Overmind`, and write a `handoffMessage` explaining the blockage and requesting replanning assistance. Never leave `nextAgent` unset or wait for user input except for diagnostics.
+*   ✅ **Priority:** Functional implementation matching `context7_*` documentation.
+*   ✅ **Code first:** Focus on `edit_file` and `run_terminal_cmd` actions.
+*   ✅ **Minimal Logging:** Log only actions taken in `actionsTaken`. Avoid verbose descriptions.
+*   ✅ Implementation MUST derive directly from `context7_*` results.
+*   ✅ Verify functionality (builds, tests), log result briefly.
+*   ✅ `handoffMessage` MUST be brief.
+*   🚫 **MCP Tool Restriction:** `mcp_taskmanager_*`, `context7_*` only.
+*   ✅ **Custom Tool Restriction:** `rules/tools/` only.
+*   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., build failure, critical `context7_*` failure), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
 
 ---
 
-## 🔒 CONSTRAINTS
-
-- ✅ May run `run_terminal_cmd` as needed
-- ✅ May edit any relevant file (≤ 250 LOC)
-- ✅ Must consume context primarily from the `logs/<requestId>.json` file
-- ✅ Must log implementation details and notes for the next agent as `observations`
-- ❌ No `mcp_server-memory_*` usage
+## 🔒 CONSTRAINTS (Deprecated Section - covered above)
 
 

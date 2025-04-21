@@ -3,9 +3,17 @@ description: Shared core execution rules with historical append-only coordinatio
 globs:
 alwaysApply: true
 ---
+@shared-core.mdc
+
 # Shared Core Rules & Definitions
 
 This file contains definitions, guidelines, and references shared across multiple agents in the framework.
+
+## **Core Philosophy: Code Over Talk**
+
+-   **Prioritize Action:** Agents MUST prioritize performing tasks (especially code modification via `edit_file` or execution via `run_terminal_cmd`) over verbose logging.
+-   **Minimal Logging:** Log entries MUST be concise and focused on recording actions taken.
+-   **Reference Code Directly:** Refer to file names, functions, or classes directly in logs where necessary, avoiding lengthy English descriptions.
 
 ## Common Custom Tools (`rules/tools/` directory)
 
@@ -53,26 +61,34 @@ This section lists available custom tools. Agents MUST only execute tools from t
 
 ## Agent Communication
 
--   **Handoff:** Use the `handoffMessage` field in the log entry to provide clear, actionable instructions for the `nextAgent`.
--   **Observations:** Structure `observations` clearly, often as key-value pairs or lists of findings.
+-   **Handoff:** Use the `handoffMessage` field in the log entry. It MUST be brief and direct (e.g., "Implemented feature X, ready for audit.", "Error during build, escalating.").
+-   **Observations -> Actions:** The primary record of an agent's turn is the `actionsTaken` array in the log entry.
 
 ## Logging Standards
 
 -   **Primary Memory & Coordination:** All agents read from and append to `logs/<requestId>.json`. The latest entry dictates the current state and next action (`nextAgent`).
 -   **Format:** JSON array, newest entry appended last. **Never overwrite or delete entries.**
--   **Standard Schema:** Log entries MUST conform to the following structure (See Step 9 of Core Loop for full example):
-    -   **Required Root Fields:** `requestId`, `agentRole`, `timestamp`, `projectName`, `domain`, `status` (e.g., "processing", "completed_step", "halted"), `observations` (object), `nextAgent`, `handoffMessage`.
-    -   **Required `observations` Field:** `summary` (string) - Brief overview of the turn's outcome.
-    -   **Optional `observations` Fields (Objects):**
-        -   `codebaseAnalysis`: Findings from code analysis (files, findings, queries).
-        -   `externalContext`: Findings from `context7` or `web_search`.
-        -   `executionResults`: Details of commands/tools run (command, stdio, exit code, success, notes).
-        -   `errorsEncountered`: List of errors.
-        -   `nextStepsRationale`: Justification for the chosen `nextAgent`.
-    -   **Optional Root Fields:** `tasksCompletedThisTurn` (array of MCP Task IDs).
--   **Timestamp:** Use `run_terminal_cmd powershell rules/tools/get_current_time.ps1` or equivalent for consistent ISO 8601 UTC timestamps.
-
-*(Add more shared guidelines as needed)*
+-   **Minimal Standard Schema:** Log entries MUST conform to the following structure:
+    ```json
+    {
+      "requestId": "...",
+      "agentRole": "...",
+      "timestamp": "...",
+      "projectName": "...",
+      "domain": "...",
+      "status": "completed_step", // or "error_escalated"
+      "actionsTaken": [ // REQUIRED - Minimal record of actions
+        {"tool": "read_file", "target": "src/file.js"},
+        {"tool": "edit_file", "target": "src/file.js", "summary": "Fixed bug #123"},
+        {"tool": "run_terminal_cmd", "command": "npm test", "result": "success"}
+        // ... other actions
+      ],
+      "errorsEncountered": [], // OPTIONAL - Only if status is "error_escalated"
+      "nextAgent": "...", // REQUIRED
+      "handoffMessage": "..." // REQUIRED - Brief
+    }
+    ```
+-   **Timestamp:** Use helper tool (`run_terminal_cmd ... get_current_time.ps1`).
 
 # Shared Core Runtime Rules
 
@@ -90,52 +106,21 @@ Agents MUST follow this loop relentlessly, driven by the state in `logs/<request
 4.  **Analyze Codebase Context:** Use `file_search`, `read_file`, `grep_search`, `codebase_search` as needed.
 5.  **Gather External Context (If Needed & Restricted):** Use `context7_*` (Allowed MCP Tool), `web_search`.
 6.  **Execute Agent-Specific Action:** Perform role-based task (`edit_file`, `run_terminal_cmd`, etc.). May use `run_terminal_cmd python rules/tools/<script_name>.py` for custom logic.
-7.  **Prepare Findings / Observations:** Consolidate results into actionable `observations`.
-8.  **Finalize Task (If Applicable - Non-Blocking & Restricted):** `mcp_taskmanager_mark_task_done`. **Proceed immediately to Step 9.** MCP approval is asynchronous.
-9.  **Log To Request File (CRITICAL for IMMEDIATE Handoff):** Append JSON entry to `logs/<requestId>.json` with required fields and **critically**, set `nextAgent` (or null/"HALT"). Use `run_terminal_cmd powershell rules/tools/get_current_time.ps1` for timestamp.
-    *   **Schema:** Adhere strictly to the defined structure below.
-      ```json
-      {
-        "requestId": "...", // REQUIRED
-        "agentRole": "<current_agent_role>", // REQUIRED
-        "timestamp": "<ISO 8601 Timestamp>", // REQUIRED - Use helper tool/script
-        "projectName": "...", // REQUIRED
-        "domain": "...", // REQUIRED
-        "status": "completed_step", // REQUIRED - e.g., "processing", "completed_step", "awaiting_diagnostics", "error", "halted"
-        "tasksCompletedThisTurn": ["task_id_1"], // OPTIONAL - MCP Task IDs marked done this turn
-        "observations": { // REQUIRED - Structured findings from Step 7
-          "summary": "Implemented feature X, encountered build warning.", // REQUIRED - Brief summary
-          "codebaseAnalysis": { // OPTIONAL
-            "relevantFiles": ["src/featureX.js"],
-            "keyFindings": ["Added new component."],
-            "searchQueriesUsed": ["find featureX usage"]
-          },
-          "externalContext": { // OPTIONAL
-            "context7": { "libraryId": "react/docs", "topic": "hooks", "keyFindings": ["Used useEffect."] },
-            "webSearch": { "searchTerm": "react build warning XYZ", "keyFindings": ["Warning is benign."], "urls": ["https://example.com/forum/123"] }
-          },
-          "executionResults": { // OPTIONAL
-            "commandRun": "npm run build", "stderr": "Build succeeded with warnings...", "exitCode": 0, "success": true, "notes": "Build warning needs investigation."
-          },
-          "errorsEncountered": [], // OPTIONAL
-          "nextStepsRationale": "Build succeeded but with warnings. Handing off to AuditAgent." // OPTIONAL but recommended
-        },
-        "nextAgent": "AuditAgent", // REQUIRED - Set to next agent role or null/"HALT". MUST BE SET.
-        "handoffMessage": "Investigate build warning XYZ reported during feature X implementation." // REQUIRED - Clear instructions
-      }
-      ```
-10. **Automatic Transition (IMMEDIATE Framework Action):** Framework reads `nextAgent` from log. **Immediately** loads next agent or halts.
+7.  **Prepare Findings -> Record Actions:** Consolidate the sequence of actions performed during the turn.
+8.  **Finalize Task (If Applicable - Non-Blocking & Restricted):** `mcp_taskmanager_mark_task_done`. Proceed immediately.
+9.  **Log To Request File (Minimal & Action-Focused):** Append a minimal JSON entry to `logs/<requestId>.json` conforming to the schema in "Logging Standards", focusing on the `actionsTaken` array. Set `nextAgent` and a brief `handoffMessage`. Use helper tool for timestamp.
+10. **Automatic Transition (IMMEDIATE Framework Action):** Framework reads `nextAgent`. Immediately loads next agent or handles error escalation/halt as decided by `Overmind`.
 
 ---
 
 ## 📁 Log Handling & Coordination
 
-- **Primary Mechanism:** Agents coordinate **exclusively** through `logs/<requestId>.json`. Adhere to the "Logging Standards" defined above.
-- **💡 IMMEDIATE Automatic Transitions:** The framework **automatically and immediately** transitions based on the `nextAgent` field in the latest log entry. Manual user prompts ("proceed", "continue", etc.) are forbidden and will be ignored.
+- **Primary Mechanism:** Coordinate via minimal, action-focused entries in `logs/<requestId>.json`. Adhere strictly to the Minimal Logging Standards.
+- **💡 IMMEDIATE Automatic Transitions:** Driven by `nextAgent` field.
 
 ---
 
-## 🛠 Allowed Toolchain
+## �� Allowed Toolchain
 
 Agents MUST limit their actions to the following tools:
 
@@ -167,14 +152,14 @@ Each `edit_file` block must include a comment header:
 
 ## 🚨 Core Agent Behavior Rules (MANDATORY)
 
-- 🚀 **NON-STOP AUTONOMOUS EXECUTION:** Operate continuously based on framework rules and log state. Relentless forward progress.
-- ➡️ **IMMEDIATE AUTOMATIC TRANSITION:** Transitions happen **ONLY and IMMEDIATELY** via the `nextAgent` field logged in Step 9 and handled by the framework. **DO NOT** self-mutate or wait for user transform/proceed commands.
-- ✅ **SET `nextAgent`:** MUST determine and log the correct `nextAgent` (or null/"HALT") in Step 9. This is non-negotiable.
-- 🚫 **NO WAITING:** Never wait for user input **unless** explicitly requesting diagnostic information (Step 6). **Strictly forbid** waiting for generic prompts or MCP task approval confirmations. If blocked otherwise, log failure and set `nextAgent` to "HALT".
-- 💾 **LOG INTEGRITY:** Never delete, overwrite, or ignore history in `logs/<requestId>.json`. Always append.
-- 🔄 **CONTINUOUS PRODUCTION:** Maintain the execution loop relentlessly until `nextAgent` is null/"HALT".
-- 🛑 **HALT ON FAILURE:** If a critical step fails, log the failure, set `nextAgent` to "HALT", and stop.
-- 🛠️ **TOOL RESTRICTION:** Adhere strictly to the Allowed Toolchain defined above.
+- 🚀 **CODE OVER TALK & NON-STOP EXECUTION:** Prioritize performing actions (code edits, commands) over logging. Operate continuously through iterative cycles planned by `Overmind`. Escalate errors to `Overmind`; halting only occurs if `Overmind` deems an error unrecoverable.
+- ➡️ **IMMEDIATE AUTOMATIC TRANSITION:** Via `nextAgent` field.
+- ✅ **SET `nextAgent`:** MUST determine and log the correct `nextAgent`.
+- 🚫 **MINIMAL LOGGING & NO WAITING:** Log only minimal, action-focused entries (see Logging Standards). Never wait for user input except for diagnostics. If blocked by an error, log minimally and escalate to `Overmind`.
+- 💾 **LOG INTEGRITY:** Always append minimal entries.
+- 🔄 **CONTINUOUS PRODUCTION:** Maintain the execution loop relentlessly until `Overmind` explicitly sets `nextAgent` to HALT.
+- 🛑 **ESCALATE ON FAILURE:** If a critical step fails and recovery is not possible, log the failure minimally (populating `errorsEncountered`), set `nextAgent` to `Overmind`, and provide a *brief* `handoffMessage` requesting assistance.
+- 🛠️ **TOOL RESTRICTION:** Adhere strictly to the Allowed Toolchain.
 
 ---
 

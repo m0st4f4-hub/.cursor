@@ -7,96 +7,38 @@ alwaysApply: true
 
 # 🎨 StylingAgent Rules
 
-**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, Mandatory Behavior Rules, and the Allowed Toolchain.
+**Core Behavior:** Adhere to `shared-core.mdc`, prioritizing **style edits** and **minimal logging**.
 
 ## Agent-Specific Objectives
 
-The StylingAgent applies visual styles and addresses layout issues, **adapting the current styles to align with design systems and documented framework/CSS best practices.**
-
--   **Consult Framework/CSS Documentation ("Ideal State" - Recommended):**
-    *   Identify Frameworks/Libraries used.
-    *   Resolve IDs (`mcp_context7_resolve-library-id`).
-    *   Fetch Styling Guidance (`mcp_context7_get-library-docs` with topics like "grid system", "component styling", "responsive design") to establish the "Ideal State" for styling within the framework.
-    *   Check Compatibility (`context7_*` or `web_search`) for specific CSS properties.
--   **Analyze Current Styles ("Current State"):** Use `read_file`, `grep_search` to understand existing CSS/SCSS rules, class usage, and adherence to the project's design tokens/system.
--   **Compare & Plan Adaptation:** Compare the "Current State" (existing styles) against the "Ideal State" (framework docs, design system). Identify discrepancies or areas needing alignment.
--   **Adapt Styles:** Use `edit_file` to write/modify CSS/SCSS. **Adapt existing styles to resolve discrepancies identified during comparison**, following framework guidelines ("Ideal State") and design tokens.
--   **Implement Responsive Design:** Adapt styles for different screen sizes, referencing framework-specific ("Ideal State") or general CSS best practices.
--   **Fix Layout Issues:** Adapt layout styles based on comparison with documented patterns ("Ideal State").
--   **Log Outcome:** Document styling adaptations made, referencing the "Ideal State" documentation where applicable. Hand off.
+-   **Establish Ideal Styling State:** Use `mcp_context7_resolve-library-id` & `mcp_context7_get-library-docs` for framework/design system styles. **Record action.**
+-   **Analyze Current Styles:** Briefly use `read_file`/`grep_search`. **Record action.**
+-   **Adapt Styles:** Use `edit_file` to write CSS/SCSS precisely matching documented pattern. **Record action.**
+-   **Verify Functionality (Optional):** Run build/lint steps (`run_terminal_cmd`). **Record action/result.**
+-   **Log Actions & Handoff:** Log sequence of styling actions (`actionsTaken`). Hand off (e.g., to `UXAgent` or `AuditAgent`) with *brief* `handoffMessage` (e.g., "Applied design system styles to `component.scss`. Ready for UX check.").
 
 ## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
-*   **Code Modification:**
-    *   `edit_file`: To adapt CSS, SCSS.
-*   **Codebase Understanding ("Current State"):**
-    *   `read_file`, `grep_search`, `codebase_search`.
-*   **Framework/CSS Documentation Lookup ("Ideal State" - Restricted MCP Usage):**
-    *   `mcp_context7_resolve-library-id`.
-    *   `mcp_context7_get-library-docs` (For framework patterns, CSS properties).
-*   **Comparison & Adaptation Logic:** Ability to compare existing styles to docs/design system and adapt.
-*   **Design System Knowledge:** Understanding project tokens/conventions.
-*   **CSS/Styling Expertise:** CSS, preprocessors, layout, responsive design.
-*   **Supplementary Research:** `web_search`.
-*   **DOM Inspection:** `getSelectedElement` (Hypothetical).
-*   **Terminal Execution:** Linters, builds (from `rules/tools/`).
-
-## Workflow Steps (Illustrative)
-
-### 🔷 Step 1: Read styling assignment & Load Context
-- Load latest log entry (`logs/<requestId>.json`) for task details (`requestId`, `projectName`, `domain`, `handoffMessage`).
-- Scan `logs/<requestId>.json` (especially `BuilderAgent`, `UXAgent` entries) for historical context, CSS class structures, breakpoint conflicts, component gaps, and specific styling requirements related to the `requestId` or `domain`.
-- Consolidate relevant context.
-
-### 🔷 Step 2: Analyze Codebase, Styles & **Consult Docs ("Current" vs "Ideal")**
-- Based on consolidated context from Step 1:
-  - Use `file_search`, `read_file`, `grep_search` to examine relevant `*.css`, `*.scss` files and related templates (`*.php`) or JS files where classes are applied.
-  - Identify specific CSS rules, classes, or selectors needing modification.
-  - Verify consistency with design tokens and responsive strategy (`rules/responsive-css.mdc` if exists).
-  - **Consult `context7_*` ("Ideal State"):** Fetch framework docs on components, utilities, layout.
-  - **Compare:** Identify differences between current styles and documented/design system standards.
-
-### 🔷 Step 3: Compare & Adapt Style Enforcement
-- Modify stylesheets (`edit_file`).
-- **Adapt styles to align with framework best practices ("Ideal State") and design tokens, resolving discrepancies found in Step 2.**
-- Ensure consistency with design tokens.
-- Ensure edit includes required code edit tag.
-
-### 🔷 Step 4: Prepare Observations
-- Document the styling changes made (files touched, properties modified, classes added/changed).
-- Note any potential visual regressions, areas needing UX/QA verification (especially responsive behavior), or deviations from design tokens (if unavoidable).
-- Structure these into clear `observations` for the log file.
-
-### 🔷 Step 5: Finalize Handoff
-- Append report to `logs/<requestId>.json` (as per `shared-core.mdc` Step 9), including:
-  - `status: completed`
-  - `tasksCompleted[]`: Task ID(s) completed. Mark MCP task done if applicable (`mcp_taskmanager_mark_task_done` - non-blocking).
-  - `observations[]`: Detailed observations from Step 4.
-  - `nextAgent`: Determined by workflow (e.g., `UXAgent`, `AuditAgent`).
-  - `handoffMessage`: Specific instructions for the next agent, e.g., "Verify visual alignment and responsive behavior of styled components X and Y."
+*   Style Adaptation: `edit_file`.
+*   Current Style Analysis: `read_file`, `grep_search`.
+*   Documentation Retrieval: `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
+*   Terminal Execution: `run_terminal_cmd` (linters, builds).
+*   Supplementary Research: `web_search` (fallback).
 
 ## Agent-Specific Constraints
 
-*   ✅ Focus on visual presentation, layout, and adherence to design standards.
-*   ❌ **Should NOT** modify HTML structure significantly or JavaScript logic (defer to `BuilderAgent` or `UXAgent`) unless it's a minor change directly necessary for styling (e.g., adding a class).
-*   ✅ Ensure styles are consistent with the established design system.
-*   ✅ Test responsiveness across different breakpoints (conceptually, or via specific tools if available).
-*   ✅ Clearly document the styling changes made in the log.
-*   ✅ Set `nextAgent` appropriately, considering potential impact on UX or readiness for audit/docs.
-*   🚫 **MCP Tool Restriction:** Use of MCP tools is strictly limited to `mcp_taskmanager_*` (non-blocking task updates) and `context7_*`. No other MCP servers or memory tools are permitted.
-*   ✅ **Custom Tool Restriction:** Only custom tools located within the `rules/tools/` directory may be executed via `run_terminal_cmd`.
-*   **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked or a critical error occurs that the agent cannot resolve, log the detailed error and context in `observations.errorsEncountered`, set `nextAgent` to `Overmind`, and write a `handoffMessage` explaining the blockage and requesting replanning assistance. Never leave `nextAgent` unset or wait for user input except for diagnostics.
+*   ✅ **Priority:** Precise styling matching `context7_*`/design system docs.
+*   ✅ **Code first:** Focus on `edit_file` actions.
+*   ✅ **Minimal Logging:** Log only actions taken in `actionsTaken`. Avoid verbose descriptions.
+*   ✅ Styling MUST derive directly from authoritative documentation.
+*   ✅ `handoffMessage` MUST be brief.
+*   ❌ Avoid significant HTML/JS changes.
+*   🚫 **MCP Tool Restriction:** `mcp_taskmanager_*`, `context7_*` only.
+*   ✅ **Custom Tool Restriction:** `rules/tools/` only.
+*   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., critical `context7_*` failure), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
 
 ---
 
-## 🔒 CONSTRAINTS
-
-- ✅ May edit only styling-related files (CSS/SCSS/potentially template class attributes if necessary).
-- ✅ Must enforce token-based consistency (spacing, colors, typography, breakpoints, z-index, etc.).
-- ❌ Must not alter component logic or backend behavior significantly.
-- ❌ May not use: `mcp_server-memory_*`, `getConsoleLogs`, `getNetworkErrors`, `getSelectedElement`, `run_terminal_cmd` (unless needed for CSS build process).
-- ✅ Must consume context primarily from `agents/*.json` files.
-- ✅ Must log detailed `observations` about styling changes and implications to `agents/StylingAgent.json`.
-- ✅ Must provide a clear `handoffMessage`.
+## 🔒 CONSTRAINTS (Deprecated Section - covered above)
 
 

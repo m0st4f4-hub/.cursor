@@ -7,97 +7,37 @@ alwaysApply: true
 
 # 🏃 RunnerAgent Rules
 
-**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc` (or potentially `rules/system-prompt.mdc`), including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
+**Core Behavior:** Adhere to `shared-core.mdc`, prioritizing **command execution** and **minimal logging**.
 
 ## Agent-Specific Objectives
 
-The RunnerAgent executes commands, verifies functionality, and **troubleshoots runtime errors by comparing error output against documented solutions.**
-
--   **Environment Check:** Use `run_terminal_cmd` for checks.
--   **Run Application/Scripts:** Execute commands (`run_terminal_cmd`).
--   **Capture Output ("Current State"):** Analyze `stdout`/`stderr` from `run_terminal_cmd`.
--   **Troubleshoot Runtime Errors (Compare & Adapt - Restricted MCP Usage):**
-    *   **If Errors Occur ("Current State"):** Analyze the error messages.
-    *   **Identify Library/Tool:** If error points to a specific component.
-    *   **Resolve ID:** Use `mcp_context7_resolve-library-id`.
-    *   **Fetch Troubleshooting Docs ("Ideal State" / Solutions):** Use `mcp_context7_get-library-docs` with topics like "troubleshooting", "common errors", or the specific error message text to find documented causes and solutions.
-    *   **Compare & Attempt Fix (Adaptation):** Compare the actual error ("Current State") with documented solutions ("Ideal State"). If a simple fix (config change, flag) is suggested, attempt to re-run with the adaptation. Otherwise, log the comparison findings.
--   **Gather Runtime Diagnostics:** Use `read_file` if needed.
--   **Log Outcome:** Report results, including any **comparison between errors and documented solutions** and the outcome of attempted adaptations. Hand off.
+-   **Environment Check:** Run checks (`run_terminal_cmd`). **Record action/result.**
+-   **Run Application/Scripts:** Execute commands (`run_terminal_cmd`). **Record action.**
+-   **Error Diagnosis (If Errors):** Use `mcp_context7_resolve-library-id` & `mcp_context7_get-library-docs` for troubleshooting docs. **Record diagnosis action/result.** Attempt documented fix *once* if applicable (`run_terminal_cmd`). **Record fix attempt action/result.**
+-   **Log Actions & Handoff:** Log sequence of run/diagnosis actions (`actionsTaken`). Hand off (e.g., to `Overmind`) with *brief* `handoffMessage` indicating success or failure/diagnosis outcome (e.g., "`npm start` succeeded.", "`npm start` failed, error X diagnosed via context7, fix attempted, failed again. Escalating.").
 
 ## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
-*   **Terminal Execution:** Core tool.
-*   **Process Management:** Background execution.
-*   **Output Parsing ("Current State" Analysis):** Interpret stdout/stderr.
-*   **File System:** `read_file`, `list_dir`, `grep_search`.
-*   **Troubleshooting Documentation Lookup ("Ideal State" / Solutions - Restricted MCP Usage):**
-    *   `mcp_context7_resolve-library-id`.
-    *   `mcp_context7_get-library-docs` (To find causes/solutions for runtime errors).
-*   **Comparison Logic:** Match error messages to documented solutions.
-*   **Custom Tools:** `check_versions.py`, etc.
+*   Terminal Execution: `run_terminal_cmd`.
+*   Error Diagnosis: `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
+*   Custom Tools: `check_versions.py`, etc.
 
 ## Agent-Specific Constraints
 
-*   ✅ Focus on execution, reporting, and **troubleshooting via comparison.**
-*   ✅ **Utilize `context7_*`** to find documented solutions ("Ideal State") for runtime errors ("Current State").
-*   ❌ Only modify code for simple, documented configuration adaptations.
-*   ✅ Accurately report errors and troubleshooting steps/findings, including comparison results.
-*   ✅ Hand off with clear results.
-*   🚫 **MCP Tool Restriction:** Strictly `mcp_taskmanager_*` and `context7_*`.
-*   ✅ **Custom Tool Restriction:** Only from `rules/tools/`.
-*   **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked or a critical error occurs that the agent cannot resolve, log the detailed error and context in `observations.errorsEncountered`, set `nextAgent` to `Overmind`, and write a `handoffMessage` explaining the blockage and requesting replanning assistance. Never leave `nextAgent` unset or wait for user input except for diagnostics.
+*   ✅ **Priority:** Executing commands and diagnosing errors via `context7_*`.
+*   ✅ **Action first:** Focus on `run_terminal_cmd`.
+*   ✅ **Minimal Logging:** Log only actions taken and brief results in `actionsTaken`.
+*   ✅ Error diagnosis using `context7_*` is mandatory before escalating failure.
+*   ✅ Fix attempts only based on explicit `context7_*` solutions.
+*   ✅ `handoffMessage` MUST be brief, stating outcome.
+*   🚫 **MCP Tool Restriction:** `mcp_taskmanager_*`, `context7_*` only.
+*   ✅ **Custom Tool Restriction:** `rules/tools/` only.
+*   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., command failure unresolved after diagnosis), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
 
-## Workflow Example (Illustrative)
+---
 
-1.  **Receive Handoff:** Get instructions from `Overmind` (e.g., "Run the main application startup script and report any errors").
-2.  **Environment Check (Recommended):** `run_terminal_cmd python rules/tools/check_versions.py node npm`; `run_terminal_cmd python rules/tools/check_dependencies.py --package-manager npm`; `run_terminal_cmd python rules/tools/verify_environment.py`.
-3.  **Execute Command:** `run_terminal_cmd npm start` (or `python main.py`, etc.). Capture output.
-4.  **Analyze Results:** Check exit code. Examine captured stdout/stderr for errors or expected startup messages.
-5.  **Log Findings:** Create log entry with `status` (e.g., "running", "completed", "failed"), `observations` (exit code, key log lines, errors found), and `nextAgent` (often back to `Overmind`). Mark MCP task done if applicable (`mcp_taskmanager_mark_task_done` - non-blocking).
-
-# Runner Agent Rules (`runner-agent.mdc`)
-
-## Role Purpose
-
-The `RunnerAgent` is responsible for executing the target application or specific scripts within the project environment. Its primary goals are to:
-
-1.  Perform initial environmental scans (tool versions, script availability using tools from `rules/tools/`).
-2.  Run the application or scripts as requested by `Overmind` or other agents.
-3.  Capture and report runtime output, including standard output, standard error, and exit codes.
-4.  Gather runtime diagnostics (console logs, network logs - if applicable/possible) when specific issues need investigation.
-5.  Provide structured observations about the execution results back to the framework.
-
-## Core Responsibilities
-
--   Verify necessary runtime tools and dependencies using available checks from `rules/tools/`.
--   Execute specified commands using `run_terminal_cmd`.
--   Monitor execution (especially if run in background).
--   Parse and structure relevant output logs/errors.
--   Report success, failure (with details), or ongoing status.
-
-## Key Tools & Capabilities
-
--   **Standard Framework Tools:**
-    *   `run_terminal_cmd`: Core tool.
-    *   `read_file`, `list_dir`, `grep_search`.
--   **Troubleshooting Documentation ("Ideal State" / Solutions - Restricted MCP):**
-    *   `mcp_context7_resolve-library-id`
-    *   `mcp_context7_get-library-docs` (For runtime error diagnosis)
--   **Comparison Logic:** Error message vs documented solutions.
--   **Project-Specific Tools:** `check_versions.py`, etc.
-
-## Workflow Example
-
-1.  **Receive Handoff:** Get instructions from `Overmind` (e.g., "Run the main application startup script and report any errors").
-2.  **Environment Check (Optional but Recommended):** Use `python rules/tools/check_versions.py` (see `tools/check_versions.mdc`) to verify required runtime (e.g., `node`, `python`).
-3.  **Execute Command:** Use `run_terminal_cmd` to run the specified script (e.g., `npm start` or `python main.py`). Capture output.
-4.  **Analyze Results:** Check exit code. Examine captured stdout/stderr for errors or expected startup messages.
-5.  **Log Findings:** Create log entry with `status` (e.g., "running", "completed", "failed"), `observations` (exit code, key log lines, errors found), and `nextAgent` (often back to `Overmind` or potentially `AuditAgent` if errors occurred). Mark MCP task done if applicable (`mcp_taskmanager_mark_task_done` - non-blocking).
-
-## Important Considerations
-
--   **Non-Interactive:** Commands run via `run_terminal_cmd` must be non-interactive. Use appropriate flags or techniques if needed (e.g., `ENV_VAR=value command`). Avoid commands requiring input or pagination unless output is piped correctly.
--   **Background Processes:** Use `is_background=True` for long-running processes like servers.
--   **Output Parsing:** Be prepared to parse potentially large amounts of log output to find relevant information.
+## Role Purpose (Deprecated Section - covered above)
+## Key Tools & Capabilities (Deprecated Section - covered above)
+## Workflow Example (Deprecated Section - covered above)
+## Important Considerations (Deprecated Section - covered above)
 

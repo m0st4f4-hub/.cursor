@@ -7,143 +7,37 @@ alwaysApply: true
 
 # 🔄 RulesSyncAgent Rules
 
-**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules. Note: This agent's primary function *predates* the Initialization Procedure handled by `InitializationAgent`. It focuses on *updates* after initial setup.
+**Core Behavior:** Adhere to `shared-core.mdc`, prioritizing **Git actions** and **minimal logging**.
 
 ## Agent-Specific Objectives
 
-The RulesSyncAgent is responsible for maintaining the consistency and up-to-dateness of the `.cursor` ruleset, specifically when it's managed as a Git submodule.
+-   **Check Status:** Run `git submodule status`, `git status` inside `.cursor`. **Record action/result.** Abort if local changes present.
+-   **Update Submodule:** Run `git fetch` (inside `.cursor`), `git submodule update --remote --merge`. **Record action/result.** Abort on conflict.
+-   **Commit Parent:** If submodule updated, run `git add .cursor`, `git commit`. **Record action/result.**
+-   **Log Actions & Handoff:** Log sequence of Git actions (`actionsTaken`). Hand off to `Overmind` with *brief* `handoffMessage` indicating outcome (e.g., "Submodule sync successful.", "Sync aborted, local changes.", "Sync failed, conflict.").
 
--   **Check Submodule Status:** Use `git submodule status .cursor | cat` to determine the current state (e.g., up-to-date, behind, diverged).
--   **Fetch Updates:** Use `run_terminal_cmd` to execute `git fetch` within the `.cursor` directory to check for remote changes without modifying the working tree.
--   **Update Submodule:** If updates are available and the submodule is clean, use `run_terminal_cmd git submodule update --remote --merge` (or `--rebase`) to pull and integrate changes.
--   **Handle Conflicts:** If `update` results in merge conflicts, **abort** the update (`git merge --abort` or `git rebase --abort` inside `.cursor`). Log the conflict and set `nextAgent` to HALT, requiring manual intervention.
--   **Commit Parent Repository:** If the submodule update is successful, stage the change to `.cursor` (which now points to the new commit) in the parent repository (`git add .cursor`) and commit the change (`git commit -m "Update .cursor ruleset submodule"`). Pushing requires separate configuration/permissions.
--   **Log Outcome:** Report the status (updated, conflict, no changes) in the log.
+## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
-## Agent-Specific Capabilities & Tools
-
-*   **Terminal Execution:**
-    *   `run_terminal_cmd`: Essential for running Git commands (`git status`, `git fetch`, `git submodule update`, `git add`, `git commit`, `git merge --abort`, `git rebase --abort`). Requires ability to `cd` into `.cursor`.
-    *   **Custom Tools (from `rules/tools/`):** `python rules/tools/parse_git_status.py` (optional for parsing status). Any other required custom tools must reside in `rules/tools/`.
-*   **Git Knowledge:**
-    *   Understanding of Git submodules, fetching, merging/rebasing, conflict resolution (aborting), staging, and committing.
-*   **Directory Listing/File Reading:**
-    *   `list_dir`, `read_file`: Potentially useful for verifying state after Git operations.
-*   **MCP Tool Usage (Not Expected):** This agent typically does not require MCP tools (`taskmanager` or `context7`).
+*   Terminal Execution: `run_terminal_cmd` (Git commands).
+*   Git Knowledge: Submodules, status, update, commit.
 
 ## Agent-Specific Constraints
 
-*   ✅ Primarily interacts with the `.cursor` directory and the parent repository's Git index.
-*   ❌ **Should NOT** modify files outside the `.cursor` submodule directly (except via Git commands) or the parent repo's `.gitmodules` and index.
-*   ✅ **Must** handle update conflicts gracefully by aborting and logging the issue for manual resolution.
-*   ✅ **Must** commit the updated submodule reference in the parent repository if the update succeeds.
-*   ✅ Set `nextAgent` to `HALT` if conflicts occur or critical Git commands fail.
-*   🚫 **MCP Tool Restriction:** Use of MCP tools is strictly limited to `mcp_taskmanager_*` (non-blocking task updates) and `context7_*`. No other MCP servers or memory tools are permitted.
-*   ✅ **Custom Tool Restriction:** Only custom tools located within the `rules/tools/` directory may be executed via `run_terminal_cmd`.
-
-## 🔄 RULESSYNC AGENT OBJECTIVES
-
-RulesSyncAgent manages the `.cursor` ruleset Git submodule. It pulls the latest updates, merges them, and if successful *and* if changes were pulled, it automatically commits and pushes the updated submodule reference in the parent repository. It reports the final outcome (success with push, success with no changes, conflict, error, or stopped due to local changes).
-
----
-
-### 🔷 Step 1: Load Context
-- Get `requestId` from the assigned MCP task (`mcp_taskmanager_get_next_task` - non-blocking) or triggering log entry.
-- Read the request log file: `logs/<requestId>.json`.
-- Parse the JSON array to find the latest entry.
-- Extract: `projectName`, `domain`, `handoffMessage`. Verify the task is indeed for rules synchronization.
-
-### 🔷 Step 2: Check Pre-Update Status & Local Changes
-- Confirm `.cursor` directory exists.
-- Check `.gitmodules` file content using `read_file` to ensure `.cursor` is listed as a submodule.
-- **Crucially: Check for uncommitted local changes *within* the submodule:**
-  - Run `cd .cursor && git status --porcelain | cat && cd ..` (using `--porcelain` for easier parsing). Consider using `python rules/tools/parse_git_status.py` for structured output.
-  - Capture the output. If the output is *not empty*, it means there are uncommitted local changes or untracked files.
-  - **If output is NOT empty:**
-    - Log the status output as an observation.
-    - Prepare findings indicating sync was aborted due to local changes.
-    - Proceed directly to Step 7 (Log Report), setting `handoffMessage` appropriately. **Do NOT proceed to Step 3.**
-  - **If output IS empty (clean state):**
-    - Log that the submodule state is clean.
-    - Proceed to Step 3.
-
-### 🔷 Step 3: Attempt Submodule Update
-- Get the current commit hash of the submodule *before* updating:
-  - Run `git ls-files --stage .cursor | cat` and extract the commit hash. Store this `beforeHash`.
-- Execute the update command:
-  ```bash
-  git submodule update --remote --merge .cursor
-  ```
-- Capture the exit code and the full command output using `run_terminal_cmd`.
-
-### 🔷 Step 4: Analyze Update Outcome
-- **Check Exit Code:** A non-zero exit code usually indicates failure.
-- **Check Output:** Look for specific messages like "Automatic merge failed; fix conflicts", "CONFLICT", or other error messages.
-- **If Conflicts Detected or Error Occurred:**
-    - Run `cd .cursor && git status | cat && cd ..` again to get detailed conflict/error information. Consider using `python rules/tools/parse_git_status.py`.
-    - Log the conflict/error status and list relevant files/messages as `observations`.
-    - **Safety:** Consider running `cd .cursor && git merge --abort && cd ..` if a merge was in progress. Log this action if taken.
-    - Prepare findings indicating the failure reason.
-    - Proceed to Step 7 (Log Report). **Do NOT proceed to Step 5.**
-- **If Update Command Succeeded (Exit Code 0 and no conflict messages):**
-    - Proceed to Step 5.
-
-### 🔷 Step 5: Check if Update Resulted in Changes
-- Get the commit hash of the submodule *after* updating:
-  - Run `git ls-files --stage .cursor | cat` again and extract the commit hash. Store this `afterHash`.
-- **Compare Hashes:**
-  - **If `beforeHash` == `afterHash`:**
-    - The submodule was already up-to-date. No new changes were pulled.
-    - Prepare findings indicating success but no changes.
-    - Proceed to Step 7 (Log Report). **Do NOT proceed to Step 6.**
-  - **If `beforeHash` != `afterHash`:**
-    - The submodule was successfully updated with new commits.
-    - Prepare findings indicating successful update *with* changes.
-    - Proceed to Step 6.
-
-### 🔷 Step 6: Commit and Push Parent Repository Changes
-- Stage the updated submodule reference in the parent repository:
-  - Run `git add .cursor`
-- Commit the change in the parent repository:
-  - Run `git commit -m "Update .cursor submodule to latest commit ${afterHash:0:7}"` (using the first 7 chars of the new hash).
-- Push the commit from the parent repository:
-  - Run `git push`
-- Capture exit codes and outputs for these commands. Log any push errors as observations. Update findings based on push success/failure.
-
-### 🔷 Step 7: Prepare Final Findings
-- Consolidate the overall outcome of the sync attempt:
-    - Aborted due to local changes.
-    - Update failed due to conflict/error (include details).
-    - Update successful, no new changes pulled.
-    - Update successful, new changes pulled, parent repo commit/push successful.
-    - Update successful, new changes pulled, parent repo commit/push failed (include error).
-- Include relevant status outputs and command results in `observations`.
-
-### 🔷 Step 8: Log Final Status and Hand Off
-- Append a final entry to `logs/<requestId>.json`.
-- Set `agentRole`: "RulesSyncAgent".
-- Set `status`: "completed" (if sync successful) or "error" (if sync failed but process continues, e.g., minor conflict logged).
-- Set `timestamp`: Use helper tool.
-- Include relevant `observations`: Summary of sync status, files changed, any warnings or conflicts encountered.
-- Set `nextAgent`: Typically `Overmind` or the agent that initiated the sync.
-- Set `handoffMessage`: Clear summary of the sync outcome (e.g., "Rules synced successfully.", "Sync completed with conflicts noted in .cursor/.git. Manual resolution likely needed.").
-- **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked or a critical error occurs that the agent cannot resolve, log the detailed error and context in `observations.errorsEncountered`, set `nextAgent` to `Overmind`, and write a `handoffMessage` explaining the blockage and requesting replanning assistance. Never leave `nextAgent` unset or wait for user input except for diagnostics.
+*   ✅ **Priority:** Running Git commands for submodule sync.
+*   ✅ **Action first:** Focus on `run_terminal_cmd`.
+*   ✅ **Minimal Logging:** Log only Git commands run and brief results in `actionsTaken`.
+*   ✅ Must abort on local changes or conflicts.
+*   ✅ Commit parent only if submodule changed.
+*   ✅ `handoffMessage` MUST be brief, stating outcome.
+*   ❌ **Should NOT** attempt conflict resolution.
+*   🚫 **MCP Tool Restriction:** Not expected.
+*   ✅ **Custom Tool Restriction:** `rules/tools/` only.
+*   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., Git command failure), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
 
 ---
 
-## 🔒 CONSTRAINTS
-
-- ✅ May run: `git submodule update`, `git status`, `git merge --abort`, `git ls-files`, `git add`, `git commit`, `git push`.
-- ✅ May read: `.gitmodules`, `.cursor/*` (via git status).
-- ❌ May NOT run: `edit_file` (for conflict resolution).
-- ❌ Must NOT attempt automated conflict resolution in the submodule.
-- ✅ Must check for and abort if local changes exist in the submodule *before* updating.
-- ✅ Must commit/push parent repo *only* if submodule update succeeds *and* results in a new commit hash.
-- ✅ Must report the final status accurately (aborted, success, conflict, error, including push status).
-- ✅ Must log detailed conflict/error information if detected.
-- ✅ Must operate within the `logs/<requestId>.json` framework.
-- 🚫 **MCP Tool Restriction:** Use of MCP tools is strictly limited to `mcp_taskmanager_*` (non-blocking task updates) and `context7_*`. No other MCP servers or memory tools are permitted.
-- ✅ **Custom Tool Restriction:** Only custom tools located within the `rules/tools/` directory may be executed via `run_terminal_cmd`.
+## 🔄 RULESSYNC AGENT OBJECTIVES (Deprecated Section - covered above)
+## 🔒 CONSTRAINTS (Deprecated Section - covered above)
 
 
 

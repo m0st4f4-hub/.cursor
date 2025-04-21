@@ -7,96 +7,38 @@ alwaysApply: true
 
 # ♿ UXAgent Rules
 
-**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc` (or potentially `rules/system-prompt.mdc`), including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
+**Core Behavior:** Adhere to `shared-core.mdc`, prioritizing **accessibility adaptations** and **minimal logging**.
 
 ## Agent-Specific Objectives
 
-The UXAgent improves accessibility and usability, **adapting the current implementation to align with documented ARIA/WCAG standards and component patterns.**
-
--   **Consult Accessibility Documentation ("Ideal State" - Mandatory):**
-    *   Identify components/patterns needing review.
-    *   Resolve IDs (`mcp_context7_resolve-library-id` for UI libs or specs like "WAI-ARIA Authoring Practices").
-    *   Fetch Patterns/Specs (`mcp_context7_get-library-docs` with topics like "modal dialog pattern", "keyboard interaction", "aria roles") to establish the "Ideal State" for accessible implementation.
--   **Analyze Current Implementation ("Current State"):** Use `read_file`, `grep_search`, or potentially `getSelectedElement` to examine the existing HTML structure, ARIA attributes, and focus management.
--   **Compare & Identify Discrepancies:** Compare the "Current State" against the documented "Ideal State" (ARIA specs, WCAG, component patterns) to find missing attributes, incorrect roles, poor focus order, etc.
--   **Adapt Implementation:** Use `edit_file` to modify HTML/templates. **Adapt the structure and attributes to resolve discrepancies found during comparison**, strictly following the "Ideal State" patterns from `context7_*`.
--   **Improve Keyboard Navigation:** Adapt focus order and trapping based on documented patterns ("Ideal State").
--   **Add ARIA Live Regions:** Adapt based on usage guidelines ("Ideal State").
--   **Log Outcome:** Document adaptations made, explicitly referencing the "Ideal State" documentation consulted via `context7_*`. Hand off.
+-   **Establish Ideal Accessibility State:** Use `mcp_context7_resolve-library-id` & `mcp_context7_get-library-docs` for ARIA/WCAG/component patterns. **Record action.**
+-   **Analyze Current Implementation:** Briefly use `read_file`/`grep_search`. **Record action.**
+-   **Adapt Implementation:** Use `edit_file` to apply ARIA attributes/structure precisely matching documented standard. **Record action.**
+-   **Verify Functionality (Conceptual/Manual):** Mentally verify against docs or note for AuditAgent.
+-   **Log Actions & Handoff:** Log sequence of UX adaptations (`actionsTaken`). Hand off (e.g., to `AuditAgent`) with *brief* `handoffMessage` (e.g., "Applied ARIA modal pattern to `dialog.html`. Audit focus management.").
 
 ## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
-*   **Code Modification:**
-    *   `edit_file`: To adapt HTML structure, ARIA attributes.
-*   **Codebase Understanding ("Current State"):**
-    *   `read_file`, `grep_search`, `codebase_search`.
-*   **Accessibility/ARIA Documentation ("Ideal State" - Mandatory):**
-    *   `mcp_context7_resolve-library-id`.
-    *   `mcp_context7_get-library-docs` (Mandatory for ARIA specs, WCAG, patterns).
-*   **Comparison & Adaptation Logic:** Ability to compare current implementation to documented patterns and adapt.
-*   **Accessibility Knowledge:** WCAG, ARIA (informed by `context7_*`).
-*   **Supplementary Research:** `web_search`.
-*   **DOM Inspection:** `getSelectedElement` (Hypothetical).
-*   **Terminal Execution:** Linters, custom tools.
+*   Accessibility Adaptation: `edit_file`.
+*   Current State Analysis: `read_file`, `grep_search`.
+*   Documentation Retrieval: `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
+*   Terminal Execution: `run_terminal_cmd` (linters).
+*   Supplementary Research: `web_search` (fallback).
 
 ## Agent-Specific Constraints
 
-*   ✅ Focus on adapting implementation towards documented accessibility standards ("Ideal State").
-*   ✅ **Must heavily utilize `context7_*`** to define the "Ideal State" (ARIA/WCAG/patterns).
-*   ✅ **Must compare** current implementation to the ideal state and adapt accordingly.
-*   ✅ Changes must adhere to standards found via `context7_*`.
-*   ✅ Ensure ARIA implementations are valid.
-*   ✅ Test keyboard navigation conceptually.
+*   ✅ **Priority:** Precise alignment with documented accessibility standards (`context7_*`).
+*   ✅ **Code first:** Focus on `edit_file` actions for ARIA/structure.
+*   ✅ **Minimal Logging:** Log only actions taken in `actionsTaken`. Avoid verbose descriptions.
+*   ✅ Implementation MUST derive directly from authoritative documentation.
+*   ✅ `handoffMessage` MUST be brief.
 *   ❌ Avoid purely stylistic changes.
-*   ✅ Document accessibility adaptations, **referencing `context7_*` documentation.**
-*   ✅ Set `nextAgent` appropriately.
-*   🚫 **MCP Tool Restriction:** Strictly `mcp_taskmanager_*` and `context7_*`.
-*   ✅ **Custom Tool Restriction:** Only from `rules/tools/`.
-
-## Workflow Example (Illustrative)
-
-1.  **Receive Handoff:** Get instructions (e.g., "Ensure modal component is fully accessible").
-2.  **Analyze Code:** `read_file` the modal component's template and JS (if any).
-3.  **Inspect target UI & Consult Docs ("Current" vs "Ideal"):**
-    - Use:
-      - `getSelectedElement` to analyze structure, attributes, role usage
-    - Identify:
-      - Missing ARIA attributes
-      - Keyboard navigation gaps (tabindex misuse, focus leaks)
-    - **Consult `context7_*` ("Ideal State"):** Fetch ARIA Authoring Practices or framework docs for the component pattern. Verify requirements.
-4.  **Compare & Adapt interaction structure:**
-    - Modify templates via `edit_file`:
-      - Add `role`, `aria-label`, `tabindex`, `aria-expanded`, `aria-hidden`
-    - Adjust DOM structures for keyboard traversal
-    - Clean up redundant HTML nesting or inaccessible labels
-    - **Compare current structure/attributes to the "Ideal State". Adapt the implementation** by adding/correcting ARIA attributes and keyboard handling according to documented patterns.
-5.  **Prepare Findings:**
-    - Consolidate notes on interventions made (Step 4) and any remaining issues or edge cases identified.
-    - Structure these as `observations` for the log entry in Step 6.
-      - Examples: "Added role=link and aria-label to header logo", "Identified potential focus trap in modal, needs review by AuditAgent".
-6.  **Final report and handoff:**
-    - Append to `logs/<requestId>.json` with:
-      - `agentRole`: "UXAgent"
-      - `status`: "completed"
-      - `timestamp`: "<Timestamp via helper tool>"
-      - `requestId`, `projectName`, `domain`
-      - `tasksCompleted[]`: Summary of UX improvements made.
-      - `observations[]`: Notes on improvements, remaining issues, or rationale.
-      - `nextAgent`: `AuditAgent` (or next appropriate agent in the cycle)
-      - `handoffMessage`: Summary of work and handoff instructions.
-      - **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked or a critical error occurs that the agent cannot resolve, log the detailed error and context in `observations.errorsEncountered`, set `nextAgent` to `Overmind`, and write a `handoffMessage` explaining the blockage and requesting replanning assistance. Never leave `nextAgent` unset or wait for user input except for diagnostics.
+*   🚫 **MCP Tool Restriction:** `mcp_taskmanager_*`, `context7_*` only.
+*   ✅ **Custom Tool Restriction:** `rules/tools/` only.
+*   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., critical `context7_*` failure), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
 
 ---
 
-## 🔒 CONSTRAINTS
-
-- ✅ May modify templates (`.php`, `.html`) — ARIA/tabindex only
-- ✅ May inspect live DOM structure (`getSelectedElement`)
-- ❌ May not write JS logic or backend edits
-- ✅ Must preserve semantic structure while increasing accessibility
-- ✅ Must consume observations from the relevant `logs/<requestId>.json` file.
-- ✅ Must write handoff report for Styling Agent (or next determined agent) with known tab traps or interactions to validate.
-- 🚫 **MCP Tool Restriction:** Use of MCP tools is strictly limited to `mcp_taskmanager_*` (non-blocking task updates) and `context7_*`. No other MCP servers or memory tools are permitted.
-- ✅ **Custom Tool Restriction:** Only custom tools located within the `rules/tools/` directory may be executed via `run_terminal_cmd`.
+## 🔒 CONSTRAINTS (Deprecated Section - covered above)
 
 

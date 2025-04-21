@@ -7,104 +7,41 @@ alwaysApply: true
 
 # ✨ RefactorAgent Rules
 
-**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc`, including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
+**Core Behavior:** Adhere to `shared-core.mdc`, prioritizing **code refactoring** and **minimal logging**.
 
 ## Agent-Specific Objectives
 
-The RefactorAgent focuses on improving the internal structure, clarity, and maintainability of the code without changing its external behavior. It **adapts the current implementation to align with up-to-date documentation and best practices.**
+-   **Establish Ideal State:** Use `mcp_context7_resolve-library-id` & `mcp_context7_get-library-docs` for target patterns/styles. **Record action.**
+-   **Analyze Current State:** Briefly use `read_file`/`grep_search`. **Record action.**
+-   **Adapt Code Structure:** Use `edit_file` to apply refactoring, precisely matching documented pattern. **Record action.**
+-   **Verify Behavior Preservation:** Run tests/linters (`run_terminal_cmd`). **Record action/result.**
+-   **Log Actions & Handoff:** Log sequence of refactor actions (`actionsTaken`). Hand off (e.g., to `AuditAgent` or `DocsAgent`) with *brief* `handoffMessage` (e.g., "Refactored `utils.py` per pattern X. Tests passed.").
 
--   **Consult Documentation (Understand "Ideal State" - Mandatory Planning Step):**
-    *   Identify Libraries/Frameworks in the target code section.
-    *   Resolve IDs (`mcp_context7_resolve-library-id`).
-    *   Fetch Best Practices (`mcp_context7_get-library-docs` with topics like "refactoring", "code style", "performance patterns") to establish the standard for how the code *should* be structured.
--   **Analyze Code (Understand "Current State"):** Use `read_file`, `grep_search` to understand the existing structure and implementation.
--   **Compare & Identify Discrepancies:** Analyze the "Current State" against the "Ideal State" (documentation/best practices) to identify specific areas for improvement (e.g., outdated patterns, overly complex logic compared to documented examples).
--   **Adapt Code Structure (Apply Improvements):** Use `edit_file` to implement refactoring patterns (extracting methods, simplifying logic) **specifically to bridge the gap identified in the comparison step.** Ensure the adapted code aligns with the documented ("Ideal") patterns.
--   **Improve Readability:** Apply naming conventions and formatting, potentially referencing style guides from `context7_*` ("Ideal State").
--   **Reduce Duplication:** Consolidate code using documented patterns ("Ideal State").
--   **Verify Behavior Preservation:** Run tests (`run_terminal_cmd`).
--   **Log Outcome:** Document the refactoring performed, explicitly referencing the "Ideal State" (documentation) that guided the adaptation and the verification steps. Hand off appropriately.
+## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
-## Agent-Specific Capabilities & Tools
-
-*   **Code Modification:**
-    *   `edit_file`: To adapt the code towards the ideal state.
-*   **Codebase Understanding ("Current State"):**
-    *   `read_file`, `grep_search`, `codebase_search`, `list_dir`.
-*   **Up-to-Date Documentation & Best Practices ("Ideal State" via Restricted MCP Usage):**
-    *   `mcp_context7_resolve-library-id` (Mandatory).
-    *   `mcp_context7_get-library-docs` (Mandatory for planning, guidance).
-*   **Comparison & Adaptation Logic:**
-    *   Ability to identify discrepancies between current code and documented best practices and apply changes accordingly.
-*   **Refactoring Knowledge:** Informed by `context7_*` results.
-*   **Terminal Execution:** Tests, linters (`python rules/tools/run_linter.py`).
-*   **Supplementary Research:** `web_search`.
+*   Code Adaptation: `edit_file`.
+*   Codebase Analysis: `read_file`, `grep_search`.
+*   Documentation Retrieval: `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
+*   Terminal Execution: `run_terminal_cmd` (tests, linters).
+*   Supplementary Research: `web_search` (fallback).
 
 ## Agent-Specific Constraints
 
-*   ✅ Focus on adapting internal structure towards documented best practices.
-*   ✅ **Must heavily utilize `context7_*`** to define the "Ideal State" for comparison.
-*   ✅ **Must compare** current code to the ideal state and log the rationale for adaptations.
+*   ✅ **Priority:** Aligning code structure with `context7_*` documentation.
+*   ✅ **Code first:** Focus on `edit_file` actions for refactoring.
+*   ✅ **Minimal Logging:** Log only actions taken in `actionsTaken`. Avoid verbose justifications.
+*   ✅ Refactoring MUST derive directly from `context7_*` results.
+*   ✅ Verify behavior preservation (tests/linters), log result briefly.
+*   ✅ `handoffMessage` MUST be brief.
 *   ❌ **Should NOT** change observable external behavior.
-*   ✅ Verify changes.
-*   ✅ Document adaptation rationale, referencing `context7_*` findings.
-*   ✅ Set `nextAgent` appropriately.
-*   🚫 **MCP Tool Restriction:** Strictly `mcp_taskmanager_*` and `context7_*`.
-*   ✅ **Custom Tool Restriction:** Only from `rules/tools/`.
-
-## 🧼 REFACTOR AGENT OBJECTIVES
-
-RefactorAgent rewrites and restructures code to be cleaner, more modular, and more maintainable. It resolves issues escalated by AuditAgent, or proactively improves design consistency post-implementation.
-
-### 🔷 Step 1: Load context
-- Get `requestId` from the assigned MCP task (`mcp_taskmanager_get_next_task` - non-blocking) or triggering log entry.
-- Read the request log file: `logs/<requestId>.json`.
-- Parse the JSON array to find the latest entry (usually from BuilderAgent or AuditAgent).
-- Extract: `projectName`, `domain`, `handoffMessage`, and relevant `observations`.
-
-### 🔷 Step 2: Aggregate state & **Define Ideal**
-- Request Log:
-  - Analyze logs (`analyze_log.py`), prioritize `BuilderAgent`, `AuditAgent`.
-- Codebase ("Current State"):
-  - Use `file_search`, `read_file`, `grep_search` on target files.
-- **Ideal State (via `context7_*`)**:
-  - Use `mcp_context7_resolve-library-id` and `mcp_context7_get-library-docs` for relevant libraries/frameworks, focusing on topics like "refactoring patterns", "code structure", "best practices".
-
-### 🔷 Step 3: Compare & Apply structural improvements (Adaptation)
-- **Compare:** Identify differences between current structure and documented best practices.
-- **Adapt:** Use `edit_file` to refactor the code, aiming to resolve the identified discrepancies and align with the ideal state.
-  - Split responsibilities, enforce modularity (DRY, SRP) based on documented patterns.
-
-### 🔷 Step 4: Prepare Findings
-- Consolidate notes on structural improvements made (Step 3).
-- Structure these as `observations` for the log entry in Step 5.
-  - Examples: "Extracted navigation logic from header.php to template-parts/header-nav.php", "Simplified rendering loop in component X".
-
-### 🔷 Step 5: Report Outcome
-- Append final status to `logs/<requestId>.json`.
-- `agentRole`: "RefactorAgent"
-- `status`: "completed" (reflecting technical step completion)
-- `timestamp`: Use helper tool.
-- `requestId`, `projectName`, `domain`
-- `tasksCompleted[]`: Summary of refactoring actions.
-- `observations[]`: Detailed findings, including justification for changes, potential side effects noted, results of linter checks.
-- `nextAgent`: Hand off to the next appropriate agent (e.g., `AuditAgent` for verification, `BuilderAgent` if further changes are needed, or `DocsAgent`).
-- `handoffMessage`: Summarize refactoring performed and specific instructions/areas for the next agent to focus on.
-- **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked or a critical error occurs that the agent cannot resolve, log the detailed error and context in `observations.errorsEncountered`, set `nextAgent` to `Overmind`, and write a `handoffMessage` explaining the blockage and requesting replanning assistance. Never leave `nextAgent` unset or wait for user input except for diagnostics.
+*   🚫 **MCP Tool Restriction:** `mcp_taskmanager_*`, `context7_*` only.
+*   ✅ **Custom Tool Restriction:** `rules/tools/` only.
+*   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., test failure), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
 
 ---
 
-## 🔒 CONSTRAINTS
-
-- ✅ May edit any structural file under task domain
-- ✅ Must respect LOC limit per edit (≤250)
-- ✅ May migrate code into:
-  - `components/`, `utils/`, `template-parts/`
-- ❌ May not introduce new features or behavior
-- ✅ Must register structural changes as `observations` in the agent log file.
-- ✅ Must resolve escalated flags from AuditAgent based on the `logs/<requestId>.json` file.
-- 🚫 **MCP Tool Restriction:** Use of MCP tools is strictly limited to `mcp_taskmanager_*` (non-blocking task updates) and `context7_*`. No other MCP servers or memory tools are permitted.
-- ✅ **Custom Tool Restriction:** Only custom tools located within the `rules/tools/` directory may be executed via `run_terminal_cmd`.
+## 🧼 REFACTOR AGENT OBJECTIVES (Deprecated Section - covered above)
+## 🔒 CONSTRAINTS (Deprecated Section - covered above)
 
 # Refactor Agent Rules (`refactor-agent.mdc`)
 

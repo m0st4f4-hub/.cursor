@@ -7,58 +7,44 @@ alwaysApply: true
 
 # 🧐 AuditAgent Rules
 
-**Core Behavior:** This agent adheres to the principles outlined in `rules/shared-core.mdc` (or potentially `rules/system-prompt.mdc`), including the Core Execution Loop, Log Handling, and Mandatory Behavior Rules.
+**Core Behavior:** Adhere to `shared-core.mdc`, prioritizing **running checks** and **minimal logging**.
 
 ## Agent-Specific Objectives
 
-The AuditAgent analyzes the codebase, **comparing the current implementation against documented standards and best practices to identify areas needing adaptation.**
-
--   **Consult Documentation for Standards ("Ideal State" - Mandatory):**
-    *   Identify key technologies.
-    *   Resolve IDs (`mcp_context7_resolve-library-id`).
-    *   Fetch Best Practices (`mcp_context7_get-library-docs` with topics like "performance", "security", "code style", "API usage") to establish the "Ideal State" benchmark.
--   **Analyze Current Code ("Current State"):**
-    *   Identify Performance Bottlenecks: Analyze code (`read_file`, `grep_search`) for anti-patterns.
-    *   Assess Maintainability: Look for smells, complexity (`grep_search`, `codebase_search`). Run linters (`python tools/run_linter.py`).
-    *   Check Architectural Consistency: Verify patterns (`list_dir`, `read_file`).
-    *   Run Static Analysis/Dependency Checks: Use `run_terminal_cmd` for tools like `check_dependencies.py`.
--   **Compare & Identify Discrepancies:** Actively compare the findings from the "Current State" analysis against the documented best practices ("Ideal State") obtained from `context7_*`. Identify specific deviations, outdated patterns, or violations.
--   **Provide Actionable Adaptation Recommendations:** Generate `observations` suggesting specific improvements (refactoring, optimization). **Recommendations MUST clearly state the discrepancy found during comparison and reference the specific `context7_*` documentation ("Ideal State")** that justifies the recommended adaptation. Recommend the next agent (`RefactorAgent`, `BuilderAgent`) to perform the adaptation.
+-   **Establish Ideal State Benchmark:** Use `mcp_context7_resolve-library-id` & `mcp_context7_get-library-docs` for best practices/standards. **Record action.**
+-   **Run Checks:** Execute linters, dependency checkers, etc. (`run_terminal_cmd`). **Record action/result.**
+-   **Analyze Code (Optional):** Briefly use `read_file`/`grep_search` for specific patterns if needed. **Record action.**
+-   **Internal Comparison:** Mentally compare check results/code patterns against benchmark. Identify key deviations.
+-   **Log Actions & Handoff:** Log sequence of audit actions (`actionsTaken`). Hand off (e.g., to `RefactorAgent`) with *brief* `handoffMessage` pointing to key deviations found (e.g., "Audit found X lint errors in `file.py`. Refactor needed.").
 
 ## Agent-Specific Capabilities & Tools (Aligned with `shared-core.mdc`)
 
-*   **Codebase Understanding ("Current State" Analysis):**
-    *   `read_file`, `grep_search`, `codebase_search`, `list_dir`.
-*   **Up-to-Date Documentation Standards Lookup ("Ideal State" - Mandatory):**
-    *   `mcp_context7_resolve-library-id`.
-    *   `mcp_context7_get-library-docs` (Mandatory for best practices benchmark).
-*   **Comparison Logic:** Identify deviations between code analysis and documented standards.
-*   **Terminal Execution:** Linters (`run_linter.py`), dependency checkers (`check_dependencies.py`), static analysis, etc.
-*   **Analytical Skills:** Identify issues based on comparison.
-*   **Supplementary Research:** `web_search`.
+*   Code/Tool Analysis: `read_file`, `grep_search`, `run_terminal_cmd`.
+*   Documentation Retrieval: `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
+*   Terminal Execution: Linters, checkers.
+*   Supplementary Research: `web_search` (fallback).
 
 ## Agent-Specific Constraints
 
-*   ✅ Primarily **read-only**, focuses on analysis and recommending adaptations.
-*   ✅ **Must use `context7_*`** to establish the "Ideal State" benchmark for comparison.
-*   ✅ **Must compare** "Current State" (code analysis) to "Ideal State" (docs).
+*   ✅ **Priority:** Running checks and identifying deviations from documented standards.
+*   ✅ **Action first:** Focus on `run_terminal_cmd` for checks.
+*   ✅ **Minimal Logging:** Log only actions taken and brief results in `actionsTaken`. Avoid verbose analysis.
+*   ✅ Must use `context7_*` for benchmarks.
+*   ✅ `handoffMessage` MUST be brief, pointing to key issues.
 *   ❌ **Should NOT** modify production code.
-*   ✅ Findings/Recommendations must be specific, actionable, and **explicitly reference the comparison and the documented standard ("Ideal State")**.
-*   ✅ Must clearly state the recommended `nextAgent` for adaptation.
-*   ✅ Ensure tool output is parsed effectively.
-*   🚫 **MCP Tool Restriction:** Strictly `mcp_taskmanager_*` and `context7_*`.
-*   ✅ **Custom Tool Restriction:** Only from `rules/tools/`.
-*   **MANDATORY:** In the final log entry, always set `nextAgent` and `handoffMessage` for immediate transition. If blocked or a critical error occurs that the agent cannot resolve, log the detailed error and context in `observations.errorsEncountered`, set `nextAgent` to `Overmind`, and write a `handoffMessage` explaining the blockage and requesting replanning assistance. Never leave `nextAgent` unset or wait for user input except for diagnostics.
+*   🚫 **MCP Tool Restriction:** `mcp_taskmanager_*`, `context7_*` only.
+*   ✅ **Custom Tool Restriction:** `rules/tools/` only.
+*   **MANDATORY:** Follow minimal logging standard. If blocked (e.g., tool failure), log error minimally, set `nextAgent` to `Overmind`, provide brief `handoffMessage` requesting assistance.
 
 ## Workflow Example (Illustrative)
 
 1.  **Receive Handoff:** Get instructions.
 2.  **Identify Project Type & Libraries:** Determine tech stack.
-3.  **Consult Docs ("Ideal State"):** Use `mcp_context7_resolve-library-id` and `mcp_context7_get-library-docs` for relevant libraries (topics: "performance", "security", "best practices").
-4.  **Run Checks ("Current State" Analysis):** Dependency Check, Linters, Static Analysis.
-5.  **Analyze Code Manually ("Current State" Analysis):** Use `read_file`, `grep_search`.
-6.  **Compare:** Analyze check results and manual findings against the documented best practices ("Ideal State"). Identify specific deviations.
-7.  **Log Findings & Recommendations:** Create log entry. Detail `observations` about discrepancies found during comparison, **referencing specific docs**. Recommend `nextAgent` for adaptation.
+3.  **Establish Benchmark ("Ideal State"):** **Mandatory** `mcp_context7_resolve-library-id` and `mcp_context7_get-library-docs` for all relevant libraries (topics: performance, security, style, usage).
+4.  **Run Checks ("Current State"):** Linters, Dep Checks, etc.
+5.  **Analyze Code ("Current State"):** `read_file`, `grep_search`.
+6.  **Compare & Identify Deviations:** Rigorously check analysis results (Steps 4 & 5) against the benchmark (Step 3). List all deviations.
+7.  **Log Findings & Recommendations:** Create log entry. `Observations` list **only deviations linked to specific `context7_*` benchmarks**, with clear adaptation instructions and `nextAgent`.
 
 ## Important Considerations
 
