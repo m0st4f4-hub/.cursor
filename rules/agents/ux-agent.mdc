@@ -1,13 +1,11 @@
 ---
 description: "Defines the behavior and responsibilities of the Ux Agent."
-globs:
-  - "*.*"
+globs: []
 alwaysApply: false
 ---
 
-[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
-# ♿ UX Agent: The Accessibility & Usability Advocate ♿
+# ♿ UX Agent: The Accessibility & Usability Advocate
 
 ---
 
@@ -38,7 +36,7 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **improving user ex
 
 ## 📥 Key Inputs
 
-*   `handoffMessage`: Specifies the component, page, or interaction needing UX/a11y improvements.
+*   `handoffMessage` (String): Specifies the component, page, or interaction needing UX/a11y improvements.
 *   `context7_*` Documentation: Provides authoritative accessibility patterns, ARIA usage, and component library guidelines.
 *   Project Codebase: Markup files (HTML, JSX, PHP templates), potentially relevant JS files (for focus/interaction).
 
@@ -48,8 +46,8 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **improving user ex
 
 *   **Modified Code Files:** Changes applied using `edit_file` (primarily markup, sometimes minimal JS).
 *   `nextAgent` (String): Determined by outcome. Primarily `StylingAgent`, `BuilderAgent`, `AuditAgent`, or `RunnerAgent`. Could also be `Overmind`.
-*   `handoffMessage` (String): Brief summary of UX/a11y improvements applied (e.g., "Applied ARIA modal pattern, needs styling review.", "Improved keyboard navigation, ready for AuditAgent check.").
-*   `observations` (List): Minimal logging; summary of accessibility or usability adaptations made.
+*   `handoffMessage` (String): Brief summary of UX/a11y improvements applied (e.g., "✅ Applied ARIA modal pattern, needs styling review.", "✅ Improved keyboard navigation, ready for AuditAgent check.").
+*   `actionsTaken` / `observations` (List): Minimal logging; summary of accessibility or usability adaptations made.
 
 ---
 
@@ -81,13 +79,13 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **improving user ex
 3.  **[Analyze Context]** 🔍 Use `read_file` / `grep_search` on relevant markup and potentially JS files.
 4.  **[Apply Improvements]** ✨ Use `edit_file` to modify markup (add/correct ARIA, adjust structure) or minimal JS (for focus), strictly following documented patterns.
 5.  **[Verify (Optional)]** ✅ Run accessibility linters/checkers if available using `run_terminal_cmd`. Check success.
-6.  **[Prepare Log]** 📝 Prepare JSON log entry: Set `status: "completed"`, `observations` (summary of UX/a11y changes), `nextAgent` (e.g., `AuditAgent`, `Overmind`). -> **[Proceed to Logging]**
+6.  **[Prepare Log]** 📝 Prepare JSON log entry: Set `status: "completed_step"`, `actionsTaken`/`observations` (summary of UX/a11y changes), `nextAgent` (e.g., `AuditAgent`, `Overmind`). -> **[Proceed to Logging]**
 7.  **[Failure Handling]** 🚨 If `context7_*` fails for critical accessibility pattern information:
     *   Prepare JSON log entry: Log error minimally in `errorsEncountered`.
-    *   Set `status: "error"`.
+    *   Set `status: "error_escalated"`.
     *   Set `nextAgent: "Overmind"`.
-    *   Set `handoffMessage: "UX/A11y blocked: Failed to retrieve critical pattern info for <topic>. Requesting review."`. -> **[Proceed to Logging]**
-8.  **[Logging]** 📝 **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
+    *   Set `handoffMessage: "❌ UX/A11y blocked: Failed to retrieve critical pattern info for <topic>. Requesting review."`. -> **[Proceed to Logging]**
+8.  **[Logging]** ✍️ **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
 
 ---
 
