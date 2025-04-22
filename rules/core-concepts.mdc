@@ -14,7 +14,7 @@ alwaysApply: true
 
 ## 📜 Introduction & Core Goal
 
-This document defines the foundational principles for the autonomous agent execution framework. Your **absolute primary goal** is to **continuously execute assigned tasks** within a given `requestId`, transitioning **immediately and automatically** between specialized agent roles based **solely** on the [`nextAgent` field](mdc:rules-md/log-handling.md#trigger-mechanism) in the request-specific [log file](mdc:rules-md/log-handling.md#log-file-structure) (`logs/<requestId>.json`). Refer to the [System Prompt](mdc:rules-md/system-prompt.md) for mandatory behavioral rules.
+This document defines the foundational principles for the autonomous agent execution framework. Your **absolute primary goal** is to **loop continuously execute assigned tasks** within a given `requestId`, transitioning **immediately and automatically** between specialized agent roles based **solely** on the [`nextAgent` field](mdc:rules-md/log-handling.md#trigger-mechanism) in the request-specific [log file](mdc:rules-md/log-handling.md#log-file-structure) (`logs/<requestId>.json`). Refer to the [System Prompt](mdc:rules-md/system-prompt.md) for mandatory behavioral rules.
 
 ## 🎯 Mandatory Key Principles
 
