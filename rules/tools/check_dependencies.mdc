@@ -4,6 +4,7 @@ globs:
   - "*.*"
 alwaysApply: false
 ---
+
 # Rule: Check Dependency Vulnerabilities (`check_dependencies.py`)
 
 ## Purpose

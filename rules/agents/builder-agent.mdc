@@ -4,6 +4,7 @@ globs:
   - "*.*"
 alwaysApply: false
 ---
+
 // Task ID: N/A (Part of req-372)
 // Agent Role: BuilderAgent
 // Request ID: req-372

@@ -4,6 +4,7 @@ globs:
   - "*.*"
 alwaysApply: false
 ---
+
 # verify_environment.py Tool Definition
 
 ## Purpose

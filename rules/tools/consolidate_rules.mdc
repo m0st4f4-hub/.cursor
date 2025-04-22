@@ -4,6 +4,7 @@ globs:
   - "*.*"
 alwaysApply: false
 ---
+
 # `consolidate_rules` Tool Definition
 
 **Purpose:** Scans a specified directory (defaulting to `.cursor/rules`) recursively for `.mdc` files and combines their contents into a single output Markdown file.

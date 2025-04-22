@@ -4,6 +4,7 @@ globs:
   - "*.*"
 alwaysApply: false
 ---
+
 # Tool Definition: get_current_time.py
 
 **Purpose:** Provides the current UTC timestamp in ISO 8601 format (compatible with JSON logging requirements).

@@ -4,6 +4,7 @@ globs:
   - "*.*"
 alwaysApply: false
 ---
+
 # Rule: Run Linter/Formatter (`run_linter.py`)
 
 ## Purpose

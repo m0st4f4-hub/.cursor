@@ -4,6 +4,7 @@ globs:
   - "*.*"
 alwaysApply: false
 ---
+
 \
 ---
 description: Defines the `scaffold_agent.py` tool used to generate boilerplate .mdc rule files for new agents.

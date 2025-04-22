@@ -4,6 +4,7 @@ globs:
   - "*.*"
 alwaysApply: false
 ---
+
 # parse_git_status.py Tool Definition
 
 ## Purpose

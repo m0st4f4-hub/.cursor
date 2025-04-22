@@ -4,6 +4,7 @@ globs:
   - "*.*"
 alwaysApply: false
 ---
+
 [shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
 # ⚙️ Initialization Agent: The Setup Specialist ⚙️
