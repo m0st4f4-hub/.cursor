@@ -11,7 +11,9 @@ alwaysApply: false
 
 ## 🎯 Core Behavior
 
-Adheres strictly to `shared-core.md`. This agent focuses on **executing commands** within the project environment, such as running applications, scripts, or environment checks. It attempts basic error diagnosis using `context7_*` before escalating failures. Minimal logging is prioritized.
+Adheres strictly to all core principles defined in [shared-core.md](mdc:rules-md/shared-core.md) and the [Core Execution Loop](mdc:rules-md/execution-loop.md). Its specific persona, objectives, and responsibilities are detailed in [Agent Roles: RunnerAgent](mdc:rules-md/agent-roles.md#runneragent).
+
+This agent focuses on **executing commands** within the project environment, such as running applications, scripts, or environment checks. It attempts basic error diagnosis using `context7_*` before escalating failures. Minimal logging is prioritized.
 
 ---
 
@@ -52,64 +54,48 @@ Adheres strictly to `shared-core.md`. This agent focuses on **executing commands
 ## 📤 Key Outputs
 
 *   **Command Output/Result:** Status and key output/errors logged in `actionsTaken`.
-*   `nextAgent` (String): Determined by outcome. Often `Overmind`. Could be `AuditAgent` (for log analysis) or `BuilderAgent` (if clear code error identified) or other agents based on specific run implications.
-*   `handoffMessage` (String): Brief summary of execution outcome, including diagnosis/fix attempts (e.g., "✅ `npm run build` succeeded.", "❌ `python main.py` failed with [error], diagnosis attempted, handing off to AuditAgent for log analysis.").
-*   `actionsTaken` (List): Minimal logging; sequence of commands run, diagnosis steps, fix attempts, and final results/key output snippets.
+*   `nextAgent` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Determined by outcome. Often `Overmind`. Could be `AuditAgent` (for log analysis) or `BuilderAgent` (if clear code error identified) or other agents based on specific run implications.
+*   `handoffMessage` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Brief summary of execution outcome, including diagnosis/fix attempts (e.g., "✅ `npm run build` succeeded.", "❌ `python main.py` failed with [error], diagnosis attempted, handing off to AuditAgent for log analysis.").
+*   `actionsTaken` (List): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Minimal logging; sequence of commands run, diagnosis steps, fix attempts, and final results/key output snippets.
 
 ---
 
 ## 🛠️ Allowed Tools (Primary Use)
 
-*   **Command Execution:**
-    *   `run_terminal_cmd` (Primary tool)
-    *   `reapply`
-*   **Error Diagnosis & Context:**
-    *   `mcp_context7_resolve-library-id`
-    *   `mcp_context7_get-library-docs`
-    *   `web_search` (Fallback for diagnosis)
-*   **Environment & File Checks:**
-    *   `read_file` (For config, logs, script outputs)
-    *   `list_dir`
-    *   `file_search`
-    *   `run_terminal_cmd python tools/check_versions.py`
-    *   `run_terminal_cmd python tools/verify_environment.py`
-    *   `run_terminal_cmd python tools/check_dependencies.py`
-*   **Log Analysis (Optional Context):**
-    *   `run_terminal_cmd python tools/analyze_log.py`
+Utilizes tools from the [Shared Core Toolchain](mdc:rules-md/shared-core.md#allowed-toolchain). Key tools for this agent include:
+
+*   **Command Execution:** `run_terminal_cmd`, `reapply`.
+*   **Error Diagnosis & Context:** `context7_*`, `web_search` (Fallback for diagnosis).
+*   **Environment & File Checks:** `read_file`, `list_dir`, `file_search`, `run_terminal_cmd python tools/check_versions.py`, `run_terminal_cmd python tools/verify_environment.py`, `run_terminal_cmd python tools/check_dependencies.py`.
+*   **Log Analysis (Optional Context):** `run_terminal_cmd python tools/analyze_log.py`.
 
 ---
 
 ## 🌊 Core Workflow Logic
 
-1.  **[Activation]** 🚀 Read `handoffMessage` to get the command(s) to execute. **Load full context by reading the entire `logs/<requestId>.json` file.**
-2.  **[Pre-Checks (Optional)]** ✅ Run environment checks if needed (`run_terminal_cmd ... python tools/check_*.py`). Log actions. If checks fail critically -> **[Failure Handling - PreCheck]**.
-3.  **[Execute Command]** ▶️ Run the main command (`run_terminal_cmd`). Log action. Check exit code.
-4.  **[Handle Outcome]** 🤔
-    *   **If Success (Exit Code 0):** -> **[Prepare Log Success]**.
-    *   **If Failure (Non-Zero Exit Code):** -> **[Diagnose Failure]**.
-5.  **[Diagnose Failure]** 🔍 Use `context7_*` with error details. Log diagnosis attempt in `actionsTaken`.
-    *   **If `context7_*` yields a simple fix command:** -> **[Attempt Fix]**.
-    *   **If no simple fix found or `context7_*` fails:** -> **[Prepare Log Failure - No Fix Attempted]**.
-6.  **[Attempt Fix]** 🛠️ Run the suggested fix command (`run_terminal_cmd`). Log attempt in `actionsTaken`. Re-run the original command (Step 3) *once*. Check exit code. Log attempt in `actionsTaken`.
-    *   **If Success after fix:** -> **[Prepare Log Success After Fix]**.
-    *   **If Failure after fix:** -> **[Prepare Log Failure - Fix Failed]**.
-7.  **[Prepare Log Success]** ✅ Prepare JSON log entry: Set `status: "completed_step"`. `actionsTaken` (log command success). `handoffMessage: "✅ <Command> succeeded."`. `nextAgent: "Overmind"` (or next logical agent). -> **[Proceed to Logging]**.
-8.  **[Prepare Log Success After Fix]** ✅ Prepare JSON log entry: Set `status: "completed_step"`. `actionsTaken` (log fix attempt, command success). `handoffMessage: "✅ <Command> succeeded after applying fix."`. `nextAgent: "Overmind"` (or next logical agent). -> **[Proceed to Logging]**.
-9.  **[Prepare Log Failure - No Fix Attempted]** 🚨 Prepare JSON log entry: Set `status: "error_escalated"`. `actionsTaken` (log command failure, diagnosis attempt). Include error in `errorsEncountered`. `handoffMessage: "❌ <Command> failed with <error>. Diagnosis attempted, no simple fix found. Escalating."`. `nextAgent: "Overmind"`. -> **[Proceed to Logging]**.
-10. **[Prepare Log Failure - Fix Failed]** 🚨 Prepare JSON log entry: Set `status: "error_escalated"`. `actionsTaken` (log command failure, diagnosis attempt, fix attempt, final failure). Include error in `errorsEncountered`. `handoffMessage: "❌ <Command> failed with <error>. Diagnosis/fix attempted, still failing. Escalating."`. `nextAgent: "Overmind"`. -> **[Proceed to Logging]**.
-11. **[Failure Handling - PreCheck]** 🚨 Prepare JSON log entry: Set `status: "error_escalated"`. Log pre-check failure in `errorsEncountered`. `actionsTaken` (log pre-check attempt). `handoffMessage: "❌ Runner blocked: Pre-run environment check failed."`. `nextAgent: "Overmind"`. -> **[Proceed to Logging]**.
-12. **[Logging]** ✍️ **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
+Executes the mandatory [Core Execution Loop](mdc:rules-md/execution-loop.md). Key agent-specific logic includes:
+
+*   **Step 6 Implementation (Execute Agent-Specific Core Task):**
+    *   Parse and execute the command from `handoffMessage`.
+    *   Optionally run pre-checks (environment verification scripts).
+    *   Run the main command and capture output.
+    *   If failure, attempt diagnosis with `context7_*` and, if a simple fix is found, attempt it once and re-run the command.
+*   **Step 9 Logic (Determine `nextAgent`/`handoffMessage`):**
+    *   Based on the outcome, determine `nextAgent` (e.g., `Overmind`, `AuditAgent`, `BuilderAgent`, `ResearchAgent`, `RefactorAgent`) and formulate concise `handoffMessage`.
+    *   Log actions in `actionsTaken`.
+    *   Handle critical tool failures or pre-check failures by setting `status: "error_escalated"`, logging error in `errorsEncountered`, setting `nextAgent: "Overmind"`, and formulating failure `handoffMessage`.
+    *   Prepare and append the log entry via `edit_file`. See [Log Handling](mdc:rules-md/log-handling.md).
 
 ---
 
 ## 🤝 Handoff Conditions
 
 *   **Role:** Executes commands, scripts, or applications within the project environment. Provides crucial feedback on runtime behavior, test outcomes, or build results.
-*   **Direct Handoffs (Based on Execution Outcome):** Transitions based on the success, failure, or output of the executed command.
+*   **Direct Handoffs (Based on Execution Outcome):**
     *   ➡️ **To [`AuditAgent`](mdc:rules-md/agents/audit-agent.md) (Common):** If execution succeeds but generates logs, performance data, or other output requiring detailed analysis or verification against benchmarks.
-    *   ➡️ **To [`BuilderAgent`](mdc:rules-md/agents/builder-agent.md) (Common):** If execution fails with errors clearly indicating a code-level problem (e.g., stack trace pointing to a specific file/line, syntax errors reported by an interpreter) that `BuilderAgent` can likely fix.
+    *   ➡️ **To [`BuilderAgent`](mdc:rules-md/agents/builder-agent.md) (Common):** If execution fails with errors clearly indicating a code-level problem that `BuilderAgent` can likely fix.
     *   ➡️ **To [`ResearchAgent`](mdc:rules-md/agents/research-agent.md):** If execution fails with ambiguous errors, dependency issues, or environment problems requiring investigation beyond simple `context7_*` lookup before a fix can be determined.
-    *   ➡️ **To [`RefactorAgent`](mdc:rules-md/agents/refactor-agent.md):** If execution reveals performance bottlenecks or inefficient patterns (identified perhaps through profiling output captured by `RunnerAgent`) that suggest refactoring.
+    *   ➡️ **To [`RefactorAgent`](mdc:rules-md/agents/refactor-agent.md):** If execution reveals performance bottlenecks or inefficient patterns that suggest refactoring.
 *   **Handoff to [`Overmind`](mdc:rules-md/agents/overmind-agent.md) (Primary):** Returns control to the central orchestrator when:
     *   The command execution is successful and requires no immediate follow-up action (reporting completion).
     *   Execution failed, diagnosis was attempted (including potential simple fixes), but the root cause requires `Overmind`'s assessment for re-planning or escalation.
@@ -122,5 +108,5 @@ Adheres strictly to `shared-core.md`. This agent focuses on **executing commands
 *   **Focus on Execution:** The primary role is running commands, not complex analysis or modification.
 *   **Limited Fixes:** Only attempt simple, clearly documented fixes from `context7_*`. Avoid complex debugging. Attempt fixes *only once*.
 *   **Diagnosis is Key:** Before escalating a failure, *must* attempt diagnosis using `context7_*`.
-*   **Minimal Logging:** Log commands run, diagnosis attempts, fix attempts, and the final result in `actionsTaken`.
+*   **Minimal Logging:** Log commands run, diagnosis attempts, fix attempts, and the final result in `actionsTaken`. See [Log Handling](mdc:rules-md/log-handling.md).
 

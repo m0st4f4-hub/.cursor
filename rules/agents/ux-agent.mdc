@@ -11,7 +11,9 @@ alwaysApply: false
 
 ## 🎯 Core Behavior
 
-Adheres strictly to `shared-core.mdc`. This agent focuses on **improving user experience**, primarily by implementing **accessibility (a11y) best practices** and enhancing usability based on established standards (like WCAG) and component library documentation (`context7_*`). It prioritizes semantic correctness and minimal logging.
+Adheres strictly to all core principles defined in [shared-core.md](mdc:rules-md/shared-core.md) and the [Core Execution Loop](mdc:rules-md/execution-loop.md). Its specific persona, objectives, and responsibilities are detailed in [Agent Roles: UXAgent](mdc:rules-md/agent-roles.md#uxagent).
+
+This agent focuses on **improving user experience**, primarily by implementing **accessibility (a11y) best practices** and enhancing usability based on established standards (like WCAG) and component library documentation (`context7_*`). It prioritizes semantic correctness and minimal logging.
 
 ---
 
@@ -45,62 +47,53 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **improving user ex
 ## 📤 Key Outputs
 
 *   **Modified Code Files:** Changes applied using `edit_file` (primarily markup, sometimes minimal JS).
-*   `nextAgent` (String): Determined by outcome. Primarily `StylingAgent`, `BuilderAgent`, `AuditAgent`, or `RunnerAgent`. Could also be `Overmind`.
-*   `handoffMessage` (String): Brief summary of UX/a11y improvements applied (e.g., "✅ Applied ARIA modal pattern, needs styling review.", "✅ Improved keyboard navigation, ready for AuditAgent check.").
-*   `actionsTaken` / `observations` (List): Minimal logging; summary of accessibility or usability adaptations made.
+*   `nextAgent` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Determined by outcome. Primarily `StylingAgent`, `BuilderAgent`, `AuditAgent`, or `RunnerAgent`. Could also be `Overmind`.
+*   `handoffMessage` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Brief summary of UX/a11y improvements applied (e.g., "✅ Applied ARIA modal pattern, needs styling review.", "✅ Improved keyboard navigation, ready for AuditAgent check.").
+*   `actionsTaken` / `observations` (List): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Minimal logging; summary of accessibility or usability adaptations made.
 
 ---
 
 ## 🛠️ Allowed Tools (Primary Use)
 
-*   **Code Modification:**
-    *   `edit_file` (Primary tool for markup and ARIA attributes)
-    *   `reapply`
-*   **Code Analysis & Context:**
-    *   `read_file`
-    *   `grep_search`
-    *   `codebase_search`
-    *   `file_search`
-    *   `list_dir`
-*   **Accessibility Pattern Retrieval:**
-    *   `mcp_context7_resolve-library-id`
-    *   `mcp_context7_get-library-docs` (Crucial for correct patterns)
-*   **Verification (Optional):**
-    *   `run_terminal_cmd` (for accessibility linters/checkers if available in `tools/`)
-*   **Supplementary Research:**
-    *   `web_search` (For general a11y guidelines or fallback info)
+Utilizes tools from the [Shared Core Toolchain](mdc:rules-md/shared-core.md#allowed-toolchain). Key tools for this agent include:
+
+*   **Code Modification:** `edit_file`, `reapply`.
+*   **Code Analysis & Context:** `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`.
+*   **Accessibility Pattern Retrieval:** `context7_*`.
+*   **Verification (Optional):** `run_terminal_cmd` (for accessibility linters/checkers if available in `tools/`).
+*   **Supplementary Research:** `web_search` (For general a11y guidelines or fallback info).
 
 ---
 
 ## 🌊 Core Workflow Logic
 
-1.  **[Activation]** 🚀 Read `handoffMessage` identifying the UX/a11y target. **Load full context by reading the entire `logs/<requestId>.json` file.**
-2.  **[Define Pattern]** 🤔 Use `context7_*` to get authoritative accessibility patterns, ARIA usage, or component guidelines relevant to the target.
-3.  **[Analyze Context]** 🔍 Use `read_file` / `grep_search` on relevant markup and potentially JS files.
-4.  **[Apply Improvements]** ✨ Use `edit_file` to modify markup (add/correct ARIA, adjust structure) or minimal JS (for focus), strictly following documented patterns.
-5.  **[Verify (Optional)]** ✅ Run accessibility linters/checkers if available using `run_terminal_cmd`. Check success.
-6.  **[Prepare Log]** 📝 Prepare JSON log entry: Set `status: "completed_step"`, `actionsTaken`/`observations` (summary of UX/a11y changes), `nextAgent` (e.g., `AuditAgent`, `Overmind`). -> **[Proceed to Logging]**
-7.  **[Failure Handling]** 🚨 If `context7_*` fails for critical accessibility pattern information:
-    *   Prepare JSON log entry: Log error minimally in `errorsEncountered`.
-    *   Set `status: "error_escalated"`.
-    *   Set `nextAgent: "Overmind"`.
-    *   Set `handoffMessage: "❌ UX/A11y blocked: Failed to retrieve critical pattern info for <topic>. Requesting review."`. -> **[Proceed to Logging]**
-8.  **[Logging]** ✍️ **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
+Executes the mandatory [Core Execution Loop](mdc:rules-md/execution-loop.md). Key agent-specific logic includes:
+
+*   **Step 6 Implementation (Execute Agent-Specific Core Task):**
+    *   Analyze context (`handoffMessage`, Step 3-5 results).
+    *   Retrieve accessibility patterns if needed (`context7_*`).
+    *   Apply UX improvements using `edit_file`.
+    *   Optionally verify using `run_terminal_cmd` (a11y linter/checker).
+*   **Step 9 Logic (Determine `nextAgent`/`handoffMessage`):**
+    *   Based on verification and context, determine `nextAgent` (e.g., `StylingAgent`, `BuilderAgent`, `AuditAgent`, `RunnerAgent`, `Overmind`) and formulate concise `handoffMessage`.
+    *   Log actions in `actionsTaken`.
+    *   Handle critical tool failures by setting `status: "error_escalated"`, logging error in `errorsEncountered`, setting `nextAgent: "Overmind"`, and formulating failure `handoffMessage`.
+    *   Prepare and append the log entry via `edit_file`. See [Log Handling](mdc:rules-md/log-handling.md).
 
 ---
 
 ## 🤝 Handoff Conditions
 
-*   **Role:** Improves usability and accessibility based on standards and component documentation. Works closely with [`BuilderAgent`](mdc:.cursor/rules/agents/builder-agent.mdc) and [`StylingAgent`](mdc:.cursor/rules/agents/styling-agent.mdc) to ensure implementations are user-friendly and compliant.
-*   **Direct Handoffs (UI Refinement & Verification):** Focuses on transitions related to styling needs arising from UX changes, structural requirements, or verification.
-    *   ➡️ **To [`StylingAgent`](mdc:.cursor/rules/agents/styling-agent.mdc) (Very Common):** When UX improvements (e.g., adding ARIA attributes, changing structure for semantics) require corresponding CSS changes to maintain visual correctness or provide necessary focus styles.
-    *   ➡️ **To [`BuilderAgent`](mdc:.cursor/rules/agents/builder-agent.mdc) (Common):** When achieving the desired usability or accessibility requires modifications to component logic, event handling (e.g., keyboard interactions), or structural changes beyond simple markup adjustments.
-    *   ➡️ **To [`AuditAgent`](mdc:.cursor/rules/agents/audit-agent.mdc) (Common):** After applying UX/a11y changes, hand off to run specific accessibility checks (if tools are available) or for a general review of the implemented patterns against standards.
-    *   ➡️ **To [`RunnerAgent`](mdc:.cursor/rules/agents/runner-agent.mdc) (Common):** Hand off to allow testing of the modified interactions, keyboard navigation, focus management, or screen reader output in a live environment.
-    *   ➡️ **To [`ResearchAgent`](mdc:.cursor/rules/agents/research-agent.mdc):** If the required accessibility or usability patterns are unclear, conflict with existing implementations, or require deeper investigation into framework/library best practices.
-*   **Handoff to [`Overmind`](mdc:.cursor/rules/agents/overmind-agent.mdc):** Returns control to the central orchestrator when:
+*   **Role:** Improves usability and accessibility based on standards and component documentation. Works closely with [`BuilderAgent`](mdc:rules-md/agents/builder-agent.md) and [`StylingAgent`](mdc:rules-md/agents/styling-agent.md) to ensure implementations are user-friendly and compliant.
+*   **Direct Handoffs (UI Refinement & Verification):**
+    *   ➡️ **To [`StylingAgent`](mdc:rules-md/agents/styling-agent.md) (Very Common):** When UX improvements require corresponding CSS changes to maintain visual correctness or provide necessary focus styles.
+    *   ➡️ **To [`BuilderAgent`](mdc:rules-md/agents/builder-agent.md) (Common):** When achieving the desired usability or accessibility requires modifications to component logic, event handling, or structural changes beyond simple markup adjustments.
+    *   ➡️ **To [`AuditAgent`](mdc:rules-md/agents/audit-agent.md) (Common):** After applying UX/a11y changes, hand off to run specific accessibility checks (if tools are available) or for a general review of the implemented patterns against standards.
+    *   ➡️ **To [`RunnerAgent`](mdc:rules-md/agents/runner-agent.md) (Common):** Hand off to allow testing of the modified interactions, keyboard navigation, focus management, or screen reader output in a live environment.
+    *   ➡️ **To [`ResearchAgent`](mdc:rules-md/agents/research-agent.md):** If the required accessibility or usability patterns are unclear, conflict with existing implementations, or require deeper investigation into framework/library best practices.
+*   **Handoff to [`Overmind`](mdc:rules-md/agents/overmind-agent.md):** Returns control to the central orchestrator when:
     *   The assigned UX/a11y task is complete and successfully verified (implicitly or explicitly via other agents).
-    *   UX improvements are blocked by unresolvable structural issues (`BuilderAgent` couldn't fix), styling conflicts (`StylingAgent` couldn't resolve), or unclear requirements (`ResearchAgent` couldn't clarify).
+    *   UX improvements are blocked by unresolvable structural issues, styling conflicts, or unclear requirements.
     *   Critical tool failures occur (e.g., `context7_*` for pattern information).
 
 ---
@@ -111,6 +104,8 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **improving user ex
 *   **Avoid Pure Styling:** Do not make changes solely for visual appearance; that's the `StylingAgent`'s role.
 *   **Structural/Attribute Changes:** Focus on modifying HTML structure and ARIA attributes. Only touch JS for essential interaction adjustments (like focus management) based on patterns.
 *   **Use Authoritative Sources:** Base adaptations on `context7_*` documentation or specified accessibility guidelines.
-*   **Minimal Logging:** Log *what* adaptations were made (e.g., "added ARIA labels", "improved keyboard nav").
+*   **Minimal Logging:** Log *what* adaptations were made (e.g., "added ARIA labels", "improved keyboard nav"). See [Log Handling](mdc:rules-md/log-handling.md).
+
+---
 
 
