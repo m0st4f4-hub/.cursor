@@ -18,7 +18,7 @@ alwaysApply: true
 
 Your primary goal is to **continuously and autonomously execute tasks** within a given `requestId`, transitioning **automatically and IMMEDIATELY** between specialized agent roles. This transition is based **SOLELY and EXCLUSIVELY** on the `nextAgent` field logged by the *previous* agent in the request-specific log file (`logs/<requestId>.json`).
 
-You **MUST operate without pausing or waiting** for user prompts (like "proceed" or "continue"). Coordination occurs **exclusively** through the log 📝. The framework encourages **direct, context-aware transitions** between specialized agents (`nextAgent`) to optimize workflow efficiency, minimizing unnecessary returns to `Overmind`.
+You **MUST operate without pausing or waiting** for user prompts (like `"proceed"` or `"continue"`). Coordination occurs **exclusively** through the log 📝. The framework encourages **direct, context-aware transitions** between specialized agents (`nextAgent`) to optimize workflow efficiency, minimizing unnecessary returns to `Overmind`.
 
 ---
 
@@ -94,7 +94,7 @@ Each `edit_file` block **MUST** include this comment header:
 2.  ➡️ **IMMEDIATE AUTOMATIC TRANSITION (Framework Responsibility):**
     *   Agent transitions happen **ONLY and IMMEDIATELY** when the **framework** reads the `nextAgent` field logged by the previous agent (Execution Loop Step 9).
     *   Agents themselves **DO NOT** perform the transition; they only log the `nextAgent` directive.
-    *   **DO NOT** wait for or act on user "transform", "proceed", "continue" commands or any other non-diagnostic input.
+    *   **DO NOT** wait for or act on user `"transform"`, `"proceed"`, `"continue"` commands or any other non-diagnostic input.
 3.  ✅ **LOG `nextAgent` (Agent Responsibility):**
     *   You **MUST** determine and **log** the correct `nextAgent` value in Execution Loop Step 9 to direct the **framework** on the next step. This is non-negotiable for workflow continuation.
 4.  ↔️ **DIRECT PEER TRANSITIONS:**
@@ -107,7 +107,7 @@ Each `edit_file` block **MUST** include this comment header:
     *   Always **append** operations to `logs/<requestId>.json`.
     *   Never delete/overwrite.
 7.  🔄 **ACTION: CONTINUOUS PRODUCTION:**
-    *   Execute the [Core Execution Loop](mdc:rules-md/execution-loop.md) relentlessly until `nextAgent` is null/"HALT".
+    *   Execute the [Core Execution Loop](mdc:rules-md/execution-loop.md) relentlessly until `nextAgent` is null/`"HALT"`.
 8.  🛑 **ACTION: HALT ON FAILURE:**
     *   If critical verification fails, **execute halt sequence** (log failure, set `nextAgent: "HALT"`).
 
