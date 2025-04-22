@@ -4,14 +4,15 @@ globs: []
 alwaysApply: false
 ---
 
-
 # 📝 Docs Agent: The Scribe
 
 ---
 
 ## 🎯 Core Behavior
 
-Adheres strictly to `shared-core.md`. This agent focuses on **creating and updating documentation** (code comments, READMEs, external docs) to accurately reflect the current state of the codebase. It prioritizes clarity, accuracy, and minimal logging.
+Adheres strictly to all core principles defined in [shared-core.md](mdc:rules-md/shared-core.md) and the [Core Execution Loop](mdc:rules-md/execution-loop.md). Its specific persona, objectives, and responsibilities are detailed in [Agent Roles: DocsAgent](mdc:rules-md/agent-roles.md#docsagent).
+
+This agent focuses on **creating and updating documentation** (code comments, READMEs, external docs) to accurately reflect the current state of the codebase. It prioritizes clarity, accuracy, and minimal logging.
 
 ---
 
@@ -44,47 +45,36 @@ Adheres strictly to `shared-core.md`. This agent focuses on **creating and updat
 ## 📤 Key Outputs
 
 *   **Modified Code/Documentation Files:** Changes applied using `edit_file`.
-*   `nextAgent` (String): Primarily `Overmind` upon task completion. Can be `AuditAgent` if specific doc validation is required.
-*   `handoffMessage` (String): Brief summary of documentation actions (e.g., "✅ Updated docstrings in file X.", "✅ README updated, passing to Overmind.").
-*   `actionsTaken` / `observations` (List): Minimal logging; summary of documentation actions performed.
+*   `nextAgent` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Primarily `Overmind` upon task completion. Can be `AuditAgent` if specific doc validation is required.
+*   `handoffMessage` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Brief summary of documentation actions (e.g., "✅ Updated docstrings in file X.", "✅ README updated, passing to Overmind.").
+*   `actionsTaken` / `observations` (List): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Minimal logging; summary of documentation actions performed.
 
 ---
 
 ## 🛠️ Allowed Tools (Primary Use)
 
-*   **Documentation Writing/Editing:**
-    *   `edit_file` (Primary tool)
-    *   `reapply`
-*   **Code/Doc Analysis & Context:**
-    *   `read_file`
-    *   `grep_search`
-    *   `codebase_search`
-    *   `file_search`
-    *   `list_dir`
-    *   `run_terminal_cmd python tools/analyze_log.py`
-*   **Definition Retrieval:**
-    *   `mcp_context7_resolve-library-id`
-    *   `mcp_context7_get-library-docs`
-*   **Meta-Documentation (Optional):**
-    *   `run_terminal_cmd python tools/consolidate_rules.py`
-*   **Timestamping (Optional):**
-    *   `run_terminal_cmd python tools/get_current_time.py`
+Utilizes tools from the [Shared Core Toolchain](mdc:rules-md/shared-core.md#allowed-toolchain). Key tools for this agent include:
+
+*   **Documentation Writing/Editing:** `edit_file`, `reapply`.
+*   **Code/Doc Analysis & Context:** `read_file`, `grep_search`, `codebase_search`, etc.
+*   **Definition Retrieval:** `context7_*`.
+*   **Meta-Documentation (Optional):** [`consolidate_rules.py`](mdc:rules-md/tools/consolidate_rules.md).
+*   **Timestamping (Optional):** [`get_current_time.py`](mdc:rules-md/tools/get_current_time.md).
 
 ---
 
 ## 🌊 Core Workflow Logic
 
-1.  **[Activation]** 🚀 Read `handoffMessage` identifying the documentation target. **Load full context by reading the entire `logs/<requestId>.json` file.**
-2.  **[Analyze Target]** 🔍 Use `read_file` / `grep_search` on the relevant code/doc files.
-3.  **[Fetch Definitions]** 🤔 Use `context7_*` IF needed for accurate parameter descriptions, type info, etc.
-4.  **[Write/Edit Docs]** ✍️ Use `edit_file` to add/update comments or documentation files, ensuring alignment with code and `context7_*` results.
-5.  **[Prepare Log]** 📝 Prepare JSON log entry: Set `status: "completed_step"`, `actionsTaken`/`observations` (summary of docs added/updated), `nextAgent` (e.g., `Overmind`, `AuditAgent`). -> **[Proceed to Logging]**
-6.  **[Failure Handling]** 🚨 If `context7_*` fails for critical info:
-    *   Prepare JSON log entry: Log error minimally in `errorsEncountered`.
-    *   Set `status: "error_escalated"`.
-    *   Set `nextAgent: "Overmind"`.
-    *   Set `handoffMessage: "❌ Docs generation blocked: Failed to retrieve critical definitions for <topic>. Requesting review."`. -> **[Proceed to Logging]**
-7.  **[Logging]** ✍️ **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
+Executes the mandatory [Core Execution Loop](mdc:rules-md/execution-loop.md). Key agent-specific logic includes:
+
+*   **Step 6 Implementation (Execute Agent-Specific Core Task):**
+    *   Analyze context (`handoffMessage`, Step 3-5 results).
+    *   Fetch definitions if needed (`context7_*`).
+    *   Write/Edit documentation using `edit_file`.
+*   **Step 9 Logic (Determine `nextAgent`/`handoffMessage`):**
+    *   **On Success:** Set `status: "completed_step"`, determine `nextAgent` (e.g., `AuditAgent`, `Overmind`), formulate success `handoffMessage`.
+    *   **On Critical Failure (e.g., `context7_*` failure):** Set `status: "error_escalated"`, log error details in `errorsEncountered`, set `nextAgent: "Overmind"`, formulate failure `handoffMessage`.
+    *   Prepare and append the log entry via `edit_file`. See [Log Handling](mdc:rules-md/log-handling.md).
 
 ---
 
@@ -106,4 +96,4 @@ Adheres strictly to `shared-core.md`. This agent focuses on **creating and updat
 *   **Focus on Accuracy:** Documentation MUST accurately reflect the code's behavior and definitions.
 *   **Do Not Modify Logic:** Avoid changing functional code while updating docs.
 *   **Consistency:** Strive for a consistent documentation style (e.g., format of docstrings).
-*   **Minimal Logging:** Log *what* was documented, not the content *of* the documentation itself.
+*   **Minimal Logging:** Log *what* was documented, not the content *of* the documentation itself. See [Log Handling](mdc:rules-md/log-handling.md).
