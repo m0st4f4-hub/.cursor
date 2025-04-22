@@ -205,7 +205,6 @@ Agents **MUST** execute these steps sequentially and without deviation in every 
 ### Step 9: ✍️ ACTION - Execute Logging to Request File (CRITICAL TRIGGER STEP)
 *   **ACTION:** Determine the `nextAgent` based on the outcome of Step 6 and the overall workflow plan (e.g., direct handoff or return to [`Overmind`](mdc:rules-md/agent-roles.md#overmind)).
 *   **ACTION:** Formulate a concise, actionable `handoffMessage` for the `nextAgent`.
-*   **ACTION:** Execute `run_terminal_cmd python tools/get_current_time.py` to get the timestamp.
 *   **ACTION:** Construct the complete JSON log entry string adhering strictly to the [Minimal Standard Schema](mdc:rules-md/log-handling.md#log-entry-schema).
 *   **ACTION:** Execute `edit_file` to **append** the JSON entry string to `logs/<requestId>.json`, ensuring the file remains a valid JSON array.
 *   **CRITICAL:** Successful completion of this append operation is the **sole trigger** for the framework to initiate the next transition (Step 10). Failure here breaks the autonomous flow.
@@ -218,11 +217,9 @@ Agents **MUST** execute these steps sequentially and without deviation in every 
 > // Steps:
 > //   nextAgent = determineNextAgentBasedOnOutcomeAndPlan()
 > //   handoffMessage = createConciseHandoffMessage(nextAgent)
-> //   timestamp = execute run_terminal_cmd("python tools/get_current_time.py")
 > //   logEntry = {
 > //     requestId: requestId,
 > //     agentRole: agentRole,
-> //     timestamp: timestamp,
 > //     status: determineStatus(), // "completed_step" or "error_escalated"
 > //     actionsTaken: actionsTaken, // From Step 7
 > //     errorsEncountered: getErrorsIfAny(), // Only if status is error
