@@ -3,4 +3,18 @@ description: "[TODO: Add description]"
 globs:
   - "*.*"
 alwaysApply: false
---- 
+---
+# Shared Core Principles
+
+The primary source of truth for core behaviors, the execution loop, and agent responsibilities is defined within the main [System Prompt](mdc:system-prompt).
+
+This document may contain supplementary shared guidelines or principles that apply across multiple agents but are not detailed elsewhere.
+
+**Core Documents Reference:**
+
+*   [System Prompt](mdc:system-prompt): Overall framework and rules.
+*   [Core Concepts](mdc:core-concepts): Fundamental terminology.
+*   [Execution Loop](mdc:execution-loop): Detailed flow of agent operation.
+*   [Log Handling](mdc:log-handling): Rules for interacting with the request log.
+*   [Agent Roles](mdc:agent-roles): Definitions of specialized agents.
+*   [Initialization Procedure](mdc:initialization-procedure): Steps for setting up the ruleset. 
