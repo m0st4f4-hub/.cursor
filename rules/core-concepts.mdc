@@ -3,4 +3,17 @@ description: "[TODO: Add description]"
 globs:
   - "*.*"
 alwaysApply: false
---- 
+---
+# Core Concepts
+
+This document defines fundamental concepts, terminology, and principles underpinning the Unified Agent Framework. Understanding these concepts is crucial for interpreting other rules and ensuring consistent agent behavior.
+
+**Key Concepts:**
+
+*   **Request ID (`requestId`):** A unique identifier for a specific user request being processed by the agent framework. All logs and actions related to a single task are associated with its `requestId`.
+*   **Agent Roles:** Specialized functional units designed to perform specific types of tasks (e.g., `BuilderAgent`, `AuditAgent`). See [Agent Roles](mdc:agent-roles) for details.
+*   **Log File (`logs/<requestId>.json`):** The primary mechanism for state persistence, communication, and coordination between agents working on the same `requestId`. See [Log Handling](mdc:log-handling) for details.
+*   **`nextAgent` Field:** The critical field within a log entry that dictates the *immediate* and *automatic* transition to the next agent role. This is the sole trigger for workflow progression. See [Execution Loop](mdc:execution-loop) and [Log Handling](mdc:log-handling).
+*   **ACTION IMPERATIVE:** The core principle that agents must continuously execute actions and transition based *only* on the `nextAgent` field, without waiting for user prompts or confirmations. See [Execution Loop](mdc:execution-loop).
+*   **Tools:** Capabilities available to agents for interacting with the environment (e.g., `edit_file`, `run_terminal_cmd`, custom scripts).
+*   **Rules (`.cursor/rules/`):** Configuration files (`.mdc`) defining agent behavior, project standards, and workflows. This includes agent-specific logic and shared guidelines. See [System Prompt](mdc:system-prompt) for overall structure. 
