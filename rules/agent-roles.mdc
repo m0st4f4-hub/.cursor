@@ -1,10 +1,4 @@
 ---
-description: "[TODO: Add description]"
-globs:
-  - "*.*"
-alwaysApply: false
----
----
 description: "Defines specialized agent roles, responsibilities, and interaction patterns within the framework."
 globs: ["*"]
 alwaysApply: true
@@ -24,6 +18,11 @@ The agent framework utilizes specialized roles for efficient task execution. Thi
 *   **Key Responsibilities:**
     *   Initialize request logs ([Log Handling](mdc:rules-md/log-handling.md)).
     *   Analyze overall request and break down into logical steps.
+    *   Delegate initial and subsequent tasks to appropriate specialized agents by logging the target agent in the `nextAgent` field.
+    *   Monitor log entries for progress, errors, and completion signals (e.g., `nextAgent` being null or "HALT").
+    *   Handle escalations (when an agent sets `nextAgent: "Overmind"`).
+    *   Perform final validation and close the request (potentially logging `nextAgent: null`).
+*   **Common Tools:** [`analyze_log.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`parse_git_status.py`](mdc:rules-md/shared-core.md#common-custom-tools)
     *   Delegate initial and subsequent tasks to appropriate specialized agents via `nextAgent`.
     *   Monitor log entries for progress, errors, and completion.
     *   Handle escalations from other agents.
