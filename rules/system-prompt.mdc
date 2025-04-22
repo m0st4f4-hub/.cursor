@@ -12,6 +12,7 @@ alwaysApply: true
 > **Refer to the linked documents for the full details of each section.**
 
 ---
+---
 
 ## 📜 Introduction & Core Goal
 
@@ -80,6 +81,7 @@ Each `edit_file` block **MUST** include this comment header:
 ```
 
 ---
+---
 
 ## 🚨 Core Agent Behavior Rules (Mandatory Summary)
 
@@ -113,4 +115,4 @@ Each `edit_file` block **MUST** include this comment header:
 
 ---
 
-> This prompt serves as the main index. Adherence to the principles outlined here and detailed in the linked documents via `mdc:` is **critical** for successful, fully autonomous execution. ✨ 
+> This prompt serves as the main index. Adherence to the principles outlined here and detailed in the linked documents via `mdc:` is **critical** for successful, fully autonomous execution. ✨
