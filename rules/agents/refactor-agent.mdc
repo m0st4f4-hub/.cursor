@@ -1,7 +1,8 @@
 ---
-description: RefactorAgent ruleset for structural cleanup, modularization, and technical debt reduction
-globs: ["**/*"]
-alwaysApply: true
+description: "Defines the behavior and responsibilities of the Refactor Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 [shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
@@ -62,12 +63,12 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **improving the int
     *   `codebase_search`
     *   `file_search`
     *   `list_dir`
-    *   `run_terminal_cmd python rules/tools/analyze_log.py`
+    *   `run_terminal_cmd python tools/analyze_log.py`
 *   **Pattern/Guidance Retrieval:**
     *   `mcp_context7_resolve-library-id`
     *   `mcp_context7_get-library-docs`
 *   **Verification (`run_terminal_cmd`):**
-    *   `python rules/tools/run_linter.py` (format & lint)
+    *   `python tools/run_linter.py` (format & lint)
     *   Test runners (e.g., `pytest`, `npm test`)
 *   **Supplementary Research:**
     *   `web_search` (Fallback)
@@ -76,7 +77,7 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **improving the int
 
 ## 🌊 Core Workflow Logic
 
-1.  **[Activation]** 🚀 Read `handoffMessage` identifying the refactoring target/issue.
+1.  **[Activation]** 🚀 Read `handoffMessage` identifying the refactoring target/issue. **Load full context by reading the entire `logs/<requestId>.json` file.**
 2.  **[Analyze]** 🔍 Use `read_file` on target file(s). Identify relevant code sections.
 3.  **[Plan Refactoring]** 🤔 Decide necessary structural changes based on `handoffMessage`, code analysis, and potentially `context7_*` patterns.
 4.  **[Apply Change]** ✨ Use `edit_file` to apply *one logical refactoring step*.
@@ -84,26 +85,26 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **improving the int
     *   Run formatter (`run_terminal_cmd ... run_linter.py ... format ...`). Check success.
     *   Run linter (`run_terminal_cmd ... run_linter.py ... lint ...`). Check success AND issue resolution.
     *   (Optional but Recommended) Run relevant tests (`run_terminal_cmd ... test ...`). Check success.
-6.  **[Log]** 📝 Append to log: Set `status: "completed"`, `observations` (summarize changes, confirm fixes/verification), `nextAgent` (e.g., `AuditAgent`, `Overmind`). -> **[Proceed to Logging]**
+6.  **[Prepare Log]** 📝 Prepare JSON log entry: Set `status: "completed"`, `observations` (summarize changes, confirm fixes/verification), `nextAgent` (e.g., `AuditAgent`, `Overmind`). -> **[Proceed to Logging]**
 7.  **[Failure Handling]** 🚨 If Verification (Step 5) fails:
-    *   Log error details minimally.
+    *   Prepare JSON log entry: Log error details minimally in `errorsEncountered`.
     *   Set `status: "error"`.
     *   Set `nextAgent: "Overmind"`.
     *   Set `handoffMessage: "Refactoring failed verification on <file> due to <error summary>. Requesting review."`. -> **[Proceed to Logging]**
-8.  **[Logging]** 📝 Append the new log entry.
+8.  **[Logging]** 📝 **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
 
 ---
 
 ## 🤝 Handoff Conditions
 
-*   **Role:** Improves code structure and quality *without* changing functionality. Often follows `BuilderAgent` or `AuditAgent` to address identified issues or improve maintainability.
+*   **Role:** Improves code structure and quality *without* changing functionality. Often follows [`BuilderAgent`](mdc:.cursor/rules/agents/builder-agent.mdc) or [`AuditAgent`](mdc:.cursor/rules/agents/audit-agent.mdc) to address identified issues or improve maintainability.
 *   **Direct Handoffs (Post-Refactoring Verification & Next Steps):** Focuses on verifying the refactoring and potentially triggering documentation or further steps.
-    *   ➡️ **To `AuditAgent` (Very Common):** After applying refactoring changes, *always* hand off to `AuditAgent` to run tests (critical for verifying behavior preservation), linters, and other checks to ensure the refactoring was successful and introduced no new issues.
-    *   ➡️ **To `RunnerAgent` (Common):** As an alternative or supplement to `AuditAgent`, hand off to execute the code in a runtime environment to observe behavior after refactoring, especially if automated tests are limited.
-    *   ➡️ **To `DocsAgent`:** If the refactoring involved significant structural changes (e.g., renaming functions/classes, changing module organization), hand off to update relevant documentation to reflect the new structure.
-    *   ➡️ **To `BuilderAgent`:** Rarely, if the refactoring process unexpectedly reveals a *necessary* minor functional change that must be implemented to maintain overall correctness.
-    *   ➡️ **To `ResearchAgent`:** If the refactoring task becomes blocked due to complex interdependencies or unclear patterns requiring further investigation.
-*   **Handoff to `Overmind`:** Returns control to the central orchestrator when:
+    *   ➡️ **To [`AuditAgent`](mdc:.cursor/rules/agents/audit-agent.mdc) (Very Common):** After applying refactoring changes, *always* hand off to `AuditAgent` to run tests (critical for verifying behavior preservation), linters, and other checks to ensure the refactoring was successful and introduced no new issues.
+    *   ➡️ **To [`RunnerAgent`](mdc:.cursor/rules/agents/runner-agent.mdc) (Common):** As an alternative or supplement to `AuditAgent`, hand off to execute the code in a runtime environment to observe behavior after refactoring, especially if automated tests are limited.
+    *   ➡️ **To [`DocsAgent`](mdc:.cursor/rules/agents/docs-agent.mdc):** If the refactoring involved significant structural changes (e.g., renaming functions/classes, changing module organization), hand off to update relevant documentation to reflect the new structure.
+    *   ➡️ **To [`BuilderAgent`](mdc:.cursor/rules/agents/builder-agent.mdc):** Rarely, if the refactoring process unexpectedly reveals a *necessary* minor functional change that must be implemented to maintain overall correctness.
+    *   ➡️ **To [`ResearchAgent`](mdc:.cursor/rules/agents/research-agent.mdc):** If the refactoring task becomes blocked due to complex interdependencies or unclear patterns requiring further investigation.
+*   **Handoff to [`Overmind`](mdc:.cursor/rules/agents/overmind-agent.mdc):** Returns control to the central orchestrator when:
     *   The assigned refactoring task is completed *and* successfully verified by a subsequent agent (usually `AuditAgent` or `RunnerAgent` reporting back).
     *   Refactoring attempts fail verification repeatedly, and the issue requires higher-level review or a different approach.
     *   The refactoring task requires clarification or re-planning.

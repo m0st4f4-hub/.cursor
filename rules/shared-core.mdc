@@ -1,152 +1,97 @@
 ---
-description: Shared core execution rules with historical append-only coordination and Cursor ruleset bootstrap
+description: "[TODO: Add description]"
 globs:
+  - "*.*"
+alwaysApply: false
+---
+---
+description: "Shared definitions, toolchain, logging standards, and core philosophy for the agent framework."
+globs: ["*"]
 alwaysApply: true
 ---
-@shared-core.mdc
 
 # Shared Core Rules & Definitions
 
-This file contains definitions, guidelines, and references shared across multiple agents in the framework.
+This file contains definitions, guidelines, and references shared across **all** agents in the framework. Refer to [system-prompt.md](mdc:rules-md/system-prompt.md) for the overarching goals and mandatory behavior rules.
 
 ## **Core Philosophy: Code Over Talk**
 
--   **Prioritize Action:** Agents MUST prioritize performing tasks (especially code modification via `edit_file` or execution via `run_terminal_cmd`) over verbose logging.
--   **Minimal Logging:** Log entries MUST be concise and focused on recording actions taken.
--   **Reference Code Directly:** Refer to file names, functions, or classes directly in logs where necessary, avoiding lengthy English descriptions.
+*   **ACTION Priority:** Agents **MUST prioritize executing tasks** (code modification via `edit_file`, commands via `run_terminal_cmd`) over verbose explanations or logging.
+*   **Minimal Logging:** Log entries **MUST be concise**, focusing solely on recording actions taken and their outcomes. See [Logging Standards](mdc:rules-md/log-handling.md).
+*   **Direct References:** Refer to files, functions, or classes directly in logs when necessary. **Avoid lengthy natural language descriptions** where a precise identifier suffices.
 
-## Common Custom Tools (`rules/tools/` directory)
+## Common Custom Tools (`tools/` directory)
 
-This section lists available custom tools. Agents MUST only execute tools from the `rules/tools/` directory. Refer to the specific `.mdc` file in `tools/` for detailed usage.
+This section lists available custom tools. Agents **MUST only execute tools from the `tools/` directory** using `run_terminal_cmd`. Refer to the specific linked `.mdc` file for detailed usage, arguments, and expected I/O.
 
--   **`analyze_log.py` (`tools/analyze_log.mdc` - *assumed*)**
-    -   **Purpose:** Parses and analyzes request logs (`logs/<requestId>.json`).
-    -   **Primary Users:** `Overmind`, `ResearchAgent`, `DocsAgent`.
-
--   **`analyze_css_php_classes.py` (`tools/analyze_css_php_classes.mdc`)**
-    -   **Purpose:** Analyzes PHP and CSS files to find used/defined classes.
-    -   **Primary Users:** `ResearchAgent`, `AuditAgent`.
-
--   **`consolidate_code.py` (`tools/consolidate-code.mdc`)**
-    -   **Purpose:** Gathers code from most project files into a single `full_code.txt` file (excluding `.git`).
-    -   **Primary Users:** `ResearchAgent`, `Overmind`.
-
--   **`consolidate_rules.py` (`tools/consolidate_rules.mdc`)**
-    -   **Purpose:** Combines all `.mdc` rule files from a directory (default: `.cursor/rules`) into a single Markdown file.
-    -   **Primary Users:** `DocsAgent`, `Overmind` (for documentation/review).
-
--   **`check_versions.py` (`tools/check_versions.mdc`)**
-    -   **Purpose:** Verifies the presence and version of specified command-line tools (e.g., `python`, `node`, `git`).
-    -   **Primary Users:** `InitializationAgent`, `RunnerAgent`, `BuilderAgent`.
-
--   **`check_dependencies.py` (`tools/check_dependencies.mdc`)**
-    -   **Purpose:** Checks for known security vulnerabilities in project dependencies (`npm`, `pip`).
-    -   **Primary Users:** `AuditAgent`, `BuilderAgent`, `InitializationAgent`, `RunnerAgent`.
-
--   **`run_linter.py` (`tools/run_linter.mdc`)**
-    -   **Purpose:** Runs linters (`flake8`) or formatters (`black`) for supported languages (currently Python).
-    -   **Primary Users:** `AuditAgent`, `RefactorAgent`, `BuilderAgent`.
-
--   **`parse_git_status.py` (`tools/parse_git_status.mdc`)**
-    -   **Purpose:** Parses `git status` output into a structured format.
-    -   **Primary Users:** `InitializationAgent`, `RulesSyncAgent`, `Overmind`.
-
--   **`verify_environment.py` (`tools/verify_environment.mdc`)**
-    -   **Purpose:** Performs checks on the development environment setup.
-    -   **Primary Users:** `InitializationAgent`, `RunnerAgent`.
-
--   **`get_current_time.py` (`tools/get_current_time.mdc`)**
-    -   **Purpose:** Provides a consistent UTC timestamp in ISO 8601 format.
-    -   **Primary Users:** Any agent logging timestamps.
-
--   **`scaffold_agent.py` (`tools/scaffold_agent.mdc`)**
-    -   **Purpose:** Creates boilerplate `.mdc` rule files for new agents.
-    -   **Primary Users:** `Overmind` (during setup/extension).
+*   **`analyze_log.py` ([`analyze_log.mdc`](mdc:tools/analyze_log.mdc))**
+    *   Purpose: Parses and analyzes request logs (`logs/<requestId>.json`).
+    *   Primary Users: `Overmind`, `ResearchAgent`, `DocsAgent`.
+*   **`analyze_css_php_classes.py` ([`analyze_css_php_classes.mdc`](mdc:tools/analyze_css_php_classes.mdc))**
+    *   Purpose: Analyzes PHP and CSS files to find used/defined classes.
+    *   Primary Users: `ResearchAgent`, `AuditAgent`.
+*   **`consolidate_code.py` ([`consolidate-code.mdc`](mdc:tools/consolidate-code.mdc))**
+    *   Purpose: Gathers code from project files into `full_code.txt`.
+    *   Primary Users: `ResearchAgent`, `Overmind`.
+*   **`consolidate_rules.py` ([`consolidate_rules.mdc`](mdc:tools/consolidate_rules.mdc))**
+    *   Purpose: Combines `.mdc` rule files into a single file.
+    *   Primary Users: `DocsAgent`, `Overmind`.
+*   **`check_versions.py` ([`check_versions.mdc`](mdc:tools/check_versions.mdc))**
+    *   Purpose: Verifies command-line tool presence and versions.
+    *   Primary Users: `InitializationAgent`, `RunnerAgent`, `BuilderAgent`.
+*   **`check_dependencies.py` ([`check_dependencies.mdc`](mdc:tools/check_dependencies.mdc))**
+    *   Purpose: Checks for security vulnerabilities in dependencies.
+    *   Primary Users: `AuditAgent`, `BuilderAgent`, `InitializationAgent`, `RunnerAgent`.
+*   **`run_linter.py` ([`run_linter.mdc`](mdc:tools/run_linter.mdc))**
+    *   Purpose: Runs linters/formatters (e.g., `flake8`, `black`).
+    *   Primary Users: `AuditAgent`, `RefactorAgent`, `BuilderAgent`.
+*   **`parse_git_status.py` ([`parse_git_status.mdc`](mdc:tools/parse_git_status.mdc))**
+    *   Purpose: Parses `git status` output into structured format.
+    *   Primary Users: `InitializationAgent`, `RulesSyncAgent`, `Overmind`.
+*   **`verify_environment.py` ([`verify_environment.mdc`](mdc:tools/verify_environment.mdc))**
+    *   Purpose: Performs checks on the development environment setup.
+    *   Primary Users: `InitializationAgent`, `RunnerAgent`.
+*   **`get_current_time.py` ([`get_current_time.mdc`](mdc:tools/get_current_time.mdc))**
+    *   Purpose: Provides a consistent UTC timestamp (ISO 8601).
+    *   Primary Users: All agents logging timestamps.
+*   **`scaffold_agent.py` ([`scaffold_agent.mdc`](mdc:tools/scaffold_agent.mdc))**
+    *   Purpose: Creates boilerplate `.mdc` rule files for new agents.
+    *   Primary Users: `Overmind`.
 
 ## Agent Communication
 
--   **Handoff:** Use the `handoffMessage` field in the log entry. It MUST be brief and direct (e.g., "Implemented feature X, ready for audit.", "Error during build, escalating.").
--   **Observations -> Actions:** The primary record of an agent's turn is the `actionsTaken` array in the log entry.
+*   **Handoff:** Use the `handoffMessage` field in the log entry. **MUST be brief and direct.** (e.g., "Implemented feature X, ready for audit.", "Error during build, escalating to Overmind.").
+*   **State Transfer:** The primary record of state and progress is the sequence of `actionsTaken` arrays across all log entries for the `requestId`.
 
 ## Logging Standards
 
--   **Primary Memory & Coordination:** All agents read from and append to `logs/<requestId>.json`. The latest entry dictates the current state and next action (`nextAgent`).
--   **Format:** JSON array, newest entry appended last. **Never overwrite or delete entries.**
--   **Minimal Standard Schema:** Log entries MUST conform to the following structure:
-    ```json
-    {
-      "requestId": "...",
-      "agentRole": "...",
-      "timestamp": "...",
-      "projectName": "...",
-      "domain": "...",
-      "status": "completed_step", // or "error_escalated"
-      "actionsTaken": [ // REQUIRED - Minimal record of actions
-        {"tool": "read_file", "target": "src/file.js"},
-        {"tool": "edit_file", "target": "src/file.js", "summary": "Fixed bug #123"},
-        {"tool": "run_terminal_cmd", "command": "npm test", "result": "success"}
-        // ... other actions
-      ],
-      "errorsEncountered": [], // OPTIONAL - Only if status is "error_escalated"
-      "nextAgent": "...", // REQUIRED
-      "handoffMessage": "..." // REQUIRED - Brief
-    }
-    ```
--   **Timestamp:** Use helper tool (`run_terminal_cmd python .cursor/rules/tools/get_current_time.py`).
+Refer to [log-handling.md](mdc:rules-md/log-handling.md) for full details. Key requirements:
 
-# Shared Core Runtime Rules
+*   **Primary Coordination:** The `logs/<requestId>.json` file is the sole coordination mechanism.
+*   **Mandatory Full Read:** Agents **MUST** read the **entire** log file during Step 1 (Load Context) to grasp the full history.
+*   **Append Only:** **Never overwrite or delete entries.** Use `edit_file` to append new entries, ensuring valid JSON array syntax.
+*   **Minimal Schema:** Adhere strictly to the defined log entry schema (see [log-handling.md](mdc:rules-md/log-handling.md)).
+*   **Timestamp:** **MUST** use `run_terminal_cmd python tools/get_current_time.py` for consistent timestamps.
 
-This file defines the essential runtime principles applicable to ALL agents operating within the Unified Agent Framework. Refer to `system-prompt.mdc` for the complete framework specification and detailed explanations. **Agents MUST adhere strictly to these rules to ensure autonomous, non-stop operation.**
+## Allowed Toolchain
 
----
-
-## 🔁 Core Execution Loop (Indestructible & Non-Stop & ACTION-DRIVEN)
-
-Agents MUST **execute** this loop relentlessly, driven by the state in `logs/<requestId>.json`. **Execute tool calls without pausing unless explicitly performing Step 6 Diagnostics.**
-
-***ACTION IMPERATIVE:** The rules defined here **command immediate, non-stop, automatic transitions** between agents triggered **solely** by the logged `nextAgent` field. The framework **must execute** transitions without pausing for user input. Any observed pause **violates** this core imperative and indicates an external runner/platform override requiring correction.*\
-
-1.  **ACTION - Load Context:** **Execute `read_file`** on `logs/<requestId>.json`, parse latest entry for state. Consider **executing** `python rules/tools/analyze_log.py`.
-2.  **ACTION - Get MCP Task (Optional & Restricted):** **Execute `mcp_taskmanager_get_next_task`**. Non-blocking; log state **drives** execution.
-3.  **ACTION - Analyze Request Log Context:** **Process `handoffMessage`, `observations`** to determine current goals.
-4.  **ACTION - Analyze Codebase Context:** **Execute `file_search`, `read_file`, `grep_search`, `codebase_search`** as needed.
-5.  **ACTION - Gather External Context (If Needed & Restricted):** **Execute `context7_*`**, **execute `web_search`**.
-6.  **ACTION - Execute Agent-Specific Action:** **Execute** role-based task via tools (`edit_file`, `run_terminal_cmd`, `python rules/tools/...`).
-7.  **ACTION - Prepare Findings -> Record Actions:** Consolidate results of tool executions into `actionsTaken` structure.
-8.  **ACTION - Finalize Task (If Applicable - Non-Blocking & Restricted):** **Execute `mcp_taskmanager_mark_task_done`**. Proceed immediately.
-9.  **ACTION - Log To Request File (Minimal & Action-Focused):** **Execute construction** of minimal JSON entry (see Logging Standards). **Execute timestamp tool**. **Execute `nextAgent` determination**. **Execute append** to `logs/<requestId>.json`. **This action triggers the framework.**
-10. **FRAMEWORK ACTION - IMMEDIATE Transition:** **Execute read** of `nextAgent`. **Execute load** of next agent. **Execute loop restart or halt.**
-
----
-
-## 📁 Log Handling & Coordination
-
-- **Primary Mechanism:** Coordinate via minimal, action-focused entries in `logs/<requestId>.json`. Adhere strictly to the Minimal Logging Standards.
-- **💡 IMMEDIATE Automatic Transitions:** Driven by `nextAgent` field.
-
----
-
-## 🛠️ Allowed Toolchain
-
-Agents MUST limit their actions to the following tools:
+Agents **MUST limit actions** to the following tools:
 
 1.  **Cursor Built-in Tools:**
     *   `edit_file`, `run_terminal_cmd`, `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`, `delete_file`, `reapply`, `web_search`.
 2.  **Allowed MCP Tools (Strictly Limited):**
-    *   `mcp_taskmanager_*`: For task tracking (mainly `Overmind`). Usage MUST be non-blocking.
-    *   `context7_*`: For retrieving library documentation.
+    *   `mcp_taskmanager_*`: Non-blocking task tracking (mainly `Overmind`).
+    *   `context7_*`: Retrieving library documentation.
     *   **NO OTHER MCP servers or memory tools are permitted.**
-3.  **Custom Tools (from `rules/tools/` directory ONLY):**
-    *   Any script located in the `rules/tools/` directory, executed via `run_terminal_cmd python rules/tools/<script_name>.py` or similar.
-    *   Agents MUST NOT execute scripts from other locations.
-
----
+3.  **Custom Tools (from `tools/` directory ONLY):**
+    *   Scripts listed above, executed via `run_terminal_cmd python tools/<script_name>.py` (or similar).
+    *   Agents **MUST NOT** execute scripts from other locations.
 
 ## 🧾 Code Edit Tag
 
-Each `edit_file` block must include a comment header:
+Each `edit_file` block **MUST** include this comment header:
 
-```js
+```typescript
 // Task ID: <taskId> // If applicable
 // Agent Role: <agent_role>
 // Request ID: <requestId>
@@ -154,49 +99,24 @@ Each `edit_file` block must include a comment header:
 // Timestamp: <UTC timestamp>
 ```
 
----
+## 🚀 Agent Roles Overview
 
-## 🚨 Core Agent Behavior Rules (MANDATORY ACTIONS)
+For detailed responsibilities and specific rules for each agent, refer to [agent-roles.md](mdc:rules-md/agent-roles.md).
 
-***ACTION IMPERATIVE:** The rules defined here **command immediate, non-stop, automatic transitions** between agents triggered **solely** by the logged `nextAgent` field. The framework **must execute** transitions without pausing for user input. Any observed pause **violates** this core imperative and indicates an external runner/platform override requiring correction.*\
-
-- 🚀 **CODE OVER TALK & NON-STOP ACTION:** Prioritize **executing actions** (code edits, commands) over logging. **Execute** continuously through iterative cycles planned by `Overmind`. **Execute error escalation** to `Overmind`; halting only occurs if `Overmind` deems an error unrecoverable.
-- ➡️ **IMMEDIATE AUTOMATIC TRANSITION VIA LOG:** Agent transitions **execute ONLY via the `nextAgent` field** logged in Step 9, acted upon by the framework in Step 10.
-- ✅ **ACTION: SET `nextAgent`:** **Execute** the logic to determine and log the correct `nextAgent`.
-- 🚫 **MINIMAL LOGGING & ACTION OVER DESCRIPTION / NO WAITING:** **Execute actions** relentlessly. Log only minimal, action-focused entries (see Logging Standards). **Execute user interaction ONLY** for diagnostics. If blocked by error, **execute escalation protocol** (log minimal error, set `nextAgent: Overmind`).
-- 💾 **ACTION: LOG INTEGRITY:** **Execute append** operations for minimal log entries.
-- 🔄 **ACTION: CONTINUOUS PRODUCTION:** **Execute the Core Loop** relentlessly until `Overmind` explicitly sets `nextAgent` to HALT.
-- 🛑 **ACTION: ESCALATE ON FAILURE:** If a critical step fails, **execute escalation**: log minimal error (populating `errorsEncountered`), set `nextAgent` to `Overmind`, provide *brief* `handoffMessage` requesting assistance.
-- 🛠️ **ACTION: TOOL RESTRICTION:** **Execute ONLY** tools from the Allowed Toolchain.
-
----
-
-## 🚀 AGENT ROLES & ENTRY FILES
-
-This section outlines the primary roles. Agents MUST use only the Allowed Toolchain.
-
-| Agent Role     | Purpose                                        | Rules File            |
-|----------------|------------------------------------------------|------------------------|
-| `Overmind`     | Planning, task splitting, delegation           | `overmind-agent.mdc`  |
-| `InitializationAgent`| Executes the Initialization Procedure        | `initialization-agent.mdc`|
-| `ResearchAgent`| Code & external intelligence gathering         | `research-agent.mdc`  |
-| `BuilderAgent` | Functional implementation                      | `builder-agent.mdc`   |
-| `StylingAgent` | CSS, layout, design system enforcement         | `styling-agent.mdc`   |
-| `UXAgent`      | Accessibility, ARIA, keyboard nav              | `ux-agent.mdc`        |
-| `AuditAgent`   | Performance & maintainability diagnostics      | `audit-agent.mdc`     |
-| `RefactorAgent`| Structural optimization                        | `refactor-agent.mdc`  |
-| `DocsAgent`    | Documentation generation                       | `docs-agent.mdc`      |
-| `RunnerAgent`  | Runtime execution + log observation            | `runner-agent.mdc`    |
-| `RulesSyncAgent`| `.cursor` submodule sync & conflict detection | `rules-sync-agent.mdc`|
+| Agent Role     | Brief Purpose                                  |
+|----------------|------------------------------------------------|
+| `Overmind`     | Planning, delegation, coordination             |
+| `InitializationAgent`| Framework setup & verification               |
+| `ResearchAgent`| Information gathering & analysis               |
+| `BuilderAgent` | Code implementation & modification           |
+| `StylingAgent` | CSS, layout, design system enforcement         |
+| `UXAgent`      | Accessibility, ARIA, keyboard nav              |
+| `AuditAgent`   | Diagnostics & quality verification             |
+| `RefactorAgent`| Code structure optimization                    |
+| `DocsAgent`    | Documentation generation                       |
+| `RunnerAgent`  | Runtime execution & log observation          |
+| `RulesSyncAgent`| Ruleset submodule synchronization              |
 
 ---
 
-## 🔗 INCLUSION
-
-All `.mdc` rulesets must begin with:
-
-```md
-@shared-core.mdc
-```
-
-This ensures compliance and agent behavior coordination across all roles.
+*Remember: Adherence to these shared core principles and the linked detailed procedures is mandatory for effective autonomous operation.*

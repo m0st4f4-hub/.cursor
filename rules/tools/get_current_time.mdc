@@ -1,6 +1,7 @@
 ---
-description: get_current_time.ps1 Tool Definition
-globs: 
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
 alwaysApply: false
 ---
 # Tool Definition: get_current_time.py

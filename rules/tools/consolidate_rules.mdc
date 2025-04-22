@@ -1,6 +1,7 @@
 ---
-description:
+description: "[TODO: Add description]"
 globs:
+  - "*.*"
 alwaysApply: false
 ---
 # `consolidate_rules` Tool Definition

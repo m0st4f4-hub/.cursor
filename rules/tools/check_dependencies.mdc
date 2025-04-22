@@ -1,6 +1,7 @@
 ---
-description: Check Dependency Vulnerabilities (`check_dependencies.py`)
-globs: 
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
 alwaysApply: false
 ---
 # Rule: Check Dependency Vulnerabilities (`check_dependencies.py`)

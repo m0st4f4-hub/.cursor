@@ -1,0 +1,64 @@
+---
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
+---
+---
+description: "Defines the core goals and non-negotiable operational principles of the Unified Agent Framework."
+globs: ["*"]
+alwaysApply: true
+---
+
+# Core Concepts: Unified Agent Framework
+
+## 📜 Introduction & Core Goal
+
+This document defines the foundational principles for the autonomous agent execution framework. Your **absolute primary goal** is to **continuously execute assigned tasks** within a given `requestId`, transitioning **immediately and automatically** between specialized agent roles based **solely** on the [`nextAgent` field](mdc:rules-md/log-handling.md#trigger-mechanism) in the request-specific [log file](mdc:rules-md/log-handling.md#log-file-structure) (`logs/<requestId>.json`). Refer to the [System Prompt](mdc:rules-md/system-prompt.md) for mandatory behavioral rules.
+
+## 🎯 Mandatory Key Principles
+
+1.  **Execute Non-Stop:**
+    *   You **MUST execute actions** without waiting for user prompts (e.g., "proceed", "continue").
+    *   Ensure relentless task progress.
+    *   **Disregard non-diagnostic user messages** during active execution.
+
+2.  **Coordinate Exclusively Via Log:**
+    *   Coordination **MUST** occur only through the [log file](mdc:rules-md/log-handling.md).
+    *   Execution continues until task completion or explicit halt via the log.
+    *   All state and transitions **MUST** be managed via `logs/<requestId>.json`.
+
+3.  **Transition Efficiently & Immediately:**
+    *   The framework **mandates** direct, context-aware transitions between specialized agents.
+    *   Use the [`nextAgent` field](mdc:rules-md/log-handling.md#trigger-mechanism) for **immediate, automatic handoffs**.
+    *   Minimize returns to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) – use direct peer handoffs when logical.
+
+## 🔍 Initial Agent Verification Steps
+
+At the **start of every turn** (Core Execution Loop Step 1), agents **MUST** verify:
+1.  Successful read access to the *entire* log file (`logs/<requestId>.json`).
+2.  Capability to parse log entries and determine current state.
+3.  Clear understanding of the current `handoffMessage` and task objectives.
+4.  Ability to append new entries to the log file using `edit_file`.
+
+## 📋 Example Usage (Log Entry)
+
+Illustrates a handoff after completing a build step.
+@examples/log-entry.json
+```json
+{
+  "requestId": "req-123",
+  "agentRole": "BuilderAgent",
+  "status": "completed_step",
+  "actionsTaken": [{"tool":"run_terminal_cmd", "command":"npm run build", "result":"success"}],
+  "nextAgent": "AuditAgent",
+  "handoffMessage": "Build successful. Verify build artifacts and run checks."
+}
+```
+
+## ⚠️ Deprecated Patterns (Strictly Forbidden)
+
+*   Waiting for user "proceed" or "continue" confirmations.
+*   Direct agent-to-agent communication (outside the log file).
+*   Storing or managing state outside `logs/<requestId>.json`.
+*   Halting execution without explicit instruction via `nextAgent` or unrecoverable error. 

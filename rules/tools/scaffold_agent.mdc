@@ -1,21 +1,31 @@
 ---
-description:
+description: "[TODO: Add description]"
 globs:
+  - "*.*"
 alwaysApply: false
 ---
-# scaffold_agent.py Tool Definition
+\
+---
+description: Defines the `scaffold_agent.py` tool used to generate boilerplate .mdc rule files for new agents.
+globs: ["*.*"]
+alwaysApply: false
+---
+
+# `scaffold_agent.py` Tool Definition
 
 ## Purpose
-Generates placeholder structure/files for a new agent. (Placeholder)
+Generates a boilerplate `.mdc` rule file for a new agent within the standard agent directory (`.cursor/rules/agents/`). The generated file includes standard sections with TODO placeholders.
 
 ## Arguments
-- `agent_name`: The name of the agent to scaffold. (Placeholder)
-- `output_dir`: Directory to create agent structure in. (Placeholder)
+- **`agent_name` (Positional):** The desired name for the new agent in `PascalCase` and ending with `Agent` (e.g., `MyCoolAgent`). This is provided as a command-line argument.
 
 ## Output
-- Creates agent directory and placeholder files.
+- Creates a new agent rule file named using the sanitized `agent_name` (converted to `kebab-case`) with the `.mdc` extension inside the `.cursor/rules/agents/` directory. Example: `MyCoolAgent` -> `.cursor/rules/agents/my-cool-agent.mdc`.
+- Prints a JSON object to stdout indicating success (`{"success": true, "message": "...", "filepath": "..."}`) or failure (`{"success": false, "error": "..."}`).
+- Exits with code 0 on success, 1 on failure.
 
 ## Example Usage
 ```bash
-python tools/scaffold_agent.py --agent-name MyNewAgent --output-dir rules/agents
+# Creates .cursor/rules/agents/my-new-agent.mdc
+python rules/tools/scaffold_agent.py MyNewAgent
 ```

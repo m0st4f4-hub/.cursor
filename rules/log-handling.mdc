@@ -1,0 +1,238 @@
+---
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
+---
+---
+description: "Mandatory guidelines for log file structure, coordination, and transitions."
+globs: ["*"]
+alwaysApply: true
+---
+
+# Log Handling & Coordination
+
+## 🎯 Overview
+
+The log file (`logs/<requestId>.json`) is the **sole coordination mechanism** for the agent framework. All state management, historical context, and agent transitions **MUST** occur exclusively through this file. Adherence to these standards is critical for autonomous operation.
+
+Reference the [Core Execution Loop](mdc:rules-md/execution-loop.md) for when logging occurs (Steps 1 and 9).
+
+## 📁 Log File Structure
+
+### Location & Format
+*   **Location:** `logs/<requestId>.json`
+*   **Format:** Valid JSON array.
+*   **Appending:** New entries **MUST** be appended to the end of the array. **NEVER** truncate, modify existing entries, or overwrite the file.
+*   **Tool:** Use `edit_file` with append semantics for Step 9 logging.
+
+### Log Entry Schema (Minimal Standard)
+Each entry **MUST** conform strictly to this structure:
+```json
+// @examples/log-structure.json
+{
+  "requestId": "string", // Unique ID for the entire request
+  "agentRole": "string", // Role executing this turn (e.g., "BuilderAgent")
+  "timestamp": "string", // ISO 8601 UTC timestamp (use tools/get_current_time.py)
+  "projectName": "string", // Optional: Name of the project
+  "domain": "string", // Optional: High-level task domain
+  "status": "completed_step" | "error_escalated", // Outcome of the turn
+  "actionsTaken": [
+    // REQUIRED: Array of actions performed this turn
+    {
+      "tool": "string", // Name of the tool used (e.g., "edit_file", "run_terminal_cmd")
+      "target": "string", // Optional: Target file/resource
+      "summary": "string", // Minimal summary of the action's purpose/result
+      "result": "string" // Optional: Brief outcome (e.g., "success", "failure", "lint errors found")
+    }
+    // ... more actions ...
+  ],
+  "errorsEncountered": ["string"], // Optional: Only if status is "error_escalated"
+  "nextAgent": "string", // REQUIRED: Role of the next agent (or "Overmind", "HALT")
+  "handoffMessage": "string" // REQUIRED: Concise instructions for the next agent
+}
+```
+
+## 🔄 Automatic Transitions via `nextAgent`
+
+### Trigger Mechanism
+The framework transitions **automatically and immediately** based **solely** on the `nextAgent` field in the **latest** (last appended) log entry. This field **MUST** be set correctly in Step 9 of the [Core Execution Loop](mdc:rules-md/execution-loop.md).
+
+```pseudocode
+// @examples/transition-handling.pseudocode
+// --- Framework Internal Logic --- 
+// Function: handleTransition
+// Purpose: Initiate next agent based on log.
+// Triggered By: Successful append in Step 9.
+// Steps:
+//   latestEntry = readLastEntryFromLog()
+//   nextAgentRole = latestEntry.nextAgent
+//   if isValidAgent(nextAgentRole): // Check against agent-roles.md
+//     loadAndExecuteAgent(nextAgentRole)
+//   else if nextAgentRole == "HALT":
+//     stopExecution()
+//   else:
+//     logCriticalError("Invalid nextAgent: " + nextAgentRole)
+//     haltWithError()
+// End Function
+```
+
+### Enabling Direct Agent Workflows
+Setting `nextAgent` allows direct peer-to-peer handoffs, optimizing flow:
+
+```json
+// @examples/workflow-example.json
+// Example 1: Builder finishes, hands off directly to Audit
+{
+  // ... builder log entry ...
+  "agentRole": "BuilderAgent",
+  "nextAgent": "AuditAgent", // Direct handoff
+  "handoffMessage": "Implemented feature X, ready for verification."
+}
+
+// Example 2: Audit finds issues, hands off directly to Refactor
+{
+  // ... audit log entry ...
+  "agentRole": "AuditAgent",
+  "nextAgent": "RefactorAgent", // Direct handoff
+  "handoffMessage": "Code complexity issues found in module Y. Refactor needed."
+}
+```
+
+## 📝 Log Entry Content Guidelines
+
+*   **Minimalism:** Log only essential information. Focus on `actionsTaken` summaries and the critical `nextAgent` / `handoffMessage`.
+*   **Action-Focus:** `actionsTaken` should briefly describe *what* was done (tool, target, purpose/result). Avoid verbose descriptions.
+*   **Required Fields:** Ensure all non-optional fields in the schema are present.
+*   **Timestamp:** **MUST** use `run_terminal_cmd python tools/get_current_time.py` for consistency.
+
+```pseudocode
+// @examples/required-fields.pseudocode
+// Concept: Before appending in Step 9, validate the entry object.
+// Function: validateLogEntrySchema
+// Input: logEntryObject
+// Returns: boolean (valid/invalid)
+// Steps:
+//   checkFieldPresence("requestId", logEntryObject)
+//   checkFieldPresence("agentRole", logEntryObject)
+//   checkFieldPresence("timestamp", logEntryObject)
+//   checkFieldPresence("status", logEntryObject)
+//   checkFieldPresence("actionsTaken", logEntryObject) // Must be non-empty array
+//   checkFieldPresence("nextAgent", logEntryObject)
+//   checkFieldPresence("handoffMessage", logEntryObject)
+//   // ... check types/formats if necessary ...
+//   return allChecksPassed
+// End Function
+```
+
+```pseudocode
+// @examples/action-recording.pseudocode
+// Concept: Structure for entries within the actionsTaken array.
+// Define ActionRecord Structure:
+//   tool: string (Mandatory)
+//   target: string (Optional)
+//   summary: string (Mandatory - Brief purpose/outcome)
+//   result: string (Optional - e.g., "success", "failure")
+```
+
+## 🔍 Verification Steps (Log Operations)
+
+*   **Before Reading (Loop Step 1):**
+    1.  Verify log file exists (`logs/<requestId>.json`).
+    2.  Verify read permissions.
+*   **Before Appending (Loop Step 9):**
+    1.  Verify log file exists.
+    2.  Verify write/append permissions.
+    3.  Validate the constructed log entry against the required schema.
+    4.  Confirm the target file is a valid JSON array (may require reading first if unsure).
+
+```pseudocode
+// @examples/log-verification.pseudocode
+// Function: verifyAppendPrerequisites
+// Purpose: Checks before attempting to append to the log in Step 9.
+// Input: requestId, logEntryObject
+// Steps:
+//   logPath = "logs/" + requestId + ".json"
+//   verifyFileExists(logPath) // Halt/Escalate on failure
+//   verifyWritePermissions(logPath) // Halt/Escalate on failure
+//   isValidSchema = validateLogEntrySchema(logEntryObject)
+//   if not isValidSchema:
+//     logCriticalError("Log entry schema validation failed.")
+//     haltProcedure()
+//   // Optional: Read file start/end to quickly check JSON array structure
+//   verifyJsonArrayStructure(logPath) // Halt/Escalate on failure
+// End Function
+```
+
+## ⚠️ Deprecated Patterns (Strictly Forbidden)
+
+*   Managing state outside the log file.
+*   Direct agent-to-agent communication (bypassing the log).
+*   Modifying existing log entries.
+*   Truncating or overwriting the log file.
+*   Failing to append a log entry at the end of a turn (breaks the loop).
+
+## 🚨 Error Handling
+
+*   **Log Access/Write Errors:** If reading (Step 1) or appending (Step 9) fails due to permissions or file issues, the agent **MUST** immediately halt and attempt to escalate to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) (if possible via a final log attempt, otherwise critical failure).
+*   **Invalid Format:** If the log file is found to be corrupted or not a valid JSON array, **HALT** and escalate to `Overmind`.
+*   **Schema Validation Failure:** If the agent constructs an invalid log entry before Step 9, it **MUST** correct the entry before attempting to append. If correction fails, **HALT** and escalate.
+
+```pseudocode
+// @examples/log-error-handling.pseudocode
+// Concept: Handling errors during log operations.
+// If readFile fails in Step 1:
+//   handleErrorAndEscalate("Failed to read log file.", 1)
+// 
+// If editFile append fails in Step 9:
+//   // This is critical - may not be able to log the error itself.
+//   logCriticalErrorToSystem("Failed to append to log file! Halting request.")
+//   haltFrameworkExecutionWithAlert()
+// 
+// If JSON is invalid:
+//   handleErrorAndEscalate("Log file format invalid (not JSON array).", current_step)
+```
+
+## 📋 Example Log Sequence
+
+Illustrates the progression of entries in a log file.
+```json
+// @examples/log-sequence.json
+[
+  {
+    "requestId": "req-123",
+    "agentRole": "Overmind", // Start
+    "timestamp": "...",
+    "status": "completed_step",
+    "actionsTaken": [{"tool":"Planning", "summary":"Delegating task to BuilderAgent"}],
+    "nextAgent": "BuilderAgent",
+    "handoffMessage": "Implement feature X based on requirements @docs/spec.md."
+  },
+  {
+    "requestId": "req-123",
+    "agentRole": "BuilderAgent", // Builder takes turn
+    "timestamp": "...",
+    "status": "completed_step",
+    "actionsTaken": [
+      {"tool":"read_file", "target":"docs/spec.md"},
+      {"tool":"edit_file", "target":"src/featureX.js", "summary":"Initial implementation"},
+      {"tool":"run_terminal_cmd", "command":"npm run test", "result":"failure"}
+    ],
+    "nextAgent": "BuilderAgent", // Self-handoff to fix tests
+    "handoffMessage": "Tests failed. Fixing implementation."
+  },
+  {
+    "requestId": "req-123",
+    "agentRole": "BuilderAgent", // Builder fixes tests
+    "timestamp": "...",
+    "status": "completed_step",
+    "actionsTaken": [
+      {"tool":"edit_file", "target":"src/featureX.js", "summary":"Applied fixes"},
+      {"tool":"run_terminal_cmd", "command":"npm run test", "result":"success"}
+    ],
+    "nextAgent": "AuditAgent", // Handoff to Audit
+    "handoffMessage": "Feature implemented and tests pass. Verify code quality."
+  }
+  // ... subsequent entries ...
+]
+``` 

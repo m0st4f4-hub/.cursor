@@ -1,6 +1,7 @@
 ---
-description:
+description: "[TODO: Add description]"
 globs:
+  - "*.*"
 alwaysApply: false
 ---
 # Tool Rule: analyze_log.py

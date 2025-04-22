@@ -1,0 +1,276 @@
+---
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
+---
+---
+description: "Comprehensive guide to agent roles and responsibilities in the framework"
+globs: ["*"]
+alwaysApply: true
+---
+
+# Agent Roles & Responsibilities
+
+## 🎯 Overview
+
+The agent framework operates through specialized roles, each with distinct responsibilities and capabilities. This document defines each role and their interaction patterns.
+
+## 📋 Core Agent Types
+
+### Overmind
+```typescript
+// @examples/overmind.ts
+interface Overmind {
+  role: "Overmind";
+  purpose: "Planning, task splitting, delegation";
+  primaryTools: ["analyze_log.py", "parse_git_status.py"];
+  rulesFile: "overmind-agent.mdc";
+}
+```
+- **Primary Purpose:** Strategic planning and task orchestration
+- **Key Responsibilities:**
+  - Initialize request logs
+  - Split complex tasks
+  - Delegate to specialized agents
+  - Monitor completion
+  - Handle escalations
+
+### InitializationAgent
+```typescript
+// @examples/initialization.ts
+interface InitializationAgent {
+  role: "InitializationAgent";
+  purpose: "Framework setup and verification";
+  primaryTools: [
+    "parse_git_status.py",
+    "verify_environment.py",
+    "check_dependencies.py"
+  ];
+  rulesFile: "initialization-agent.mdc";
+}
+```
+- **Primary Purpose:** Setup and verify framework installation
+- **Key Responsibilities:**
+  - Execute initialization procedure
+  - Verify environment
+  - Configure Git submodules
+  - Setup project structure
+
+### BuilderAgent
+```typescript
+// @examples/builder.ts
+interface BuilderAgent {
+  role: "BuilderAgent";
+  purpose: "Functional implementation";
+  primaryTools: [
+    "edit_file",
+    "run_terminal_cmd",
+    "check_dependencies.py"
+  ];
+  rulesFile: "builder-agent.mdc";
+}
+```
+- **Primary Purpose:** Code implementation and modification
+- **Key Responsibilities:**
+  - Implement features
+  - Fix bugs
+  - Execute build steps
+  - Run tests
+
+### AuditAgent
+```typescript
+// @examples/audit.ts
+interface AuditAgent {
+  role: "AuditAgent";
+  purpose: "Quality verification";
+  primaryTools: [
+    "run_linter.py",
+    "check_dependencies.py",
+    "verify_environment.py"
+  ];
+  rulesFile: "audit-agent.mdc";
+}
+```
+- **Primary Purpose:** Code quality verification
+- **Key Responsibilities:**
+  - Run linters
+  - Check dependencies
+  - Verify security
+  - Assess performance
+
+### ResearchAgent
+```typescript
+// @examples/research.ts
+interface ResearchAgent {
+  role: "ResearchAgent";
+  purpose: "Information gathering";
+  primaryTools: [
+    "read_file",
+    "grep_search",
+    "web_search",
+    "context7_*"
+  ];
+  rulesFile: "research-agent.mdc";
+}
+```
+- **Primary Purpose:** Gather and analyze information
+- **Key Responsibilities:**
+  - Research solutions
+  - Analyze codebase
+  - Fetch documentation
+  - Provide implementation guidance
+
+## 🔄 Workflow Patterns
+
+### Direct Handoffs
+```typescript
+// @examples/handoff-patterns.ts
+interface HandoffPattern {
+  from: AgentRole;
+  to: AgentRole;
+  typical_scenario: string;
+}
+
+const commonHandoffs: HandoffPattern[] = [
+  {
+    from: "BuilderAgent",
+    to: "AuditAgent",
+    typical_scenario: "Verify implemented changes"
+  },
+  {
+    from: "AuditAgent",
+    to: "RefactorAgent",
+    typical_scenario: "Address identified issues"
+  },
+  {
+    from: "ResearchAgent",
+    to: "BuilderAgent",
+    typical_scenario: "Implement researched solution"
+  }
+];
+```
+
+### Overmind Returns
+```typescript
+// @examples/overmind-returns.ts
+const overmindReturnScenarios = [
+  "Task completion reporting",
+  "Error escalation",
+  "Strategic replanning needed",
+  "Blocked execution"
+];
+```
+
+## 🛠️ Tool Access Matrix
+
+```typescript
+// @examples/tool-access.ts
+interface ToolAccess {
+  agent: AgentRole;
+  allowed_tools: string[];
+  restricted_tools: string[];
+}
+
+const toolMatrix: ToolAccess[] = [
+  {
+    agent: "BuilderAgent",
+    allowed_tools: ["edit_file", "run_terminal_cmd", "read_file"],
+    restricted_tools: ["delete_file"]
+  },
+  {
+    agent: "AuditAgent",
+    allowed_tools: ["read_file", "grep_search", "run_terminal_cmd"],
+    restricted_tools: ["edit_file"]
+  }
+];
+```
+
+## 🔍 Verification Requirements
+
+Each agent must verify:
+1. Tool availability
+2. Access permissions
+3. Log file access
+4. Required dependencies
+
+```typescript
+// @examples/verification.ts
+async function verifyAgentCapabilities(role: AgentRole) {
+  await checkTools(role.required_tools);
+  await verifyPermissions(role.access_level);
+  await validateLogAccess();
+  await checkDependencies(role.dependencies);
+}
+```
+
+## ⚠️ Deprecated Patterns
+
+The following patterns are deprecated:
+- Direct agent-to-agent communication
+- Tool usage outside allowed matrix
+- Manual state management
+- Blocking on user input
+
+## 🚨 Error Handling
+
+```typescript
+// @examples/error-handling.ts
+interface ErrorResponse {
+  error_type: string;
+  severity: "warning" | "error" | "critical";
+  action: "retry" | "escalate" | "halt";
+}
+
+const errorHandlers: Record<AgentRole, (error: Error) => ErrorResponse> = {
+  BuilderAgent: handleBuilderError,
+  AuditAgent: handleAuditError,
+  // ... other handlers
+};
+```
+
+## 📋 Example Workflows
+
+### Feature Implementation
+```json
+// @examples/feature-workflow.json
+[
+  {
+    "agentRole": "Overmind",
+    "nextAgent": "ResearchAgent",
+    "handoffMessage": "Research implementation approach"
+  },
+  {
+    "agentRole": "ResearchAgent",
+    "nextAgent": "BuilderAgent",
+    "handoffMessage": "Implement using pattern X"
+  },
+  {
+    "agentRole": "BuilderAgent",
+    "nextAgent": "AuditAgent",
+    "handoffMessage": "Verify implementation"
+  }
+]
+```
+
+### Bug Fix
+```json
+// @examples/bugfix-workflow.json
+[
+  {
+    "agentRole": "Overmind",
+    "nextAgent": "ResearchAgent",
+    "handoffMessage": "Analyze bug report"
+  },
+  {
+    "agentRole": "ResearchAgent",
+    "nextAgent": "BuilderAgent",
+    "handoffMessage": "Fix identified issue"
+  },
+  {
+    "agentRole": "BuilderAgent",
+    "nextAgent": "AuditAgent",
+    "handoffMessage": "Verify fix"
+  }
+]
+``` 

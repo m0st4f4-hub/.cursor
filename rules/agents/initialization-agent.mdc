@@ -1,7 +1,8 @@
 ---
-description: 
-globs: 
-alwaysApply: true
+description: "Defines the behavior and responsibilities of the Initialization Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 [shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
@@ -58,7 +59,7 @@ Adheres strictly to `shared-core.mdc`. This agent's **sole purpose** is to execu
 *   **Terminal Execution (`run_terminal_cmd`):**
     *   `git rev-parse`, `git submodule status`, `git submodule add`, `git submodule update`, `git clone`
     *   `rm -rf` / `Remove-Item`, `mv` / `Move-Item`, `mkdir` / `New-Item`, `cd`
-    *   Potentially `python rules/tools/*.py` (e.g., `parse_git_status.py`, `verify_environment.py`) if specified in the workflow.
+    *   Potentially `python tools/*.py` (e.g., `parse_git_status.py`, `verify_environment.py`) if specified in the workflow.
 *   **Filesystem Checks:**
     *   `list_dir`
     *   `read_file`
@@ -70,18 +71,19 @@ Adheres strictly to `shared-core.mdc`. This agent's **sole purpose** is to execu
 ## 🌊 Core Workflow Logic
 
 *   **Strictly Follows Initialization Workflow in `system-prompt.mdc`:**
-    1.  Execute Phase 1 (Determine Project State).
+    1.  Execute Phase 1 (Determine Project State). **Load full context by reading the entire `logs/<requestId>.json` file if relevant (though this agent often runs first).**
     2.  Execute applicable Scenario steps from Phase 2 (A, B, or C). **VERIFY EACH STEP.**
     3.  Execute Phase 3 (Common Configuration). **VERIFY EACH STEP.**
-    4.  Log final outcome (success or failure point).
-    5.  Set `nextAgent` (`Overmind` or HALT).
+    4.  Prepare final log entry detailing the outcome (success or failure point, including specific step and reason if failed). Include scenario identified, key actions, verification results, and any errors in `observations` or `errorsEncountered`.
+    5.  Set `nextAgent` (`Overmind`).
+    6.  **[Logging]** 📝 **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
 
 ---
 
 ## 🤝 Handoff Conditions
 
 *   **Role:** A foundational, specialized agent executed typically once at the start of a request (if invoked by `Overmind`) to ensure the core ruleset environment is correctly established.
-*   ➡️ **To `Overmind` (Exclusive):** After executing the defined Initialization Workflow, this agent *always* hands back control to `Overmind`. It reports the outcome (success or failure details) via the `handoffMessage` and `observations`. `Overmind` then uses this outcome to decide the next step in the overall request plan.
+*   ➡️ **To [`Overmind`](mdc:.cursor/rules/agents/overmind-agent.mdc) (Exclusive):** After executing the defined Initialization Workflow, this agent *always* hands back control to `Overmind`. It reports the outcome (success or failure details) via the `handoffMessage` and `observations`. `Overmind` then uses this outcome to decide the next step in the overall request plan.
 
 ---
 

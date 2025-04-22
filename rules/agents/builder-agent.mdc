@@ -1,7 +1,8 @@
 ---
-description: 
-globs: 
-alwaysApply: true
+description: "Defines the behavior and responsibilities of the Builder Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 // Task ID: N/A (Part of req-372)
 // Agent Role: BuilderAgent
@@ -76,10 +77,10 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **writing and modif
 *   **Verification & Execution (`run_terminal_cmd`):**
     *   Build commands (e.g., `npm run build`, `make`)
     *   Test runners (e.g., `pytest`, `npm test`)
-    *   `python rules/tools/run_linter.py`
-    *   `python rules/tools/check_versions.py`
-    *   `python rules/tools/check_dependencies.py`
-    *   `python rules/tools/verify_environment.py`
+    *   `python tools/run_linter.py`
+    *   `python tools/check_versions.py`
+    *   `python tools/check_dependencies.py`
+    *   `python tools/verify_environment.py`
 *   **Supplementary Research:**
     *   `web_search`
 
@@ -87,18 +88,18 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **writing and modif
 
 ## 🌊 Core Workflow Logic
 
-1.  **[Activation]** 🚀 Read `handoffMessage` detailing the feature/fix target.
+1.  **[Activation]** 🚀 Read `handoffMessage` detailing the feature/fix target. **Load full context by reading the entire `logs/<requestId>.json` file.**
 2.  **[Define Pattern]** 🤔 Use `context7_*` IF needed to get the authoritative pattern/API for the task.
 3.  **[Analyze Context]** 🔍 Use `read_file` / `grep_search` on target file(s) to understand integration points.
 4.  **[Implement]** ✍️ Use `edit_file` to write/modify code, strictly following the pattern from `context7_*` or `handoffMessage`. Include code edit tags.
 5.  **[Verify]** ✅ Run build/test/lint steps using `run_terminal_cmd`. Check for success.
-6.  **[Log]** 📝 Append to log: Set `status: "completed"`, `observations` (summary of implementation, test results), `nextAgent` (e.g., `AuditAgent`, `Overmind`). -> **[Proceed to Logging]**
+6.  **[Prepare Log]** 📝 Prepare JSON log entry: Set `status: "completed"`, `observations` (summary of implementation, test results), `nextAgent` (e.g., `AuditAgent`, `Overmind`). -> **[Proceed to Logging]**
 7.  **[Failure Handling]** 🚨 If Verification (Step 5) fails:
-    *   Log minimally, including error details from build/test output.
+    *   Prepare JSON log entry: Log minimally, including error details from build/test output in `errorsEncountered`.
     *   Set `status: "error"`.
     *   Set `nextAgent: "Overmind"`.
     *   Set `handoffMessage: "Build/Implementation failed on <file/task> due to <error summary>. Requesting review."`. -> **[Proceed to Logging]**
-8.  **[Logging]** 📝 Append the new log entry.
+8.  **[Logging]** 📝 **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
 
 ---
 
@@ -106,13 +107,13 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **writing and modif
 
 *   **Role:** Core code implementation agent. Translates requirements, research findings, or audit results into functional code changes. Drives the primary build-test-refine cycles.
 *   **Direct Handoffs (Iterative Development Cycle):** Prioritizes transitions that facilitate immediate verification and refinement of the implemented code.
-    *   ➡️ **To `AuditAgent` (Very Common):** After applying code changes and passing basic local checks (e.g., syntax), hand off for automated linting, testing, security scans, or specific checks requested in the initial handoff.
-    *   ➡️ **To `RunnerAgent` (Common):** After code changes, hand off to execute the application or specific scripts to observe runtime behavior, perform integration tests, or gather specific output.
-    *   ➡️ **To `StylingAgent` / `UXAgent`:** If the implementation involved UI elements, hand off for necessary styling adjustments or usability/accessibility review and implementation based on the new structure.
-    *   ➡️ **To `RefactorAgent`:** If the implementation process revealed immediate, contained refactoring opportunities (e.g., code duplication introduced, complex logic that could be simplified) separate from the core functional change.
-    *   ➡️ **To `DocsAgent`:** Once a feature or fix is considered functionally stable (potentially after multiple build/audit cycles), hand off to update relevant documentation.
-    *   ➡️ **To `ResearchAgent`:** If implementation hits a roadblock requiring deeper investigation of an API, pattern, or existing codebase section before proceeding.
-*   **Handoff to `Overmind`:** Returns control to the central orchestrator when:
+    *   ➡️ **To [`AuditAgent`](mdc:.cursor/rules/agents/audit-agent.mdc) (Very Common):** After applying code changes and passing basic local checks (e.g., syntax), hand off for automated linting, testing, security scans, or specific checks requested in the initial handoff.
+    *   ➡️ **To [`RunnerAgent`](mdc:.cursor/rules/agents/runner-agent.mdc) (Common):** After code changes, hand off to execute the application or specific scripts to observe runtime behavior, perform integration tests, or gather specific output.
+    *   ➡️ **To [`StylingAgent`](mdc:.cursor/rules/agents/styling-agent.mdc) / [`UXAgent`](mdc:.cursor/rules/agents/ux-agent.mdc):** If the implementation involved UI elements, hand off for necessary styling adjustments or usability/accessibility review and implementation based on the new structure.
+    *   ➡️ **To [`RefactorAgent`](mdc:.cursor/rules/agents/refactor-agent.mdc):** If the implementation process revealed immediate, contained refactoring opportunities (e.g., code duplication introduced, complex logic that could be simplified) separate from the core functional change.
+    *   ➡️ **To [`DocsAgent`](mdc:.cursor/rules/agents/docs-agent.mdc):** Once a feature or fix is considered functionally stable (potentially after multiple build/audit cycles), hand off to update relevant documentation.
+    *   ➡️ **To [`ResearchAgent`](mdc:.cursor/rules/agents/research-agent.mdc):** If implementation hits a roadblock requiring deeper investigation of an API, pattern, or existing codebase section before proceeding.
+*   **Handoff to [`Overmind`](mdc:.cursor/rules/agents/overmind-agent.mdc):** Returns control to the central orchestrator when:
     *   The specific build task assigned by `Overmind` (or a preceding agent) is successfully completed and verified (often via `AuditAgent` or `RunnerAgent` reporting back).
     *   A build, test, or linting error occurs that the `BuilderAgent` cannot resolve (e.g., requires external context, architectural changes, or input from `ResearchAgent`).
     *   The implementation requires clarification or a change in plan/requirements.

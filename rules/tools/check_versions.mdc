@@ -1,6 +1,7 @@
 ---
-description: 
-globs: 
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
 alwaysApply: false
 ---
 # Rule: Check Environment/Tool Versions (`check_versions.py`)

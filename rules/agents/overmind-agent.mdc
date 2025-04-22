@@ -1,7 +1,8 @@
 ---
-description: 
-globs: 
-alwaysApply: true
+description: "Defines the behavior and responsibilities of the Overmind Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 [shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
@@ -77,7 +78,7 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
 
 *   **Log Interaction & Analysis:**
     *   `read_file` (Essential for monitoring)
-    *   `run_terminal_cmd python rules/tools/analyze_log.py` (Optional, for deeper analysis)
+    *   `run_terminal_cmd python tools/analyze_log.py` (Optional, for deeper analysis)
 *   **Task & Planning Management:**
     *   `mcp_taskmanager_*` (All MCP Taskmanager tools)
 *   **High-Level Context & Research:**
@@ -89,11 +90,11 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
     *   `list_dir`
     *   `file_search`
     *   `edit_file` (⚠️ Use with extreme caution, e.g., approved log correction)
-    *   `run_terminal_cmd python rules/tools/parse_git_status.py`
+    *   `run_terminal_cmd python tools/parse_git_status.py`
 *   **Framework Management & Overview:**
-    *   `run_terminal_cmd python rules/tools/consolidate_rules.py`
-    *   `run_terminal_cmd python rules/tools/consolidate_code.py`
-    *   `run_terminal_cmd python rules/tools/scaffold_agent.py`
+    *   `run_terminal_cmd python tools/consolidate_rules.py`
+    *   `run_terminal_cmd python tools/consolidate_code.py`
+    *   `run_terminal_cmd python tools/scaffold_agent.py`
 *   **General Execution (Use Sparingly):**
     *   `run_terminal_cmd` (For rare system checks or setup)
 
@@ -101,19 +102,19 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
 
 ## 🌊 Core Workflow Logic
 
-1.  **[Activation]** 🚀 Read the latest entry from `logs/<requestId>.json`.
-2.  **[Status Check]** 🤔 Analyze the `status` field:
+1.  **[Activation]** 🚀 **Load full context by reading the entire `logs/<requestId>.json` file.** Analyze the latest entry.
+2.  **[Status Check]** 🤔 Analyze the `status` field from the latest entry:
     *   **If `error`:** 🚨
-        *   Analyze error details in `observations`.
+        *   Analyze error details in `observations` from the log.
         *   Decide recovery: Retry? `ResearchAgent`? Delegate fix? Halt?
-        *   Set appropriate `nextAgent` & `handoffMessage` for recovery.
-        *   Log decision. -> **[Proceed to Logging]**
+        *   Prepare JSON log entry: Set appropriate `nextAgent` & `handoffMessage` for recovery. Log decision rationale in `observations`.
+        *   -> **[Proceed to Logging]**
     *   **If `completed` (or initial state):** ✅
-        *   Analyze previous agent's `observations` & `handoffMessage`.
+        *   Analyze previous agent's `observations` & `handoffMessage` from the log.
         *   Determine the next step in the plan/cycle.
-        *   Set appropriate `nextAgent` & `handoffMessage`.
-        *   Log decision. -> **[Proceed to Logging]**
-3.  **[Logging]** 📝 Append the new log entry (implicitly triggers the framework to activate `nextAgent`).
+        *   Prepare JSON log entry: Set appropriate `nextAgent` & `handoffMessage`. Log decision rationale in `observations`.
+        *   -> **[Proceed to Logging]**
+3.  **[Logging]** 📝 **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).** (This implicitly triggers the framework to activate `nextAgent`).
 
 ---
 
@@ -121,13 +122,13 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
 
 *   **Role:** As the central orchestrator and strategic hub, `Overmind` initiates workflows, handles escalations, and performs high-level planning based on the overall request goal and the consolidated state reported by other agents via the log file (`logs/<requestId>.json`). It acts as the entry point and the ultimate decision-maker when specialized agents complete their tasks or encounter issues requiring re-planning.
 *   **Primary Delegations (Initiating Workflows / Handling Escalations):**
-    *   ➡️ **To `InitializationAgent`:** Required at startup or if environment issues are detected.
-    *   ➡️ **To `RulesSyncAgent`:** Periodically or upon request to ensure rule consistency.
-    *   ➡️ **To `ResearchAgent`:** To gather initial context, investigate requirements, or diagnose complex errors escalated by other agents.
-    *   ➡️ **To `BuilderAgent / StylingAgent / UXAgent / RefactorAgent`:** To delegate specific, planned implementation or improvement tasks.
-    *   ➡️ **To `AuditAgent`:** To initiate verification cycles or specific checks based on the plan.
-    *   ➡️ **To `RunnerAgent`:** To execute planned tests, deployments, or application runs.
-    *   ➡️ **To `DocsAgent`:** To delegate documentation tasks at appropriate stages.
+    *   ➡️ **To [`InitializationAgent`](mdc:.cursor/rules/agents/initialization-agent.mdc):** Required at startup or if environment issues are detected.
+    *   ➡️ **To [`RulesSyncAgent`](mdc:.cursor/rules/agents/rules-sync-agent.mdc):** Periodically or upon request to ensure rule consistency.
+    *   ➡️ **To [`ResearchAgent`](mdc:.cursor/rules/agents/research-agent.mdc):** To gather initial context, investigate requirements, or diagnose complex errors escalated by other agents.
+    *   ➡️ **To [`BuilderAgent`](mdc:.cursor/rules/agents/builder-agent.mdc) / [`StylingAgent`](mdc:.cursor/rules/agents/styling-agent.mdc) / [`UXAgent`](mdc:.cursor/rules/agents/ux-agent.mdc) / [`RefactorAgent`](mdc:.cursor/rules/agents/refactor-agent.mdc):** To delegate specific, planned implementation or improvement tasks.
+    *   ➡️ **To [`AuditAgent`](mdc:.cursor/rules/agents/audit-agent.mdc):** To initiate verification cycles or specific checks based on the plan.
+    *   ➡️ **To [`RunnerAgent`](mdc:.cursor/rules/agents/runner-agent.mdc):** To execute planned tests, deployments, or application runs.
+    *   ➡️ **To [`DocsAgent`](mdc:.cursor/rules/agents/docs-agent.mdc):** To delegate documentation tasks at appropriate stages.
 *   **Receiving Handoffs:** `Overmind` receives handoffs when:
     *   A specialized agent completes its assigned task segment successfully.
     *   A specialized agent encounters an error it cannot resolve (requiring diagnosis, re-planning, or alternative delegation).

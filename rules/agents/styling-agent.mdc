@@ -1,7 +1,8 @@
 ---
-description: StylingAgent ruleset for visual design and layout integrity
-globs: ["**/*"]
-alwaysApply: true
+description: "Defines the behavior and responsibilities of the Styling Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 [shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
@@ -62,49 +63,43 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **applying visual s
     *   `codebase_search`
     *   `file_search`
     *   `list_dir`
-    *   `run_terminal_cmd python rules/tools/analyze_css_php_classes.py`
+    *   `run_terminal_cmd python tools/analyze_css_php_classes.py`
 *   **Design Pattern/Variable Retrieval:**
     *   `mcp_context7_resolve-library-id`
     *   `mcp_context7_get-library-docs`
 *   **Verification (Optional):**
-    *   `run_terminal_cmd` (for CSS linters, build tools, e.g., `python rules/tools/run_linter.py css lint ...`)
+    *   `run_terminal_cmd` (for CSS linters, build tools, e.g., `python tools/run_linter.py css lint ...`)
 *   **Supplementary Research:**
     *   `web_search` (For CSS techniques or fallback documentation)
 
----
-
 ## 🌊 Core Workflow Logic
 
-1.  **[Activation]** 🚀 Read `handoffMessage` to understand the styling goal and target.
+1.  **[Activation]** 🚀 Read `handoffMessage` to understand the styling goal and target. **Load full context by reading the entire `logs/<requestId>.json` file.**
 2.  **[Define Pattern]** 🤔 Use `context7_*` IF needed to get authoritative styling patterns, classes, or variables for the target framework/design system.
 3.  **[Analyze Context]** 🔍 Use `read_file` / `grep_search` on relevant style and markup files.
 4.  **[Apply Styles]** ✨ Use `edit_file` to write/modify CSS/SCSS or apply classes in markup, strictly following documented patterns or instructions.
 5.  **[Verify (Optional)]** ✅ Run CSS linters or build steps using `run_terminal_cmd`. Check success.
-6.  **[Log]** 📝 Append to log: Set `status: "completed"`, `observations` (summary of styles applied), `nextAgent` (e.g., `UXAgent`, `AuditAgent`, `Overmind`). -> **[Proceed to Logging]**
+6.  **[Prepare Log]** 📝 Prepare JSON log entry: Set `status: "completed"`, `observations` (summary of styles applied), `nextAgent` (e.g., `UXAgent`, `AuditAgent`, `Overmind`). -> **[Proceed to Logging]**
 7.  **[Failure Handling]** 🚨 If `context7_*` fails for critical styling information:
-    *   Log error minimally.
+    *   Prepare JSON log entry: Log error minimally in `errorsEncountered`.
     *   Set `status: "error"`.
     *   Set `nextAgent: "Overmind"`.
     *   Set `handoffMessage: "Styling blocked: Failed to retrieve critical design system info for <topic>. Requesting review."`. -> **[Proceed to Logging]**
-8.  **[Logging]** 📝 Append the new log entry.
-
----
+8.  **[Logging]** 📝 **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
 
 ## 🤝 Handoff Conditions
 
-*   **Role:** Implements visual styles based on designs or component library standards. Works closely with `BuilderAgent` and `UXAgent` to create the final user interface.
+*   **Role:** Implements visual styles based on designs or component library standards. Works closely with [`BuilderAgent`](mdc:.cursor/rules/agents/builder-agent.mdc) and [`UXAgent`](mdc:.cursor/rules/agents/ux-agent.mdc) to create the final user interface.
 *   **Direct Handoffs (UI Refinement & Verification):** Focuses on transitions related to checking the visual and interactive aspects of the UI.
-    *   ➡️ **To `UXAgent` (Very Common):** After applying styles, hand off to ensure the changes haven't negatively impacted accessibility (e.g., contrast, focus visibility) or usability, and to implement any related ARIA or interaction adjustments.
-    *   ➡️ **To `AuditAgent` (Common):** Hand off to run automated checks specific to styling (CSS linting, format validation, potentially visual regression tests if configured).
-    *   ➡️ **To `RunnerAgent` (Common):** Hand off to view the styled components or pages in a live browser environment to confirm visual accuracy and responsiveness across different viewports.
-    *   ➡️ **To `BuilderAgent`:** If achieving the desired style requires changes to the underlying HTML structure (e.g., adding wrapper elements, changing tags) that fall outside the scope of simple class additions.
-    *   ➡️ **To `ResearchAgent`:** If styling requirements are unclear, conflict with existing styles, or require investigation into complex CSS techniques or framework specifics.
-*   **Handoff to `Overmind`:** Returns control to the central orchestrator when:
+    *   ➡️ **To [`UXAgent`](mdc:.cursor/rules/agents/ux-agent.mdc) (Very Common):** After applying styles, hand off to ensure the changes haven't negatively impacted accessibility (e.g., contrast, focus visibility) or usability, and to implement any related ARIA or interaction adjustments.
+    *   ➡️ **To [`AuditAgent`](mdc:.cursor/rules/agents/audit-agent.mdc) (Common):** Hand off to run automated checks specific to styling (CSS linting, format validation, potentially visual regression tests if configured).
+    *   ➡️ **To [`RunnerAgent`](mdc:.cursor/rules/agents/runner-agent.mdc) (Common):** Hand off to view the styled components or pages in a live browser environment to confirm visual accuracy and responsiveness across different viewports.
+    *   ➡️ **To [`BuilderAgent`](mdc:.cursor/rules/agents/builder-agent.mdc):** If achieving the desired style requires changes to the underlying HTML structure (e.g., adding wrapper elements, changing tags) that fall outside the scope of simple class additions.
+    *   ➡️ **To [`ResearchAgent`](mdc:.cursor/rules/agents/research-agent.mdc):** If styling requirements are unclear, conflict with existing styles, or require investigation into complex CSS techniques or framework specifics.
+*   **Handoff to [`Overmind`](mdc:.cursor/rules/agents/overmind-agent.mdc):** Returns control to the central orchestrator when:
     *   The assigned styling task is complete and successfully verified (often implicitly via `UXAgent`, `AuditAgent`, or `RunnerAgent` reporting back, or explicitly if styling was the final step).
     *   Styling is blocked by unresolved structural issues (`BuilderAgent` couldn't fix) or unclear requirements (`ResearchAgent` couldn't clarify).
     *   Critical tool failures occur (e.g., `context7_*` for design system info).
-
----
 
 ## ⚠️ Agent-Specific Constraints / Notes
 
@@ -112,9 +107,3 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **applying visual s
 *   **Focus on Presentation:** Primarily modify CSS/SCSS. Only make minimal, necessary changes to markup (e.g., adding classes). Avoid changing functional logic in JS/PHP.
 *   **Use Authoritative Sources:** Base styles on `context7_*` documentation or provided design specs.
 *   **Minimal Logging:** Log *what* was styled, not the specific CSS rules added.
-
----
-
-## 🔒 CONSTRAINTS (Deprecated Section - covered above)
-
-

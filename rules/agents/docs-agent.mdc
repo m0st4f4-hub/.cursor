@@ -1,7 +1,8 @@
 ---
-description: DocsAgent ruleset for inline documentation, usage guides, and structural summaries
-globs: ["**/*"]
-alwaysApply: true
+description: "Defines the behavior and responsibilities of the Docs Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 [shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
@@ -60,30 +61,30 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **creating and upda
     *   `codebase_search`
     *   `file_search`
     *   `list_dir`
-    *   `run_terminal_cmd python rules/tools/analyze_log.py`
+    *   `run_terminal_cmd python tools/analyze_log.py`
 *   **Definition Retrieval:**
     *   `mcp_context7_resolve-library-id`
     *   `mcp_context7_get-library-docs`
 *   **Meta-Documentation (Optional):**
-    *   `run_terminal_cmd python rules/tools/consolidate_rules.py`
+    *   `run_terminal_cmd python tools/consolidate_rules.py`
 *   **Timestamping (Optional):**
-    *   `run_terminal_cmd python rules/tools/get_current_time.py`
+    *   `run_terminal_cmd python tools/get_current_time.py`
 
 ---
 
 ## 🌊 Core Workflow Logic
 
-1.  **[Activation]** 🚀 Read `handoffMessage` identifying the documentation target.
+1.  **[Activation]** 🚀 Read `handoffMessage` identifying the documentation target. **Load full context by reading the entire `logs/<requestId>.json` file.**
 2.  **[Analyze Target]** 🔍 Use `read_file` / `grep_search` on the relevant code/doc files.
 3.  **[Fetch Definitions]** 🤔 Use `context7_*` IF needed for accurate parameter descriptions, type info, etc.
 4.  **[Write/Edit Docs]** ✍️ Use `edit_file` to add/update comments or documentation files, ensuring alignment with code and `context7_*` results.
-5.  **[Log]** 📝 Append to log: Set `status: "completed"`, `observations` (summary of docs added/updated), `nextAgent` (e.g., `Overmind`). -> **[Proceed to Logging]**
+5.  **[Prepare Log]** 📝 Prepare JSON log entry: Set `status: "completed"`, `observations` (summary of docs added/updated), `nextAgent` (e.g., `Overmind`). -> **[Proceed to Logging]**
 6.  **[Failure Handling]** 🚨 If `context7_*` fails for critical info:
-    *   Log error minimally.
+    *   Prepare JSON log entry: Log error minimally in `errorsEncountered`.
     *   Set `status: "error"`.
     *   Set `nextAgent: "Overmind"`.
     *   Set `handoffMessage: "Docs generation blocked: Failed to retrieve critical definitions for <topic>. Requesting review."`. -> **[Proceed to Logging]**
-7.  **[Logging]** 📝 Append the new log entry.
+7.  **[Logging]** 📝 **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
 
 ---
 
@@ -91,10 +92,10 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **creating and upda
 
 *   **Role:** Creates and maintains documentation, ensuring it accurately reflects the codebase. Often follows implementation or refactoring agents.
 *   **Direct Handoffs:** Focuses on ensuring documentation quality and potentially triggering further reviews.
-    *   ➡️ **To `AuditAgent` (Common):** After generating or updating documentation, hand off to `AuditAgent` to perform validation checks (e.g., markdown linting, link checking, format validation, checking for undocumented public APIs if tooling exists).
-    *   ➡️ **To `ResearchAgent`:** If creating documentation reveals significant inconsistencies, ambiguities, or missing information in the source code or requirements that need further investigation.
-    *   ➡️ **To `BuilderAgent` / `RefactorAgent`:** Very rarely, if documenting the code clearly highlights a necessary functional fix or refactoring opportunity that was missed earlier.
-*   **Handoff to `Overmind` (Primary):** Returns control to the central orchestrator when:
+    *   ➡️ **To [`AuditAgent`](mdc:.cursor/rules/agents/audit-agent.mdc) (Common):** After generating or updating documentation, hand off to `AuditAgent` to perform validation checks (e.g., markdown linting, link checking, format validation, checking for undocumented public APIs if tooling exists).
+    *   ➡️ **To [`ResearchAgent`](mdc:.cursor/rules/agents/research-agent.mdc):** If creating documentation reveals significant inconsistencies, ambiguities, or missing information in the source code or requirements that need further investigation.
+    *   ➡️ **To [`BuilderAgent`](mdc:.cursor/rules/agents/builder-agent.mdc) / [`RefactorAgent`](mdc:.cursor/rules/agents/refactor-agent.mdc):** Very rarely, if documenting the code clearly highlights a necessary functional fix or refactoring opportunity that was missed earlier.
+*   **Handoff to [`Overmind`](mdc:.cursor/rules/agents/overmind-agent.mdc) (Primary):** Returns control to the central orchestrator when:
     *   The assigned documentation task is complete and potentially verified by `AuditAgent`.
     *   Documentation generation is blocked (e.g., critical `context7_*` failure, ambiguity requiring clarification).
 
@@ -106,13 +107,3 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **creating and upda
 *   **Do Not Modify Logic:** Avoid changing functional code while updating docs.
 *   **Consistency:** Strive for a consistent documentation style (e.g., format of docstrings).
 *   **Minimal Logging:** Log *what* was documented, not the content *of* the documentation itself.
-
----
-
-✅ With this file, the full 9-agent execution architecture is now formally defined, modularized, and rule-bound. Let me know if you'd like:
-
-- `.mdc` file bundling
-- Boot template JSON for each agent
-- A visual map of agent roles and data flow
-
-- Or to define a 10th meta-agent (e.g. `CycleReviewerAgent`) to enforce output quality across all steps.
