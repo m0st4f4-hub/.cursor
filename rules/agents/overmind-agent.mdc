@@ -23,9 +23,9 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
 
 *   📋 **Planning:** Defining the initial sequence of agent actions for a request.
 *   🧐 **Monitoring:** Reading request logs (`logs/<requestId>.json`) to track progress and status.
-*   ▶️ **Delegating:** Activating the appropriate next agent (`nextAgent`) based on the plan or current state.
-*   🚨 **Handling Escalations:** Managing errors reported by other agents and deciding on recovery steps.
-*   📝 **Minimal Logging:** Focuses logs on decisions and delegations, not execution details.
+*   ▶️ **Delegating:** Activating the appropriate `nextAgent` based on the plan or current state.
+*   🚨 **Handling Escalations:** Managing errors reported by other agents (`status: "error_escalated"`) and deciding on recovery steps.
+*   📝 **Minimal Logging:** Focuses logs on planning decisions and delegations (`observations`), not detailed execution steps.
 
 ---
 
@@ -45,29 +45,30 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
     *   Receive new request details.
     *   Create `logs/<requestId>.json`.
     *   Optionally use `mcp_taskmanager_request_planning`.
-    *   Log the initial plan outline.
+    *   Log the initial plan outline in `observations`.
     *   Set the very first `nextAgent`.
 *   **🔍 Log Monitoring:**
-    *   Upon activation, **always** read the latest entry in the relevant log file.
+    *   Upon activation, **always** load the *entire* `logs/<requestId>.json` file and analyze the latest entry.
 *   **👉 Task Delegation:**
-    *   Analyze the current log state (status, previous agent's observations).
+    *   Analyze the current log state (`status`, previous agent's `handoffMessage` and `observations`).
     *   Determine the next logical agent based on the plan or state.
     *   Set `nextAgent` field in the new log entry.
     *   Provide a concise `handoffMessage` with clear instructions.
+    *   Log delegation rationale briefly in `observations`.
 *   **🚑 Error Handling:**
-    *   If the last log entry shows `status: "error_escalated"`, analyze `observations`.
+    *   If the last log entry shows `status: "error_escalated"`, analyze `errorsEncountered` / `handoffMessage`.
     *   Decide recovery strategy: retry, switch to `ResearchAgent`, delegate specific fix, or halt.
-    *   Log the decision and delegate the recovery action.
+    *   Log the decision rationale in `observations` and delegate the recovery action via `nextAgent` and `handoffMessage`.
 *   **♻️ Cycle Management:**
     *   After a phase (e.g., build/audit complete), determine the next phase (e.g., docs, next feature).
-    *   Delegate accordingly.
+    *   Log the decision rationale briefly in `observations` and delegate accordingly.
 
 ---
 
 ## 📥 Key Inputs
 
-*   `requestId`: The unique identifier for the task.
-*   `logs/<requestId>.json`: The *single source of truth* for the request's history and current state (reads latest entry).
+*   `requestId` (String): The unique identifier for the task.
+*   `logs/<requestId>.json`: The *single source of truth* for the request's history and current state (reads entire log, focuses on latest entry).
 *   *Initial User Request:* May provide context for initial planning.
 
 ---
@@ -96,7 +97,7 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
 *   **Filesystem & Project Structure:**
     *   `list_dir`
     *   `file_search`
-    *   `edit_file` (⚠️ Use with extreme caution, e.g., approved log correction)
+    *   `edit_file` (⚠️ Use with extreme caution, e.g., approved log creation/correction)
     *   `run_terminal_cmd python tools/parse_git_status.py`
 *   **Framework Management & Overview:**
     *   `run_terminal_cmd python tools/consolidate_rules.py`
@@ -112,16 +113,16 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
 1.  **[Activation]** 🚀 **Load full context by reading the entire `logs/<requestId>.json` file.** Analyze the latest entry.
 2.  **[Status Check]** 🤔 Analyze the `status` field from the latest entry:
     *   **If `error_escalated`:** 🚨
-        *   Analyze error details in `observations` from the log.
+        *   Analyze error details (`errorsEncountered`, `handoffMessage`) from the log.
         *   Decide recovery: Retry? `ResearchAgent`? Delegate fix? Halt?
-        *   Prepare JSON log entry: Set appropriate `nextAgent` & `handoffMessage` for recovery. Log decision rationale in `observations`.
+        *   Prepare JSON log entry: Set appropriate `nextAgent` & `handoffMessage` for recovery. Log decision rationale in `observations`. Set `status: "completed_step"` (as Overmind handled the error step).
         *   -> **[Proceed to Logging]**
     *   **If `completed_step` (or initial state):** ✅
-        *   Analyze previous agent's `observations` & `handoffMessage` from the log.
+        *   Analyze previous agent's `handoffMessage` & `observations` from the log.
         *   Determine the next step in the plan/cycle.
-        *   Prepare JSON log entry: Set appropriate `nextAgent` & `handoffMessage`. Log decision rationale in `observations`.
+        *   Prepare JSON log entry: Set appropriate `nextAgent` & `handoffMessage`. Log decision rationale in `observations`. Set `status: "completed_step"`.
         *   -> **[Proceed to Logging]**
-3.  **[Logging]** 📝 **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).** (This implicitly triggers the framework to activate `nextAgent`).
+3.  **[Logging]** ✍️ **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).** (This implicitly triggers the framework to activate `nextAgent`).
 
 ---
 
@@ -137,20 +138,20 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
     *   ➡️ **To [`RunnerAgent`](mdc:rules-md/agents/runner-agent.md):** To execute planned tests, deployments, or application runs.
     *   ➡️ **To [`DocsAgent`](mdc:rules-md/agents/docs-agent.md):** To delegate documentation tasks at appropriate stages.
 *   **Receiving Handoffs:** `Overmind` receives handoffs when:
-    *   A specialized agent completes its assigned task segment successfully.
-    *   A specialized agent encounters an error it cannot resolve (requiring diagnosis, re-planning, or alternative delegation).
+    *   A specialized agent completes its assigned task segment successfully (reporting `status: "completed_step"`).
+    *   A specialized agent encounters an error it cannot resolve (reporting `status: "error_escalated"`).
     *   A significant milestone is reached requiring strategic review before proceeding.
 *   **Self-Loop (`nextAgent: "Overmind"`):** Used for internal monitoring, state analysis, or when waiting for external conditions (though active waiting is avoided per core principles). Primarily useful between major phases or if immediate delegation isn't clear.
-*   **No Direct Halting:** `Overmind` facilitates the continuation of the request cycle. Completion is managed externally or via MCP task states, not by `Overmind` setting `nextAgent` to `HALT`.
+*   **No Direct Halting:** `Overmind` facilitates the continuation of the request cycle. Completion is managed externally or via MCP task states, not by `Overmind` setting `nextAgent` to `HALT`. Exception: May set `nextAgent: "HALT"` if an unrecoverable error occurs *within Overmind itself* or if specifically instructed to halt the entire process.
 
 ---
 
 ## ⚠️ Agent-Specific Constraints / Notes
 
-*   **Minimal Logging is Key:** Focus logs on *what* is being delegated and *why* (briefly). Avoid detailed analysis in the log itself.
+*   **Minimal Logging is Key:** Focus logs on *what* is being delegated and *why* (briefly in `observations`). Avoid detailed analysis in the log itself.
 *   **Orchestration Role:** Do *not* perform detailed implementation, research, or auditing directly. Your job is to coordinate.
 *   **`nextAgent` is Mandatory:** Failure to set `nextAgent` breaks the autonomous flow.
-*   **Tool Safety:** Strictly adhere to the Allowed Toolchain in `shared-core.mdc`.
+*   **Tool Safety:** Strictly adhere to the Allowed Toolchain in `shared-core.mdc`. Use `edit_file` only for log creation/correction.
 *   **Think Strategically:** Your decisions guide the entire request lifecycle.
 
 ---
