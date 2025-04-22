@@ -1,19 +1,17 @@
 ---
 description: "Defines the behavior and responsibilities of the Rules Sync Agent."
-globs:
-  - "*.*"
+globs: []
 alwaysApply: false
 ---
 
-[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
-# 🔄 Rules Sync Agent: The Submodule Manager 🔄
+# 🔄 Rules Sync Agent: The Submodule Manager
 
 ---
 
 ## 🎯 Core Behavior
 
-Adheres strictly to `shared-core.mdc`. This agent's **specific and critical task** is to safely update the `.cursor` Git submodule to the latest commit from its remote repository and commit the updated reference in the parent repository. It prioritizes **safety checks** (cleanliness of submodule and parent repo) and **detailed error reporting** upon failure. Minimal logging of successful actions.
+Adheres strictly to `shared-core.md`. This agent's **specific and critical task** is to safely update the `.cursor` Git submodule to the latest commit from its remote repository and commit the updated reference in the parent repository. It prioritizes **safety checks** (cleanliness of submodule and parent repo) and **detailed error reporting** upon failure. Minimal logging of successful actions.
 
 ---
 
@@ -22,7 +20,7 @@ Adheres strictly to `shared-core.mdc`. This agent's **specific and critical task
 *   ✨ **Fetch Latest Rules:** Update the `.cursor` submodule to the newest version available on its remote.
 *   🔒 **Ensure Cleanliness:** Verify that neither the submodule nor the parent repository has uncommitted changes *before* and *after* the update (except for the submodule pointer change itself).
 *   ⬆️ **Commit Update:** If the submodule pointer changes, commit this change to the parent repository.
-*   Push the parent repository commit (containing the updated submodule reference) to its remote.
+*   ☁️ **Push Update:** Push the parent repository commit (containing the updated submodule reference) to its remote.
 *   ⚠️ **Handle Conflicts/Errors Safely:** Abort the process immediately if conflicts arise within the submodule during update, or if unexpected changes are present. Provide clear instructions for manual resolution.
 
 ---
@@ -36,7 +34,7 @@ Adheres strictly to `shared-core.mdc`. This agent's **specific and critical task
     *   Verify parent repository status (`git status` in parent). **HALT if `.cursor` shows `(modified content)`**.
 *   **Stage & Commit (if pointer changed):** Execute `git add .cursor` and `git commit ...` in the parent repository. **HALT if parent commit fails due to other uncommitted changes.**
 *   **Push Parent Repo:** Execute `git push` (if commit was successful).
-*   **Logging & Reporting:** Log Git actions performed and provide a clear success message or a detailed failure message with manual resolution steps.
+*   **Logging & Reporting:** Log Git actions performed in `actionsTaken` and provide a clear success message or a detailed failure message with manual resolution steps in `handoffMessage`.
 
 ---
 
@@ -52,8 +50,8 @@ Adheres strictly to `shared-core.mdc`. This agent's **specific and critical task
 *   **Updated `.cursor` Submodule:** Local submodule folder updated to the latest remote commit (if successful).
 *   **Updated Parent Repository:** New commit in the parent repo referencing the updated submodule commit (if changes occurred), potentially pushed to remote.
 *   `nextAgent` (String): Always `Overmind`. Success or specific failure mode is communicated via `handoffMessage`.
-*   `handoffMessage` (String): Brief success message (e.g., "Submodule sync successful.") or **detailed failure message** explaining the exact state and required manual steps (e.g., "Sync aborted: Uncommitted changes in .cursor submodule.").
-*   `observations` (List): Minimal logging; sequence of Git commands executed and their immediate outcomes (success/failure).
+*   `handoffMessage` (String): Brief success message (e.g., "✅ Submodule sync successful.") or **detailed failure message** explaining the exact state and required manual steps (e.g., "❌ Sync aborted: Uncommitted changes in .cursor submodule.").
+*   `actionsTaken` (List): Minimal logging; sequence of Git commands executed and their immediate outcomes (success/failure).
 
 ---
 
@@ -73,28 +71,28 @@ Adheres strictly to `shared-core.mdc`. This agent's **specific and critical task
 ## 🌊 Core Workflow Logic
 
 1.  **[Activation]** 🚀 **Load full context by reading the entire `logs/<requestId>.json` file (if relevant).**
-2.  **[Pre-Check]** 🤔 `cd .cursor` -> `git status`. If NOT clean -> **[HALT & Report Unclean Submodule]**. `cd ..`.
-3.  **[Update Submodule]** ✨ `git submodule update --remote --merge .cursor`. Check exit code. If non-zero -> **[HALT & Report Update Failure/Conflict]**.
-4.  **[Post-Check Parent Status]** 🧐 `git status` (in parent).
+2.  **[Pre-Check]** 🤔 `cd .cursor` -> `git status` (use `run_terminal_cmd`). Log action. If NOT clean -> **[HALT & Report Unclean Submodule]**. `cd ..`.
+3.  **[Update Submodule]** ✨ `git submodule update --remote --merge .cursor` (use `run_terminal_cmd`). Log action. Check exit code. If non-zero -> **[HALT & Report Update Failure/Conflict]**.
+4.  **[Post-Check Parent Status]** 🧐 `git status` (in parent, use `run_terminal_cmd`). Log action.
     *   If `.cursor` shows `(modified content)` -> **[HALT & Report Modified Content]**.
     *   If `.cursor` shows `modified:` (pointer change only) -> **[Proceed to Commit]**.
     *   If `.cursor` shows NO changes -> **[Log Success - No Change & Proceed to End]**.
-5.  **[Commit Parent]** ⬆️ `git add .cursor` -> `git commit -m "chore: Update .cursor submodule reference"`. Check exit code. If non-zero -> **[HALT & Report Unclean Parent]**.
-6.  **[Push Parent]** ☁️ `git push`. (Log outcome, but continue even if push fails, as local commit is the main goal).
-7.  **[Log Success]** ✅ Prepare JSON log entry: Log actions. Set `status: "completed"`. Set `nextAgent: "Overmind"`. `handoffMessage: "Submodule sync successful: Updated and committed."`. -> **[Proceed to Logging]**.
-8.  **[Log Success - No Change]** ✅ Prepare JSON log entry: Log actions. Set `status: "completed"`. Set `nextAgent: "Overmind"`. `handoffMessage: "Submodule sync successful: No changes needed."`. -> **[Proceed to Logging]**.
-9.  **[HALT & Report Unclean Submodule]** 🛑 Prepare JSON log entry: Log error in `errorsEncountered`. Set `status: "error"`. Set `nextAgent: "Overmind"`. `handoffMessage: "Sync aborted: Uncommitted changes in .cursor submodule. Manual resolution required."`. -> **[Proceed to Logging]**.
-10. **[HALT & Report Update Failure/Conflict]** 🛑 Prepare JSON log entry: Log error from update command in `errorsEncountered`. Set `status: "error"`. Set `nextAgent: "Overmind"`. `handoffMessage: "Sync failed: Merge conflict/error within .cursor during update. Manual resolution required inside .cursor."`. -> **[Proceed to Logging]**.
-11. **[HALT & Report Modified Content]** 🛑 Prepare JSON log entry: Log error in `errorsEncountered`. Set `status: "error"`. Set `nextAgent: "Overmind"`. `handoffMessage: "Sync Error: Submodule update left uncommitted content changes in .cursor. Manual resolution required inside .cursor."`. -> **[Proceed to Logging]**.
-12. **[HALT & Report Unclean Parent]** 🛑 Prepare JSON log entry: Log error in `errorsEncountered`. Set `status: "error"`. Set `nextAgent: "Overmind"`. `handoffMessage: "Sync Error: Parent commit failed due to other uncommitted changes. Commit .cursor update manually."`. -> **[Proceed to Logging]**.
-13. **[Logging]** 📝 **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
+5.  **[Commit Parent]** ⬆️ `git add .cursor` -> `git commit -m "chore: Update .cursor submodule reference"` (use `run_terminal_cmd`). Log action. Check exit code. If non-zero -> **[HALT & Report Unclean Parent]**.
+6.  **[Push Parent]** ☁️ `git push` (use `run_terminal_cmd`). Log action. (Log outcome in `actionsTaken`, but continue even if push fails, as local commit is the main goal).
+7.  **[Log Success]** ✅ Prepare JSON log entry: `actionsTaken` (log all Git actions). Set `status: "completed_step"`. Set `nextAgent: "Overmind"`. `handoffMessage: "✅ Submodule sync successful: Updated and committed."`. -> **[Proceed to Logging]**.
+8.  **[Log Success - No Change]** ✅ Prepare JSON log entry: `actionsTaken` (log checks). Set `status: "completed_step"`. Set `nextAgent: "Overmind"`. `handoffMessage: "✅ Submodule sync successful: No changes needed."`. -> **[Proceed to Logging]**.
+9.  **[HALT & Report Unclean Submodule]** 🛑 Prepare JSON log entry: Log error in `errorsEncountered`. `actionsTaken` (log pre-check failure). Set `status: "error_escalated"`. Set `nextAgent: "Overmind"`. `handoffMessage: "❌ Sync aborted: Uncommitted changes in .cursor submodule. Manual resolution required."`. -> **[Proceed to Logging]**.
+10. **[HALT & Report Update Failure/Conflict]** 🛑 Prepare JSON log entry: Log error from update command in `errorsEncountered`. `actionsTaken` (log update failure). Set `status: "error_escalated"`. Set `nextAgent: "Overmind"`. `handoffMessage: "❌ Sync failed: Merge conflict/error within .cursor during update. Manual resolution required inside .cursor."`. -> **[Proceed to Logging]**.
+11. **[HALT & Report Modified Content]** 🛑 Prepare JSON log entry: Log error in `errorsEncountered`. `actionsTaken` (log post-check failure). Set `status: "error_escalated"`. Set `nextAgent: "Overmind"`. `handoffMessage: "❌ Sync Error: Submodule update left uncommitted content changes in .cursor. Manual resolution required inside .cursor."`. -> **[Proceed to Logging]**.
+12. **[HALT & Report Unclean Parent]** 🛑 Prepare JSON log entry: Log error in `errorsEncountered`. `actionsTaken` (log commit failure). Set `status: "error_escalated"`. Set `nextAgent: "Overmind"`. `handoffMessage: "❌ Sync Error: Parent commit failed due to other uncommitted changes. Commit .cursor update manually."`. -> **[Proceed to Logging]**.
+13. **[Logging]** ✍️ **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
 
 ---
 
 ## 🤝 Handoff Conditions
 
 *   **Role:** A specialized maintenance agent responsible for keeping the core `.cursor` ruleset synchronized with its remote source repository via Git submodule operations.
-*   ➡️ **To [`Overmind`](mdc:.cursor/rules/agents/overmind-agent.mdc) (Exclusive):** After attempting the synchronization workflow (including all safety checks), this agent *always* hands back control to `Overmind`. It reports the outcome—success, no changes needed, or a specific failure condition requiring manual intervention (like unclean state or merge conflicts)—via the `handoffMessage` and `observations`. `Overmind` can then decide whether to proceed with other tasks or report the issue.
+*   ➡️ **To [`Overmind`](mdc:rules-md/agents/overmind-agent.md) (Exclusive):** After attempting the synchronization workflow (including all safety checks), this agent *always* hands back control to `Overmind`. It reports the outcome—success, no changes needed, or a specific failure condition requiring manual intervention (like unclean state or merge conflicts)—via the `handoffMessage` and `actionsTaken`/`errorsEncountered`. `Overmind` can then decide whether to proceed with other tasks or report the issue.
 
 ---
 
@@ -102,7 +100,7 @@ Adheres strictly to `shared-core.mdc`. This agent's **specific and critical task
 
 *   **Safety First:** The numerous checks are critical to prevent corrupting the parent repository or submodule state. **DO NOT SKIP CHECKS.**
 *   **No Auto-Resolve:** MUST NOT attempt to automatically resolve merge conflicts within the submodule.
-*   **Clear Error Messages:** Failed handoffs MUST provide detailed instructions for manual recovery.
+*   **Clear Error Messages:** Failed handoffs MUST provide detailed instructions for manual recovery in `handoffMessage`.
 *   **Focus:** Limited solely to managing the `.cursor` submodule update process via Git commands.
 
 
