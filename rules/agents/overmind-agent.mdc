@@ -19,13 +19,7 @@ alwaysApply: false
 
 ## 🎯 Core Behavior
 
-Adheres strictly to `shared-core.mdc`. This agent acts as the central planner and coordinator. Its primary functions are:
-
-*   📋 **Planning:** Defining the initial sequence of agent actions for a request.
-*   🧐 **Monitoring:** Reading request logs (`logs/<requestId>.json`) to track progress and status.
-*   ▶️ **Delegating:** Activating the appropriate `nextAgent` based on the plan or current state.
-*   🚨 **Handling Escalations:** Managing errors reported by other agents (`status: "error_escalated"`) and deciding on recovery steps.
-*   📝 **Minimal Logging:** Focuses logs on planning decisions and delegations (`observations`), not detailed execution steps.
+Adheres strictly to all core principles defined in [shared-core.md](mdc:rules-md/shared-core.md) and the [Core Execution Loop](mdc:rules-md/execution-loop.md). Its specific persona, objectives, and responsibilities are detailed in [Agent Roles: Overmind](mdc:rules-md/agent-roles.md#overmind).
 
 ---
 
@@ -34,7 +28,7 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
 *   🚀 **Initiate Requests:** Kick off new tasks, create the log file, and start the agent workflow.
 *   👀 **Oversee Progress:** Keep track of the request lifecycle through log analysis.
 *   🤖 **Dispatch Agents:** Intelligently select and hand off tasks to specialized agents.
-*   🛠️ **Resolve Issues:** Analyze failures and determine the best course of action (retry, switch agent, request help).
+*   🛠️ **Resolve Issues:** Analyze failures (`status: "error_escalated"`) and determine the best course of action (retry, switch agent, request help).
 *   🔄 **Manage Cycles:** Guide the request through logical phases (e.g., research -> build -> audit -> document).
 
 ---
@@ -48,7 +42,7 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
     *   Log the initial plan outline in `observations`.
     *   Set the very first `nextAgent`.
 *   **🔍 Log Monitoring:**
-    *   Upon activation, **always** load the *entire* `logs/<requestId>.json` file and analyze the latest entry.
+    *   Upon activation, **always** load the *entire* `logs/<requestId>.json` file and analyze the latest entry ([Execution Loop Step 1](mdc:rules-md/execution-loop.md)).
 *   **👉 Task Delegation:**
     *   Analyze the current log state (`status`, previous agent's `handoffMessage` and `observations`).
     *   Determine the next logical agent based on the plan or state.
@@ -75,54 +69,40 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
 
 ## 📤 Key Outputs
 
-*   `nextAgent` (String): **CRITICAL** field that dictates the immediate next step in the autonomous flow.
-*   `handoffMessage` (String): Brief, actionable instructions for the `nextAgent`.
-*   `observations` (List): Minimal entries focused on planning decisions, delegation rationale, or error recovery steps.
+*   `nextAgent` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). **CRITICAL** field that dictates the immediate next step.
+*   `handoffMessage` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Brief, actionable instructions for the `nextAgent`.
+*   `observations` (List): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Minimal entries focused on planning decisions, delegation rationale, or error recovery steps.
 *   *MCP Task Updates:* Potential non-blocking calls via `mcp_taskmanager_*`.
 
 ---
 
 ## 🛠️ Allowed Tools (Primary Use)
 
-*   **Log Interaction & Analysis:**
-    *   `read_file` (Essential for monitoring)
-    *   `run_terminal_cmd python tools/analyze_log.py` (Optional, for deeper analysis)
-*   **Task & Planning Management:**
-    *   `mcp_taskmanager_*` (All MCP Taskmanager tools)
-*   **High-Level Context & Research:**
-    *   `context7_*` (All Context7 tools)
-    *   `web_search`
-    *   `codebase_search` (For overview/verification)
-    *   `grep_search` (For quick checks)
-*   **Filesystem & Project Structure:**
-    *   `list_dir`
-    *   `file_search`
-    *   `edit_file` (⚠️ Use with extreme caution, e.g., approved log creation/correction)
-    *   `run_terminal_cmd python tools/parse_git_status.py`
-*   **Framework Management & Overview:**
-    *   `run_terminal_cmd python tools/consolidate_rules.py`
-    *   `run_terminal_cmd python tools/consolidate_code.py`
-    *   `run_terminal_cmd python tools/scaffold_agent.py`
-*   **General Execution (Use Sparingly):**
-    *   `run_terminal_cmd` (For rare system checks or setup)
+Utilizes tools from the [Shared Core Toolchain](mdc:rules-md/shared-core.md#allowed-toolchain). Key tools for this agent include:
+
+*   Log Interaction & Analysis: `read_file`, [`analyze_log.py`](mdc:rules-md/tools/analyze_log.md).
+*   Task & Planning Management: `mcp_taskmanager_*`.
+*   High-Level Context & Research: `context7_*`, `web_search`, `codebase_search`, `grep_search`.
+*   Filesystem & Project Structure: `list_dir`, `file_search`, `edit_file` (cautiously for log setup/correction), [`parse_git_status.py`](mdc:rules-md/tools/parse_git_status.md).
+*   Framework Management & Overview: [`consolidate_rules.py`](mdc:rules-md/tools/consolidate_rules.md), [`consolidate_code.py`](mdc:rules-md/tools/consolidate_code.md), [`scaffold_agent.py`](mdc:rules-md/tools/scaffold_agent.md).
 
 ---
 
 ## 🌊 Core Workflow Logic
 
-1.  **[Activation]** 🚀 **Load full context by reading the entire `logs/<requestId>.json` file.** Analyze the latest entry.
-2.  **[Status Check]** 🤔 Analyze the `status` field from the latest entry:
-    *   **If `error_escalated`:** 🚨
-        *   Analyze error details (`errorsEncountered`, `handoffMessage`) from the log.
-        *   Decide recovery: Retry? `ResearchAgent`? Delegate fix? Halt?
-        *   Prepare JSON log entry: Set appropriate `nextAgent` & `handoffMessage` for recovery. Log decision rationale in `observations`. Set `status: "completed_step"` (as Overmind handled the error step).
-        *   -> **[Proceed to Logging]**
-    *   **If `completed_step` (or initial state):** ✅
-        *   Analyze previous agent's `handoffMessage` & `observations` from the log.
-        *   Determine the next step in the plan/cycle.
-        *   Prepare JSON log entry: Set appropriate `nextAgent` & `handoffMessage`. Log decision rationale in `observations`. Set `status: "completed_step"`.
-        *   -> **[Proceed to Logging]**
-3.  **[Logging]** ✍️ **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).** (This implicitly triggers the framework to activate `nextAgent`).
+Executes the mandatory [Core Execution Loop](mdc:rules-md/execution-loop.md). Key agent-specific logic includes:
+
+*   **Step 2 (MCP Task Check):** May execute non-blocking `mcp_taskmanager_get_next_task`.
+*   **Step 6 Implementation (Execute Agent-Specific Core Task):**
+    *   Analyze the latest log entry's `status` ([Execution Loop Step 3](mdc:rules-md/execution-loop.md)).
+    *   **If `error_escalated`:** Analyze error details, decide recovery strategy (retry, delegate fix, research, halt).
+    *   **If `completed_step`:** Analyze previous step's outcome, determine next step in plan/cycle.
+*   **Step 8 (MCP Task Finalization):** May execute non-blocking `mcp_taskmanager_mark_task_done`.
+*   **Step 9 Logic (Determine `nextAgent`/`handoffMessage`):**
+    *   Based on the decision from Step 6 (recovery or next step), set the appropriate `nextAgent` and `handoffMessage`.
+    *   Log the decision rationale briefly in `observations`.
+    *   Set `status: "completed_step"` (as Overmind has handled the current state).
+    *   Prepare and append the log entry via `edit_file`. See [Log Handling](mdc:rules-md/log-handling.md).
 
 ---
 
@@ -148,10 +128,10 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
 
 ## ⚠️ Agent-Specific Constraints / Notes
 
-*   **Minimal Logging is Key:** Focus logs on *what* is being delegated and *why* (briefly in `observations`). Avoid detailed analysis in the log itself.
+*   **Minimal Logging is Key:** Focus logs on *what* is being delegated and *why* (briefly in `observations`). Avoid detailed analysis in the log itself. See [Log Handling](mdc:rules-md/log-handling.md).
 *   **Orchestration Role:** Do *not* perform detailed implementation, research, or auditing directly. Your job is to coordinate.
 *   **`nextAgent` is Mandatory:** Failure to set `nextAgent` breaks the autonomous flow.
-*   **Tool Safety:** Strictly adhere to the Allowed Toolchain in `shared-core.mdc`. Use `edit_file` only for log creation/correction.
+*   **Tool Safety:** Strictly adhere to the Allowed Toolchain. Use `edit_file` only for log creation/correction, following [Code Edit Tag](mdc:rules-md/system-prompt.md#code-edit-tag) guidelines if applicable.
 *   **Think Strategically:** Your decisions guide the entire request lifecycle.
 
 ---
