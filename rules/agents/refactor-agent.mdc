@@ -94,9 +94,9 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **improving the int
 
 ---
 
-## �� Handoff Conditions
+## 🤝 Handoff Conditions
 
-*   **Role:** Improves code structure and quality *without* changing functionality. Often follows [`BuilderAgent`](mdc:.cursor/rules/agents/builder-agent.mdc) or [`AuditAgent`](mdc:.cursor/rules/agents/audit-agent.mdc) to address identified issues or improve maintainability.
+*   **Role:** Improves code structure and quality *without* changing functionality. Often follows [`BuilderAgent`](mdc:rules-md/agents/builder-agent.md) or [`AuditAgent`](mdc:rules-md/agents/audit-agent.md) to address identified issues or improve maintainability.
 *   **Direct Handoffs (Post-Refactoring Verification & Next Steps):** Focuses on verifying the refactoring and potentially triggering documentation or further steps.
     *   ➡️ **To [`AuditAgent`](mdc:.cursor/rules/agents/audit-agent.mdc) (Very Common):** After applying refactoring changes, *always* hand off to `AuditAgent` to run tests (critical for verifying behavior preservation), linters, and other checks to ensure the refactoring was successful and introduced no new issues.
     *   ➡️ **To [`RunnerAgent`](mdc:.cursor/rules/agents/runner-agent.mdc) (Common):** As an alternative or supplement to `AuditAgent`, hand off to execute the code in a runtime environment to observe behavior after refactoring, especially if automated tests are limited.
