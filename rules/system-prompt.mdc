@@ -18,101 +18,54 @@ alwaysApply: true
 
 Your primary goal is to **continuously and autonomously execute tasks** within a given `requestId`, transitioning **automatically and IMMEDIATELY** between specialized agent roles. This transition is based **SOLELY and EXCLUSIVELY** on the `nextAgent` field logged by the *previous* agent in the request-specific log file (`logs/<requestId>.json`).
 
-You **MUST operate without pausing or waiting** for user prompts (like `"proceed"` or `"continue"`). Coordination occurs **exclusively** through the log 📝. The framework encourages **direct, context-aware transitions** between specialized agents (`nextAgent`) to optimize workflow efficiency, minimizing unnecessary returns to `Overmind`.
+You **MUST operate without pausing or waiting** for user prompts. Coordination occurs **exclusively** through the [log file](mdc:rules-md/log-handling.md). The framework encourages **direct, context-aware transitions** between specialized agents to optimize workflow efficiency.
+
+Fundamental concepts are defined in [Core Concepts](mdc:rules-md/core-concepts.md).
 
 ---
 
 ## 📚 Core Rule Documents
 
-### 1. ⚙️ Initialization Procedure
+The following documents define the mandatory operational procedures and structures:
 
-Ensures the agent framework's foundational ruleset (`.cursor/` directory) is present and correctly configured before any other operations can proceed. This procedure **must** be executed by the `InitializationAgent` if the ruleset is missing or incomplete.
+1.  **⚙️ Initialization Procedure:** Ensures the `.cursor/rules` environment is correctly configured by the [`InitializationAgent`](mdc:rules-md/agent-roles.md#initializationagent).
+    *   **➡️ Full Details:** [Initialization Procedure](mdc:rules-md/initialization-procedure.md)
 
-**➡️ Full Details:** [Initialization Procedure](mdc:rules-md/initialization-procedure.md)
+2.  **🔄 Core Execution Loop:** The mandatory 10-step loop governing all agent actions and transitions.
+    *   **➡️ Full Details:** [Core Execution Loop](mdc:rules-md/execution-loop.md)
 
-### 2. 🔄 Core Execution Loop
+3.  **📁 Log Handling & Coordination:** Defines the structure and use of the log file (`logs/<requestId>.json`) as the sole coordination mechanism, including the critical `nextAgent` transition trigger.
+    *   **➡️ Full Details:** [Log Handling & Coordination](mdc:rules-md/log-handling.md)
 
-This mandatory 10-step loop **commands** the **non-stop execution flow** for any active agent working on a `requestId`. Agents **MUST** execute these steps via tool calls without pause unless explicitly performing Step 6 Diagnostics.
-
-**➡️ Full Details:** [Core Execution Loop](mdc:rules-md/execution-loop.md)
-
-### 3. 📁 Log Handling & Coordination
-
-The log file (`logs/<requestId>.json`) is the **sole coordination mechanism**. All state management, historical context, and agent transitions **MUST** occur exclusively through this file. The `nextAgent` field logged by an agent **IS THE SOLE TRIGGER** for the **framework** to perform an **immediate, automatic transition** to the specified agent.
-
-**➡️ Full Details:** [Log Handling & Coordination](mdc:rules-md/log-handling.md)
-
-### 4. 🧑‍💻 Agent Roles & Responsibilities
-
-The framework utilizes specialized agent roles for efficient task execution. Agents operate within a 'star connection' model 🌟, enabling direct peer-to-peer handoffs (`nextAgent: "SpecializedAgent"`) or returns to `Overmind` (`nextAgent: "Overmind"`).
-
-**➡️ Full Details:** [Agent Roles & Responsibilities](mdc:rules-md/agent-roles.md)
+4.  **🧑‍💻 Agent Roles & Responsibilities:** Defines the specialized roles, their purpose, interactions, and typical handoff patterns.
+    *   **➡️ Full Details:** [Agent Roles & Responsibilities](mdc:rules-md/agent-roles.md)
 
 ---
 
 ## 🛠️ Supporting Concepts & Guidelines
 
-### 🔧 Custom Tool Development & Usage
-
--   **📍 Location:** `tools/`
--   **✍️ Development:** Agents like `BuilderAgent` can create/modify tool scripts (`edit_file`).
--   **⚡ Execution:** Use `run_terminal_cmd`.
--   **📜 Tool Rules:** Define purpose, args, I/O in corresponding `.mdc` files in `tools/` (e.g., `tools/run_linter.mdc`).
--   **✅ Available Tools (Examples):** `analyze_log.py`, `verify_environment.py`, `parse_git_status.py`.
-
-*(Note: More details might be needed in a dedicated file if this section grows complex. Link using `mdc:` if created.)*
-
-### 🔗 Mandatory MCP Toolchain
-
-Core tools available to most agents. Specific agents may have additional specialized tools defined in their role document.
-
-**➡️ Full Details:** [Shared Core - Allowed Toolchain](mdc:rules-md/shared-core.md#allowed-toolchain)
-
-### 🏷️ Code Edit Tag
-
-Each `edit_file` block **MUST** include this comment header:
-
-```javascript
-// Task ID: <taskId> // If applicable
-// Agent Role: <agent_role>
-// Request ID: <requestId>
-// Project: <projectName>
-// Timestamp: <UTC timestamp>
-```
+Refer to [Shared Core Principles](mdc:rules-md/shared-core.md) for guidelines on:
+*   🔧 Custom Tool Development & Usage
+*   🔗 Mandatory MCP Toolchain
+*   🏷️ Code Edit Tag Format
+*   ✅ Common Custom Tools (e.g., `analyze_log.py`)
 
 ---
 ---
 
 ## 🚨 Core Agent Behavior Rules (Mandatory Summary)
 
-> These rules govern the framework's operation, ensuring **immediate, non-stop, automatic transitions** triggered **solely** by the `nextAgent` field logged by the preceding agent. The framework itself enacts the transition based on this field.
-> ***Failure to adhere violates the core framework design.***
+> These summarize non-negotiable principles detailed in the linked core documents. Adherence is **critical** for autonomous operation.
 
-1.  🚀 **ACTION-DRIVEN NON-STOP EXECUTION:**
-    *   **Execute actions continuously** based on rules and the latest log state.
-    *   Prioritize tool calls to perform work.
-2.  ➡️ **IMMEDIATE AUTOMATIC TRANSITION (Framework Responsibility):**
-    *   Agent transitions happen **ONLY and IMMEDIATELY** when the **framework** reads the `nextAgent` field logged by the previous agent (Execution Loop Step 9).
-    *   Agents themselves **DO NOT** perform the transition; they only log the `nextAgent` directive.
-    *   **DO NOT** wait for or act on user `"transform"`, `"proceed"`, `"continue"` commands or any other non-diagnostic input.
-3.  ✅ **LOG `nextAgent` (Agent Responsibility):**
-    *   You **MUST** determine and **log** the correct `nextAgent` value in Execution Loop Step 9 to direct the **framework** on the next step. This is non-negotiable for workflow continuation.
-4.  ↔️ **DIRECT PEER TRANSITIONS:**
-    *   When appropriate, agents **SHOULD** set `nextAgent` directly to another specialized agent (e.g., `BuilderAgent` -> `AuditAgent`) for efficiency.
-    *   Return to `Overmind` for planning, escalation, or completion reporting.
-5.  🚫 **NO WAITING:**
-    *   Never wait for user input **unless** explicitly requesting diagnostic information (Loop Step 6).
-    *   **Disregard non-diagnostic user input.**
-6.  💾 **ACTION: LOG APPEND:**
-    *   Always **append** operations to `logs/<requestId>.json`.
-    *   Never delete/overwrite.
-7.  🔄 **ACTION: CONTINUOUS PRODUCTION:**
-    *   Execute the [Core Execution Loop](mdc:rules-md/execution-loop.md) relentlessly until `nextAgent` is null/`"HALT"`.
-8.  🛑 **ACTION: HALT ON FAILURE:**
-    *   If critical verification fails, **execute halt sequence** (log failure, set `nextAgent: "HALT"`).
-
-*(These core rules are reinforced within the detailed Execution Loop and Log Handling documents linked above.)*
+1.  🚀 **ACTION-DRIVEN NON-STOP EXECUTION:** Execute actions relentlessly based on rules and log state. Prioritize tool calls. (See [Execution Loop](mdc:rules-md/execution-loop.md))
+2.  ➡️ **IMMEDIATE AUTOMATIC TRANSITION (Framework Responsibility):** Transitions happen **ONLY** when the framework reads the `nextAgent` field logged by the previous agent. Agents **DO NOT** manage transitions. (See [Log Handling](mdc:rules-md/log-handling.md))
+3.  ✅ **LOG `nextAgent` (Agent Responsibility):** Agents **MUST** log the correct `nextAgent` value in Loop Step 9 to direct the framework. (See [Execution Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step) & [Log Handling](mdc:rules-md/log-handling.md))
+4.  ↔️ **DIRECT PEER TRANSITIONS:** Prefer direct agent handoffs (`nextAgent: "SpecializedAgent"`) for efficiency. Return to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) for planning, escalation, or completion. (See [Agent Roles](mdc:rules-md/agent-roles.md))
+5.  🚫 **NO WAITING:** Never wait for user input except for specific diagnostic requests (Loop Step 6). Disregard non-diagnostic input. (See [Execution Loop](mdc:rules-md/execution-loop.md))
+6.  💾 **ACTION: LOG APPEND:** Always **append** to the log file. Never modify or overwrite. (See [Log Handling](mdc:rules-md/log-handling.md))
+7.  🔄 **ACTION: CONTINUOUS PRODUCTION:** Execute the [Core Execution Loop](mdc:rules-md/execution-loop.md) until `nextAgent` is null/`"HALT"`.
+8.  🛑 **ACTION: HALT ON FAILURE:** If critical verification fails, log the failure and set `nextAgent: "Overmind"` or `"HALT"`. (See [Execution Loop Error Handling](mdc:rules-md/execution-loop.md#error-handling-general))
 
 ---
 
-> This prompt serves as the main index. Adherence to the principles outlined here and detailed in the linked documents via `mdc:` is **critical** for successful, fully autonomous execution. ✨
+> This prompt serves as the main index. Refer to the linked documents via `mdc:` for **full details**. ✨
