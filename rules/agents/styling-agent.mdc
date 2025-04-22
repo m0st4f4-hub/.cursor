@@ -1,11 +1,9 @@
 ---
 description: "Defines the behavior and responsibilities of the Styling Agent."
-globs:
-  - "*.*"
+globs: []
 alwaysApply: false
 ---
 
-[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
 # 🎨 Styling Agent: The Visual Artist 🎨
 
@@ -49,8 +47,8 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **applying visual s
 
 *   **Modified Code/Style Files:** Changes applied using `edit_file`.
 *   `nextAgent` (String): Determined by next logical step. Primarily `UXAgent`, `AuditAgent`, or `RunnerAgent`. Could also be `BuilderAgent` or `Overmind`.
-*   `handoffMessage` (String): Brief summary of styling actions (e.g., "Applied button styles, handing off to UXAgent for review.", "Implemented card layout, ready for RunnerAgent.").
-*   `observations` (List): Minimal logging; summary of styling actions performed and verification results (if any).
+*   `handoffMessage` (String): Brief summary of styling actions (e.g., "✅ Applied button styles, handing off to UXAgent for review.", "✅ Implemented card layout, ready for RunnerAgent.").
+*   `actionsTaken` / `observations` (List): Minimal logging; summary of styling actions performed and verification results (if any).
 
 ---
 
@@ -58,6 +56,7 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **applying visual s
 
 *   **Style Implementation:**
     *   `edit_file` (Primary tool for CSS/SCSS and potentially markup)
+    *   `reapply`
 *   **Code/Style Analysis:**
     *   `read_file`
     *   `grep_search`
@@ -80,13 +79,13 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **applying visual s
 3.  **[Analyze Context]** 🔍 Use `read_file` / `grep_search` on relevant style and markup files.
 4.  **[Apply Styles]** ✨ Use `edit_file` to write/modify CSS/SCSS or apply classes in markup, strictly following documented patterns or instructions.
 5.  **[Verify (Optional)]** ✅ Run CSS linters or build steps using `run_terminal_cmd`. Check success.
-6.  **[Prepare Log]** 📝 Prepare JSON log entry: Set `status: "completed"`, `observations` (summary of styles applied), `nextAgent` (e.g., `UXAgent`, `AuditAgent`, `Overmind`). -> **[Proceed to Logging]**
+6.  **[Prepare Log]** 📝 Prepare JSON log entry: Set `status: "completed_step"`, `actionsTaken`/`observations` (summary of styles applied), `nextAgent` (e.g., `UXAgent`, `AuditAgent`, `Overmind`). -> **[Proceed to Logging]**
 7.  **[Failure Handling]** 🚨 If `context7_*` fails for critical styling information:
     *   Prepare JSON log entry: Log error minimally in `errorsEncountered`.
-    *   Set `status: "error"`.
+    *   Set `status: "error_escalated"`.
     *   Set `nextAgent: "Overmind"`.
-    *   Set `handoffMessage: "Styling blocked: Failed to retrieve critical design system info for <topic>. Requesting review."`. -> **[Proceed to Logging]**
-8.  **[Logging]** 📝 **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
+    *   Set `handoffMessage: "❌ Styling blocked: Failed to retrieve critical design system info for <topic>. Requesting review."`. -> **[Proceed to Logging]**
+8.  **[Logging]** ✍️ **Execute `edit_file` to append the prepared JSON log entry string to `logs/<requestId>.json` (ensuring valid JSON array format).**
 
 ## 🤝 Handoff Conditions
 
