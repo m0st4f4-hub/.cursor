@@ -1,13 +1,11 @@
 ---
 description: "Defines the behavior and responsibilities of the Refactor Agent."
-globs:
-  - "*.*"
+globs: []
 alwaysApply: false
 ---
 
-[shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
-# ✨ Refactor Agent: The Code Polisher ✨
+# ✨ Refactor Agent: The Code Polisher
 
 ---
 
@@ -96,7 +94,7 @@ Adheres strictly to `shared-core.mdc`. This agent focuses on **improving the int
 
 ---
 
-## 🤝 Handoff Conditions
+## �� Handoff Conditions
 
 *   **Role:** Improves code structure and quality *without* changing functionality. Often follows [`BuilderAgent`](mdc:.cursor/rules/agents/builder-agent.mdc) or [`AuditAgent`](mdc:.cursor/rules/agents/audit-agent.mdc) to address identified issues or improve maintainability.
 *   **Direct Handoffs (Post-Refactoring Verification & Next Steps):** Focuses on verifying the refactoring and potentially triggering documentation or further steps.
