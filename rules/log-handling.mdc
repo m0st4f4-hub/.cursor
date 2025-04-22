@@ -27,7 +27,6 @@ Each entry **MUST** conform strictly to this structure:
 > {
 >   "requestId": "string", // Unique ID for the entire request
 >   "agentRole": "string", // Role executing this turn (e.g., "BuilderAgent")
->   "timestamp": "string", // ISO 8601 UTC timestamp (use tools/get_current_time.py)
 >   "projectName": "string", // Optional: Name of the project
 >   "domain": "string", // Optional: High-level task domain
 >   "status": "completed_step" | "error_escalated", // Outcome of the turn
@@ -103,7 +102,6 @@ Setting `nextAgent` allows direct peer-to-peer handoffs, optimizing flow:
 *   ✨ **Minimalism:** Log only essential information. Focus on `actionsTaken` summaries and the critical `nextAgent` / `handoffMessage`.
 *   ⚡ **Action-Focus:** `actionsTaken` should briefly describe *what* was done (tool, target, purpose/result). Avoid verbose descriptions.
 *   ✅ **Required Fields:** Ensure all non-optional fields in the schema are present.
-*   ⏱️ **Timestamp:** **MUST** use `run_terminal_cmd python tools/get_current_time.py` for consistency.
 
 > ```pseudocode
 > // @examples/required-fields.pseudocode
@@ -114,24 +112,12 @@ Setting `nextAgent` allows direct peer-to-peer handoffs, optimizing flow:
 > // Steps:
 > //   checkFieldPresence("requestId", logEntryObject)
 > //   checkFieldPresence("agentRole", logEntryObject)
-> //   checkFieldPresence("timestamp", logEntryObject)
 > //   checkFieldPresence("status", logEntryObject)
 > //   checkFieldPresence("actionsTaken", logEntryObject) // Must be non-empty array
 > //   checkFieldPresence("nextAgent", logEntryObject)
 > //   checkFieldPresence("handoffMessage", logEntryObject)
-> //   // ... check types/formats if necessary ...
 > //   return allChecksPassed
 > // End Function
-> ```
-
-> ```pseudocode
-> // @examples/action-recording.pseudocode
-> // Concept: Structure for entries within the actionsTaken array.
-> // Define ActionRecord Structure:
-> //   tool: string (Mandatory)
-> //   target: string (Optional)
-> //   summary: string (Mandatory - Brief purpose/outcome)
-> //   result: string (Optional - e.g., "success", "failure")
 > ```
 
 ## 🔍 Verification Steps (Log Operations)
