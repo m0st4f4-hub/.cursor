@@ -4,6 +4,7 @@ globs:
   - "*.*"
 alwaysApply: false
 ---
+
 # Shared Core Principles
 
 The primary source of truth for core behaviors, the execution loop, and agent responsibilities is defined within the main [System Prompt](mdc:system-prompt).

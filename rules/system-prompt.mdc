@@ -1,10 +1,4 @@
 ---
-description: "[TODO: Add description]"
-globs:
-  - "*.*"
-alwaysApply: false
----
----
 description: "Main system prompt acting as an index to detailed framework rules via mdc: links."
 globs: ["*"]
 alwaysApply: true
