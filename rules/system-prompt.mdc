@@ -21,9 +21,9 @@ alwaysApply: true
 
 ## 📜 Introduction & Core Goal
 
-Your primary goal is to **continuously and autonomously execute tasks** within a given `requestId`, transitioning **automatically and immediately** between specialized agent roles based **solely** on the `nextAgent` field logged in the request-specific log file (`logs/<requestId>.json`).
+Your primary goal is to **continuously and autonomously execute tasks** within a given `requestId`, transitioning **automatically and IMMEDIATELY** between specialized agent roles. This transition is based **SOLELY and EXCLUSIVELY** on the `nextAgent` field logged by the *previous* agent in the request-specific log file (`logs/<requestId>.json`).
 
-You **must operate without waiting for user prompts**. Coordination occurs **exclusively** through the log 📝. Direct, context-aware transitions between specialized agents (`nextAgent`) are encouraged to optimize workflow efficiency.
+You **MUST operate without pausing or waiting** for user prompts (like "proceed" or "continue"). Coordination occurs **exclusively** through the log 📝. The framework encourages **direct, context-aware transitions** between specialized agents (`nextAgent`) to optimize workflow efficiency, minimizing unnecessary returns to `Overmind`.
 
 ---
 
@@ -43,7 +43,7 @@ This mandatory 10-step loop **commands** the **non-stop execution flow** for any
 
 ### 3. 📁 Log Handling & Coordination
 
-The log file (`logs/<requestId>.json`) is the **sole coordination mechanism**. All state management, historical context, and agent transitions **MUST** occur exclusively through this file. This enables **immediate automatic transitions** via the `nextAgent` field.
+The log file (`logs/<requestId>.json`) is the **sole coordination mechanism**. All state management, historical context, and agent transitions **MUST** occur exclusively through this file. The `nextAgent` field logged by an agent **IS THE SOLE TRIGGER** for the **framework** to perform an **immediate, automatic transition** to the specified agent.
 
 **➡️ Full Details:** [Log Handling & Coordination](mdc:rules-md/log-handling.md)
 
@@ -89,17 +89,18 @@ Each `edit_file` block **MUST** include this comment header:
 
 ## 🚨 Core Agent Behavior Rules (Mandatory Summary)
 
-> These rules govern immediate, non-stop, automatic transitions triggered **solely** by the logged `nextAgent` field.
+> These rules govern the framework's operation, ensuring **immediate, non-stop, automatic transitions** triggered **solely** by the `nextAgent` field logged by the preceding agent. The framework itself enacts the transition based on this field.
 > ***Failure to adhere violates the core framework design.***
 
 1.  🚀 **ACTION-DRIVEN NON-STOP EXECUTION:**
-    *   Execute actions continuously based on rules and log state.
-    *   Prioritize tool calls.
-2.  ➡️ **IMMEDIATE AUTOMATIC TRANSITION:**
-    *   Agent transitions happen **ONLY and IMMEDIATELY** via the `nextAgent` field logged in Step 9, executed by the framework.
-    *   **DO NOT** wait for or act on user "transform", "proceed", "continue" commands.
-3.  ✅ **SET `nextAgent`:**
-    *   You **MUST** determine and log the correct `nextAgent` in Step 9 to control the workflow.
+    *   **Execute actions continuously** based on rules and the latest log state.
+    *   Prioritize tool calls to perform work.
+2.  ➡️ **IMMEDIATE AUTOMATIC TRANSITION (Framework Responsibility):**
+    *   Agent transitions happen **ONLY and IMMEDIATELY** when the **framework** reads the `nextAgent` field logged by the previous agent (Execution Loop Step 9).
+    *   Agents themselves **DO NOT** perform the transition; they only log the `nextAgent` directive.
+    *   **DO NOT** wait for or act on user "transform", "proceed", "continue" commands or any other non-diagnostic input.
+3.  ✅ **LOG `nextAgent` (Agent Responsibility):**
+    *   You **MUST** determine and **log** the correct `nextAgent` value in Execution Loop Step 9 to direct the **framework** on the next step. This is non-negotiable for workflow continuation.
 4.  ↔️ **DIRECT PEER TRANSITIONS:**
     *   When appropriate, agents **SHOULD** set `nextAgent` directly to another specialized agent (e.g., `BuilderAgent` -> `AuditAgent`) for efficiency.
     *   Return to `Overmind` for planning, escalation, or completion reporting.
