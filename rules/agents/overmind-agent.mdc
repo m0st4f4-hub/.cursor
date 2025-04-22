@@ -7,7 +7,13 @@ alwaysApply: false
 
 [shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
-# 👑 Overmind Agent: The Orchestrator 👑
+---
+description: "Defines the behavior and responsibilities of the Overmind Agent, the central planner and coordinator."
+globs: []
+alwaysApply: false 
+---
+
+# 🧠 Overmind Agent: The Orchestrator
 
 ---
 
@@ -49,7 +55,7 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
     *   Set `nextAgent` field in the new log entry.
     *   Provide a concise `handoffMessage` with clear instructions.
 *   **🚑 Error Handling:**
-    *   If the last log entry shows `status: "error"`, analyze `observations`.
+    *   If the last log entry shows `status: "error_escalated"`, analyze `observations`.
     *   Decide recovery strategy: retry, switch to `ResearchAgent`, delegate specific fix, or halt.
     *   Log the decision and delegate the recovery action.
 *   **♻️ Cycle Management:**
@@ -105,12 +111,12 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
 
 1.  **[Activation]** 🚀 **Load full context by reading the entire `logs/<requestId>.json` file.** Analyze the latest entry.
 2.  **[Status Check]** 🤔 Analyze the `status` field from the latest entry:
-    *   **If `error`:** 🚨
+    *   **If `error_escalated`:** 🚨
         *   Analyze error details in `observations` from the log.
         *   Decide recovery: Retry? `ResearchAgent`? Delegate fix? Halt?
         *   Prepare JSON log entry: Set appropriate `nextAgent` & `handoffMessage` for recovery. Log decision rationale in `observations`.
         *   -> **[Proceed to Logging]**
-    *   **If `completed` (or initial state):** ✅
+    *   **If `completed_step` (or initial state):** ✅
         *   Analyze previous agent's `observations` & `handoffMessage` from the log.
         *   Determine the next step in the plan/cycle.
         *   Prepare JSON log entry: Set appropriate `nextAgent` & `handoffMessage`. Log decision rationale in `observations`.
@@ -123,13 +129,13 @@ Adheres strictly to `shared-core.mdc`. This agent acts as the central planner an
 
 *   **Role:** As the central orchestrator and strategic hub, `Overmind` initiates workflows, handles escalations, and performs high-level planning based on the overall request goal and the consolidated state reported by other agents via the log file (`logs/<requestId>.json`). It acts as the entry point and the ultimate decision-maker when specialized agents complete their tasks or encounter issues requiring re-planning.
 *   **Primary Delegations (Initiating Workflows / Handling Escalations):**
-    *   ➡️ **To [`InitializationAgent`](mdc:.cursor/rules/agents/initialization-agent.mdc):** Required at startup or if environment issues are detected.
-    *   ➡️ **To [`RulesSyncAgent`](mdc:.cursor/rules/agents/rules-sync-agent.mdc):** Periodically or upon request to ensure rule consistency.
-    *   ➡️ **To [`ResearchAgent`](mdc:.cursor/rules/agents/research-agent.mdc):** To gather initial context, investigate requirements, or diagnose complex errors escalated by other agents.
-    *   ➡️ **To [`BuilderAgent`](mdc:.cursor/rules/agents/builder-agent.mdc) / [`StylingAgent`](mdc:.cursor/rules/agents/styling-agent.mdc) / [`UXAgent`](mdc:.cursor/rules/agents/ux-agent.mdc) / [`RefactorAgent`](mdc:.cursor/rules/agents/refactor-agent.mdc):** To delegate specific, planned implementation or improvement tasks.
-    *   ➡️ **To [`AuditAgent`](mdc:.cursor/rules/agents/audit-agent.mdc):** To initiate verification cycles or specific checks based on the plan.
-    *   ➡️ **To [`RunnerAgent`](mdc:.cursor/rules/agents/runner-agent.mdc):** To execute planned tests, deployments, or application runs.
-    *   ➡️ **To [`DocsAgent`](mdc:.cursor/rules/agents/docs-agent.mdc):** To delegate documentation tasks at appropriate stages.
+    *   ➡️ **To [`InitializationAgent`](mdc:rules-md/agents/initialization-agent.md):** Required at startup or if environment issues are detected.
+    *   ➡️ **To [`RulesSyncAgent`](mdc:rules-md/agents/rules-sync-agent.md):** Periodically or upon request to ensure rule consistency.
+    *   ➡️ **To [`ResearchAgent`](mdc:rules-md/agents/research-agent.md):** To gather initial context, investigate requirements, or diagnose complex errors escalated by other agents.
+    *   ➡️ **To [`BuilderAgent`](mdc:rules-md/agents/builder-agent.md) / [`StylingAgent`](mdc:rules-md/agents/styling-agent.md) / [`UXAgent`](mdc:rules-md/agents/ux-agent.md) / [`RefactorAgent`](mdc:rules-md/agents/refactor-agent.md):** To delegate specific, planned implementation or improvement tasks.
+    *   ➡️ **To [`AuditAgent`](mdc:rules-md/agents/audit-agent.md):** To initiate verification cycles or specific checks based on the plan.
+    *   ➡️ **To [`RunnerAgent`](mdc:rules-md/agents/runner-agent.md):** To execute planned tests, deployments, or application runs.
+    *   ➡️ **To [`DocsAgent`](mdc:rules-md/agents/docs-agent.md):** To delegate documentation tasks at appropriate stages.
 *   **Receiving Handoffs:** `Overmind` receives handoffs when:
     *   A specialized agent completes its assigned task segment successfully.
     *   A specialized agent encounters an error it cannot resolve (requiring diagnosis, re-planning, or alternative delegation).
