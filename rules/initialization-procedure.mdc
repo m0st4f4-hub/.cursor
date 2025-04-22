@@ -1,10 +1,4 @@
 ---
-description: "[TODO: Add description]"
-globs:
-  - "*.*"
-alwaysApply: false
----
----
 description: "Mandatory procedure for InitializationAgent to set up or verify the framework ruleset."
 globs: ["*"]
 alwaysApply: true
@@ -57,18 +51,18 @@ Adhere strictly to these principles:
     // End Function
     ```
 
-3.  **Error Handling:** If verification fails, **MUST** log the specific error and **HALT** the procedure immediately. Report failure to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) via the log.
+3.  **Error Handling:** If verification fails, **MUST** log the specific error and **HALT** the procedure immediately. **Action:** Log the failure details, set `nextAgent: "Overmind"` (or `HALT` if unrecoverable by Overmind), and provide a clear `handoffMessage` explaining the failure point.
     ```pseudocode
     // @examples/error-handling.pseudocode
-    // Define Error Structure: { phase: string, error_details: string }
+    // Define Error Structure: { phase: string, step: string, error_details: string }
     
     // Function: handleProcedureError(error)
-    // Purpose: Log error and halt.
+    // Purpose: Log error and halt procedure, handing off to Overmind.
     // Steps:
-    //   logErrorToRequestLog(error.phase, error.error_details)
-    //   setNextAgent("Overmind")
-    //   setHandoffMessage("Initialization failed during phase: " + error.phase + ". Reason: " + error.error_details)
-    //   haltProcedure()
+    //   logErrorToRequestLog(error.phase, error.step, error.error_details)
+    //   setNextAgent("Overmind") // Or HALT for critical framework failures
+    //   setHandoffMessage("Initialization failed during Phase: " + error.phase + ", Step: " + error.step + ". Reason: " + error.error_details + ". Requesting Overmind review.")
+    //   haltCurrentProcedure() // Stop further steps in this procedure
     // End Function
     ```
 
@@ -155,7 +149,7 @@ Execute these steps sequentially:
     *   If `cursorDirExists` is true:
         *   **Action:** Execute `run_terminal_cmd git submodule status .cursor | cat`.
         *   **Check:** Analyze output. If it indicates a valid registered submodule, proceed to **Step A.4 (Update Submodule)**.
-        *   **If Not Submodule:** Log warning. **Action:** Execute `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor` on Windows). **Verification:** Execute `list_dir .` and confirm `.cursor` is removed. If verification fails, **HALT** (report error to Overmind).
+        *   **If Not Submodule:** Log warning. **Action:** Execute `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor` on Windows). **Verification:** Execute `list_dir .` and confirm `.cursor` is removed via output. If verification fails, **HALT** (log error, set `nextAgent: "Overmind"`).
         *   Proceed to **Step A.2**.
 2.  **Check & Temporarily Modify Root `.gitignore`:**
     *   Set flag `rootGitignoreModified = false`.
@@ -163,16 +157,16 @@ Execute these steps sequentially:
     *   **Check:** Search content for the exact line `.cursor/`.
     *   **If Found:**
         *   **Action:** Use `edit_file` to comment out the line (e.g., `# .cursor/`). Log this action.
-        *   **Verification:** Execute `read_file .gitignore`. Confirm the line is commented. If verification fails, **HALT** (report error).
+        *   **Verification:** Execute `read_file .gitignore`. Confirm the line is commented via output. If verification fails, **HALT** (log error, set `nextAgent: "Overmind"`).
         *   Set `rootGitignoreModified = true`.
     *   Proceed to **Step A.3**.
 3.  **Add Submodule:**
     *   **Action:** Execute `run_terminal_cmd git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`.
-    *   **Verification:** Execute `list_dir .`. Confirm `.cursor` AND `.gitmodules` exist. Execute `read_file .gitmodules`. Confirm `[submodule ".cursor"]` entry exists. If verification fails, attempt `run_terminal_cmd git submodule add --force ...` *once* if conflicts are likely (e.g., after Step A.1 removal). If still fails, **HALT** (report error).
+    *   **Verification:** Execute `list_dir .`. Confirm `.cursor` AND `.gitmodules` exist via output. Execute `read_file .gitmodules`. Confirm `[submodule ".cursor"]` entry exists via output. If verification fails, attempt `run_terminal_cmd git submodule add --force ...` *once* if conflicts are likely (e.g., after Step A.1 removal). If still fails, **HALT** (log error, set `nextAgent: "Overmind"`).
     *   Proceed to **Step A.4**.
 4.  **Update Submodule:**
     *   **Action:** Execute `run_terminal_cmd git submodule update --init --recursive`.
-    *   **Verification:** Execute `list_dir .cursor/rules`. Confirm essential rule files (e.g., `shared-core.mdc`) are present. Retry update once if needed. If still fails, **HALT** (report error).
+    *   **Verification:** Execute `list_dir .cursor/rules`. Confirm essential rule files (e.g., `shared-core.mdc`) are present via output. Retry update once if needed. If still fails, **HALT** (log error, set `nextAgent: "Overmind"`).
     *   Proceed to **Phase 3**.
 
     ```pseudocode
@@ -215,11 +209,11 @@ Execute these steps sequentially:
 Execute these steps sequentially:
 
 1.  **Handle Existing `.cursor`:**
-    *   If `cursorDirExists` is true: Log warning. **Action:** Execute `run_terminal_cmd rm -rf .cursor` (or `Remove-Item`). **Verification:** Execute `list_dir .` and confirm removal. If fails, **HALT**.
+    *   If `cursorDirExists` is true: Log warning. **Action:** Execute `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor` on Windows). **Verification:** Execute `list_dir .` and confirm removal via output. If fails, **HALT** (log error, set `nextAgent: "Overmind"`).
     *   Proceed to **Step B.2**.
 2.  **Direct Clone:**
     *   **Action:** Execute `run_terminal_cmd git clone https://github.com/m0st4f4-hub/.cursor .cursor`.
-    *   **Verification:** Execute `list_dir .cursor/rules`. Confirm essential rule files (e.g., `shared-core.mdc`). If fails, **HALT**.
+    *   **Verification:** Execute `list_dir .cursor/rules`. Confirm essential rule files (e.g., `shared-core.mdc`) are present via output. If fails, **HALT** (log error, set `nextAgent: "Overmind"`).
     *   Proceed to **Phase 3**.
 
     ```pseudocode
@@ -246,16 +240,16 @@ Execute these steps sequentially:
 Execute these steps sequentially:
 
 1.  **Handle Existing `.cursor`:**
-    *   If `cursorDirExists` is true: Log critical warning. **HALT**. Report need for manual intervention. **Do not automatically delete.**
+    *   If `cursorDirExists` is true: Log critical warning. **HALT**. **Action:** Log the critical conflict, set `nextAgent: "Overmind"`, and handoff explaining the need for manual intervention. **Do not automatically delete.**
     *   If `cursorDirExists` is false: Proceed to **Step C.2**.
 2.  **Temp Clone & Move:**
     *   Define `temp_dir` = `temp_ruleset_clone`.
-    *   **Action (Cleanup):** Execute `run_terminal_cmd rm -rf temp_dir` (or `Remove-Item`).
-    *   **Action (Clone):** Execute `run_terminal_cmd git clone https://github.com/m0st4f4-hub/.cursor temp_dir`. **Verification:** Check clone success. If fails, **HALT**.
-    *   **Action (Init Submodules):** Execute `run_terminal_cmd cd temp_dir && git submodule update --init --recursive && cd ..`. **Verification:** Check submodule success. If fails, **HALT**.
-    *   **Action (Move):** Execute `run_terminal_cmd mv temp_dir/.cursor .` (or `Move-Item`).
-    *   **Verification:** Execute `list_dir .`. Confirm `.cursor` exists. Execute `list_dir .cursor/rules`. Confirm essential files. If fails, **HALT**.
-    *   **Action (Cleanup):** Execute `run_terminal_cmd rm -rf temp_dir` (or `Remove-Item`). **Verification:** Confirm temp dir removal. If fails, log warning but proceed.
+    *   **Action (Cleanup):** Execute `run_terminal_cmd rm -rf temp_dir` (or `Remove-Item -Recurse -Force temp_dir` on Windows).
+    *   **Action (Clone):** Execute `run_terminal_cmd git clone https://github.com/m0st4f4-hub/.cursor temp_dir`. **Verification:** Check clone command success output. If fails, **HALT** (log error, set `nextAgent: "Overmind"`).
+    *   **Action (Init Submodules):** Execute `run_terminal_cmd cd temp_dir && git submodule update --init --recursive && cd ..` (adapt `cd` for OS if needed). **Verification:** Check submodule command success output. If fails, **HALT** (log error, set `nextAgent: "Overmind"`).
+    *   **Action (Move):** Execute `run_terminal_cmd mv temp_dir/.cursor .` (or `Move-Item -Path temp_dir/.cursor -Destination .` on Windows).
+    *   **Verification:** Execute `list_dir .` (confirm `.cursor` exists via output), `list_dir .cursor/rules` (confirm `shared-core.mdc` exists via output). If fails, **HALT** (log error, set `nextAgent: "Overmind"`).
+    *   **Action (Cleanup):** Execute `run_terminal_cmd rm -rf temp_dir` (or `Remove-Item -Recurse -Force temp_dir`). **Verification:** Execute `list_dir .` and confirm `temp_dir` is removed via output.
     *   Proceed to **Phase 3**.
 
     ```pseudocode
@@ -286,88 +280,34 @@ Execute these steps sequentially:
 
 ## 📋 Phase 3: Common Configuration Steps
 
-Execute these steps after successfully completing one scenario from Phase 2.
+Execute these steps sequentially after successfully completing one of the Phase 2 scenarios.
 
-### Step 3.1: Configure Project Directory
-*   **Action:** Execute `list_dir .cursor/rules`.
-*   **Check:** See if `project` subdirectory exists.
-*   **If Not Found:** **Action:** Execute `run_terminal_cmd mkdir .cursor/rules/project` (or `New-Item` on Windows). **Verification:** Execute `list_dir .cursor/rules`. Confirm `project` dir exists. If fails, **HALT**.
-    ```pseudocode
-    // @examples/project-config.pseudocode
-    // Function: configureProjectDirectory
-    // Purpose: Ensure .cursor/rules/project directory exists.
-    // Steps:
-    //   rules_listing = listDir(".cursor/rules")
-    //   if "project" not in rules_listing:
-    //     runCommand("mkdir .cursor/rules/project") // Or New-Item
-    //     verifyProjectDirCreated() // Halts on failure
-    // End Function
-    ```
-
-### Step 3.2: Update Ruleset `.gitignore`
-*   **Action:** Execute `read_file .cursor/.gitignore` (handle non-existence).
-*   **Check:** Determine if the exact line `rules/project/` exists on its own line.
-*   **If Missing/Incorrect:** **Action:** Use `edit_file` on `.cursor/.gitignore` to add or fix the line `rules/project/`. **Verification:** Execute `read_file .cursor/.gitignore`. Confirm the line exists correctly. If fails, **HALT**.
-    ```pseudocode
-    // @examples/ruleset-gitignore.pseudocode
-    // Function: updateRulesetGitignore
-    // Purpose: Ensure rules/project/ is ignored within the ruleset itself.
-    // Steps:
-    //   ruleset_gitignore = readFile(".cursor/.gitignore") // Handle non-existence
-    //   if "rules/project/" not correctly present in ruleset_gitignore:
-    //     editFile(".cursor/.gitignore", add_or_fix_line, "rules/project/")
-    //     verifyRulesetGitignoreUpdated() // Halts on failure
-    // End Function
-    ```
-
-### Step 3.3: Update/Restore Root `.gitignore` (Scenario A only)
-*   **Condition:** Execute only if `isGitRepo` is true (determined in Phase 1).
-*   **If `rootGitignoreModified` is true:**
-    *   **Action:** Use `edit_file` on `.gitignore` to change `# .cursor/` back to `.cursor/`. Log this action.
-    *   **Verification:** Execute `read_file .gitignore`. Confirm `.cursor/` is uncommented. If fails, **HALT**.
-*   **Else (if `rootGitignoreModified` is false):**
-    *   **Action:** Execute `read_file .gitignore` (handle non-existence).
-    *   **Check:** See if uncommented `.cursor/` line exists.
-    *   **If Missing:** **Action:** Use `edit_file` on `.gitignore` (create if needed) to add `.cursor/` on a new line.
-    *   **Verification:** Execute `read_file .gitignore`. Confirm `.cursor/` line exists. If fails, **HALT**.
-    ```pseudocode
-    // @examples/root-gitignore.pseudocode
-    // Function: updateRootGitignore (only if isGitRepo)
-    // Purpose: Ensure .cursor/ is appropriately handled in the root .gitignore.
-    // Input: rootGitignoreModified (boolean flag from Step A.2)
-    // Steps:
-    //   if rootGitignoreModified:
-    //     editFile(".gitignore", uncomment_line, "# .cursor/")
-    //     verifyRootGitignoreRestored() // Halts on failure
-    //   else:
-    //     root_gitignore = readFile(".gitignore") // Handle non-existence
-    //     if ".cursor/" not present in root_gitignore:
-    //       editFile(".gitignore", add_line, ".cursor/")
-    //       verifyRootGitignoreAdded() // Halts on failure
-    // End Function
-    ```
-
-### Step 3.4: Final Verification
-*   **Action:** Execute `list_dir .cursor/rules`.
-*   **Verification:** Confirm expected structure (e.g., `shared-core.mdc`, `project/`, `agents/` exist). If fails, **HALT**.
-*   **Optional Action:** Execute `run_terminal_cmd python tools/verify_environment.py` or `python tools/check_versions.py` for extra checks.
-*   **Report:** Log success to [`Overmind`](mdc:rules-md/agent-roles.md#overmind), setting `nextAgent: "Overmind"` and appropriate `handoffMessage`. If any step halted, failure should have already been reported.
-    ```pseudocode
-    // @examples/final-verify.pseudocode
-    // Function: finalVerificationAndReport
-    // Purpose: Perform final checks and report success to Overmind.
-    // Steps:
-    //   listing = listDir(".cursor/rules")
-    //   verifyExpectedStructure(listing) // Halts on failure
-    //   
-    //   // Optional: runCommand("python tools/verify_environment.py")
-    //   
-    //   // If execution reaches here, all steps passed.
-    //   logSuccessToRequestLog("Initialization completed successfully.")
-    //   setNextAgent("Overmind")
-    //   setHandoffMessage("Framework initialization successful.")
-    // End Function
-    ```
+1.  **Configure `project` Directory:**
+    *   **Action:** Execute `list_dir .cursor/rules`.
+    *   **Check:** See if `project` subdirectory exists in the output.
+    *   If not, **Action:** Execute `run_terminal_cmd mkdir .cursor/rules/project` (or `New-Item -ItemType Directory -Path .cursor/rules/project` on Windows).
+    *   **Verification:** Execute `list_dir .cursor/rules`. Confirm `project` exists via output. If verification fails, **HALT** (log error, set `nextAgent: "Overmind"`).
+2.  **Update Ruleset `.gitignore`:**
+    *   **Action:** Execute `read_file .cursor/.gitignore` (handle potential non-existence gracefully).
+    *   **Check:** See if the exact line `rules/project/` exists on its own line in the content.
+    *   **If Missing/Incorrect:** **Action:** Use `edit_file` on `.cursor/.gitignore` to ensure `rules/project/` exists on its own line.
+    *   **Verification:** Execute `read_file .cursor/.gitignore`. Confirm the line exists and is correct via output. If verification fails, **HALT** (log error, set `nextAgent: "Overmind"`).
+3.  **Update/Restore Root `.gitignore` (Scenario A only):**
+    *   **Condition:** Only if `isGitRepo` is true (determined in Phase 1).
+    *   **If `rootGitignoreModified` is true (from Step A.2):**
+        *   **Action:** Use `edit_file` on `.gitignore` to uncomment `# .cursor/` back to `.cursor/`. Log this action.
+        *   **Verification:** Execute `read_file .gitignore`. Confirm `.cursor/` is present and uncommented via output. If verification fails, **HALT** (log error, set `nextAgent: "Overmind"`).
+    *   **Else (if `.cursor/` wasn't originally in root `.gitignore` or was already uncommented):**
+        *   **Action:** Execute `read_file .gitignore` (handle potential non-existence).
+        *   **Check:** See if the exact line `.cursor/` (uncommented) exists in the content.
+        *   **If Missing:** **Action:** Use `edit_file` (create if needed) to add `.cursor/` on a new line.
+        *   **Verification:** Execute `read_file .gitignore`. Confirm the line is present via output. If verification fails, **HALT** (log error, set `nextAgent: "Overmind"`).
+4.  **Final Verification & Reporting:**
+    *   **Action:** Execute `list_dir .cursor/rules`. Confirm existence and presence of key files/dirs (`shared-core.mdc`, `project/`, `agents/`) via output.
+    *   **Optional Action:** Execute `run_terminal_cmd python tools/verify_environment.py` or `python tools/check_versions.py` for additional checks.
+    *   **Action:** Log the final outcome. 
+        *   **On Success:** Set `nextAgent: "Overmind"` and `handoffMessage: "Initialization successful."`. 
+        *   **On Failure (if not already halted):** Set `nextAgent: "Overmind"`, log the specific failure reason encountered during final verification, and provide a clear `handoffMessage` indicating initialization failed.
 
 ## 🚨 Error Recovery
 
