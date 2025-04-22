@@ -4,7 +4,7 @@ globs: ["*"]
 alwaysApply: true
 ---
 
-# Core Execution Loop
+# 🔄 Core Execution Loop
 
 ## 🎯 Overview
 
@@ -14,195 +14,195 @@ Reference [system-prompt.md](mdc:rules-md/system-prompt.md) for overarching mand
 
 ## 🔑 Core Principles (Reinforced)
 
-*   **Non-Stop Execution:** Execute actions relentlessly without pausing for user input (unless for Step 6 diagnostics).
-*   **Log-Driven Coordination:** Base all actions and transitions exclusively on the content of `logs/<requestId>.json`.
-*   **Action-Focused:** Prioritize tool execution over descriptive chat.
-*   **Immediate Transition:** Rely solely on the logged `nextAgent` field for automatic, immediate transitions.
+*   🚀 **Non-Stop Execution:** Execute actions relentlessly without pausing for user input (unless for Step 6 diagnostics).
+*   ✍️ **Log-Driven Coordination:** Base all actions and transitions exclusively on the content of `logs/<requestId>.json`.
+*   ⚡ **Action-Focused:** Prioritize tool execution over descriptive chat.
+*   ➡️ **Immediate Transition:** Rely solely on the logged `nextAgent` field for automatic, immediate transitions.
 
-```pseudocode
-// @examples/loop-principles.pseudocode
-// Define Loop Control Constants:
-//   PRINCIPLES = {
-//     NON_STOP_EXECUTION,
-//     LOG_DRIVEN_COORDINATION,
-//     ACTION_FOCUSED,
-//     IMMEDIATE_TRANSITION_VIA_LOG
-//   }
-//   FORBIDDEN_ACTIONS = {
-//     WAITING_FOR_USER_PROMPT,
-//     MANUAL_STATE_CONTROL,
-//     DIRECT_AGENT_COMMUNICATION,
-//     BLOCKING_ON_MCP_TASK
-//   }
-```
+> ```pseudocode
+> // @examples/loop-principles.pseudocode
+> // Define Loop Control Constants:
+> //   PRINCIPLES = {
+> //     NON_STOP_EXECUTION,
+> //     LOG_DRIVEN_COORDINATION,
+> //     ACTION_FOCUSED,
+> //     IMMEDIATE_TRANSITION_VIA_LOG
+> //   }
+> //   FORBIDDEN_ACTIONS = {
+> //     WAITING_FOR_USER_PROMPT,
+> //     MANUAL_STATE_CONTROL,
+> //     DIRECT_AGENT_COMMUNICATION,
+> //     BLOCKING_ON_MCP_TASK
+> //   }
+> ```
 
-## 🔄 Core Loop: Execute These 10 Steps
+## ⚙️ Core Loop: Execute These 10 Steps
 
 Agents **MUST** execute these steps sequentially and without deviation in every turn.
 
-### Step 1: ACTION - Execute Context Loading
+### Step 1: 📥 ACTION - Execute Context Loading
 *   **ACTION:** Execute `read_file` to load the **entire** content of `logs/<requestId>.json`.
 *   **ACTION:** Parse **all** log entries to establish full historical context and current state (e.g., `projectName`, `domain`, latest `handoffMessage`).
 *   **Optional ACTION:** Consider executing `run_terminal_cmd python tools/analyze_log.py logs/<requestId>.json` for structured analysis.
 *   **ACTION (Verification):** Confirm successful read and parse. Halt and escalate to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) on failure.
 
-```pseudocode
-// @examples/context-loading.pseudocode
-// Function: loadFullContext
-// Purpose: Read and parse the entire request log.
-// Input: requestId
-// Returns: Full historical context and latest state object
-// Steps:
-//   logContent = readFile("logs/" + requestId + ".json")
-//   verifyFileReadSuccess(logContent) // Halt/Escalate on failure
-//   allEntries = parseJson(logContent)
-//   verifyParseSuccess(allEntries) // Halt/Escalate on failure
-//   latestState = extractLatestState(allEntries)
-//   historicalContext = extractHistory(allEntries)
-//   return { latestState, historicalContext }
-// End Function
-```
+> ```pseudocode
+> // @examples/context-loading.pseudocode
+> // Function: loadFullContext
+> // Purpose: Read and parse the entire request log.
+> // Input: requestId
+> // Returns: Full historical context and latest state object
+> // Steps:
+> //   logContent = readFile("logs/" + requestId + ".json")
+> //   verifyFileReadSuccess(logContent) // Halt/Escalate on failure
+> //   allEntries = parseJson(logContent)
+> //   verifyParseSuccess(allEntries) // Halt/Escalate on failure
+> //   latestState = extractLatestState(allEntries)
+> //   historicalContext = extractHistory(allEntries)
+> //   return { latestState, historicalContext }
+> // End Function
+> ```
 
-### Step 2: ACTION - Execute MCP Task Check (Optional & Non-Blocking)
+### Step 2: ☑️ ACTION - Execute MCP Task Check (Optional & Non-Blocking)
 *   **ACTION:** If applicable to the agent role (primarily [`Overmind`](mdc:rules-md/agent-roles.md#overmind)), execute `mcp_taskmanager_get_next_task`.
 *   **Constraint:** This **MUST** be a non-blocking call. Agent execution **MUST** proceed immediately to Step 3 regardless of the outcome. Log state, not MCP tasks, drives the workflow.
 
-```pseudocode
-// @examples/task-management.pseudocode
-// Function: checkMcpTask (Optional)
-// Purpose: Non-blocking check for external task system updates.
-// Steps:
-//   // Execute non-blocking API call
-//   taskInfo = mcp_taskmanager_get_next_task()
-//   // Log retrieval attempt if needed, but DO NOT wait or block.
-//   // Proceed immediately to Step 3.
-// End Function
-```
+> ```pseudocode
+> // @examples/task-management.pseudocode
+> // Function: checkMcpTask (Optional)
+> // Purpose: Non-blocking check for external task system updates.
+> // Steps:
+> //   // Execute non-blocking API call
+> //   taskInfo = mcp_taskmanager_get_next_task()
+> //   // Log retrieval attempt if needed, but DO NOT wait or block.
+> //   // Proceed immediately to Step 3.
+> // End Function
+> ```
 
-### Step 3: ACTION - Execute Log Context Analysis
+### Step 3: 🤔 ACTION - Execute Log Context Analysis
 *   **ACTION:** Process the latest `handoffMessage` and any relevant `observations` from the loaded context (Step 1).
 *   **ACTION:** Determine the specific goal(s) the agent **MUST** achieve in the current turn.
 
-```pseudocode
-// @examples/log-analysis.pseudocode
-// Function: analyzeLogContext
-// Purpose: Determine current turn's goal from log data.
-// Input: latestState (from Step 1)
-// Returns: goals_object
-// Steps:
-//   goals = parseHandoffMessage(latestState.handoffMessage)
-//   contextFromHistory = analyzeObservations(latestState.observations)
-//   refinedGoals = refineGoalsWithContext(goals, contextFromHistory)
-//   return refinedGoals
-// End Function
-```
+> ```pseudocode
+> // @examples/log-analysis.pseudocode
+> // Function: analyzeLogContext
+> // Purpose: Determine current turn's goal from log data.
+> // Input: latestState (from Step 1)
+> // Returns: goals_object
+> // Steps:
+> //   goals = parseHandoffMessage(latestState.handoffMessage)
+> //   contextFromHistory = analyzeObservations(latestState.observations)
+> //   refinedGoals = refineGoalsWithContext(goals, contextFromHistory)
+> //   return refinedGoals
+> // End Function
+> ```
 
-### Step 4: ACTION - Execute Codebase Context Analysis
+### Step 4: 💻 ACTION - Execute Codebase Context Analysis
 *   **ACTION:** Based on the goal(s) from Step 3, execute necessary **read-only** tools (`file_search`, `read_file`, `grep_search`, `codebase_search`) to gather required information from the codebase.
 
-```pseudocode
-// @examples/codebase-analysis.pseudocode
-// Function: analyzeCodebase
-// Purpose: Gather information about the codebase relevant to the goal.
-// Input: currentGoals (from Step 3)
-// Steps:
-//   // Execute relevant tools based on currentGoals
-//   if needsFileSearch(currentGoals):
-//     execute file_search(...)
-//   if needsReadSpecificFiles(currentGoals):
-//     execute read_file(...)
-//   if needsGrepSearch(currentGoals):
-//     execute grep_search(...)
-//   if needsSemanticSearch(currentGoals):
-//     execute codebase_search(...)
-//   // Consolidate findings internally for Step 6
-// End Function
-```
+> ```pseudocode
+> // @examples/codebase-analysis.pseudocode
+> // Function: analyzeCodebase
+> // Purpose: Gather information about the codebase relevant to the goal.
+> // Input: currentGoals (from Step 3)
+> // Steps:
+> //   // Execute relevant tools based on currentGoals
+> //   if needsFileSearch(currentGoals):
+> //     execute file_search(...)
+> //   if needsReadSpecificFiles(currentGoals):
+> //     execute read_file(...)
+> //   if needsGrepSearch(currentGoals):
+> //     execute grep_search(...)
+> //   if needsSemanticSearch(currentGoals):
+> //     execute codebase_search(...)
+> //   // Consolidate findings internally for Step 6
+> // End Function
+> ```
 
-### Step 5: ACTION - Execute External Context Gathering (Conditional & Non-Blocking)
+### Step 5: 🌍 ACTION - Execute External Context Gathering (Conditional & Non-Blocking)
 *   **Condition:** Only if the goal requires external information not present in the codebase or logs.
 *   **ACTION:** Execute `context7_*` tools to retrieve library documentation.
 *   **ACTION:** Execute `web_search` to retrieve external patterns, errors, or general knowledge.
 *   **Constraint:** Use these tools judiciously and ensure they do not block execution flow.
 
-```pseudocode
-// @examples/external-context.pseudocode
-// Function: gatherExternalContext (Conditional)
-// Purpose: Fetch external information if required by the goal.
-// Steps:
-//   if goalRequiresLibraryDocs(currentGoals):
-//     execute context7_get_library_docs(...)
-//   if goalRequiresWebSearch(currentGoals):
-//     execute web_search(...)
-//   // Consolidate findings internally for Step 6
-// End Function
-```
+> ```pseudocode
+> // @examples/external-context.pseudocode
+> // Function: gatherExternalContext (Conditional)
+> // Purpose: Fetch external information if required by the goal.
+> // Steps:
+> //   if goalRequiresLibraryDocs(currentGoals):
+> //     execute context7_get_library_docs(...)
+> //   if goalRequiresWebSearch(currentGoals):
+> //     execute web_search(...)
+> //   // Consolidate findings internally for Step 6
+> // End Function
+> ```
 
-### Step 6: ACTION - Execute Agent-Specific Core Task
+### Step 6: ⚡ ACTION - Execute Agent-Specific Core Task
 *   **ACTION:** Execute the primary task(s) for the current agent's role using the allowed tools from the [Shared Core Toolchain](mdc:rules-md/shared-core.md#allowed-toolchain) and agent-specific rules (e.g., `edit_file`, `run_terminal_cmd`, custom tools via `run_terminal_cmd python tools/...`).
 *   **ACTION:** Perform the core value-adding work for this turn based on the analysis from Steps 3, 4, and 5.
-*   **Diagnostics Exception:** If execution fails critically and requires *specific* external diagnostic info (e.g., full error logs, HAR files), **only then** interact with the user **solely** to request this data. **ACTION:** Resume execution **immediately** upon receiving data. **DO NOT** pause for confirmation, general help, or any other reason.
+*   **Diagnostics Exception:** If execution fails critically and requires *specific* external diagnostic info (e.g., full error logs, `HAR` files), **only then** interact with the user **solely** to request this data. **ACTION:** Resume execution **immediately** upon receiving data. **DO NOT** pause for confirmation, general help, or any other reason.
 
-```pseudocode
-// @examples/agent-action.pseudocode
-// Function: executeAgentTask
-// Purpose: Perform the agent's main role-specific action.
-// Input: agentRole, currentGoals, collectedContext
-// Steps:
-//   switch agentRole:
-//     case "BuilderAgent":
-//       execute edit_file(...) or run_terminal_cmd("build script")
-//     case "AuditAgent":
-//       execute run_terminal_cmd("python tools/run_linter.py")
-//     // ... other agent roles
-//   // Handle tool execution results and errors
-//   // If critical error needs external DIAGNOSTICS:
-//   //   requestSpecificDiagnosticsFromUser(details_needed)
-//   //   waitUntilDiagnosticsReceived() // ONLY time waiting is allowed
-//   //   resumeExecution()
-// End Function
-```
+> ```pseudocode
+> // @examples/agent-action.pseudocode
+> // Function: executeAgentTask
+> // Purpose: Perform the agent's main role-specific action.
+> // Input: agentRole, currentGoals, collectedContext
+> // Steps:
+> //   switch agentRole:
+> //     case "BuilderAgent":
+> //       execute edit_file(...) or run_terminal_cmd("build script")
+> //     case "AuditAgent":
+> //       execute run_terminal_cmd("python tools/run_linter.py")
+> //     // ... other agent roles
+> //   // Handle tool execution results and errors
+> //   // If critical error needs external DIAGNOSTICS:
+> //   //   requestSpecificDiagnosticsFromUser(details_needed)
+> //   //   waitUntilDiagnosticsReceived() // ONLY time waiting is allowed
+> //   //   resumeExecution()
+> // End Function
+> ```
 
-### Step 7: ACTION - Execute Findings Consolidation
+### Step 7: 📝 ACTION - Execute Findings Consolidation
 *   **ACTION:** Consolidate the results and outcomes of the tool executions from Steps 4, 5, and 6.
 *   **ACTION:** Prepare the `actionsTaken` array structure for the log entry, summarizing key actions and results minimally, adhering to [Logging Standards](mdc:rules-md/log-handling.md).
 
-```pseudocode
-// @examples/findings.pseudocode
-// Function: consolidateFindings
-// Purpose: Prepare the actionsTaken array for logging.
-// Input: resultsFromSteps4_5_6
-// Returns: actionsTaken_array
-// Steps:
-//   actionsTaken = []
-//   for each tool_result in resultsFromSteps4_5_6:
-//     actionEntry = { tool: tool_result.name, summary: tool_result.summary, result: tool_result.status }
-//     if tool_result.target:
-//       actionEntry.target = tool_result.target
-//     actionsTaken.append(actionEntry)
-//   return actionsTaken
-// End Function
-```
+> ```pseudocode
+> // @examples/findings.pseudocode
+> // Function: consolidateFindings
+> // Purpose: Prepare the actionsTaken array for logging.
+> // Input: resultsFromSteps4_5_6
+> // Returns: actionsTaken_array
+> // Steps:
+> //   actionsTaken = []
+> //   for each tool_result in resultsFromSteps4_5_6:
+> //     actionEntry = { tool: tool_result.name, summary: tool_result.summary, result: tool_result.status }
+> //     if tool_result.target:
+> //       actionEntry.target = tool_result.target
+> //     actionsTaken.append(actionEntry)
+> //   return actionsTaken
+> // End Function
+> ```
 
-### Step 8: ACTION - Execute Task Finalization (Conditional & Non-Blocking)
+### Step 8: ✅ ACTION - Execute Task Finalization (Conditional & Non-Blocking)
 *   **Condition:** If the agent's action completed an assigned MCP task.
 *   **ACTION:** Execute `mcp_taskmanager_mark_task_done`.
 *   **Constraint:** This **MUST** be non-blocking. **ACTION:** Initiate the call and **immediately proceed** to Step 9.
 
-```pseudocode
-// @examples/task-finalization.pseudocode
-// Function: finalizeMcpTask (Conditional & Non-blocking)
-// Purpose: Mark an external task as done without waiting.
-// Input: taskId (if applicable)
-// Steps:
-//   if taskCompleted(currentGoals) and hasTaskId(taskId):
-//     // Execute non-blocking API call
-//     mcp_taskmanager_mark_task_done(taskId)
-//   // Proceed immediately to Step 9 regardless of call outcome.
-// End Function
-```
+> ```pseudocode
+> // @examples/task-finalization.pseudocode
+> // Function: finalizeMcpTask (Conditional & Non-blocking)
+> // Purpose: Mark an external task as done without waiting.
+> // Input: taskId (if applicable)
+> // Steps:
+> //   if taskCompleted(currentGoals) and hasTaskId(taskId):
+> //     // Execute non-blocking API call
+> //     mcp_taskmanager_mark_task_done(taskId)
+> //   // Proceed immediately to Step 9 regardless of call outcome.
+> // End Function
+> ```
 
-### Step 9: ACTION - Execute Logging to Request File (CRITICAL TRIGGER STEP)
+### Step 9: ✍️ ACTION - Execute Logging to Request File (CRITICAL TRIGGER STEP)
 *   **ACTION:** Determine the `nextAgent` based on the outcome of Step 6 and the overall workflow plan (e.g., direct handoff or return to [`Overmind`](mdc:rules-md/agent-roles.md#overmind)).
 *   **ACTION:** Formulate a concise, actionable `handoffMessage` for the `nextAgent`.
 *   **ACTION:** Execute `run_terminal_cmd python tools/get_current_time.py` to get the timestamp.
@@ -210,78 +210,78 @@ Agents **MUST** execute these steps sequentially and without deviation in every 
 *   **ACTION:** Execute `edit_file` to **append** the JSON entry string to `logs/<requestId>.json`, ensuring the file remains a valid JSON array.
 *   **CRITICAL:** Successful completion of this append operation is the **sole trigger** for the framework to initiate the next transition (Step 10). Failure here breaks the autonomous flow.
 
-```pseudocode
-// @examples/logging.pseudocode
-// Function: appendLogEntry
-// Purpose: Log the turn's outcome and trigger the next step.
-// Input: agentRole, requestId, actionsTaken, /* other context */
-// Steps:
-//   nextAgent = determineNextAgentBasedOnOutcomeAndPlan()
-//   handoffMessage = createConciseHandoffMessage(nextAgent)
-//   timestamp = execute run_terminal_cmd("python tools/get_current_time.py")
-//   logEntry = {
-//     requestId: requestId,
-//     agentRole: agentRole,
-//     timestamp: timestamp,
-//     status: determineStatus(), // "completed_step" or "error_escalated"
-//     actionsTaken: actionsTaken, // From Step 7
-//     errorsEncountered: getErrorsIfAny(), // Only if status is error
-//     nextAgent: nextAgent,
-//     handoffMessage: handoffMessage
-//     // ... other required fields
-//   }
-//   logEntryString = formatAsJsonString(logEntry)
-//   // Execute append operation
-//   execute edit_file("logs/" + requestId + ".json", logEntryString, { append: true })
-//   verifyAppendSuccess() // Halt/Escalate on failure
-// End Function
-```
+> ```pseudocode
+> // @examples/logging.pseudocode
+> // Function: appendLogEntry
+> // Purpose: Log the turn's outcome and trigger the next step.
+> // Input: agentRole, requestId, actionsTaken, /* other context */
+> // Steps:
+> //   nextAgent = determineNextAgentBasedOnOutcomeAndPlan()
+> //   handoffMessage = createConciseHandoffMessage(nextAgent)
+> //   timestamp = execute run_terminal_cmd("python tools/get_current_time.py")
+> //   logEntry = {
+> //     requestId: requestId,
+> //     agentRole: agentRole,
+> //     timestamp: timestamp,
+> //     status: determineStatus(), // "completed_step" or "error_escalated"
+> //     actionsTaken: actionsTaken, // From Step 7
+> //     errorsEncountered: getErrorsIfAny(), // Only if status is error
+> //     nextAgent: nextAgent,
+> //     handoffMessage: handoffMessage
+> //     // ... other required fields
+> //   }
+> //   logEntryString = formatAsJsonString(logEntry)
+> //   // Execute append operation
+> //   execute edit_file("logs/" + requestId + ".json", logEntryString, { append: true })
+> //   verifyAppendSuccess() // Halt/Escalate on failure
+> // End Function
+> ```
 
-### Step 10: FRAMEWORK ACTION - Execute Immediate Automatic Transition
+### Step 10: ➡️ FRAMEWORK ACTION - Execute Immediate Automatic Transition
 *   **Responsibility:** This step is executed by the **FRAMEWORK**, not the agent.
 *   **Trigger:** Successful completion and verification of the log append in Step 9.
 *   **Framework ACTION:** The underlying framework **MUST IMMEDIATELY** read the `nextAgent` field from the just-appended log entry.
 *   **Framework ACTION:** Based **solely** on the `nextAgent` value:
     *   If `nextAgent` is a valid agent role: Load rules for `nextAgent` and restart execution from Step 1 **without any delay**.
-    *   If `nextAgent` is null, empty, or "HALT": Stop execution for this `requestId`.
+    *   If `nextAgent` is null, empty, or `"HALT"`: Stop execution for this `requestId`.
     *   If `nextAgent` is invalid/missing: Log critical framework error and halt.
 *   **Note:** The agent's execution for the current turn concludes upon successfully initiating the log append in Step 9. The framework takes over for Step 10.
 
-```pseudocode
-// @examples/transition.pseudocode
-// --- FRAMEWORK INTERNAL ACTION --- 
-// (Pseudocode remains conceptual representation of framework logic)
-```
+> ```pseudocode
+> // @examples/transition.pseudocode
+> // --- FRAMEWORK INTERNAL ACTION ---
+> // (Pseudocode remains conceptual representation of framework logic)
+> ```
 
 ## 🔍 Verification Requirements (Per Step)
 
 Before executing **each** step (1-9), agents **MUST** implicitly or explicitly verify:
-1.  Availability of required tools for the step.
-2.  Necessary permissions for file access or command execution.
-3.  Validity and presence of required inputs for the step's actions.
-4.  Continued access to the log file.
+1.  ✅ Availability of required tools for the step.
+2.  🔑 Necessary permissions for file access or command execution.
+3.  📥 Validity and presence of required inputs for the step's actions.
+4.  💾 Continued access to the log file.
 
 Failure at any verification **MUST** lead to immediate halt and escalation to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) via Step 9 logging.
 
-```pseudocode
-// @examples/step-verification.pseudocode
-// Concept: Verification checks integrated within each step's logic.
-// Function: executeStep_N(...)
-// Steps:
-//   verifyPrerequisitesForStepN() // Checks tools, permissions, inputs
-//   executeCoreActionForStepN()
-//   verifyOutcomeOfStepN()
-//   // If any verification fails, trigger Error Handling
-// End Function
-```
+> ```pseudocode
+> // @examples/step-verification.pseudocode
+> // Concept: Verification checks integrated within each step's logic.
+> // Function: executeStep_N(...)
+> // Steps:
+> //   verifyPrerequisitesForStepN() // Checks tools, permissions, inputs
+> //   executeCoreActionForStepN()
+> //   verifyOutcomeOfStepN()
+> //   // If any verification fails, trigger Error Handling
+> // End Function
+> ```
 
 ## ⚠️ Deprecated Patterns (Strictly Forbidden)
 
-*   Waiting for user "proceed" or "continue" confirmations.
-*   Attempting state management outside `logs/<requestId>.json`.
-*   Direct agent-to-agent communication.
-*   Blocking execution waiting for optional MCP task approval (Step 2 or 8).
-*   Failing to set a valid `nextAgent` in Step 9 (breaks the loop).
+*   ⏳ Waiting for user `"proceed"` or `"continue"` confirmations.
+*   🧠 Attempting state management outside `logs/<requestId>.json`.
+*   🤫 Direct agent-to-agent communication.
+*   ⏳ Blocking execution waiting for optional MCP task approval (Step 2 or 8).
+*   🛑 Failing to set a valid `nextAgent` in Step 9 (breaks the loop).
 
 ## 🚨 Error Handling (General)
 
@@ -292,82 +292,82 @@ Failure at any verification **MUST** lead to immediate halt and escalation to [`
     4.  Provide a concise `handoffMessage` explaining the failure.
     5.  Execute Step 9 to log the error state and hand off to `Overmind`.
 
-```pseudocode
-// @examples/error-handling.pseudocode
-// Function: handleErrorAndEscalate
-// Purpose: Log error state and hand off to Overmind.
-// Input: errorDetails, failedStepNumber
-// Steps:
-//   // Prepare log entry fields for error state
-//   entry = {
-//     status: "error_escalated",
-//     errorsEncountered: [errorDetails],
-//     nextAgent: "Overmind",
-//     handoffMessage: "Execution failed at Step " + failedStepNumber + ": " + errorDetails + ". Requesting Overmind review.",
-//     // ... other standard fields ...
-//   }
-//   // Execute Step 9 logging with this error entry
-//   appendLogEntry(entry) // This will trigger transition to Overmind
-// End Function
-```
+> ```pseudocode
+> // @examples/error-handling.pseudocode
+> // Function: handleErrorAndEscalate
+> // Purpose: Log error state and hand off to Overmind.
+> // Input: errorDetails, failedStepNumber
+> // Steps:
+> //   // Prepare log entry fields for error state
+> //   entry = {
+> //     status: "error_escalated",
+> //     errorsEncountered: [errorDetails],
+> //     nextAgent: "Overmind",
+> //     handoffMessage: "Execution failed at Step " + failedStepNumber + ": " + errorDetails + ". Requesting Overmind review.",
+> //     // ... other standard fields ...
+> //   }
+> //   // Execute Step 9 logging with this error entry
+> //   appendLogEntry(entry) // This will trigger transition to Overmind
+> // End Function
+> ```
 
 ## 📋 Example Loop Execution
 
-```json
-// @examples/loop-execution.json
-{
-  "requestId": "req-123",
-  "steps": [
-    {
-      "step": 1,
-      "action": "Loaded full log context",
-      "result": "success"
-    },
-    {
-      "step": 2,
-      "action": "Skipped optional MCP task",
-      "result": "skipped"
-    },
-    {
-      "step": 3,
-      "action": "Analyzed handoff message",
-      "result": "success"
-    },
-    {
-      "step": 4,
-      "action": "Searched codebase",
-      "result": "success"
-    },
-    {
-      "step": 5,
-      "action": "Retrieved library docs",
-      "result": "success"
-    },
-    {
-      "step": 6,
-      "action": "Executed edit_file",
-      "result": "success"
-    },
-    {
-      "step": 7,
-      "action": "Consolidated results",
-      "result": "success"
-    },
-    {
-      "step": 8,
-      "action": "Marked task complete",
-      "result": "success"
-    },
-    {
-      "step": 9,
-      "action": "Appended to log",
-      "result": "success"
-    },
-    {
-      "step": 10,
-      "action": "Transitioned to AuditAgent",
-      "result": "success"
-    }
-  ]
-}
-``` 
+> ```json
+> // @examples/loop-execution.json
+> {
+>   "requestId": "req-123",
+>   "steps": [
+>     {
+>       "step": 1,
+>       "action": "Loaded full log context",
+>       "result": "success"
+>     },
+>     {
+>       "step": 2,
+>       "action": "Skipped optional MCP task",
+>       "result": "skipped"
+>     },
+>     {
+>       "step": 3,
+>       "action": "Analyzed handoff message",
+>       "result": "success"
+>     },
+>     {
+>       "step": 4,
+>       "action": "Searched codebase",
+>       "result": "success"
+>     },
+>     {
+>       "step": 5,
+>       "action": "Retrieved library docs",
+>       "result": "success"
+>     },
+>     {
+>       "step": 6,
+>       "action": "Executed edit_file",
+>       "result": "success"
+>     },
+>     {
+>       "step": 7,
+>       "action": "Consolidated results",
+>       "result": "success"
+>     },
+>     {
+>       "step": 8,
+>       "action": "Marked task complete",
+>       "result": "success"
+>     },
+>     {
+>       "step": 9,
+>       "action": "Appended to log",
+>       "result": "success"
+>     },
+>     {
+>       "step": 10,
+>       "action": "Transitioned to AuditAgent",
+>       "result": "success"
+>     }
+>   ]
+> }
+> ``` 
