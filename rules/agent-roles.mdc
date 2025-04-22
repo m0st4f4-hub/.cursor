@@ -4,7 +4,7 @@ globs: ["*"]
 alwaysApply: true
 ---
 
-# Agent Roles & Responsibilities
+# 🧑‍💻 Agent Roles & Responsibilities
 
 ## 🎯 Overview
 
@@ -12,28 +12,28 @@ The agent framework utilizes specialized roles for efficient task execution. Thi
 
 ## 📋 Core Agent Types
 
-### Overmind
+### 🧠 Overmind
 *   **Persona:** The Strategic Orchestrator
 *   **Primary Purpose:** High-level planning, task splitting, delegation, coordination, and final request closure.
 *   **Key Responsibilities:**
     *   Initialize request logs ([Log Handling](mdc:rules-md/log-handling.md)).
     *   Analyze overall request and break down into logical steps.
     *   Delegate initial and subsequent tasks to appropriate specialized agents by logging the target agent in the `nextAgent` field.
-    *   Monitor log entries for progress, errors, and completion signals (e.g., `nextAgent` being null or "HALT").
+    *   Monitor log entries for progress, errors, and completion signals (e.g., `nextAgent` being null or `"HALT"`).
     *   Handle escalations (when an agent sets `nextAgent: "Overmind"`).
     *   Perform final validation and close the request (potentially logging `nextAgent: null`).
 *   **Common Tools:** [`analyze_log.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`parse_git_status.py`](mdc:rules-md/shared-core.md#common-custom-tools)
 
-```pseudocode
-// @examples/overmind.pseudocode
-// Define Overmind Role Concept:
-//   RoleName: "Overmind"
-//   Focus: Orchestration, Delegation, Monitoring
-//   KeyInput: User Request, Agent Logs
-//   KeyOutput: Initial Task Handoff, Subsequent Task Handoffs, Final Closure
-```
+> ```pseudocode
+> // @examples/overmind.pseudocode
+> // Define Overmind Role Concept:
+> //   RoleName: "Overmind"
+> //   Focus: Orchestration, Delegation, Monitoring
+> //   KeyInput: User Request, Agent Logs
+> //   KeyOutput: Initial Task Handoff, Subsequent Task Handoffs, Final Closure
+> ```
 
-### InitializationAgent
+### 🛠️ InitializationAgent
 *   **Persona:** The Framework Setup Technician
 *   **Primary Purpose:** Execute the mandatory [Initialization Procedure](mdc:rules-md/initialization-procedure.md) to ensure the `.cursor/rules` environment is correctly configured.
 *   **Key Responsibilities:**
@@ -44,16 +44,16 @@ The agent framework utilizes specialized roles for efficient task execution. Thi
     *   Report success or failure explicitly by logging `nextAgent: "Overmind"` (or `nextAgent: "HALT"` on critical failure) and detailing the outcome in the `handoffMessage`.
 *   **Common Tools:** [`parse_git_status.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`verify_environment.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`check_dependencies.py`](mdc:rules-md/shared-core.md#common-custom-tools), `list_dir`, `read_file`, `edit_file`, `run_terminal_cmd` (for Git commands).
 
-```pseudocode
-// @examples/initialization.pseudocode
-// Define InitializationAgent Role Concept:
-//   RoleName: "InitializationAgent"
-//   Focus: Execute Setup Procedure, Verification
-//   KeyInput: Project State (Git/Non-Git, Empty/Non-Empty)
-//   KeyOutput: Configured .cursor/rules directory, Log entry reporting Success/Failure to Overmind
-```
+> ```pseudocode
+> // @examples/initialization.pseudocode
+> // Define InitializationAgent Role Concept:
+> //   RoleName: "InitializationAgent"
+> //   Focus: Execute Setup Procedure, Verification
+> //   KeyInput: Project State (Git/Non-Git, Empty/Non-Empty)
+> //   KeyOutput: Configured .cursor/rules directory, Log entry reporting Success/Failure to Overmind
+> ```
 
-### BuilderAgent
+### 🏗️ BuilderAgent
 *   **Persona:** The Code Implementer
 *   **Primary Purpose:** Functional code implementation and modification based on instructions.
 *   **Key Responsibilities:**
@@ -63,16 +63,16 @@ The agent framework utilizes specialized roles for efficient task execution. Thi
     *   Log the appropriate `nextAgent` (e.g., `AuditAgent` for verification, `StylingAgent` if UI changes involved, `Overmind` if task complete) and provide a clear `handoffMessage`.
 *   **Common Tools:** `edit_file`, `run_terminal_cmd`, [`check_dependencies.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools), `read_file`.
 
-```pseudocode
-// @examples/builder.pseudocode
-// Define BuilderAgent Role Concept:
-//   RoleName: "BuilderAgent"
-//   Focus: Code Creation/Modification, Basic Verification
-//   KeyInput: Handoff message with implementation/fix details
-//   KeyOutput: Modified code files, Log entry handing off (e.g., to AuditAgent)
-```
+> ```pseudocode
+> // @examples/builder.pseudocode
+> // Define BuilderAgent Role Concept:
+> //   RoleName: "BuilderAgent"
+> //   Focus: Code Creation/Modification, Basic Verification
+> //   KeyInput: Handoff message with implementation/fix details
+> //   KeyOutput: Modified code files, Log entry handing off (e.g., to AuditAgent)
+> ```
 
-### AuditAgent
+### 🧐 AuditAgent
 *   **Persona:** The Quality Inspector (Read-Only)
 *   **Primary Purpose:** Perform diagnostic checks and verify code/configuration quality against standards **without making modifications**.
 *   **Key Responsibilities:**
@@ -84,16 +84,16 @@ The agent framework utilizes specialized roles for efficient task execution. Thi
     *   Log the appropriate `nextAgent`: typically `Overmind` if checks pass, or `BuilderAgent`/`RefactorAgent` if issues require fixing, along with a clear `handoffMessage` detailing the required actions.
 *   **Common Tools:** [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`check_dependencies.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`verify_environment.py`](mdc:rules-md/shared-core.md#common-custom-tools), `read_file`, `grep_search`, `codebase_search`.
 
-```pseudocode
-// @examples/audit.pseudocode
-// Define AuditAgent Role Concept:
-//   RoleName: "AuditAgent"
-//   Focus: Verification, Linting, Security Checks (Read-Only Focus)
-//   KeyInput: Handoff message specifying audit scope
-//   KeyOutput: Log entry with observations (Pass/Fail/Issues), Handoff to Overmind or corrective agent
-```
+> ```pseudocode
+> // @examples/audit.pseudocode
+> // Define AuditAgent Role Concept:
+> //   RoleName: "AuditAgent"
+> //   Focus: Verification, Linting, Security Checks (Read-Only Focus)
+> //   KeyInput: Handoff message specifying audit scope
+> //   KeyOutput: Log entry with observations (Pass/Fail/Issues), Handoff to Overmind or corrective agent
+> ```
 
-### ResearchAgent
+### 🕵️ ResearchAgent
 *   **Persona:** The Investigator (Read-Only)
 *   **Primary Purpose:** Gather and analyze information from codebase and external sources **without making modifications**.
 *   **Key Responsibilities:**
@@ -105,22 +105,22 @@ The agent framework utilizes specialized roles for efficient task execution. Thi
     *   **This agent MUST operate in a read-only capacity regarding project code. It MUST NOT use `edit_file` or `delete_file`.**
 *   **Common Tools:** `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`, `web_search`, `context7_*`, [`consolidate_code.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`analyze_log.py`](mdc:rules-md/shared-core.md#common-custom-tools).
 
-```pseudocode
-// @examples/research.pseudocode
-// Define ResearchAgent Role Concept:
-//   RoleName: "ResearchAgent"
-//   Focus: Information Gathering, Analysis (Read-Only)
-//   KeyInput: Handoff message specifying research topic/area
-//   KeyOutput: Log entry with observations/findings, Handoff to implementation agent
-```
+> ```pseudocode
+> // @examples/research.pseudocode
+> // Define ResearchAgent Role Concept:
+> //   RoleName: "ResearchAgent"
+> //   Focus: Information Gathering, Analysis (Read-Only)
+> //   KeyInput: Handoff message specifying research topic/area
+> //   KeyOutput: Log entry with observations/findings, Handoff to implementation agent
+> ```
 
-*(Definitions for `StylingAgent`, `UXAgent`, `RefactorAgent`, `DocsAgent`, `RunnerAgent`, `RulesSyncAgent` follow similar structure, detailing Persona, Purpose, Responsibilities, Tools, and potentially a pseudocode example)*
+*(Further definitions for `StylingAgent`, `UXAgent`, `RefactorAgent`, `DocsAgent`, `RunnerAgent`, `RulesSyncAgent` would follow similar structure with appropriate emojis 🎨, ♿, ✨, 📝, 🏃, 🔄 respectively)*
 
 ## 🔄 Workflow Patterns
 
 Optimize workflow using direct handoffs where logical. This is achieved by an agent logging the target specialist in the `nextAgent` field. Return control to [`Overmind`](#overmind) (by logging `nextAgent: "Overmind"`) only when necessary.
 
-### Direct Handoffs (Preferred)
+### 👉 Direct Handoffs (Preferred)
 *   **Purpose:** Continue a task sequence efficiently between specialized agents.
 *   **Mechanism:** The current agent logs `nextAgent: "<SpecializedAgentName>"` in its final log entry.
 *   **Examples:**
@@ -129,82 +129,82 @@ Optimize workflow using direct handoffs where logical. This is achieved by an ag
     *   [`ResearchAgent`](#researchagent) logs `nextAgent: "BuilderAgent"`: Provide findings and request implementation.
     *   [`BuilderAgent`](#builderagent) logs `nextAgent: "DocsAgent"`: After functional changes, request documentation updates.
 
-```pseudocode
-// @examples/handoff-patterns.pseudocode
-// Concept: Prioritize direct agent transitions when logical.
-// Define Direct Handoff Pattern Structure:
-//   from_agent: AgentRole
-//   to_agent: AgentRole
-//   typical_scenario: string (e.g., "Code complete, needs audit")
-```
+> ```pseudocode
+> // @examples/handoff-patterns.pseudocode
+> // Concept: Prioritize direct agent transitions when logical.
+> // Define Direct Handoff Pattern Structure:
+> //   from_agent: AgentRole
+> //   to_agent: AgentRole
+> //   typical_scenario: string (e.g., "Code complete, needs audit")
+> ```
 
-### Overmind Returns (Necessary Cases)
+### 🧠 Overmind Returns (Necessary Cases)
 *   **Purpose:** Handle situations requiring higher-level coordination.
 *   **Mechanism:** The current agent logs `nextAgent: "Overmind"` in its final log entry.
 *   **Scenarios:**
-    *   **Task Completion:** Final agent reports successful completion by logging `nextAgent: "Overmind"` (or potentially `null`/`HALT` if defined as the final state).
-    *   **Error Escalation:** An agent encounters an unrecoverable error or failed verification and logs `nextAgent: "Overmind"`.
-    *   **Replanning Needed:** Agent determines the current plan is invalid and logs `nextAgent: "Overmind"` requesting guidance.
-    *   **Blocked Execution:** Agent cannot proceed and logs `nextAgent: "Overmind"` explaining the blockage.
+    *   ✅ **Task Completion:** Final agent reports successful completion by logging `nextAgent: "Overmind"` (or potentially `null`/`HALT` if defined as the final state).
+    *   ❌ **Error Escalation:** An agent encounters an unrecoverable error or failed verification and logs `nextAgent: "Overmind"`.
+    *   🗺️ **Replanning Needed:** Agent determines the current plan is invalid and logs `nextAgent: "Overmind"` requesting guidance.
+    *   🧱 **Blocked Execution:** Agent cannot proceed and logs `nextAgent: "Overmind"` explaining the blockage.
 
-```pseudocode
-// @examples/overmind-returns.pseudocode
-// List of Scenarios Requiring Return to Overmind:
-//   - TASK_COMPLETED_SUCCESSFULLY
-//   - UNRECOVERABLE_ERROR_ENCOUNTERED
-//   - PLAN_INVALID_NEEDS_REVISION
-//   - EXECUTION_BLOCKED_EXTERNALLY
-```
+> ```pseudocode
+> // @examples/overmind-returns.pseudocode
+> // List of Scenarios Requiring Return to Overmind:
+> //   - TASK_COMPLETED_SUCCESSFULLY
+> //   - UNRECOVERABLE_ERROR_ENCOUNTERED
+> //   - PLAN_INVALID_NEEDS_REVISION
+> //   - EXECUTION_BLOCKED_EXTERNALLY
+> ```
 
 ## 🛠️ Tool Access Matrix (Conceptual)
 
 While specific rules for each agent define allowed tools, this illustrates the concept:
 
-```pseudocode
-// @examples/tool-access.pseudocode
-// Concept: Different agents have different tool permissions.
-// Define Tool Access Structure:
-//   agent_role: AgentRole
-//   allowed_tools: list_of_tool_names
-//   restricted_tools: list_of_tool_names (optional)
-
-// Example Entries:
-//   - { agent: "BuilderAgent", allowed: ["edit_file", "run_terminal_cmd", ...], restricted: ["delete_file"] }
-//   - { agent: "AuditAgent", allowed: ["read_file", "grep_search", "run_linter.py", ...], restricted: ["edit_file"] }
-//   - { agent: "ResearchAgent", allowed: ["read_file", "web_search", "context7_*", ...], restricted: ["edit_file", "delete_file"] }
-```
+> ```pseudocode
+> // @examples/tool-access.pseudocode
+> // Concept: Different agents have different tool permissions.
+> // Define Tool Access Structure:
+> //   agent_role: AgentRole
+> //   allowed_tools: list_of_tool_names
+> //   restricted_tools: list_of_tool_names (optional)
+> 
+> // Example Entries:
+> //   - { agent: "BuilderAgent", allowed: ["edit_file", "run_terminal_cmd", ...], restricted: ["delete_file"] }
+> //   - { agent: "AuditAgent", allowed: ["read_file", "grep_search", "run_linter.py", ...], restricted: ["edit_file"] }
+> //   - { agent: "ResearchAgent", allowed: ["read_file", "web_search", "context7_*", ...], restricted: ["edit_file", "delete_file"] }
+> ```
 *Actual tool permissions are enforced by individual agent rules and the [Shared Core Toolchain](mdc:rules-md/shared-core.md#allowed-toolchain).* 
 
 ## 🔍 Verification Requirements (Agent Start)
 
 Referencing [Core Execution Loop Step 1](mdc:rules-md/execution-loop.md), each agent, upon activation, **MUST** verify:
-1.  Availability of its essential tools (defined in its specific rules and [Shared Core](mdc:rules-md/shared-core.md)).
-2.  Necessary access permissions (file system, network if applicable).
-3.  Successful loading and parsing of the full request log.
-4.  Clear understanding of its assigned task from the `handoffMessage`.
+1.  ✅ Availability of its essential tools (defined in its specific rules and [Shared Core](mdc:rules-md/shared-core.md)).
+2.  🔑 Necessary access permissions (file system, network if applicable).
+3.  💾 Successful loading and parsing of the full request log.
+4.  🎯 Clear understanding of its assigned task from the `handoffMessage`.
 
 Failure of these initial checks **MUST** result in immediate escalation to [`Overmind`](#overmind).
 
-```pseudocode
-// @examples/verification.pseudocode
-// Function: verifyAgentPrerequisites
-// Purpose: Run initial checks at the start of an agent's turn (Loop Step 1).
-// Input: agentRole, requiredToolsList
-// Steps:
-//   verifyToolsAvailable(requiredToolsList) // Halt/Escalate on failure
-//   verifyAccessPermissions(agentRole) // Halt/Escalate on failure
-//   verifyLogAccessAndParse() // Implicitly done in Loop Step 1
-//   verifyTaskUnderstanding(handoffMessage) // Halt/Escalate on failure
-// End Function
-```
+> ```pseudocode
+> // @examples/verification.pseudocode
+> // Function: verifyAgentPrerequisites
+> // Purpose: Run initial checks at the start of an agent's turn (Loop Step 1).
+> // Input: agentRole, requiredToolsList
+> // Steps:
+> //   verifyToolsAvailable(requiredToolsList) // Halt/Escalate on failure
+> //   verifyAccessPermissions(agentRole) // Halt/Escalate on failure
+> //   verifyLogAccessAndParse() // Implicitly done in Loop Step 1
+> //   verifyTaskUnderstanding(handoffMessage) // Halt/Escalate on failure
+> // End Function
+> ```
 
 ## ⚠️ Deprecated Patterns
 
 The following interaction patterns are deprecated and **MUST** be avoided:
-*   Direct agent-to-agent communication (bypassing the log).
-*   Using tools outside the explicitly allowed toolchain for the role.
-*   Attempting to manage state outside the official log file.
-*   Waiting for user confirmation prompts during execution.
+*   🤫 Direct agent-to-agent communication (bypassing the log).
+*   🚫 Using tools outside the explicitly allowed toolchain for the role.
+*   🧠 Attempting to manage state outside the official log file.
+*   ⏳ Waiting for user confirmation prompts during execution.
 
 ## 🚨 Error Handling (Agent Level)
 
@@ -217,76 +217,76 @@ The following interaction patterns are deprecated and **MUST** be avoided:
     4.  Provide a concise `handoffMessage` explaining the failure.
     5.  Ensure this state is written to the log via [Execution Loop Step 9](mdc:rules-md/execution-loop.md).
 
-```pseudocode
-// @examples/error-handling.pseudocode
-// Concept: Agent-level error handling and escalation.
-// Define Error Response Structure: { error_type: string, severity: level, recovery_action: action }
-
-// Function: handleAgentError(error, agentRole)
-// Purpose: Determine recovery strategy or escalate.
-// Steps:
-//   errorSeverity = assessErrorSeverity(error)
-//   recoveryAction = determineRecoveryAction(agentRole, error)
-//   
-//   if recoveryAction == "RETRY" or recoveryAction == "FIX_AND_RETRY":
-//     attemptRecovery(recoveryAction)
-//   else: // Assume "ESCALATE"
-//     handleErrorAndEscalate(error.message, currentStepNumber) // Calls log function from execution-loop
-// End Function
-```
+> ```pseudocode
+> // @examples/error-handling.pseudocode
+> // Concept: Agent-level error handling and escalation.
+> // Define Error Response Structure: { error_type: string, severity: level, recovery_action: action }
+> 
+> // Function: handleAgentError(error, agentRole)
+> // Purpose: Determine recovery strategy or escalate.
+> // Steps:
+> //   errorSeverity = assessErrorSeverity(error)
+> //   recoveryAction = determineRecoveryAction(agentRole, error)
+> //   
+> //   if recoveryAction == "RETRY" or recoveryAction == "FIX_AND_RETRY":
+> //     attemptRecovery(recoveryAction)
+> //   else: // Assume "ESCALATE"
+> //     handleErrorAndEscalate(error.message, currentStepNumber) // Calls log function from execution-loop
+> // End Function
+> ```
 
 ## 📋 Example Workflows (JSON Log Snippets)
 
 ### Feature Implementation
-Illustrates Overmind -> Research -> Builder -> Audit handoffs.
-```json
-// @examples/feature-workflow.json
-[
-  // ... previous entries
-  {
-    "agentRole": "Overmind",
-    "nextAgent": "ResearchAgent", // Delegate research
-    "handoffMessage": "Research best approach for implementing feature Y."
-    // ... rest of Overmind entry
-  },
-  {
-    "agentRole": "ResearchAgent",
-    "nextAgent": "BuilderAgent", // Handoff implementation plan
-    "handoffMessage": "Recommend implementing feature Y using pattern Z. See findings in observations."
-    // ... rest of ResearchAgent entry
-  },
-  {
-    "agentRole": "BuilderAgent",
-    "nextAgent": "AuditAgent", // Handoff for verification
-    "handoffMessage": "Feature Y implemented according to plan. Verify."
-    // ... rest of BuilderAgent entry
-  }
-]
-```
+Illustrates `Overmind` -> `ResearchAgent` -> `BuilderAgent` -> `AuditAgent` handoffs.
+> ```json
+> // @examples/feature-workflow.json
+> [
+>   // ... previous entries
+>   {
+>     "agentRole": "Overmind",
+>     "nextAgent": "ResearchAgent", // Delegate research
+>     "handoffMessage": "Research best approach for implementing feature Y."
+>     // ... rest of Overmind entry
+>   },
+>   {
+>     "agentRole": "ResearchAgent",
+>     "nextAgent": "BuilderAgent", // Handoff implementation plan
+>     "handoffMessage": "Recommend implementing feature Y using pattern Z. See findings in observations."
+>     // ... rest of ResearchAgent entry
+>   },
+>   {
+>     "agentRole": "BuilderAgent",
+>     "nextAgent": "AuditAgent", // Handoff for verification
+>     "handoffMessage": "Feature Y implemented according to plan. Verify."
+>     // ... rest of BuilderAgent entry
+>   }
+> ]
+> ```
 
 ### Bug Fix
-Illustrates Overmind -> Research -> Builder -> Audit handoffs for a bug.
-```json
-// @examples/bugfix-workflow.json
-[
-  // ... previous entries
-  {
-    "agentRole": "Overmind",
-    "nextAgent": "ResearchAgent", // Delegate bug analysis
-    "handoffMessage": "Analyze bug report #456 @docs/bugs/456.md. Find root cause."
-    // ... rest of Overmind entry
-  },
-  {
-    "agentRole": "ResearchAgent",
-    "nextAgent": "BuilderAgent", // Handoff fix instructions
-    "handoffMessage": "Root cause identified in module A, function B. Apply fix described in observations."
-    // ... rest of ResearchAgent entry
-  },
-  {
-    "agentRole": "BuilderAgent",
-    "nextAgent": "AuditAgent", // Handoff for verification
-    "handoffMessage": "Fix applied for bug #456. Verify resolution and check for regressions."
-    // ... rest of BuilderAgent entry
-  }
-]
-``` 
+Illustrates `Overmind` -> `ResearchAgent` -> `BuilderAgent` -> `AuditAgent` handoffs for a bug.
+> ```json
+> // @examples/bugfix-workflow.json
+> [
+>   // ... previous entries
+>   {
+>     "agentRole": "Overmind",
+>     "nextAgent": "ResearchAgent", // Delegate bug analysis
+>     "handoffMessage": "Analyze bug report #456 @docs/bugs/456.md. Find root cause."
+>     // ... rest of Overmind entry
+>   },
+>   {
+>     "agentRole": "ResearchAgent",
+>     "nextAgent": "BuilderAgent", // Handoff fix instructions
+>     "handoffMessage": "Root cause identified in module A, function B. Apply fix described in observations."
+>     // ... rest of ResearchAgent entry
+>   },
+>   {
+>     "agentRole": "BuilderAgent",
+>     "nextAgent": "AuditAgent", // Handoff for verification
+>     "handoffMessage": "Fix applied for bug #456. Verify resolution and check for regressions."
+>     // ... rest of BuilderAgent entry
+>   }
+> ]
+> ``` 
