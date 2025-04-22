@@ -23,11 +23,6 @@ The agent framework utilizes specialized roles for efficient task execution. Thi
     *   Handle escalations (when an agent sets `nextAgent: "Overmind"`).
     *   Perform final validation and close the request (potentially logging `nextAgent: null`).
 *   **Common Tools:** [`analyze_log.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`parse_git_status.py`](mdc:rules-md/shared-core.md#common-custom-tools)
-    *   Delegate initial and subsequent tasks to appropriate specialized agents via `nextAgent`.
-    *   Monitor log entries for progress, errors, and completion.
-    *   Handle escalations from other agents.
-    *   Perform final validation and close the request.
-*   **Common Tools:** [`analyze_log.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`parse_git_status.py`](mdc:rules-md/shared-core.md#common-custom-tools)
 
 ```pseudocode
 // @examples/overmind.pseudocode
@@ -43,10 +38,10 @@ The agent framework utilizes specialized roles for efficient task execution. Thi
 *   **Primary Purpose:** Execute the mandatory [Initialization Procedure](mdc:rules-md/initialization-procedure.md) to ensure the `.cursor/rules` environment is correctly configured.
 *   **Key Responsibilities:**
     *   Execute the steps defined in [initialization-procedure.md](mdc:rules-md/initialization-procedure.md).
-    *   Verify Git status and submodule configuration.
+    *   Verify Git status and submodule configuration using appropriate tools.
     *   Verify environment prerequisites.
     *   Configure necessary directories and `.gitignore` files.
-    *   Report success or failure explicitly to [`Overmind`](#overmind) via the log.
+    *   Report success or failure explicitly by logging `nextAgent: "Overmind"` (or `nextAgent: "HALT"` on critical failure) and detailing the outcome in the `handoffMessage`.
 *   **Common Tools:** [`parse_git_status.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`verify_environment.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`check_dependencies.py`](mdc:rules-md/shared-core.md#common-custom-tools), `list_dir`, `read_file`, `edit_file`, `run_terminal_cmd` (for Git commands).
 
 ```pseudocode
@@ -62,11 +57,10 @@ The agent framework utilizes specialized roles for efficient task execution. Thi
 *   **Persona:** The Code Implementer
 *   **Primary Purpose:** Functional code implementation and modification based on instructions.
 *   **Key Responsibilities:**
-    *   Implement new features as specified in `handoffMessage`.
-    *   Fix bugs identified by [`Overmind`](#overmind), [`ResearchAgent`](#researchagent), or [`AuditAgent`](#auditagent).
-    *   Execute build steps or tests via `run_terminal_cmd` as needed.
-    *   Verify basic code correctness (e.g., syntax) after edits.
-    *   Hand off to appropriate next agent (e.g., [`AuditAgent`](#auditagent) for verification, [`StylingAgent`](#stylingagent) if UI changes involved).
+    *   Implement new features or fix bugs based on the `handoffMessage`, using `edit_file`.
+    *   Execute build steps or tests via `run_terminal_cmd` as necessary to verify changes locally.
+    *   Verify basic code correctness (e.g., syntax checks, linting via [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools)) after edits.
+    *   Log the appropriate `nextAgent` (e.g., `AuditAgent` for verification, `StylingAgent` if UI changes involved, `Overmind` if task complete) and provide a clear `handoffMessage`.
 *   **Common Tools:** `edit_file`, `run_terminal_cmd`, [`check_dependencies.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools), `read_file`.
 
 ```pseudocode
@@ -79,15 +73,15 @@ The agent framework utilizes specialized roles for efficient task execution. Thi
 ```
 
 ### AuditAgent
-*   **Persona:** The Quality Inspector
-*   **Primary Purpose:** Perform diagnostic checks and verify code/configuration quality against standards.
+*   **Persona:** The Quality Inspector (Read-Only)
+*   **Primary Purpose:** Perform diagnostic checks and verify code/configuration quality against standards **without making modifications**.
 *   **Key Responsibilities:**
-    *   Execute linters and formatters via [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools).
+    *   Execute linters and formatters via [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools) (in check mode if possible).
     *   Execute dependency vulnerability checks via [`check_dependencies.py`](mdc:rules-md/shared-core.md#common-custom-tools).
     *   Execute environment verification via [`verify_environment.py`](mdc:rules-md/shared-core.md#common-custom-tools).
-    *   Analyze code/config files (`read_file`, `grep_search`) against specified standards.
+    *   Analyze code/config files (`read_file`, `grep_search`) against specified standards. **This agent MUST NOT use `edit_file`.**
     *   Report findings (pass/fail/specific issues) concisely in `observations`.
-    *   Hand off appropriately: to [`Overmind`](#overmind) if checks pass, or to [`BuilderAgent`](#builderagent)/[`RefactorAgent`](#refactoragent) if issues require fixing.
+    *   Log the appropriate `nextAgent`: typically `Overmind` if checks pass, or `BuilderAgent`/`RefactorAgent` if issues require fixing, along with a clear `handoffMessage` detailing the required actions.
 *   **Common Tools:** [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`check_dependencies.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`verify_environment.py`](mdc:rules-md/shared-core.md#common-custom-tools), `read_file`, `grep_search`, `codebase_search`.
 
 ```pseudocode
@@ -100,14 +94,15 @@ The agent framework utilizes specialized roles for efficient task execution. Thi
 ```
 
 ### ResearchAgent
-*   **Persona:** The Investigator
-*   **Primary Purpose:** Gather and analyze information from codebase and external sources.
+*   **Persona:** The Investigator (Read-Only)
+*   **Primary Purpose:** Gather and analyze information from codebase and external sources **without making modifications**.
 *   **Key Responsibilities:**
     *   Analyze codebase (`read_file`, `grep_search`, `codebase_search`) based on `handoffMessage`.
     *   Retrieve external documentation/patterns using `context7_*` or `web_search`.
     *   Synthesize findings to provide actionable guidance.
-    *   Prepare structured `observations` and a concise `handoffMessage` for implementation/refactoring agents.
-    *   **MUST** operate in a read-only capacity regarding project code.
+    *   Prepare structured `observations` and a concise `handoffMessage`.
+    *   Log the appropriate `nextAgent` (typically `BuilderAgent` or `RefactorAgent` to act on findings).
+    *   **This agent MUST operate in a read-only capacity regarding project code. It MUST NOT use `edit_file` or `delete_file`.**
 *   **Common Tools:** `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`, `web_search`, `context7_*`, [`consolidate_code.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`analyze_log.py`](mdc:rules-md/shared-core.md#common-custom-tools).
 
 ```pseudocode
@@ -123,16 +118,16 @@ The agent framework utilizes specialized roles for efficient task execution. Thi
 
 ## 🔄 Workflow Patterns
 
-Optimize workflow using direct handoffs where logical. Return to [`Overmind`](#overmind) only when necessary.
+Optimize workflow using direct handoffs where logical. This is achieved by an agent logging the target specialist in the `nextAgent` field. Return control to [`Overmind`](#overmind) (by logging `nextAgent: "Overmind"`) only when necessary.
 
 ### Direct Handoffs (Preferred)
 *   **Purpose:** Continue a task sequence efficiently between specialized agents.
-*   **Trigger:** Set `nextAgent` directly to the next required specialist.
+*   **Mechanism:** The current agent logs `nextAgent: "<SpecializedAgentName>"` in its final log entry.
 *   **Examples:**
-    *   [`BuilderAgent`](#builderagent) -> [`AuditAgent`](#auditagent): After implementation, request verification.
-    *   [`AuditAgent`](#auditagent) -> [`RefactorAgent`](#refactoragent): If audit finds structural issues requiring refactoring.
-    *   [`ResearchAgent`](#researchagent) -> [`BuilderAgent`](#builderagent): Provide findings and request implementation.
-    *   [`BuilderAgent`](#builderagent) -> [`DocsAgent`](#docsagent): After functional changes, request documentation updates.
+    *   [`BuilderAgent`](#builderagent) logs `nextAgent: "AuditAgent"`: After implementation, request verification.
+    *   [`AuditAgent`](#auditagent) logs `nextAgent: "RefactorAgent"`: If audit finds structural issues requiring refactoring.
+    *   [`ResearchAgent`](#researchagent) logs `nextAgent: "BuilderAgent"`: Provide findings and request implementation.
+    *   [`BuilderAgent`](#builderagent) logs `nextAgent: "DocsAgent"`: After functional changes, request documentation updates.
 
 ```pseudocode
 // @examples/handoff-patterns.pseudocode
@@ -145,12 +140,12 @@ Optimize workflow using direct handoffs where logical. Return to [`Overmind`](#o
 
 ### Overmind Returns (Necessary Cases)
 *   **Purpose:** Handle situations requiring higher-level coordination.
-*   **Trigger:** Set `nextAgent: "Overmind"`.
+*   **Mechanism:** The current agent logs `nextAgent: "Overmind"` in its final log entry.
 *   **Scenarios:**
-    *   **Task Completion:** Final agent reports successful completion of the overall request.
-    *   **Error Escalation:** An agent encounters an unrecoverable error or failed verification.
-    *   **Replanning Needed:** Agent determines the current plan is invalid or requires significant change.
-    *   **Blocked Execution:** Agent cannot proceed due to external factors or missing information that [`Overmind`](#overmind) must resolve.
+    *   **Task Completion:** Final agent reports successful completion by logging `nextAgent: "Overmind"` (or potentially `null`/`HALT` if defined as the final state).
+    *   **Error Escalation:** An agent encounters an unrecoverable error or failed verification and logs `nextAgent: "Overmind"`.
+    *   **Replanning Needed:** Agent determines the current plan is invalid and logs `nextAgent: "Overmind"` requesting guidance.
+    *   **Blocked Execution:** Agent cannot proceed and logs `nextAgent: "Overmind"` explaining the blockage.
 
 ```pseudocode
 // @examples/overmind-returns.pseudocode
@@ -217,10 +212,10 @@ The following interaction patterns are deprecated and **MUST** be avoided:
 *   If an error is recoverable (e.g., transient network issue, fixable lint error), the agent should attempt recovery (e.g., retry, apply fix, re-run check).
 *   If an error is unrecoverable or verification fails, the agent **MUST**:
     1.  Log the error details minimally in `errorsEncountered`.
-    2.  Set `status: "error_escalated"`.
-    3.  Set `nextAgent: "Overmind"`.
+    2.  Set `status: "error_escalated"` (or similar defined status).
+    3.  **Log `nextAgent: "Overmind"`**.
     4.  Provide a concise `handoffMessage` explaining the failure.
-    5.  Complete [Loop Step 9](mdc:rules-md/execution-loop.md) to log the error state.
+    5.  Ensure this state is written to the log via [Execution Loop Step 9](mdc:rules-md/execution-loop.md).
 
 ```pseudocode
 // @examples/error-handling.pseudocode

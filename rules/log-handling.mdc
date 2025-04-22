@@ -1,10 +1,4 @@
 ---
-description: "[TODO: Add description]"
-globs:
-  - "*.*"
-alwaysApply: false
----
----
 description: "Mandatory guidelines for log file structure, coordination, and transitions."
 globs: ["*"]
 alwaysApply: true
@@ -55,24 +49,29 @@ Each entry **MUST** conform strictly to this structure:
 
 ## 🔄 Automatic Transitions via `nextAgent`
 
-### Trigger Mechanism
-The framework transitions **automatically and immediately** based **solely** on the `nextAgent` field in the **latest** (last appended) log entry. This field **MUST** be set correctly in Step 9 of the [Core Execution Loop](mdc:rules-md/execution-loop.md).
+### Trigger Mechanism: The Sole Source of Truth for Flow Control
+
+The **SOLE and EXCLUSIVE** trigger for progressing the workflow is the `nextAgent` field logged by the preceding agent in the **latest** (last appended) log entry. 
+
+The **FRAMEWORK ITSELF** reads this field after a successful log append (Execution Loop Step 9) and **IMMEDIATELY and AUTOMATICALLY** transitions control to the specified agent.
+
+Agents **DO NOT** manage or wait for this transition; their sole responsibility is to accurately **log** the intended `nextAgent` based on the outcome of their turn. This field **MUST** be set correctly in Step 9 of the [Core Execution Loop](mdc:rules-md/execution-loop.md) – it is non-negotiable for continued autonomous operation.
 
 ```pseudocode
 // @examples/transition-handling.pseudocode
-// --- Framework Internal Logic --- 
+// --- Framework Internal Logic (Conceptual) --- 
 // Function: handleTransition
-// Purpose: Initiate next agent based on log.
-// Triggered By: Successful append in Step 9.
+// Purpose: **Framework action** to load and execute the next agent based **only** on the log.
+// Triggered By: Framework detects successful log append (after Agent completes Step 9).
 // Steps:
-//   latestEntry = readLastEntryFromLog()
-//   nextAgentRole = latestEntry.nextAgent
-//   if isValidAgent(nextAgentRole): // Check against agent-roles.md
-//     loadAndExecuteAgent(nextAgentRole)
-//   else if nextAgentRole == "HALT":
-//     stopExecution()
+//   latestEntry = readLastEntryFromLog() // Framework reads the log
+//   nextAgentRole = latestEntry.nextAgent // Framework extracts the directive
+//   if isValidAgent(nextAgentRole): // Check against known agent roles
+//     loadAndExecuteAgent(nextAgentRole) // Framework initiates the next agent **immediately**
+//   else if nextAgentRole == "HALT" or nextAgentRole == null:
+//     stopExecution() // Framework halts processing for this requestId
 //   else:
-//     logCriticalError("Invalid nextAgent: " + nextAgentRole)
+//     logCriticalError("Invalid nextAgent logged: " + nextAgentRole)
 //     haltWithError()
 // End Function
 ```
@@ -170,7 +169,8 @@ Setting `nextAgent` allows direct peer-to-peer handoffs, optimizing flow:
 *   Direct agent-to-agent communication (bypassing the log).
 *   Modifying existing log entries.
 *   Truncating or overwriting the log file.
-*   Failing to append a log entry at the end of a turn (breaks the loop).
+*   Failing to append a log entry with a valid `nextAgent` (or HALT/null) at the end of a turn (breaks the autonomous loop).
+*   **Any agent action that involves waiting for confirmation or external triggers other than the initial handoff message.**
 
 ## 🚨 Error Handling
 
