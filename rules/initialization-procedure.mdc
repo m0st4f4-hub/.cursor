@@ -4,7 +4,7 @@ globs: ["*"]
 alwaysApply: true
 ---
 
-# Framework Initialization Procedure
+# ⚙️ Framework Initialization Procedure
 
 ## 🎯 Overview
 
@@ -17,136 +17,136 @@ Reference [shared-core.mdc](mdc:rules-md/shared-core.md) for core definitions.
 Adhere strictly to these principles:
 
 1.  **Idempotency:** Execution **MUST** result in the same valid end state, regardless of the number of times run.
-    ```pseudocode
-    // @examples/idempotency.pseudocode
-    // Define Result Structure: { success: boolean, state: 'new' | 'updated' | 'verified', changes: list_of_strings }
-    
-    // Function: initializeFramework
-    // Purpose: Ensure idempotent setup.
-    // Returns: Result Structure
-    // Steps:
-    //   currentState = determineProjectState()
-    //   result = executeScenario(currentState)
-    //   verifyResult(result) // Halts on failure
-    //   return result
-    // End Function
-    ```
+    > ```pseudocode
+    > // @examples/idempotency.pseudocode
+    > // Define Result Structure: { success: boolean, state: 'new' | 'updated' | 'verified', changes: list_of_strings }
+    > 
+    > // Function: initializeFramework
+    > // Purpose: Ensure idempotent setup.
+    > // Returns: Result Structure
+    > // Steps:
+    > //   currentState = determineProjectState()
+    > //   result = executeScenario(currentState)
+    > //   verifyResult(result) // Halts on failure
+    > //   return result
+    > // End Function
+    > ```
 
 2.  **Verification:** **MUST** verify each step using tool outputs (`list_dir`, `read_file`, `git status`, `tools/parse_git_status.py`). Do **NOT** rely solely on command exit codes. Halt immediately on verification failure.
-    ```pseudocode
-    // @examples/verification.pseudocode
-    // Define Verification Step Structure: { tool_used: string, verification_logic: function, error_message: string }
-    
-    // Example Verification Steps List:
-    //   - { tool: "list_dir", check: check_directory_exists(".cursor/rules"), error: "Rules dir missing" }
-    //   - { tool: "git status", check: check_git_status_is_clean(), error: "Uncommitted changes" }
-    
-    // Function: runVerification(step)
-    // Purpose: Execute a verification check.
-    // Steps:
-    //   success = step.verification_logic()
-    //   if not success:
-    //     logError(step.error_message)
-    //     haltProcedure()
-    // End Function
-    ```
+    > ```pseudocode
+    > // @examples/verification.pseudocode
+    > // Define Verification Step Structure: { tool_used: string, verification_logic: function, error_message: string }
+    > 
+    > // Example Verification Steps List:
+    > //   - { tool: "list_dir", check: check_directory_exists(".cursor/rules"), error: "Rules dir missing" }
+    > //   - { tool: "git status", check: check_git_status_is_clean(), error: "Uncommitted changes" }
+    > 
+    > // Function: runVerification(step)
+    > // Purpose: Execute a verification check.
+    > // Steps:
+    > //   success = step.verification_logic()
+    > //   if not success:
+    > //     logError(step.error_message)
+    > //     haltProcedure()
+    > // End Function
+    > ```
 
 3.  **Error Handling:** If verification fails, **MUST** log the specific error and **HALT** the procedure immediately. **Action:** Log the failure details, set `nextAgent: "Overmind"` (or `HALT` if unrecoverable by Overmind), and provide a clear `handoffMessage` explaining the failure point.
-    ```pseudocode
-    // @examples/error-handling.pseudocode
-    // Define Error Structure: { phase: string, step: string, error_details: string }
-    
-    // Function: handleProcedureError(error)
-    // Purpose: Log error and halt procedure, handing off to Overmind.
-    // Steps:
-    //   logErrorToRequestLog(error.phase, error.step, error.error_details)
-    //   setNextAgent("Overmind") // Or HALT for critical framework failures
-    //   setHandoffMessage("Initialization failed during Phase: " + error.phase + ", Step: " + error.step + ". Reason: " + error.error_details + ". Requesting Overmind review.")
-    //   haltCurrentProcedure() // Stop further steps in this procedure
-    // End Function
-    ```
+    > ```pseudocode
+    > // @examples/error-handling.pseudocode
+    > // Define Error Structure: { phase: string, step: string, error_details: string }
+    > 
+    > // Function: handleProcedureError(error)
+    > // Purpose: Log error and halt procedure, handing off to Overmind.
+    > // Steps:
+    > //   logErrorToRequestLog(error.phase, error.step, error.error_details)
+    > //   setNextAgent("Overmind") // Or HALT for critical framework failures
+    > //   setHandoffMessage("Initialization failed during Phase: " + error.phase + ", Step: " + error.step + ". Reason: " + error.error_details + ". Requesting Overmind review.")
+    > //   haltCurrentProcedure() // Stop further steps in this procedure
+    > // End Function
+    > ```
 
 4.  **Tool Usage:** **MUST** prefer standard tools (`list_dir`, `read_file`, `edit_file`) and core Git commands (executed via `run_terminal_cmd`) over complex shell scripts.
-    ```pseudocode
-    // @examples/tool-usage.pseudocode
-    // List of Preferred Tools:
-    //   - list_dir
-    //   - read_file
-    //   - edit_file
-    //   - run_terminal_cmd (for basic git commands like 'git rev-parse', 'git submodule')
-    //   - tools/parse_git_status.py (via run_terminal_cmd)
-    //   - tools/verify_environment.py (via run_terminal_cmd)
-    ```
+    > ```pseudocode
+    > // @examples/tool-usage.pseudocode
+    > // List of Preferred Tools:
+    > //   - list_dir
+    > //   - read_file
+    > //   - edit_file
+    > //   - run_terminal_cmd (for basic git commands like 'git rev-parse', 'git submodule')
+    > //   - tools/parse_git_status.py (via run_terminal_cmd)
+    > //   - tools/verify_environment.py (via run_terminal_cmd)
+    > ```
 
-## 📋 Phase 1: Determine Project State
+## 🤔 Phase 1: Determine Project State
 
 Execute these steps sequentially to determine the project's current state.
 
 ### Step 1.1: Check Git Status
 *   **Action:** Execute `run_terminal_cmd git rev-parse --is-inside-work-tree | cat` or `run_terminal_cmd python tools/parse_git_status.py`. Capture the output.
-*   **Record:** Note `isGitRepo` (true/false) based on output.
-    ```pseudocode
-    // @examples/git-check.pseudocode
-    // Define Git State Structure: { isGitRepo: boolean, /* other potential fields */ }
-    
-    // Function: checkGitStatus
-    // Purpose: Determine if the workspace is a Git repository.
-    // Returns: Git State Structure
-    // Steps:
-    //   // Use run_terminal_cmd with 'git rev-parse' or 'python tools/parse_git_status.py'
-    //   command_output = runCommand("...")
-    //   isRepo = parseCommandOutputForGitRepoStatus(command_output)
-    //   return { isGitRepo: isRepo }
-    // End Function
-    ```
+*   **Record:** Note `isGitRepo` (boolean: `true`/`false`) based on output.
+    > ```pseudocode
+    > // @examples/git-check.pseudocode
+    > // Define Git State Structure: { isGitRepo: boolean, /* other potential fields */ }
+    > 
+    > // Function: checkGitStatus
+    > // Purpose: Determine if the workspace is a Git repository.
+    > // Returns: Git State Structure
+    > // Steps:
+    > //   // Use run_terminal_cmd with 'git rev-parse' or 'python tools/parse_git_status.py'
+    > //   command_output = runCommand("...")
+    > //   isRepo = parseCommandOutputForGitRepoStatus(command_output)
+    > //   return { isGitRepo: isRepo }
+    > // End Function
+    > ```
 
 ### Step 1.2: Check `.cursor` Directory Existence
 *   **Action:** Execute `list_dir .`.
-*   **Record:** Note `cursorDirExists` (true/false) based on whether `.cursor` is present in the output.
-    ```pseudocode
-    // @examples/cursor-check.pseudocode
-    // Define Cursor State Structure: { exists: boolean, /* other potential fields */ }
-    
-    // Function: checkCursorDir
-    // Purpose: Check if .cursor directory exists at the root.
-    // Returns: Cursor State Structure
-    // Steps:
-    //   directory_listing = listDir(".")
-    //   exists = ".cursor" in directory_listing
-    //   return { exists: exists }
-    // End Function
-    ```
+*   **Record:** Note `cursorDirExists` (boolean: `true`/`false`) based on whether `.cursor` is present in the output.
+    > ```pseudocode
+    > // @examples/cursor-check.pseudocode
+    > // Define Cursor State Structure: { exists: boolean, /* other potential fields */ }
+    > 
+    > // Function: checkCursorDir
+    > // Purpose: Check if .cursor directory exists at the root.
+    > // Returns: Cursor State Structure
+    > // Steps:
+    > //   directory_listing = listDir(".")
+    > //   exists = ".cursor" in directory_listing
+    > //   return { exists: exists }
+    > // End Function
+    > ```
 
 ### Step 1.3: Check if Directory is Empty (Conditional)
-*   **Condition:** Execute **only if** `isGitRepo` is false.
+*   **Condition:** Execute **only if** `isGitRepo` is `false`.
 *   **Action:** Execute `list_dir .`.
-*   **Record:** Note `isNotEmpty` (true/false) based on whether the listing contains *any* files/folders other than potentially `.cursor` or `.git`.
-    ```pseudocode
-    // @examples/dir-check.pseudocode
-    // Define Directory State Structure: { isNotEmpty: boolean, /* other fields */ }
-    
-    // Function: checkDirContents (only if not isGitRepo)
-    // Purpose: Check if the directory contains relevant user files.
-    // Returns: Directory State Structure
-    // Steps:
-    //   contents = listDir(".")
-    //   filtered_contents = remove entries like '.git', '.cursor' from contents
-    //   isNotEmpty = length(filtered_contents) > 0
-    //   return { isNotEmpty: isNotEmpty }
-    // End Function
-    ```
+*   **Record:** Note `isNotEmpty` (boolean: `true`/`false`) based on whether the listing contains *any* files/folders other than potentially `.cursor` or `.git`.
+    > ```pseudocode
+    > // @examples/dir-check.pseudocode
+    > // Define Directory State Structure: { isNotEmpty: boolean, /* other fields */ }
+    > 
+    > // Function: checkDirContents (only if not isGitRepo)
+    > // Purpose: Check if the directory contains relevant user files.
+    > // Returns: Directory State Structure
+    > // Steps:
+    > //   contents = listDir(".")
+    > //   filtered_contents = remove entries like '.git', '.cursor' from contents
+    > //   isNotEmpty = length(filtered_contents) > 0
+    > //   return { isNotEmpty: isNotEmpty }
+    > // End Function
+    > ```
 
 ## 📋 Phase 2: Execute Scenario-Specific Workflow
 
 Based on the state determined in Phase 1, execute **exactly one** of the following scenarios (A, B, or C).
 
-### Scenario A: Project is a Git Repository (`isGitRepo` is true)
+### Scenario A: 🐙 Project is a Git Repository (`isGitRepo` is `true`)
 
 Execute these steps sequentially:
 
 1.  **Handle Existing `.cursor`:**
-    *   If `cursorDirExists` is false: Proceed to Step A.2.
-    *   If `cursorDirExists` is true:
+    *   If `cursorDirExists` is `false`: Proceed to Step A.2.
+    *   If `cursorDirExists` is `true`:
         *   **Action:** Execute `run_terminal_cmd git submodule status .cursor | cat`.
         *   **Check:** Analyze output. If it indicates a valid registered submodule, proceed to **Step A.4 (Update Submodule)**.
         *   **If Not Submodule:** Log warning. **Action:** Execute `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor` on Windows). **Verification:** Execute `list_dir .` and confirm `.cursor` is removed via output. If verification fails, **HALT** (log error, set `nextAgent: "Overmind"`).
@@ -169,79 +169,79 @@ Execute these steps sequentially:
     *   **Verification:** Execute `list_dir .cursor/rules`. Confirm essential rule files (e.g., `shared-core.mdc`) are present via output. Retry update once if needed. If still fails, **HALT** (log error, set `nextAgent: "Overmind"`).
     *   Proceed to **Phase 3**.
 
-    ```pseudocode
-    // @examples/git-scenario.pseudocode
-    // Function: handleGitRepoScenario
-    // Purpose: Initialize framework in an existing Git repo.
-    // Steps:
-    //   if checkCursorDir().exists:
-    //     if checkIsSubmodule(".cursor"):
-    //       // Proceed to Step A.4
-    //     else:
-    //       logWarning("Existing .cursor is not a submodule. Attempting removal.")
-    //       runCommand("rm -rf .cursor") // Or Windows equivalent
-    //       verifyCursorRemoved() // Halts on failure
-    //       // Proceed to Step A.2
-    //   // else: Proceed to Step A.2
-    //   
-    //   // Step A.2
-    //   gitignoreContent = readFile(".gitignore") // Handle non-existence
-    //   rootGitignoreModified = false
-    //   if ".cursor/" in gitignoreContent:
-    //      editFile(".gitignore", comment_out_line, ".cursor/")
-    //      verifyGitignoreCommented() // Halts on failure
-    //      rootGitignoreModified = true
-    //   
-    //   // Step A.3
-    //   runCommand("git submodule add <repo_url> .cursor")
-    //   verifySubmoduleAdded() // Halts on failure. Includes --force retry logic.
-    //   
-    //   // Step A.4
-    //   runCommand("git submodule update --init --recursive")
-    //   verifySubmoduleUpdated() // Halts on failure. Includes retry logic.
-    //   
-    //   // Proceed to Phase 3
-    // End Function
-    ```
+    > ```pseudocode
+    > // @examples/git-scenario.pseudocode
+    > // Function: handleGitRepoScenario
+    > // Purpose: Initialize framework in an existing Git repo.
+    > // Steps:
+    > //   if checkCursorDir().exists:
+    > //     if checkIsSubmodule(".cursor"):
+    > //       // Proceed to Step A.4
+    > //     else:
+    > //       logWarning("Existing .cursor is not a submodule. Attempting removal.")
+    > //       runCommand("rm -rf .cursor") // Or Windows equivalent
+    > //       verifyCursorRemoved() // Halts on failure
+    > //       // Proceed to Step A.2
+    > //   // else: Proceed to Step A.2
+    > //   
+    > //   // Step A.2
+    > //   gitignoreContent = readFile(".gitignore") // Handle non-existence
+    > //   rootGitignoreModified = false
+    > //   if ".cursor/" in gitignoreContent:
+    > //      editFile(".gitignore", comment_out_line, ".cursor/")
+    > //      verifyGitignoreCommented() // Halts on failure
+    > //      rootGitignoreModified = true
+    > //   
+    > //   // Step A.3
+    > //   runCommand("git submodule add <repo_url> .cursor")
+    > //   verifySubmoduleAdded() // Halts on failure. Includes --force retry logic.
+    > //   
+    > //   // Step A.4
+    > //   runCommand("git submodule update --init --recursive")
+    > //   verifySubmoduleUpdated() // Halts on failure. Includes retry logic.
+    > //   
+    > //   // Proceed to Phase 3
+    > // End Function
+    > ```
 
-### Scenario B: Project is NOT Git Repo AND is Empty (`isGitRepo` false, `isNotEmpty` false)
+### Scenario B: 🍃 Project is NOT Git Repo AND is Empty (`isGitRepo` `false`, `isNotEmpty` `false`)
 
 Execute these steps sequentially:
 
 1.  **Handle Existing `.cursor`:**
-    *   If `cursorDirExists` is true: Log warning. **Action:** Execute `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor` on Windows). **Verification:** Execute `list_dir .` and confirm removal via output. If fails, **HALT** (log error, set `nextAgent: "Overmind"`).
+    *   If `cursorDirExists` is `true`: Log warning. **Action:** Execute `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor` on Windows). **Verification:** Execute `list_dir .` and confirm removal via output. If fails, **HALT** (log error, set `nextAgent: "Overmind"`).
     *   Proceed to **Step B.2**.
 2.  **Direct Clone:**
     *   **Action:** Execute `run_terminal_cmd git clone https://github.com/m0st4f4-hub/.cursor .cursor`.
     *   **Verification:** Execute `list_dir .cursor/rules`. Confirm essential rule files (e.g., `shared-core.mdc`) are present via output. If fails, **HALT** (log error, set `nextAgent: "Overmind"`).
     *   Proceed to **Phase 3**.
 
-    ```pseudocode
-    // @examples/empty-scenario.pseudocode
-    // Function: handleEmptyDirScenario
-    // Purpose: Initialize framework in an empty non-Git directory.
-    // Steps:
-    //   if checkCursorDir().exists:
-    //     logWarning("Found existing .cursor. Attempting removal.")
-    //     runCommand("rm -rf .cursor")
-    //     verifyCursorRemoved() // Halts on failure
-    //     
-    //   // Step B.2
-    //   runCommand("git clone <repo_url> .cursor")
-    //   verifyCloneSuccess() // Halts on failure
-    //   
-    //   // Proceed to Phase 3
-    // End Function
-    ```
+    > ```pseudocode
+    > // @examples/empty-scenario.pseudocode
+    > // Function: handleEmptyDirScenario
+    > // Purpose: Initialize framework in an empty non-Git directory.
+    > // Steps:
+    > //   if checkCursorDir().exists:
+    > //     logWarning("Found existing .cursor. Attempting removal.")
+    > //     runCommand("rm -rf .cursor")
+    > //     verifyCursorRemoved() // Halts on failure
+    > //     
+    > //   // Step B.2
+    > //   runCommand("git clone <repo_url> .cursor")
+    > //   verifyCloneSuccess() // Halts on failure
+    > //   
+    > //   // Proceed to Phase 3
+    > // End Function
+    > ```
 
-### Scenario C: Project is NOT Git Repo AND is NOT Empty (`isGitRepo` false, `isNotEmpty` true)
+### Scenario C: 📦 Project is NOT Git Repo AND is NOT Empty (`isGitRepo` `false`, `isNotEmpty` `true`)
 
 **Warning:** Complex scenario. Manual intervention likely needed if errors occur.
 Execute these steps sequentially:
 
 1.  **Handle Existing `.cursor`:**
-    *   If `cursorDirExists` is true: Log critical warning. **HALT**. **Action:** Log the critical conflict, set `nextAgent: "Overmind"`, and handoff explaining the need for manual intervention. **Do not automatically delete.**
-    *   If `cursorDirExists` is false: Proceed to **Step C.2**.
+    *   If `cursorDirExists` is `true`: Log critical warning. **HALT**. **Action:** Log the critical conflict, set `nextAgent: "Overmind"`, and handoff explaining the need for manual intervention. **Do not automatically delete.**
+    *   If `cursorDirExists` is `false`: Proceed to **Step C.2**.
 2.  **Temp Clone & Move:**
     *   Define `temp_dir` = `temp_ruleset_clone`.
     *   **Action (Cleanup):** Execute `run_terminal_cmd rm -rf temp_dir` (or `Remove-Item -Recurse -Force temp_dir` on Windows).
@@ -252,38 +252,38 @@ Execute these steps sequentially:
     *   **Action (Cleanup):** Execute `run_terminal_cmd rm -rf temp_dir` (or `Remove-Item -Recurse -Force temp_dir`). **Verification:** Execute `list_dir .` and confirm `temp_dir` is removed via output.
     *   Proceed to **Phase 3**.
 
-    ```pseudocode
-    // @examples/nonempty-scenario.pseudocode
-    // Function: handleNonEmptyDirScenario
-    // Purpose: Initialize framework in a non-empty non-Git directory.
-    // Steps:
-    //   if checkCursorDir().exists:
-    //     logCritical("Existing .cursor found in non-empty, non-Git project. HALTING.")
-    //     reportErrorToOvermind("Manual intervention required: Existing .cursor directory.")
-    //     haltProcedure()
-    //     
-    //   // Step C.2
-    //   temp_dir = "temp_ruleset_clone"
-    //   runCommand("rm -rf " + temp_dir) // Cleanup previous attempt
-    //   runCommand("git clone <repo_url> " + temp_dir)
-    //   verifyCloneSuccess() // Halts on failure
-    //   runCommand("cd " + temp_dir + " && git submodule update --init --recursive && cd ..")
-    //   verifySubmoduleUpdated() // Halts on failure
-    //   runCommand("mv " + temp_dir + "/.cursor .") // Or Move-Item
-    //   verifyMoveSuccess() // Halts on failure
-    //   runCommand("rm -rf " + temp_dir)
-    //   verifyCleanupSuccess() // Log warning on failure, but continue
-    //   
-    //   // Proceed to Phase 3
-    // End Function
-    ```
+    > ```pseudocode
+    > // @examples/nonempty-scenario.pseudocode
+    > // Function: handleNonEmptyDirScenario
+    > // Purpose: Initialize framework in a non-empty non-Git directory.
+    > // Steps:
+    > //   if checkCursorDir().exists:
+    > //     logCritical("Existing .cursor found in non-empty, non-Git project. HALTING.")
+    > //     reportErrorToOvermind("Manual intervention required: Existing .cursor directory.")
+    > //     haltProcedure()
+    > //     
+    > //   // Step C.2
+    > //   temp_dir = "temp_ruleset_clone"
+    > //   runCommand("rm -rf " + temp_dir) // Cleanup previous attempt
+    > //   runCommand("git clone <repo_url> " + temp_dir)
+    > //   verifyCloneSuccess() // Halts on failure
+    > //   runCommand("cd " + temp_dir + " && git submodule update --init --recursive && cd ..")
+    > //   verifySubmoduleUpdated() // Halts on failure
+    > //   runCommand("mv " + temp_dir + "/.cursor .") // Or Move-Item
+    > //   verifyMoveSuccess() // Halts on failure
+    > //   runCommand("rm -rf " + temp_dir)
+    > //   verifyCleanupSuccess() // Log warning on failure, but continue
+    > //   
+    > //   // Proceed to Phase 3
+    > // End Function
+    > ```
 
-## 📋 Phase 3: Common Configuration Steps
+## ✅ Phase 3: Common Configuration Steps
 
 Execute these steps sequentially after successfully completing one of the Phase 2 scenarios.
 
 1.  **Configure `project` Directory:**
-    *   **Action:** Execute `list_dir .cursor/rules`.
+*   **Action:** Execute `list_dir .cursor/rules`.
     *   **Check:** See if `project` subdirectory exists in the output.
     *   If not, **Action:** Execute `run_terminal_cmd mkdir .cursor/rules/project` (or `New-Item -ItemType Directory -Path .cursor/rules/project` on Windows).
     *   **Verification:** Execute `list_dir .cursor/rules`. Confirm `project` exists via output. If verification fails, **HALT** (log error, set `nextAgent: "Overmind"`).
@@ -293,8 +293,8 @@ Execute these steps sequentially after successfully completing one of the Phase 
     *   **If Missing/Incorrect:** **Action:** Use `edit_file` on `.cursor/.gitignore` to ensure `rules/project/` exists on its own line.
     *   **Verification:** Execute `read_file .cursor/.gitignore`. Confirm the line exists and is correct via output. If verification fails, **HALT** (log error, set `nextAgent: "Overmind"`).
 3.  **Update/Restore Root `.gitignore` (Scenario A only):**
-    *   **Condition:** Only if `isGitRepo` is true (determined in Phase 1).
-    *   **If `rootGitignoreModified` is true (from Step A.2):**
+    *   **Condition:** Only if `isGitRepo` is `true` (determined in Phase 1).
+    *   **If `rootGitignoreModified` is `true` (from Step A.2):**
         *   **Action:** Use `edit_file` on `.gitignore` to uncomment `# .cursor/` back to `.cursor/`. Log this action.
         *   **Verification:** Execute `read_file .gitignore`. Confirm `.cursor/` is present and uncommented via output. If verification fails, **HALT** (log error, set `nextAgent: "Overmind"`).
     *   **Else (if `.cursor/` wasn't originally in root `.gitignore` or was already uncommented):**
@@ -306,15 +306,15 @@ Execute these steps sequentially after successfully completing one of the Phase 
     *   **Action:** Execute `list_dir .cursor/rules`. Confirm existence and presence of key files/dirs (`shared-core.mdc`, `project/`, `agents/`) via output.
     *   **Optional Action:** Execute `run_terminal_cmd python tools/verify_environment.py` or `python tools/check_versions.py` for additional checks.
     *   **Action:** Log the final outcome. 
-        *   **On Success:** Set `nextAgent: "Overmind"` and `handoffMessage: "Initialization successful."`. 
-        *   **On Failure (if not already halted):** Set `nextAgent: "Overmind"`, log the specific failure reason encountered during final verification, and provide a clear `handoffMessage` indicating initialization failed.
+        *   **On Success:** Set `nextAgent: "Overmind"` and `handoffMessage: "✅ Initialization successful."`. 
+        *   **On Failure (if not already halted):** Set `nextAgent: "Overmind"`, log the specific failure reason encountered during final verification, and provide a clear `handoffMessage` indicating initialization failed (e.g., `❌ Initialization failed during final verification. Reason: <details>`).
 
 ## 🚨 Error Recovery
 
-*   **Verification Failures:** Any verification step failing **MUST** trigger an immediate **HALT**. The agent **MUST** log the specific error and report failure to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) via the log.
-*   **Tool Execution Errors:** If a `run_terminal_cmd` fails unexpectedly, attempt recovery if sensible (e.g., the `git submodule add --force` retry), otherwise **HALT** and report.
+*   **Verification Failures:** Any verification step failing **MUST** trigger an immediate **HALT**. The agent **MUST** log the specific error and report failure to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) via the log (setting `nextAgent: "Overmind"` and appropriate `handoffMessage`).
+*   **Tool Execution Errors:** If a `run_terminal_cmd` fails unexpectedly, attempt recovery if sensible (e.g., the `git submodule add --force` retry), otherwise **HALT** and report as above.
 
-## 📋 Success Criteria
+## 🏆 Success Criteria
 
 Initialization is successful **ONLY IF**: 
 1.  All required steps for the determined scenario (A, B, or C) completed without halting.
@@ -322,7 +322,7 @@ Initialization is successful **ONLY IF**:
 3.  The `.cursor/rules/` directory exists with the expected core structure (including `shared-core.mdc`, `agents/`, `project/`).
 4.  Git submodule is correctly configured (Scenario A).
 5.  `.gitignore` files are correctly configured.
-6.  Success is logged and reported to `Overmind`.
+6.  Success is logged and reported to `Overmind` with `nextAgent: "Overmind"`.
 
 ## ⚠️ Deprecated Patterns (Strictly Forbidden)
 
