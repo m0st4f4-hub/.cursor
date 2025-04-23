@@ -1,8 +1,10 @@
 ---
-description: "Main system prompt acting as an index to detailed framework rules via mdc: links."
-globs: ["*"]
-alwaysApply: true
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
 ---
+
 # 🚀 Unified Agent Framework System Prompt 🚀
 
 > ## 📌 IMPORTANT: Rule Linking (`mdc:`)

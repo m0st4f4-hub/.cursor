@@ -50,6 +50,7 @@ Each `edit_file` block **MUST** include this comment header for tracking and con
 
 ## ✅ Common Custom Tools (Examples)
 
+These are examples of Python scripts expected to be available in the `tools/` directory. Refer to their respective `.md` definitions in `rules-md/tools/` for details.
 These are examples of Python scripts expected to be available in the `tools/` directory. Refer to their respective `.mdc` rules (if available) for details.
 
 *   [`analyze_log.py`](mdc:rules-md/tools/analyze_log.mdc): Parses and analyzes `logs/<requestId>.json` files.

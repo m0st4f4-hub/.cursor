@@ -1,8 +1,10 @@
 ---
-description: "Mandatory procedure for InitializationAgent to set up or verify the framework ruleset."
-globs: ["*"]
-alwaysApply: true
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
 ---
+
 # ⚙️ Framework Initialization Procedure
 
 ## 🎯 Overview
