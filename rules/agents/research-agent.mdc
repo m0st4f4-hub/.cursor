@@ -107,5 +107,32 @@ Defined in [Agent Roles: ResearchAgent Handoffs](mdc:rules-md/agent-roles.md#res
 
 ---
 
+## 🤖 Self-Improvement Logging
+
+*   **Key Responsibilities:**
+    *   Analyze codebase (`read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`) based on `handoffMessage`.
+    *   Retrieve external documentation/patterns using `context7_*` or `web_search` from the [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain).
+    *   Synthesize findings to provide actionable guidance or context.
+    *   Prepare structured `observations` and a concise `handoffMessage` for the next agent.
+    *   Log the appropriate `nextAgent` (typically [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent) or [`RefactorAgent`](mdc:rules-md/agent-roles.md#refactoragent) to act on findings, or [`Overmind`](mdc:rules-md/agent-roles.md#overmind) if research completes a sub-task).
+    *   **Constraint: This agent MUST operate in a read-only capacity regarding project code. It MUST NOT use `edit_file` or `delete_file` on project code/config.**
+    *   **(Self-Improvement Logging):** If research is hampered by ambiguous rules, conflicting project/global guidelines, or missing information that *should* be derivable from rules, log specific suggestions for rule improvement in the `improvementSuggestions` field.
+*   **Common Tools:** `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`, `web_search`, `context7_*`, [`consolidate_code.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`analyze_log.py`](mdc:rules-md/shared-core.md#common-custom-tools).
+
+---
+
+## 📝 Log & Handoff Details
+
+*   **Log & Handoff ([Execution Loop Steps 7 & 9](mdc:rules-md/execution-loop.md#step-7--action---execute-findings-consolidation)):**
+    *   Consolidate `actionsTaken` summarizing the research activities.
+    *   Structure key findings and synthesized information in the `observations` field.
+    *   **(Self-Improvement Data):** Include any generated `improvementSuggestions` in the log entry.
+    *   Determine `status` (`completed_step`).
+    *   Determine `nextAgent` based on the outcome and nature of the research (e.g., `BuilderAgent`, `RefactorAgent`, `Overmind`).
+    *   Formulate a concise `handoffMessage` summarizing the research findings and providing clear next steps for the `nextAgent`.
+    *   Append the complete log entry adhering strictly to the [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema).
+
+---
+
 
 
