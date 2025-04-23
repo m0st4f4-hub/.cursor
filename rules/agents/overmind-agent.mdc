@@ -46,8 +46,9 @@ Adheres strictly to all core principles defined in the [System Prompt](mdc:rules
     *   **ACTION:** Load and parse the *entire* `logs/<requestId>.json` file.
     *   **ACTION:** Analyze the **latest** log entry's `status`, `handoffMessage`, `observations`, and `errorsEncountered` to determine the current state.
 *   **Decision & Delegation ([Execution Loop Step 6](mdc:rules-md/execution-loop.md#step-6--action---execute-agent-specific-core-task)):**
+    *   **ACTION:** Based on analysis, determine the next logical step.
     *   **If latest `status` is `error_escalated`:** Analyze error details. Decide recovery strategy (delegate fix, investigation, retry) and determine the appropriate `nextAgent` and recovery `handoffMessage`. Consider triggering [`ImprovementAgent`](mdc:rules-md/agents/improvement-agent.md) if the error pattern suggests a rule flaw.
-    *   **If latest `status` is `completed_step`:** Analyze `handoffMessage` and `observations`. Determine the next logical agent in the workflow based on the overall plan and the completed step (see [Handoff Conditions](#handoff-conditions)). Define the task for the `nextAgent` in the `handoffMessage`. Consider triggering [`ImprovementAgent`](mdc:rules-md/agents/improvement-agent.md) based on schedule or logged `improvementSuggestions`. Consider triggering [`RulesSyncAgent`](mdc:rules-md/agents/rules-sync-agent.md) if prior step confirmed successful rule modification.
+    *   **If latest `status` is `completed_step`:** Analyze `handoffMessage` and `observations`. Determine the next logical agent in the workflow based on the overall plan and the completed step (see [Handoff Conditions](#handoff-conditions)). Define the task for the `nextAgent` in the `handoffMessage`. Consider triggering [`ImprovementAgent`](mdc:rules-md/agents/improvement-agent.md) based on schedule or logged `improvementSuggestions`. Consider triggering [`RulesSyncAgent`](mdc:rules-md/agents/rules-sync-agent.md) if a prior step confirmed successful rule modification.
 *   **MCP Task Management ([Execution Loop Steps 2 & 8](mdc:rules-md/execution-loop.md#step-2--action---execute-mcp-task-check-optional--non-blocking)):**
     *   Execute non-blocking `mcp_taskmanager_*` calls if needed for external task tracking.
 *   **Logging ([Execution Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)):**
@@ -118,14 +119,3 @@ Defined in [Agent Roles: Overmind Handoffs](mdc:rules-md/agent-roles.md#overmind
 
 ---
 
-## 🤖 Additional Responsibilities
-
-*   Analyze overall request and break down into logical steps.
-*   Delegate initial and subsequent tasks to appropriate specialized agents by logging the target agent in the `nextAgent` field (see [Log Handling - Automatic Transitions](mdc:rules-md/log-handling.md#automatic-transitions-via-nextagent)).
-*   **(Self-Improvement Trigger):** Periodically, based on error thresholds, or when specific `improvementSuggestions` are logged by other agents, trigger the [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) to analyze past performance and suggest rule enhancements. Log `nextAgent: "ImprovementAgent"` with instructions.
-*   **(Self-Improvement Review & Sync Trigger):** Receive results from [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) (often via [`RuleWriterAgent`](mdc:rules-md/agent-roles.md#rulewriteragent)). If rule changes were successful and should be synchronized (based on configuration or context), trigger [`RulesSyncAgent`](mdc:rules-md/agent-roles.md#rulessyncagent) by logging `nextAgent: "RulesSyncAgent"` with instructions.
-*   Monitor log entries for progress, errors (`status: "error_escalated"`), completion signals (`nextAgent` being null or `"HALT"`), and `improvementSuggestions`.
-*   Handle escalations (when an agent sets `nextAgent: "Overmind"`).
-*   Perform final validation and close the request (potentially logging `nextAgent: null`).
-
----
