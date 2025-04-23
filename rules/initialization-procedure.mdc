@@ -20,7 +20,7 @@ Adhere strictly to these principles:
 1.  **Idempotency:** Execution **MUST** result in the same valid end state, regardless of the number of times run.
 2.  **Verification:** **MUST** verify the success of each **Action** using tool outputs (`list_dir`, `read_file`, `run_terminal_cmd git ... | cat`, `run_terminal_cmd python tools/parse_git_status.py`). Do **NOT** rely solely on command exit codes. Halt immediately on verification failure.
 3.  **Error Handling:** If verification fails, **MUST** log the specific error and **HALT** the procedure immediately. **Action:** Log the failure details following the [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema), set `nextAgent: "Overmind"` (or `"HALT"` if critical framework failure), provide a clear `handoffMessage` explaining the failure point, and cease further steps in *this* procedure.
-4.  **Tool Usage:** **MUST** prefer standard tools (`list_dir`, `read_file`, `edit_file`) and core Git commands (executed via `run_terminal_cmd`) over complex shell scripts. Use [Common Custom Tools](mdc:rules-md/shared-core.md#common-custom-tools) like `parse_git_status.py` where appropriate.
+4.  **Tool Usage:** **MUST** prefer standard tools (`list_dir`, `read_file`, `edit_file` - from [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain)) and core Git commands (executed via `run_terminal_cmd`) over complex shell scripts. Use [Common Custom Tools](mdc:rules-md/shared-core.md#common-custom-tools) like `parse_git_status.py` where appropriate.
 
 > ```pseudocode
 > // @examples/init-principles.pseudocode
@@ -41,7 +41,7 @@ Execute these steps sequentially to determine the project's current state.
 *   **Record:** Note `isGitRepo` (boolean: `true`/`false`).
 
 ### Step 1.2: Check `.cursor` Directory Existence
-*   **Action:** Execute `list_dir .`.
+*   **Action:** Execute `list_dir .` (from [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain)).
 *   **Verification:** Check output for the presence of `.cursor` directory.
 *   **Record:** Note `cursorDirExists` (boolean: `true`/`false`).
 
@@ -119,7 +119,7 @@ Execute these steps sequentially:
     *   **Verification (Cleanup Temp):** Execute `list_dir .`. Confirm `temp_dir` is removed via output. Log warning if cleanup fails but proceed.
     *   Proceed to **Phase 3**.
 
-## ✅ Phase 3: Common Configuration Steps
+## ✅ Phase 3: Common Configuration Steps <a name="phase-3-common-configuration-steps"></a>
 
 Execute these steps sequentially after successfully completing one of the Phase 2 scenarios.
 
