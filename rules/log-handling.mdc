@@ -9,32 +9,32 @@ alwaysApply: false
 
 ## 🎯 Overview
 
-The log file is the **sole coordination and state mechanism** for the agent framework. All state management, historical context, and agent transitions **MUST** occur exclusively through this file. Adherence to these standards is critical for autonomous operation defined by the [ACTION IMPERATIVE](mdc:rules-md/core-concepts.md).
+This document defines the **sole coordination and state mechanism** for the agent framework. All state management, historical context, and agent transitions **MUST** occur exclusively through this file. Adherence to these standards is critical for autonomous operation defined by the [ACTION IMPERATIVE](mdc:rules-md/core-concepts.md#action-imperative).
 
 Reference the [Core Execution Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step) for *when* agents log their turn and [Step 1](mdc:rules-md/execution-loop.md#step-1--action---execute-context-loading) for *when* they read the context.
 
 ## 💾 Log File Structure & Usage
 
-*   **📍 Location:** `logs/<requestId>.json` (where `requestId` is defined in [Core Concepts](mdc:rules-md/core-concepts.md)).
+*   **📍 Location:** `logs/<requestId>.json` (where `requestId` is defined in [Core Concepts](mdc:rules-md/core-concepts.md#request-id-requestid)).
 *   **📄 Format:** Valid JSON array. Each element is a log entry object.
-*   **➕ Appending Only:** New entries **MUST** be appended to the end of the array using `edit_file` (or equivalent mechanism). **NEVER** truncate, modify existing entries, delete, or overwrite the file. The log represents an immutable history.
-*   **⏳ History:** Agents **MUST** read the *entire* log at the start of their turn ([Loop Step 1](mdc:rules-md/execution-loop.md#step-1--action---execute-context-loading)) to understand the full context, not just the latest entry.
+*   **➕ Appending Only:** New entries **MUST** be appended to the end of the array using `edit_file` (from [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain)) or equivalent mechanism. **NEVER** truncate, modify existing entries, delete, or overwrite the file. The log represents an immutable history.
+*   **⏳ History:** Agents **MUST** read the *entire* log at the start of their turn ([Core Execution Loop Step 1](mdc:rules-md/execution-loop.md#step-1--action---execute-context-loading)) to understand the full context, not just the latest entry.
 
-### Log Entry Schema (Minimal Standard)
+### Log Entry Schema (Minimal Standard) <a name="log-entry-schema"></a>
 Each log entry appended by an agent **MUST** conform strictly to this structure:
 > ```json
 > // @examples/log-structure.json
 > {
->   "requestId": "string", // REQUIRED: Unique ID for the entire request
->   "agentRole": "string", // REQUIRED: Role executing this turn (e.g., "BuilderAgent")
+>   "requestId": "string", // REQUIRED: Unique ID for the entire request ([Core Concepts](mdc:rules-md/core-concepts.md#request-id-requestid))
+>   "agentRole": "string", // REQUIRED: Role executing this turn (e.g., "BuilderAgent" - see [Agent Roles](mdc:rules-md/agent-roles.md))
 >   "timestamp": "string", // REQUIRED: ISO 8601 UTC timestamp (e.g., "YYYY-MM-DDTHH:mm:ssZ")
 >   "projectName": "string", // Optional: Name of the project
 >   "domain": "string", // Optional: High-level task domain
->   "status": "completed_step" | "error_escalated", // REQUIRED: Outcome of the turn
+>   "status": "completed_step" | "error_escalated", // REQUIRED: Outcome of the turn (see [Execution Loop Error Handling](mdc:rules-md/execution-loop.md#error-handling-general))
 >   "actionsTaken": [
 >     // REQUIRED: Array of actions performed this turn
 >     {
->       "tool": "string", // Name of the tool used (e.g., "edit_file", "run_terminal_cmd")
+>       "tool": "string", // Name of the tool used (e.g., "edit_file", "run_terminal_cmd" - see [Shared Core](mdc:rules-md/shared-core.md))
 >       "target": "string", // Optional: Target file/resource/command snippet
 >       "summary": "string", // REQUIRED: Minimal summary of the action's purpose/result
 >       "result": "string" // Optional: Brief outcome (e.g., "success", "failure", "lint errors found")
@@ -42,23 +42,23 @@ Each log entry appended by an agent **MUST** conform strictly to this structure:
 >     // ... potentially more actions ...
 >   ],
 >   "observations": ["string"], // Optional: Key findings/analysis from read-only actions (e.g., ResearchAgent, AuditAgent)
->   "improvementSuggestions": ["string"], // Optional: Specific suggestions for rule improvements based on this turn's events.
+>   "improvementSuggestions": ["string"], // Optional: Specific suggestions for rule improvements based on this turn's events (for [ImprovementAgent](mdc:rules-md/agent-roles.md#improvementagent)).
 >   "errorsEncountered": ["string"], // Optional: Only if status is "error_escalated"; concise error messages.
 >   "errorContext": ["string"], // Optional: Additional context for errors (e.g., preceding steps, relevant state) to aid analysis.
->   "nextAgent": "string", // REQUIRED: Role name of the next agent (e.g., "AuditAgent", "Overmind") or "HALT" (or null if explicitly allowed for final state).
+>   "nextAgent": "string", // REQUIRED: Role name of the next agent (e.g., "AuditAgent", "Overmind" - see [Agent Roles](mdc:rules-md/agent-roles.md)) or "HALT" (or null if explicitly allowed for final state). See [Automatic Transitions](#automatic-transitions-via-nextagent).
 >   "handoffMessage": "string" // REQUIRED: Concise, actionable instructions for the next agent.
 > }
 > ```
 
-## 🔄 Automatic Transitions via `nextAgent`
+## 🔄 Automatic Transitions via `nextAgent` <a name="automatic-transitions-via-nextagent"></a>
 
 ### Trigger Mechanism: The Sole Source of Truth for Flow Control
 
-The **SOLE and EXCLUSIVE** trigger for progressing the workflow is the `nextAgent` field logged by the preceding agent in the **latest** (last appended) log entry.
+The **SOLE and EXCLUSIVE** trigger for progressing the workflow is the `nextAgent` field logged by the preceding agent in the **latest** (last appended) log entry. See [Core Concepts](mdc:rules-md/core-concepts.md#nextagent-field).
 
-**The [Framework](mdc:rules-md/core-concepts.md#framework) ITSELF reads this field** after the agent successfully completes the log append in [Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step). Based *only* on the value of `nextAgent`, the Framework **IMMEDIATELY and AUTOMATICALLY** transitions control by loading and executing the specified agent (see [Loop Step 10](mdc:rules-md/execution-loop.md#step-10-%EF%B8%8F-framework-action---execute-immediate-automatic-transition)).
+**The [Framework](mdc:rules-md/core-concepts.md#framework) ITSELF reads this field** after the agent successfully completes the log append in [Core Execution Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step). Based *only* on the value of `nextAgent`, the Framework **IMMEDIATELY and AUTOMATICALLY** transitions control by loading and executing the specified agent (see [Core Execution Loop Step 10](mdc:rules-md/execution-loop.md#step-10-%EF%B8%8F-framework-action---execute-immediate-automatic-transition)).
 
-Agents **DO NOT** manage or wait for this transition; their sole responsibility during Loop Step 9 is to accurately **log** the intended `nextAgent` based on the outcome of their turn and the defined [Agent Role](mdc:rules-md/agent-roles.md) interactions. Failure to log a valid `nextAgent` (or `HALT`/null where appropriate) **WILL BREAK** the autonomous flow.
+Agents **DO NOT** manage or wait for this transition; their sole responsibility during [Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step) is to accurately **log** the intended `nextAgent` based on the outcome of their turn and the defined [Agent Role Workflow Patterns](mdc:rules-md/agent-roles.md#workflow-patterns). Failure to log a valid `nextAgent` (or `HALT`/null where appropriate) **WILL BREAK** the autonomous flow.
 
 > ```pseudocode
 > // @examples/transition-handling.pseudocode
@@ -95,37 +95,37 @@ Setting `nextAgent` to a specific [Agent Role](mdc:rules-md/agent-roles.md) (oth
 > }
 > ```
 
-## 📝 Log Entry Content Guidelines
+## 📝 Log Entry Content Guidelines <a name="log-entry-content-guidelines"></a>
 
-*   ✨ **Minimalism vs. Detail (Balancing Act):** While generally aiming for concise logs, agents **MUST** provide sufficient detail in `actionsTaken`, `errorsEncountered`, and `errorContext` to enable effective post-hoc analysis by the `ImprovementAgent`. Err on the side of slightly more detail if an action is complex or prone to failure.
+*   ✨ **Minimalism vs. Detail (Balancing Act):** While generally aiming for concise logs, agents **MUST** provide sufficient detail in `actionsTaken`, `errorsEncountered`, and `errorContext` to enable effective post-hoc analysis by the [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent). Err on the side of slightly more detail if an action is complex or prone to failure.
     *   **`actionsTaken`:** Include not just the tool, but key parameters or a summary of the *intent* if not obvious.
     *   **`errorsEncountered`:** Include full error messages or stack traces where possible.
     *   **`errorContext`:** Briefly mention relevant state or preceding actions that might have led to the error.
 *   ⚡ **Action-Focus:** `actionsTaken` should briefly describe *what* was done (tool, target, purpose/result). Avoid verbose prose.
 *   🎯 **Clarity:** The `handoffMessage` must be clear and actionable for the `nextAgent`.
-*   ✅ **Required Fields:** Ensure all required fields in the schema are present and correctly formatted before attempting the append in [Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step).
-*   💡 **Improvement Logging:** Agents (especially non-improvement ones like Builder, Research) **SHOULD** use the `observations` field or the optional `improvementSuggestions` field to note:
+*   ✅ **Required Fields:** Ensure all required fields in the [schema](#log-entry-schema) are present and correctly formatted before attempting the append in [Core Execution Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step).
+*   💡 **Improvement Logging:** Agents (especially non-improvement ones like [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent), [`ResearchAgent`](mdc:rules-md/agent-roles.md#researchagent)) **SHOULD** use the `observations` field or the optional `improvementSuggestions` field to note:
     *   Ambiguities in their received `handoffMessage` or rules.
     *   Situations where a rule seemed incorrect or suboptimal.
     *   Unexpected tool behavior or results.
     *   Suggestions for alternative approaches that might have been better.
-    *   This provides valuable qualitative data for the `ImprovementAgent`.
+    *   This provides valuable qualitative data for the [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent).
 
 ## ✨ Logging the Self-Improvement Cycle
-*   **Recommendation:** Use a distinct `requestId` prefix (e.g., `improve-YYYYMMDD-HHMMSS`) for tasks initiated specifically for the self-improvement cycle (analysis by `ImprovementAgent`, rule writing by `RuleWriterAgent`). This keeps improvement logs separate from standard request logs, simplifying analysis for both. Alternatively, dedicate specific fields within a standard log if needed, but separation is preferred.
+*   **Recommendation:** Use a distinct `requestId` prefix (e.g., `improve-YYYYMMDD-HHMMSS`) for tasks initiated specifically for the self-improvement cycle (analysis by [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent), rule writing by [`RuleWriterAgent`](mdc:rules-md/agent-roles.md#rulewriteragent)). This keeps improvement logs separate from standard request logs, simplifying analysis for both. Alternatively, dedicate specific fields within a standard log if needed, but separation is preferred.
 
-## 🔍 Verification Steps (Log Operations)
+## 🔍 Verification Steps (Log Operations) <a name="verification-steps-log-operations"></a>
 
 Agents (or the framework supporting them) **MUST** perform these checks:
 
-*   **Before Reading (Loop Step 1):**
+*   **Before Reading ([Loop Step 1](mdc:rules-md/execution-loop.md#step-1--action---execute-context-loading)):**
     1.  Verify log file exists (`logs/<requestId>.json`). Halt/Escalate on failure.
     2.  Verify read permissions. Halt/Escalate on failure.
     3.  Verify the file content is a valid JSON array. Halt/Escalate if corrupted.
-*   **Before Appending (Loop Step 9):**
+*   **Before Appending ([Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)):**
     1.  Verify log file exists. Halt/Escalate on failure.
     2.  Verify write/append permissions. Halt/Escalate on failure.
-    3.  Validate the constructed log entry object against the required schema. Correct locally or Halt/Escalate on failure.
+    3.  Validate the constructed log entry object against the required [schema](#log-entry-schema). Correct locally or Halt/Escalate on failure.
     4.  Confirm the target file is *still* a valid JSON array (e.g., check start `[` and end `]`). Halt/Escalate on failure.
 
 > ```pseudocode
@@ -155,14 +155,14 @@ Agents (or the framework supporting them) **MUST** perform these checks:
 *   🤫 Direct agent-to-agent communication (bypassing the log).
 *   📝 Modifying existing log entries.
 *   🗑️ Truncating or overwriting the log file.
-*   🛑 Failing to append a log entry with a valid `nextAgent` (or HALT/null) at the end of a turn.
+*   🛑 Failing to append a log entry with a valid `nextAgent` (or HALT/null) at the end of a turn ([Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)).
 *   ⏳ **Any agent action that involves waiting for confirmation or external triggers other than the initial handoff message and context derived solely from the log.**
 
 ## 🚨 Error Handling (Log Specific)
 
-*   💾 **Log Access/Write Errors:** If reading (Step 1) or appending (Step 9) fails due to permissions or file system issues, the agent **MUST** immediately trigger the error escalation process defined in [Execution Loop - Error Handling](mdc:rules-md/execution-loop.md#error-handling-general), attempting to log the failure to `Overmind` if possible.
-*   📄 **Invalid Format:** If the log file is found to be corrupted or not a valid JSON array during read (Step 1) or pre-append check (Step 9), **HALT** and escalate to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) via the error handling process.
-*   ❌ **Schema Validation Failure:** If the agent constructs an invalid log entry (detected before Step 9 append), it **MUST** correct the entry. If correction fails, **HALT** and escalate.
+*   💾 **Log Access/Write Errors:** If reading ([Loop Step 1](mdc:rules-md/execution-loop.md#step-1--action---execute-context-loading)) or appending ([Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)) fails due to permissions or file system issues, the agent **MUST** immediately trigger the error escalation process defined in [Execution Loop - Error Handling](mdc:rules-md/execution-loop.md#error-handling-general), attempting to log the failure to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) if possible.
+*   📄 **Invalid Format:** If the log file is found to be corrupted or not a valid JSON array during read ([Loop Step 1](mdc:rules-md/execution-loop.md#step-1--action---execute-context-loading)) or pre-append check ([Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)), **HALT** and escalate to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) via the error handling process.
+*   ❌ **Schema Validation Failure:** If the agent constructs an invalid log entry (detected before [Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step) append), it **MUST** correct the entry. If correction fails, **HALT** and escalate.
 
 > ```pseudocode
 > // @examples/log-error-handling.pseudocode
@@ -181,7 +181,7 @@ Agents (or the framework supporting them) **MUST** perform these checks:
 > //   handleErrorAndEscalate("Log file format/permission/schema error.", 9)
 > ```
 
-## 📋 Example Log Sequence
+## 📋 Example Log Sequence <a name="example-log-sequence"></a>
 
 Illustrates the progression of entries in a log file.
 > ```json
