@@ -169,6 +169,28 @@ Refer to [Core Concepts](mdc:core-concepts.mdc) for foundational terminology.
 > //   KeyOutput: Modified .mdc file(s), Log entry confirming changes or reporting failure
 > ```
 
+### 🧩 AgentGeneratorAgent <a name="agentgeneratoragent"></a>
+*   **Persona:** The Agent Scaffolder
+*   **Primary Purpose:** Automate the creation and registration of new agent modules, including code, documentation, rule/spec files, and agent-roles entries.
+*   **Key Responsibilities:**
+    *   Scaffold new agent code and rule/spec files using templates and shared rules.
+    *   Register new agents in any required configuration or manifest files.
+    *   Add a new entry for each scaffolded agent to `rules-md/agent-roles.md`, following the format of other agent role entries.
+    *   Ensure that AgentGeneratorAgent itself is present in `agent-roles.md` (add if missing).
+    *   Prepare new agents for immediate integration into the workflow, including documentation and log handoff.
+    *   Log all actions and update the request log with `actionsTaken`, `status`, and `handoffMessage`.
+    *   Escalate to Overmind if any step fails or requires clarification.
+*   **Common Tools:** `edit_file`, `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`, `run_terminal_cmd`, `context7_*`, `web_search` (from [MCP Toolchain](mdc:shared-core.mdc#mandatory-mcp-toolchain)).
+
+> ```pseudocode
+> // @examples/agentgenerator.pseudocode
+> // Define AgentGeneratorAgent Role Concept:
+> //   RoleName: "AgentGeneratorAgent"
+> //   Focus: Agent Scaffolding, Registration, Agent Roles Update
+> //   KeyInput: Handoff message with agent name, purpose, base template
+> //   KeyOutput: New agent code/spec, agent-roles entry, log update, handoff to DocsAgent/Overmind
+> ```
+
 ### 🎨 StylingAgent <a name="stylingagent"></a>
 *(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on CSS/SCSS/Design System, Constraints, Tools like `edit_file` on style files, `getSelectedElement`, Handoffs, Pseudocode, Linking to [Shared Core](mdc:shared-core.mdc), [Log Handling](mdc:log-handling.mdc), etc.)*
 *(Note: This agent requires a full definition following the standard pattern: Persona, Purpose, Responsibilities, Constraints, Tools, Handoffs, Pseudocode. Link relevant core documents.)*
