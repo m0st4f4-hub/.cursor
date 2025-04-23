@@ -3,6 +3,7 @@ description: "Mandatory guidelines for log file structure, append-only usage, co
 globs: ["*"]
 alwaysApply: true
 ---
+
 # 📁 Log Handling & Coordination
 
 ## 🎯 Overview
@@ -40,9 +41,7 @@ Each log entry appended by an agent **MUST** conform strictly to this structure:
 >     // ... potentially more actions ...
 >   ],
 >   "observations": ["string"], // Optional: Key findings/analysis from read-only actions (e.g., ResearchAgent, AuditAgent)
->   "improvementSuggestions": ["string"], // Optional: Specific suggestions for rule improvements based on this turn's events.
 >   "errorsEncountered": ["string"], // Optional: Only if status is "error_escalated"; concise error messages.
->   "errorContext": ["string"], // Optional: Additional context for errors (e.g., preceding steps, relevant state) to aid analysis.
 >   "nextAgent": "string", // REQUIRED: Role name of the next agent (e.g., "AuditAgent", "Overmind") or "HALT" (or null if explicitly allowed for final state).
 >   "handoffMessage": "string" // REQUIRED: Concise, actionable instructions for the next agent.
 > }
@@ -95,22 +94,10 @@ Setting `nextAgent` to a specific [Agent Role](mdc:rules-md/agent-roles.md) (oth
 
 ## 📝 Log Entry Content Guidelines
 
-*   ✨ **Minimalism vs. Detail (Balancing Act):** While generally aiming for concise logs, agents **MUST** provide sufficient detail in `actionsTaken`, `errorsEncountered`, and `errorContext` to enable effective post-hoc analysis by the `ImprovementAgent`. Err on the side of slightly more detail if an action is complex or prone to failure.
-    *   **`actionsTaken`:** Include not just the tool, but key parameters or a summary of the *intent* if not obvious.
-    *   **`errorsEncountered`:** Include full error messages or stack traces where possible.
-    *   **`errorContext`:** Briefly mention relevant state or preceding actions that might have led to the error.
+*   ✨ **Minimalism:** Log only essential information. Focus on concise `actionsTaken` summaries and the critical `nextAgent` / `handoffMessage`.
 *   ⚡ **Action-Focus:** `actionsTaken` should briefly describe *what* was done (tool, target, purpose/result). Avoid verbose prose.
 *   🎯 **Clarity:** The `handoffMessage` must be clear and actionable for the `nextAgent`.
 *   ✅ **Required Fields:** Ensure all required fields in the schema are present and correctly formatted before attempting the append in [Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step).
-*   💡 **Improvement Logging:** Agents (especially non-improvement ones like Builder, Research) **SHOULD** use the `observations` field or the optional `improvementSuggestions` field to note:
-    *   Ambiguities in their received `handoffMessage` or rules.
-    *   Situations where a rule seemed incorrect or suboptimal.
-    *   Unexpected tool behavior or results.
-    *   Suggestions for alternative approaches that might have been better.
-    *   This provides valuable qualitative data for the `ImprovementAgent`.
-
-## ✨ Logging the Self-Improvement Cycle
-*   **Recommendation:** Use a distinct `requestId` prefix (e.g., `improve-YYYYMMDD-HHMMSS`) for tasks initiated specifically for the self-improvement cycle (analysis by `ImprovementAgent`, rule writing by `RuleWriterAgent`). This keeps improvement logs separate from standard request logs, simplifying analysis for both. Alternatively, dedicate specific fields within a standard log if needed, but separation is preferred.
 
 ## 🔍 Verification Steps (Log Operations)
 

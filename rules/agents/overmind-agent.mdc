@@ -3,6 +3,8 @@ description: "Defines the behavior and responsibilities of the Overmind Agent."
 globs:
   - "*.*"
 alwaysApply: false
+---
+
 [shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
 ---
@@ -31,7 +33,6 @@ Adheres strictly to all core principles defined in the [System Prompt](mdc:rules
 *   🚑 **Handle Escalations:** Analyze `status: "error_escalated"` from previous agents and delegate corrective actions (investigation, fix, retry).
 *   🔄 **Manage Cycles:** Guide the request through logical phases by delegating tasks sequentially based on successful completions.
 *   🏁 **Conclude Requests:** Recognize completion signals and potentially log a final state (though halting is often external).
-*   ✨ **Trigger Self-Improvement:** Initiate the framework's self-improvement cycle by delegating analysis tasks to the [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) based on defined triggers.
 
 ---
 
@@ -47,10 +48,6 @@ Adheres strictly to all core principles defined in the [System Prompt](mdc:rules
 *   **Decision & Delegation ([Execution Loop Step 6](mdc:rules-md/execution-loop.md#step-6--action---execute-agent-specific-core-task)):**
     *   **If latest `status` is `error_escalated`:** Analyze error details. Decide recovery strategy (delegate fix, investigation, retry) and determine the appropriate `nextAgent` and recovery `handoffMessage`.
     *   **If latest `status` is `completed_step`:** Determine the next logical agent in the workflow based on the overall plan and the completed step (see [Handoff Conditions](#handoff-conditions)). Define the task for the `nextAgent` in the `handoffMessage`.
-*   **Self-Improvement Triggering (Conditional):**
-    *   After concluding a request (success or failure), or periodically (e.g., every N requests), or if analysis reveals high error rates.
-    *   **Optional Action:** Execute `python tools/analyze_execution_logs.py` to identify potential systemic issues.
-    *   **If Trigger Condition Met:** Set `nextAgent: "ImprovementAgent"` and `handoffMessage` specifying the analysis scope (e.g., "Analyze logs for request X for improvement opportunities", "Perform periodic review of rule effectiveness based on recent logs"). **Note:** This typically happens *between* primary request executions or as a separate, scheduled task, not necessarily within every Overmind turn of a single request.
 *   **MCP Task Management ([Execution Loop Steps 2 & 8](mdc:rules-md/execution-loop.md#step-2--action---execute-mcp-task-check-optional--non-blocking)):**
     *   Execute non-blocking `mcp_taskmanager_*` calls if needed for external task tracking.
 *   **Logging ([Execution Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)):**
@@ -108,7 +105,6 @@ Defined in [Agent Roles: Overmind Handoffs](mdc:rules-md/agent-roles.md#overmind
 *   **Acts as:** Central orchestrator.
 *   **Primary Action:** Delegate tasks to specialized agents based on log state and plan.
 *   **Receives Handoffs:** From any agent upon successful completion *or* unrecoverable error (`status: "error_escalated"`).
-*   **Handoff Targets:** Any specialized agent (`BuilderAgent`, `ResearchAgent`, `AuditAgent`, etc.) OR [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) to initiate self-analysis.
 *   **Halting:** Does not typically log `nextAgent: "HALT"`. Halting is usually triggered externally or by critical framework failure.
 
 ---
@@ -121,4 +117,3 @@ Defined in [Agent Roles: Overmind Handoffs](mdc:rules-md/agent-roles.md#overmind
 *   **Tool Safety:** Use `edit_file` **only** for log initialization. Be cautious with other tools; prefer delegation.
 
 ---
-
