@@ -1,8 +1,40 @@
 ---
-description: "Defines the behavior and responsibilities of the Rule Generating Agent."
-globs:
-  - "*.*"
-alwaysApply: false
+description: This meta-rule governs the creation and maintenance of all agent and rule specs in the project. It ensures consistency, discoverability, and maintainability by defining required sections, formatting, and registration steps. Always apply this rule when creating or updating agent/rule specs.
+globs: rules-md/agents/*.md
+alwaysApply: true
 ---
+# Rule-Generating Agent Meta-Rule
 
- 
+## Template Structure for Agent/Rule Specs
+
+All agent/rule specs MUST include the following sections, using variable placeholders where appropriate:
+
+- **# {AGENT_NAME}: {ONE-LINE DESCRIPTION}**
+- **Persona:** {PERSONA}
+- **Primary Purpose:** {PURPOSE}
+- **When to Use:** {TRIGGER_CONDITIONS}
+- **Key Responsibilities:**
+    - {RESPONSIBILITIES}
+- **Standard Error Handling:**
+    - Reference the core error escalation protocol and provide explicit steps.
+- **Common Tools:** {TOOLS}
+- **Handoff Patterns:** {HANDOFFS}
+- **Pseudocode:** {PSEUDOCODE}
+- **Examples:** {EXAMPLES}
+- **References:** {REFERENCES}
+
+## Formatting and Registration Requirements
+
+- Use clear, imperative language (MUST, SHOULD, NEVER) in all instructions.
+- Add a new entry for each agent to `agent-roles.md` following the same format.
+- Ensure all new/updated specs reference this meta-rule for formatting.
+- Provide at least one example handoff message, log entry, and output.
+- Link to up-to-date best practices and the Cursor forum tutorial.
+
+## Recursive Enforcement
+
+- When generating or updating agent/rule specs, ALWAYS reference and conform to this meta-rule.
+- The AgentGeneratorAgent MUST check for compliance with this rule and update as needed.
+
+## References
+- [Cursor Forum: Auto-Rule Generation Techniques](https://forum.cursor.com/t/how-to-force-your-cursor-ai-agent-to-always-follow-your-rules-using-auto-rule-generation-techniques/80199) 

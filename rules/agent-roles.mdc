@@ -7,6 +7,8 @@ alwaysApply: false
 
 # 🧑‍💻 Agent Roles & Responsibilities
 
+> **Meta-Rule Reference:** All agent roles and this file MUST conform to the [Rule-Generating Agent Meta-Rule](agents/rule-generating-agent.md) for structure, formatting, and registration. See References at the end.
+
 ## 🎯 Overview
 
 The agent framework utilizes specialized roles for efficient task execution guided by the [Core Execution Loop](mdc:execution-loop.mdc) and coordinated via the [Log File](mdc:log-handling.mdc). This document defines each role, its core purpose, responsibilities, typical tools used, and interaction patterns (handoffs).
@@ -333,4 +335,8 @@ The following interaction patterns are deprecated and **MUST** be avoided:
 
 ## 📋 Example Workflows (JSON Log Snippets)
 
-See examples in [Log Handling - Example Log Sequence](mdc:log-handling.mdc#example-log-sequence) which illustrate the handoffs defined in [Workflow Patterns](mdc:agent-roles.mdc#workflow-patterns). 
+See examples in [Log Handling - Example Log Sequence](mdc:log-handling.mdc#example-log-sequence) which illustrate the handoffs defined in [Workflow Patterns](mdc:agent-roles.mdc#workflow-patterns).
+
+## References
+- [Rule-Generating Agent Meta-Rule](agents/rule-generating-agent.md)
+- [Cursor Forum: Auto-Rule Generation Techniques](https://forum.cursor.com/t/how-to-force-your-cursor-ai-agent-to-always-follow-your-rules-using-auto-rule-generation-techniques/80199) 
