@@ -5,25 +5,26 @@ globs:
 alwaysApply: false
 ---
 
-# 💡 Core Concepts
+# CORE CONCEPTS (MANDATORY DEFINITIONS)
 
-This document defines fundamental concepts, terminology, and principles underpinning the Unified Agent Framework. Understanding these concepts is crucial for interpreting other rules and ensuring consistent agent behavior.
+- **`requestId`:** REQUIRED Unique identifier for task sequence. Used for logs, MCP tasks, edit tags.
+- **Agent Roles:** REQUIRED Specialized functional units (e.g., `BuilderAgent`). Defined in [Agent Roles](mdc:agent-roles.mdc).
+- **Log File (`logs/<requestId>.json`):** REQUIRED Single source of truth. Append-only JSON array. Defines state, coordination. See [Log Handling](mdc:log-handling.mdc).
+- **`nextAgent` Field:** REQUIRED control signal in log. Sole trigger for FRAMEWORK'S IMMEDIATE AUTOMATIC transition. Agent MUST log correctly. See [Log Handling](mdc:log-handling.mdc).
+- **ACTION IMPERATIVE:** MANDATORY principle. Continuous execution, automatic transition via `nextAgent`. NO WAITING. See [Execution Loop](mdc:execution-loop.mdc).
+- **Tools:** MANDATORY capabilities for environment interaction (MCP, file system, terminal, custom). See [Shared Core](mdc:shared-core.mdc).
+- **Rules (`.cursor/rules/`, `rules-md/`):** MANDATORY `.mdc` files defining behavior, standards, workflow. See [System Prompt](mdc:system-prompt.mdc).
+- **Framework:** REQUIRED External execution engine. Reads log, loads rules, invokes `nextAgent`, enforces loop. See [System Prompt](mdc:system-prompt.mdc).
+- **Autonomous Execution:** MANDATORY. Agents operate independently, driven by log state. User interaction ONLY for requested diagnostics (Loop Step 6).
+- **Log-Driven Coordination:** MANDATORY. Log file is sole source of truth for state, `handoffMessage`, `nextAgent` trigger.
+- **Specialized Agents:** REQUIRED. Each role has specific function defined in its `.mdc` file.
+- **Immediate Transitions:** MANDATORY. Framework ensures instantaneous transitions via `nextAgent`. NO WAITING.
+- **Direct Peer Handoffs:** REQUIRED where logical. Agents MUST set `nextAgent` to peer (e.g., `BuilderAgent` -> `AuditAgent`) for efficiency. Return to `Overmind` for planning/escalation/completion.
+- **Self-Improvement Loop:** MANDATORY framework goal. Agents (`ImprovementAgent`, `RuleWriterAgent`) MUST analyze performance and automatically refine/generate rules (`.mdc`).
+- **Global Rules (`.cursor/rules/global/`):** REQUIRED foundational rules. MUST be followed unless overridden by Project Rules.
+- **Project Rules (`.cursor/rules/project/`):** REQUIRED project-specific rules. MUST override Global Rules when present.
 
-**Key Concepts:**
-
-*   🔑 **Request ID (`requestId`): <a name="request-id-requestid"></a>** A unique identifier for a specific user request being processed by the agent framework. All logs and actions related to a single task are associated with its `requestId`. See [Log Handling](mdc:log-handling.mdc).
-*   🧑‍💻 **Agent Roles:** Specialized functional units designed to perform specific types of tasks (e.g., `BuilderAgent`, `AuditAgent`). See [Agent Roles & Responsibilities](mdc:agent-roles.mdc) for detailed definitions and interaction patterns.
-*   📁 **Log File:** The primary mechanism for state persistence, communication, and coordination, located at `logs/<requestId>.json`. It MUST be treated as an append-only JSON array. See [Log Handling & Coordination](mdc:log-handling.mdc) for structure and usage rules.
-*   ➡️ **`nextAgent` Field: <a name="nextagent-field"></a>** The critical field within a log entry that dictates the *immediate* and *automatic* transition to the next agent role **performed by the Framework**. This field is **read and acted upon by the [Framework](mdc:core-concepts.mdc#framework) itself** after a successful log append (see [Execution Loop Step 10](mdc:execution-loop.mdc#step-10-%EF%B8%8F-framework-action---execute-immediate-automatic-transition)). It is the **sole trigger** for workflow progression. Agents **must** log this field correctly. See [Log Handling - Automatic Transitions](mdc:log-handling.mdc#automatic-transitions-via-nextagent).
-*   🚀 **ACTION IMPERATIVE: <a name="action-imperative"></a>** The core principle that agents **must** continuously execute actions based *only* on the log state and transition based *only* on the `nextAgent` field logged by the *previous* agent, without waiting for user prompts or confirmations. This is enforced by the [Core Execution Loop](mdc:execution-loop.mdc).
-*   🛠️ **Tools:** Capabilities available to agents for interacting with the environment (e.g., `edit_file`, `run_terminal_cmd`, custom scripts). See the [Mandatory MCP Toolchain](mdc:shared-core.mdc#mandatory-mcp-toolchain) and guidelines for [Custom Tools](mdc:shared-core.mdc#custom-tool-development--usage).
-*   📜 **Rules (`.cursor/rules/` & `rules-md/`):** Configuration files (`.mdc`) defining agent behavior, project standards, and workflows. This includes agent-specific logic ([`agents/`](mdc:agent-roles.mdc)), shared guidelines ([`shared-core.mdc`](mdc:shared-core.mdc)), core procedures (e.g., [`initialization-procedure.mdc`](mdc:initialization-procedure.mdc)), and the overall structure defined in the [System Prompt](mdc:system-prompt.mdc).
-*   ⚙️ **Framework: <a name="framework"></a>** The underlying execution engine (external to the agent's direct control) that reads the log file, interprets the `nextAgent` field, loads the appropriate agent rules, and enforces the [Core Execution Loop](mdc:execution-loop.mdc).
-*   🤖 **Autonomous Execution:** Agents operate independently, driven by the state logged in `logs/<requestId>.json`. User interaction is limited to providing diagnostic data when explicitly requested by an agent (See [Execution Loop Step 6](mdc:execution-loop.mdc#step-6-%EF%B8%8F-action---execute-agent-specific-core-task)).
-*   ✍️ **Log-Driven Coordination:** The `logs/<requestId>.json` file is the *single source of truth* for state, handoff instructions (`handoffMessage`), and the crucial `nextAgent` field which dictates the immediate, automatic transition between agents. (See [Log Handling](mdc:log-handling.mdc)).
-*   🧑‍💼 **Specialized Agents:** Each agent role possesses specific skills and responsibilities, defined in their respective `.mdc` files (e.g., `BuilderAgent`, `AuditAgent`). See [Agent Roles](mdc:agent-roles.mdc).
-*   ⚡ **Immediate Transitions:** The framework enforces *instantaneous* transitions between agents based *solely* on the `nextAgent` field in the latest log entry. There is **no waiting** for user confirmation or external triggers. See [Log Handling - Automatic Transitions](mdc:log-handling.mdc#automatic-transitions-via-nextagent).
-*   ↔️ **Direct Peer Handoffs:** Agents can (and should, when logical) directly hand off tasks to other specialized agents (e.g., `BuilderAgent` setting `nextAgent: "AuditAgent"`) to maintain workflow momentum, returning to `Overmind` primarily for planning, escalation, or task completion synthesis. See [Agent Roles - Workflow Patterns](mdc:agent-roles.mdc#workflow-patterns).
-*   🌟 **Self-Improvement Loop:** The framework includes mechanisms for agents to analyze past performance (via logs, potentially chat history) and automatically refine or generate rules (`.mdc` files) to improve future execution efficiency and accuracy. This is often orchestrated by dedicated [`ImprovementAgent`](mdc:agent-roles.mdc#improvementagent) and [`RuleWriterAgent`](mdc:agent-roles.mdc#rulewriteragent). See [System Prompt - Self-Improvement Objective](mdc:system-prompt.mdc#self-improvement-objective).
-*   🌍 **Global Rules <a name="global-rules"></a>:** Core, foundational rules (`.cursor/rules/global/*.mdc`) defining agent behavior, tool usage, and general best practices, applicable across projects. See [System Prompt - Global vs. Project Rules](mdc:system-prompt.mdc#global-vs-project-rules).
-*   🏗️ **Project Rules <a name="project-rules"></a>:** Specific rules (`.cursor/rules/project/*.mdc`) tailored to a particular project's needs, overriding or augmenting global rules. Agents must prioritize these when present. See [System Prompt - Global vs. Project Rules](mdc:system-prompt.mdc#global-vs-project-rules). 
+## CORE TOOL INTEGRATION (MANDATORY)
+- **`fetch_rules`:** Agents MUST use `fetch_rules` to retrieve full rule content when only a reference (`mdc:`) is available and clarification is needed for execution.
+- **`mcp_taskmanager_*`:** Agents (primarily `Overmind`) MUST use these tools for task lifecycle management (planning, status updates). Agents performing final sub-tasks MAY use `mark_task_done` (non-blocking).
+- **`context7_*`:** Agents involved in code implementation or research (`BuilderAgent`, `ResearchAgent`, etc.) MUST use `context7_resolve-library-id` and `context7_get-library-docs` to retrieve necessary external library/framework documentation before attempting implementation or analysis requiring such knowledge. 
