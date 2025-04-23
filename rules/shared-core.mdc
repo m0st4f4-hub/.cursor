@@ -51,15 +51,17 @@ Each `edit_file` block **MUST** include this comment header for tracking and con
 ## ✅ Common Custom Tools (Examples)
 
 These are examples of Python scripts expected to be available in the `tools/` directory. Refer to their respective `.md` definitions in `rules-md/tools/` for details.
-These are examples of Python scripts expected to be available in the `tools/` directory. Refer to their respective `.mdc` rules (if available) for details.
 
-*   [`analyze_log.py`](mdc:rules-md/tools/analyze_log.mdc): Parses and analyzes `logs/<requestId>.json` files.
+*   [`analyze_log.py`](mdc:rules-md/tools/analyze_log.md): Parses and analyzes `logs/<requestId>.json` files, often used by `ImprovementAgent` to find error patterns or inefficiencies for self-improvement.
+*   [`analyze_chat_history.py`](mdc:rules-md/tools/analyze_chat_history.md): *(External Data Dependent)* Analyzes chat logs (if available and accessible) to extract user corrections and feedback, primarily for `ImprovementAgent`.
 *   [`verify_environment.py`](mdc:rules-md/tools/verify_environment.mdc): Checks environment prerequisites (tool versions, dependencies).
 *   [`parse_git_status.py`](mdc:rules-md/tools/parse_git_status.mdc): Provides structured output of `git status`.
 *   [`check_dependencies.py`](mdc:rules-md/tools/check_dependencies.mdc): Checks for outdated or vulnerable dependencies.
 *   [`run_linter.py`](mdc:rules-md/tools/run_linter.mdc): Executes configured linters/formatters.
 *   [`check_versions.py`](mdc:rules-md/tools/check_versions.mdc): Checks specific tool/library versions.
 *   [`consolidate_code.py`](mdc:rules-md/tools/consolidate_code.mdc): Gathers code snippets based on context.
+*   [`rule_modifier.py`](mdc:rules-md/tools/rule_modifier.md): Applies structured modifications to `.md` rule files, used by `RuleWriterAgent`.
+*   [`rule_validator.py`](mdc:rules-md/tools/rule_validator.md): *(Future Tool)* Validates the syntax and potentially the structure/consistency of `.md` rule files, used by `ImprovementAgent` or `RuleWriterAgent` after modifications.
 *(Note: Tool availability depends on the specific project setup and the initialization procedure.)*
 
 **Core Documents Reference:**
