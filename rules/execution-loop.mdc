@@ -62,17 +62,17 @@ This loop **commands** the **non-stop execution flow** for any active agent work
 ## 🔍 Verification Requirements (Per Step)
 
 Before executing the core **ACTION** of each step (1-9), agents **MUST** implicitly or explicitly verify:
-1.  ✅ Availability of required tools for the step (from [MCP Toolchain](mdc:rules-md/shared-core.mdc#mandatory-mcp-toolchain) or [Custom Tools](mdc:rules-md/shared-core.mdc#custom-tool-development--usage)).
+1.  ✅ Availability of required tools for the step (from [MCP Toolchain](mdc:shared-core.mdc#mandatory-mcp-toolchain) or [Custom Tools](mdc:shared-core.mdc#custom-tool-development--usage)).
 2.  🔑 Necessary permissions for file access or command execution.
 3.  📥 Validity and presence of required inputs for the step's actions.
-4.  💾 Continued access and validity of the log file (especially for Steps 1 and 9, see [Log Handling Verifications](mdc:rules-md/log-handling.mdc#verification-steps-log-operations)).
+4.  💾 Continued access and validity of the log file (especially for Steps 1 and 9, see [Log Handling Verifications](mdc:log-handling.mdc#verification-steps-log-operations)).
 
 Failure at any verification **MUST** lead to immediate halt and escalation via the [Error Handling](#error-handling-general) process.
 
 ## ⚠️ Deprecated Patterns (Strictly Forbidden)
 
 *   ⏳ Waiting for user `"proceed"` or `"continue"` confirmations.
-*   🧠 Attempting state management outside the [log file](mdc:rules-md/log-handling.mdc).
+*   🧠 Attempting state management outside the [log file](mdc:log-handling.mdc).
 *   🤫 Direct agent-to-agent communication.
 *   ⏳ Blocking execution waiting for optional MCP task approval ([Step 2](#step-2-%EF%B8%8F-action---get-mcp-task-optional--restricted) or [8](#step-8-%EF%B8%8F-action---finalize-task-if-applicable---non-blocking--restricted)).
 *   🛑 Failing to set a valid `nextAgent` in [Step 9](#step-9-%EF%B8%8F-action---log-to-request-file-critical-for-immediate-handoff).
@@ -84,8 +84,8 @@ Failure at any verification **MUST** lead to immediate halt and escalation via t
     1.  Prepare minimal error details for logging.
     2.  Determine `status` as `"error_escalated"`.
     3.  Set `nextAgent` to `"Overmind"` (or `"HALT"` for truly critical/unrecoverable framework issues).
-    4.  Provide a concise `handoffMessage` explaining the failure and the step number. Include detailed error messages and context in `errorsEncountered` / `errorContext` for potential self-improvement analysis (see [Log Entry Schema](mdc:rules-md/log-handling.mdc#log-entry-schema)).
-    5.  Execute [Step 9](#step-9-%EF%B8%8F-action---log-to-request-file-critical-for-immediate-handoff) to attempt logging the error state and hand off to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind).
+    4.  Provide a concise `handoffMessage` explaining the failure and the step number. Include detailed error messages and context in `errorsEncountered` / `errorContext` for potential self-improvement analysis (see [Log Entry Schema](mdc:log-handling.mdc#log-entry-schema)).
+    5.  Execute [Step 9](#step-9-%EF%B8%8F-action---log-to-request-file-critical-for-immediate-handoff) to attempt logging the error state and hand off to [`Overmind`](mdc:agent-roles.mdc#overmind).
     6.  If [Step 9](#step-9-%EF%B8%8F-action---log-to-request-file-critical-for-immediate-handoff) itself fails critically (cannot append), the framework should detect this and handle the halt.
 
 ## 📋 Example Loop Execution (Conceptual)
