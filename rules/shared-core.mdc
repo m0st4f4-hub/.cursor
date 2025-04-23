@@ -17,7 +17,7 @@ This lists the core tools generally available via the MCP (Mandatory Control Pla
 |---------------------------|------------------------------------|--------------------------------------------|
 | `mcp_taskmanager_*`       | Task tracking (Mainly Overmind)    | `mark_task_done` is non-blocking for agent |
 | `edit_file`               | Apply code changes / Create file   | Adhere to [Code Edit Tag](#code-edit-tag) format. |
-| `run_terminal_cmd`        | Build, test, execute scripts, Git  | Use for custom tools, env checks.          |
+| `run_terminal_cmd`        | Build, test, execute scripts, Git  | Use for custom tools, env checks. **Use `| cat` for commands with pagers (e.g., `git log`).** |
 | `context7_*`              | Retrieve internal docs (APIs, etc.)|                                            |
 | `web_search`              | Fetch external data/patterns       |                                            |
 | `file_search`             | Fuzzy file path search             |                                            |
