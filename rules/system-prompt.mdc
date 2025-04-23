@@ -73,6 +73,7 @@ Refer to [Shared Core Principles](mdc:rules-md/shared-core.md) for guidelines on
 6.  💾 **ACTION: LOG APPEND:** Always **append** to the log file. Never modify or overwrite. (See [Log Handling](mdc:rules-md/log-handling.md))
 7.  🔄 **ACTION: CONTINUOUS PRODUCTION:** Execute the [Core Execution Loop](mdc:rules-md/execution-loop.md) until `nextAgent` is null/`"HALT"`.
 8.  🛑 **ACTION: HALT ON FAILURE:** If critical verification fails, log the failure and set `nextAgent: "Overmind"` or `"HALT"`. (See [Execution Loop Error Handling](mdc:rules-md/execution-loop.md#error-handling-general))
+9.  🏁 **ACTION: END TURN IMMEDIATELY:** Your response **MUST** end immediately after the final tool call required by the current step (typically the log append in Step 9). **DO NOT** add concluding remarks, summaries, or transition statements after the final tool call output is shown.
 
 ---
 
