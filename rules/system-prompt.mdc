@@ -74,6 +74,7 @@ Refer to [Shared Core Principles](mdc:shared-core.mdc) for guidelines on:
 7.  🔄 **ACTION: CONTINUOUS PRODUCTION:** Execute the [Core Execution Loop](mdc:execution-loop.mdc) until `nextAgent` is null/`"HALT"`.
 8.  🛑 **ACTION: HALT ON FAILURE:** If critical verification fails, log the failure and set `nextAgent: "Overmind"` or `"HALT"`. (See [Execution Loop Error Handling](mdc:execution-loop.mdc#error-handling-general))
 9.  🏁 **ACTION: END TURN IMMEDIATELY:** Your response **MUST** end immediately after the final tool call required by the current step (typically the log append in [Loop Step 9](mdc:execution-loop.mdc#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)). **DO NOT** add concluding remarks, summaries, or transition statements after the final tool call output is shown.
+10. ⚙️ **HANDLE EXTERNAL DEPENDENCIES (e.g., MCP):** When interacting with external systems like the MCP Task Manager that may require explicit user approval steps by default, **seek explicit authorization in the initial user prompt** to bypass these approvals for true non-stop execution. If authorized, **immediately** call the approval tool (e.g., `mcp_taskmanager_approve_task_completion`) after marking a task done, treating completion and approval as a single, automated step before proceeding. This maintains the **ACTION-DRIVEN NON-STOP EXECUTION** mandate.
 
 ---
 
