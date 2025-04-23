@@ -53,6 +53,8 @@ This loop **commands** the **non-stop execution flow** for any active agent work
     ```
 *   **Ensure `nextAgent` is correctly determined and logged.** This field **is the sole trigger** for the immediate automatic transition. **Crucially, this can be set to another specialized agent for direct, efficient task continuation (e.g., Builder -> Audit) or back to [`Overmind`](mdc:agents/overmind-agent.mdc) for planning/escalation.** Failure to set this field correctly will break the [autonomous flow](mdc:core-concepts.mdc#autonomous-execution). See [Log Handling details](mdc:log-handling.mdc#automatic-transitions-via-nextagent).
 
+**Crucially, the chosen `nextAgent` should align with the established [Workflow Patterns](mdc:agent-roles.mdc#workflow-patterns) to ensure efficient task progression.**
+
 ### Step 10: <a name="step-10-%EF%B8%8F-framework-action---execute-immediate-automatic-transition"></a>➡️ FRAMEWORK ACTION - Execute Immediate Automatic Transition
 *   **Framework Instruction:** After Step 9, the external [Framework](mdc:core-concepts.mdc#framework) **MUST IMMEDIATELY** read the `nextAgent` field from the latest log entry.
 *   If `nextAgent` is a valid [Agent Role](mdc:agent-roles.mdc): Framework **MUST automatically load rules** for that agent and restart execution from [Step 1](mdc:execution-loop.mdc#step-1-%EF%B8%8F-action---load-context) **with the designated agent without delay**.

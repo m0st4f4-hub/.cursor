@@ -22,6 +22,7 @@ The [`InitializationAgent`](mdc:agents/initialization-agent.mdc) must first dete
 ### Phase 1: Determine Project State
 
 1.  **Check Git Status:**
+    *   (Implicit prerequisite: Git command-line tool must be installed and accessible. This could be verified using [`verify_environment.py`](mdc:tools/verify_environment.mdc)).
     *   Run `git rev-parse --is-inside-work-tree | cat`.
     *   Alternatively, use `python tools/parse_git_status.py` for structured output ([Tool Definition](mdc:tools/parse_git_status.mdc)).
     *   Note the result (`isGitRepo`: true/false).

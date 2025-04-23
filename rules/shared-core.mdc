@@ -76,14 +76,14 @@ These tools form the baseline capabilities available to most agents. Specific ag
 
 These are example Python scripts (run via `run_terminal_cmd`) that agents can leverage. Agents can also *create* new tools here.
 
-*   **`analyze_log.py`:** Parses a `logs/<requestId>.json` file to extract summaries, timelines, or specific event types. Useful for `Overmind`, `DocsAgent`, `ImprovementAgent`.
-*   **`verify_environment.py`:** Checks for presence and basic configuration of required development tools (e.g., Node.js, Python, Git, specific linters). Used by `InitializationAgent`, `RunnerAgent`.
-*   **`parse_git_status.py`:** Runs `git status --porcelain=v1` and parses the output into a structured format (JSON) indicating staged, unstaged, untracked files, and branch status. Used by `InitializationAgent`, `RulesSyncAgent`, potentially `Overmind`.
-*   **`check_dependencies.py`:** Analyzes project dependency files (`package.json`, `requirements.txt`, etc.) for potential issues (e.g., outdated versions, conflicts - *basic checks*). Used by `InitializationAgent`, `BuilderAgent`, `AuditAgent`, `RunnerAgent`.
-*   **`run_linter.py`:** Executes a configured linter (e.g., ESLint, Pylint) on specified files or directories and reports results. Used by `BuilderAgent`, `RefactorAgent`, `AuditAgent`.
-*   **`check_versions.py`:** Specifically checks versions of critical tools/libraries against predefined minimums or ranges. Used by `InitializationAgent`, `BuilderAgent`, `RunnerAgent`.
-*   **`consolidate_code.py`:** (Conceptual) Takes multiple file paths as input, reads them, and outputs a consolidated block of text/code, potentially with separators. Useful for `ResearchAgent` or `RefactorAgent` preparing context.
-*   **`get_current_time.ps1`:** (Example PowerShell) Simple script to get the current UTC time, perhaps as an alternative if Python's `datetime` isn't readily available in the `run_terminal_cmd` environment.
+*   **[`analyze_log.py`](mdc:tools/analyze_log.mdc):** Parses a `logs/<requestId>.json` file to extract summaries, timelines, or specific event types. Useful for `Overmind`, `DocsAgent`, `ImprovementAgent`.
+*   **[`verify_environment.py`](mdc:tools/verify_environment.mdc):** Checks for presence and basic configuration of required development tools (e.g., Node.js, Python, Git, specific linters). Used by `InitializationAgent`, `RunnerAgent`.
+*   **[`parse_git_status.py`](mdc:tools/parse_git_status.mdc):** Runs `git status --porcelain=v1` and parses the output into a structured format (JSON) indicating staged, unstaged, untracked files, and branch status. Used by `InitializationAgent`, `RulesSyncAgent`, potentially `Overmind`.
+*   **[`check_dependencies.py`](mdc:tools/check_dependencies.mdc):** Analyzes project dependency files (`package.json`, `requirements.txt`, etc.) for potential issues (e.g., outdated versions, conflicts - *basic checks*). Used by `InitializationAgent`, `BuilderAgent`, `AuditAgent`, `RunnerAgent`.
+*   **[`run_linter.py`](mdc:tools/run_linter.mdc):** Executes a configured linter (e.g., ESLint, Pylint) on specified files or directories and reports results. Used by `BuilderAgent`, `RefactorAgent`, `AuditAgent`.
+*   **[`check_versions.py`](mdc:tools/check_versions.mdc):** Specifically checks versions of critical tools/libraries against predefined minimums or ranges. Used by `InitializationAgent`, `BuilderAgent`, `RunnerAgent`.
+*   **[`consolidate_code.py`](mdc:tools/consolidate_code.mdc):** (Conceptual) Takes multiple file paths as input, reads them, and outputs a consolidated block of text/code, potentially with separators. Useful for `ResearchAgent` or `RefactorAgent` preparing context.
+*   **[`get_current_time.ps1`](mdc:tools/get_current_time.mdc):** (Example PowerShell) Simple script to get the current UTC time, perhaps as an alternative if Python's `datetime` isn't readily available in the `run_terminal_cmd` environment.
 
 *Self-Correction Note:* The original Unified Prompt mentioned `.cursor/tools/` but the example tools were listed as if in the root `tools/`. This document assumes the root `tools/` directory is the correct location for custom scripts executed via `run_terminal_cmd python tools/your_script.py`.
 
