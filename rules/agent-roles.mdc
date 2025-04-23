@@ -171,9 +171,11 @@ Refer to [Core Concepts](mdc:core-concepts.mdc) for foundational terminology.
 
 ### 🎨 StylingAgent <a name="stylingagent"></a>
 *(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on CSS/SCSS/Design System, Constraints, Tools like `edit_file` on style files, `getSelectedElement`, Handoffs, Pseudocode, Linking to [Shared Core](mdc:shared-core.mdc), [Log Handling](mdc:log-handling.mdc), etc.)*
+*(Note: This agent requires a full definition following the standard pattern: Persona, Purpose, Responsibilities, Constraints, Tools, Handoffs, Pseudocode. Link relevant core documents.)*
 
 ### ♿ UXAgent <a name="uxagent"></a>
 *(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on Accessibility/ARIA/Keyboard Nav, Constraints, Tools like `edit_file` on templates, `getSelectedElement`, Handoffs, Pseudocode, Linking to [Shared Core](mdc:shared-core.mdc), [Log Handling](mdc:log-handling.mdc), etc.)*
+*(Note: This agent requires a full definition following the standard pattern: Persona, Purpose, Responsibilities, Constraints, Tools, Handoffs, Pseudocode. Link relevant core documents.)*
 
 ### ✨ RefactorAgent <a name="refactoragent"></a>
 *(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on code structure/modularity/maintainability, Constraints, Tools like `edit_file`, [`run_linter.py`](mdc:shared-core.mdc#common-custom-tools), [`consolidate_code.py`](mdc:shared-core.mdc#common-custom-tools), Handoffs, Pseudocode, Linking to [Shared Core](mdc:shared-core.mdc), [Log Handling](mdc:log-handling.mdc), etc.)*
