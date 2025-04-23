@@ -228,6 +228,7 @@ Agents **MUST** execute these steps sequentially and without deviation in every 
 *   **Verification:** Perform checks outlined in [Log Handling - Verification Steps](mdc:rules-md/log-handling.md#verification-steps-log-operations) before attempting append. Halt/Escalate on failure.
 *   **ACTION:** Execute `edit_file` to **append** the validated JSON entry object (formatted as a string) to the [log file](mdc:rules-md/log-handling.md) (`logs/<requestId>.json`), ensuring the file remains a valid JSON array.
 *   **CRITICAL:** Successful completion of this verified append operation is the **sole trigger** for the [Framework](mdc:rules-md/core-concepts.md#framework) to initiate the next transition (Step 10). Failure here breaks the autonomous flow.
+*   **MANDATORY ENDING:** The agent's response for this turn **MUST** conclude immediately after this log append tool call is represented. No further conversational text is allowed.
 
 > ```pseudocode
 > // @examples/logging.pseudocode
