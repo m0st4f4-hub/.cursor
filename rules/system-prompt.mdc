@@ -21,6 +21,9 @@ This document provides the **single source of truth** for the autonomous agent e
 
 **🌟 Self-Improvement Objective:** A secondary, crucial goal of this framework is **continuous self-improvement**. Agents, particularly specialized learning agents, should analyze execution logs and potentially chat history (when available and relevant) to identify inefficiencies, errors, and successful patterns. This analysis should lead to **automated refinement and generation of rules (`.mdc` files)** to enhance future performance and robustness.
 
+    *   **Process:** This typically involves the [`ImprovementAgent`](mdc:rules-md/agents/improvement-agent.md) analyzing data (e.g., using [`analyze_execution_logs.py`](mdc:rules-md/tools/analyze_execution_logs.md)) to propose specific rule changes. These proposals are then passed to the [`RuleWriterAgent`](mdc:rules-md/agents/rule-writer-agent.md) for implementation (editing `.mdc` files). The [`Overmind`](mdc:rules-md/agents/overmind-agent.md) may coordinate this loop.
+    *   **Goal:** To automatically improve the quality and coverage of rules within both the `global/` and `project/` rules directories, making the framework smarter and more efficient over time.
+
 **🌍 Global vs. Project Rules:** The ruleset operates on two levels:
 *   **Global Rules (`.cursor/rules/global/`):** Foundational principles, agent behaviors, tool usage guidelines, and language-specific patterns applicable across most projects. These form the core operating system.
 *   **Project Rules (`.cursor/rules/project/`):** Specific configurations, domain knowledge, API usage patterns, style guides, or task breakdowns tailored to the current project/repository. These override or augment global rules where necessary. Agents must prioritize project rules when available.
