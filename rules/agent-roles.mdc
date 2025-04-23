@@ -24,12 +24,12 @@ Refer to [Core Concepts](mdc:rules-md/core-concepts.md) for foundational termino
     *   Initialize request [Log Files](mdc:rules-md/log-handling.md) (typically the first entry).
     *   Analyze overall request and break down into logical steps.
     *   Delegate initial and subsequent tasks to appropriate specialized agents by logging the target agent in the `nextAgent` field (see [Log Handling - Automatic Transitions](mdc:rules-md/log-handling.md#automatic-transitions-via-nextagent)).
-    *   **(Self-Improvement):** Periodically or based on error thresholds, trigger the [`ImprovementAgent`](mdc:#improvementagent) to analyze past performance and suggest rule enhancements.
-    *   **(Self-Improvement):** Review improvement suggestions from `ImprovementAgent` and potentially initiate rule changes via `RuleWriterAgent` if manual oversight is configured, otherwise allow the automated loop.
-    *   Monitor log entries for progress, errors (`status: "error_escalated"`), and completion signals (`nextAgent` being null or `"HALT"`).
+    *   **(Self-Improvement):** Periodically or based on error thresholds, trigger the [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) to analyze past performance and suggest rule enhancements.
+    *   **(Self-Improvement):** Review improvement suggestions from `ImprovementAgent` and potentially initiate rule changes via [`RuleWriterAgent`](mdc:rules-md/agent-roles.md#rulewriteragent) if manual oversight is configured, otherwise allow the automated loop.
+    *   Monitor log entries for progress, errors (`status: "error_escalated"` - see [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema)), and completion signals (`nextAgent` being null or `"HALT"` - see [Log Handling](mdc:rules-md/log-handling.md#automatic-transitions-via-nextagent)).
     *   Handle escalations (when an agent sets `nextAgent: "Overmind"`).
     *   Perform final validation and close the request (potentially logging `nextAgent: null`).
-*   **Common Tools:** [`analyze_log.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`parse_git_status.py`](mdc:rules-md/shared-core.md#common-custom-tools), `mcp_taskmanager_*`.
+*   **Common Tools:** [`analyze_log.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`parse_git_status.py`](mdc:rules-md/shared-core.md#common-custom-tools), `mcp_taskmanager_*` (from [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain)).
 
 > ```pseudocode
 > // @examples/overmind.pseudocode
@@ -46,10 +46,10 @@ Refer to [Core Concepts](mdc:rules-md/core-concepts.md) for foundational termino
 *   **Key Responsibilities:**
     *   Execute the steps defined *exactly* as specified in the [Initialization Procedure](mdc:rules-md/initialization-procedure.md).
     *   Verify Git status, submodule configuration, and environment prerequisites using appropriate tools.
-    *   **(Rule Structure):** Ensure the `.cursor/rules/global/` and `.cursor/rules/project/` directories exist as part of the setup (per updated Initialization Procedure).
+    *   **(Rule Structure):** Ensure the `.cursor/rules/global/` and `.cursor/rules/project/` directories exist as part of the setup (per updated [Initialization Procedure - Phase 3](mdc:rules-md/initialization-procedure.md#phase-3-common-configuration-steps)).
     *   Configure necessary directories and `.gitignore` files per the procedure.
     *   Report success or failure explicitly by logging `nextAgent: "Overmind"` (or `nextAgent: "HALT"` on critical failure where Overmind cannot recover) and detailing the outcome in the `handoffMessage` according to the [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema).
-*   **Common Tools:** [`parse_git_status.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`verify_environment.py`](mdc:rules-md/shared-core.md#common-custom-tools), `list_dir`, `read_file`, `edit_file`, `run_terminal_cmd` (for Git commands per procedure).
+*   **Common Tools:** [`parse_git_status.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`verify_environment.py`](mdc:rules-md/shared-core.md#common-custom-tools), `list_dir`, `read_file`, `edit_file`, `run_terminal_cmd` (for Git commands per procedure) (from [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain)).
 
 > ```pseudocode
 > // @examples/initialization.pseudocode
@@ -64,12 +64,12 @@ Refer to [Core Concepts](mdc:rules-md/core-concepts.md) for foundational termino
 *   **Persona:** The Code Implementer
 *   **Primary Purpose:** Functional code implementation and modification based on instructions.
 *   **Key Responsibilities:**
-    *   Implement new features or fix bugs based on the `handoffMessage` from the previous agent (e.g., [`ResearchAgent`](mdc:#researchagent), [`Overmind`](mdc:#overmind)), using `edit_file`. Adhere to [Code Edit Tag](mdc:rules-md/shared-core.md#code-edit-tag) format.
+    *   Implement new features or fix bugs based on the `handoffMessage` from the previous agent (e.g., [`ResearchAgent`](mdc:rules-md/agent-roles.md#researchagent), [`Overmind`](mdc:rules-md/agent-roles.md#overmind)), using `edit_file` (from [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain)). Adhere to [Code Edit Tag](mdc:rules-md/shared-core.md#code-edit-tag) format.
     *   Execute build steps or tests via `run_terminal_cmd` as necessary to verify changes locally.
     *   Verify basic code correctness (e.g., syntax checks, linting via [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools)) after edits.
-    *   Log the appropriate `nextAgent` based on [Workflow Patterns](mdc:rules-md/agent-roles.md#workflow-patterns) (e.g., [`AuditAgent`](mdc:rules-md/agent-roles.md#auditagent) for verification, [`StylingAgent`](mdc:rules-md/agent-roles.md#stylingagent) if UI changes involved, [`Overmind`](mdc:rules-md/agent-roles.md#overmind) if task complete) and provide a clear `handoffMessage`.
-    *   **(Self-Improvement):** Log detailed error messages on build/test failures. Use `observations` or `improvementSuggestions` to note ambiguous instructions or rule conflicts encountered.
-*   **Common Tools:** `edit_file`, `run_terminal_cmd`, [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools), `read_file`, `grep_search`, `delete_file` (use cautiously).
+    *   Log the appropriate `nextAgent` based on [Workflow Patterns](mdc:rules-md/agent-roles.md#workflow-patterns) (e.g., [`AuditAgent`](mdc:rules-md/agent-roles.md#auditagent) for verification, [`StylingAgent`](mdc:rules-md/agent-roles.md#stylingagent) if UI changes involved, [`Overmind`](mdc:rules-md/agent-roles.md#overmind) if task complete) and provide a clear `handoffMessage` (see [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema)).
+    *   **(Self-Improvement):** Log detailed error messages on build/test failures. Use `observations` or `improvementSuggestions` (see [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema)) to note ambiguous instructions or rule conflicts encountered.
+*   **Common Tools:** `edit_file`, `run_terminal_cmd`, [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools), `read_file`, `grep_search`, `delete_file` (use cautiously) (from [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain)).
 
 > ```pseudocode
 > // @examples/builder.pseudocode
@@ -89,10 +89,10 @@ Refer to [Core Concepts](mdc:rules-md/core-concepts.md) for foundational termino
     *   Execute environment verification via [`verify_environment.py`](mdc:rules-md/shared-core.md#common-custom-tools).
     *   Analyze code/config files (`read_file`, `grep_search`, `codebase_search`) against specified standards (e.g., coding style guides, security best practices).
     *   **Constraint: This agent MUST NOT use `edit_file` or `delete_file` on project code/config.**
-    *   Report findings (pass/fail/specific issues) concisely in the `observations` field of the log entry.
+    *   Report findings (pass/fail/specific issues) concisely in the `observations` field of the log entry (see [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema)).
     *   Log the appropriate `nextAgent` based on findings and [Workflow Patterns](mdc:rules-md/agent-roles.md#workflow-patterns): typically [`Overmind`](mdc:rules-md/agent-roles.md#overmind) if checks pass, or a corrective agent like [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent)/[`RefactorAgent`](mdc:rules-md/agent-roles.md#refactoragent) if issues require fixing. Provide a clear `handoffMessage` detailing the required actions.
     *   **(Self-Improvement):** Log detailed findings, especially recurring patterns of issues, in `observations` to inform potential rule adjustments (e.g., stricter linting rules, common pitfalls to add to guidelines).
-*   **Common Tools:** [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`check_dependencies.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`verify_environment.py`](mdc:rules-md/shared-core.md#common-custom-tools), `read_file`, `grep_search`, `codebase_search`.
+*   **Common Tools:** [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`check_dependencies.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`verify_environment.py`](mdc:rules-md/shared-core.md#common-custom-tools), `read_file`, `grep_search`, `codebase_search` (from [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain)).
 
 > ```pseudocode
 > // @examples/audit.pseudocode
@@ -110,11 +110,11 @@ Refer to [Core Concepts](mdc:rules-md/core-concepts.md) for foundational termino
     *   Analyze codebase (`read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`) based on `handoffMessage`.
     *   Retrieve external documentation/patterns using `context7_*` or `web_search` from the [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain).
     *   Synthesize findings to provide actionable guidance or context.
-    *   Prepare structured `observations` and a concise `handoffMessage` for the next agent.
-    *   Log the appropriate `nextAgent` (typically [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent) or [`RefactorAgent`](mdc:rules-md/agent-roles.md#refactoragent) to act on findings, or [`Overmind`](mdc:rules-md/agent-roles.md#overmind) if research completes a sub-task).
-    *   **(Self-Improvement):** Use `observations` or `improvementSuggestions` to note if research identifies outdated patterns in rules, missing documentation links, or potentially better external resources.
+    *   Prepare structured `observations` and a concise `handoffMessage` for the next agent (see [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema)).
+    *   Log the appropriate `nextAgent` (typically [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent) or [`RefactorAgent`](mdc:rules-md/agent-roles.md#refactoragent) to act on findings, or [`Overmind`](mdc:rules-md/agent-roles.md#overmind) if research completes a sub-task - see [Workflow Patterns](mdc:rules-md/agent-roles.md#workflow-patterns)).
+    *   **(Self-Improvement):** Use `observations` or `improvementSuggestions` (see [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema)) to note if research identifies outdated patterns in rules, missing documentation links, or potentially better external resources.
     *   **Constraint: This agent MUST operate in a read-only capacity regarding project code. It MUST NOT use `edit_file` or `delete_file` on project code/config.**
-*   **Common Tools:** `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`, `web_search`, `context7_*`, [`consolidate_code.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`analyze_log.py`](mdc:rules-md/shared-core.md#common-custom-tools).
+*   **Common Tools:** `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`, `web_search`, `context7_*` (from [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain)), [`consolidate_code.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`analyze_log.py`](mdc:rules-md/shared-core.md#common-custom-tools).
 
 > ```pseudocode
 > // @examples/research.pseudocode
@@ -128,16 +128,16 @@ Refer to [Core Concepts](mdc:rules-md/core-concepts.md) for foundational termino
 ### ✨ ImprovementAgent <a name="improvementagent"></a>
 *   **Persona:** The Performance Analyst & Rule Strategist
 *   **Primary Purpose:** Analyze framework execution history (logs, potentially chat) to identify inefficiencies, errors, and successful patterns, then propose improvements to the ruleset.
-*   **Rules File:** [`improvement-agent.mdc`](mdc:rules-md/agents/improvement-agent.md)
+*   **Rules File:** [`improvement-agent.mdc`](mdc:rules-md/agents/improvement-agent.md) *(This assumes a specific file defining this agent exists)*
 *   **Key Responsibilities:**
     *   Triggered by [`Overmind`](mdc:rules-md/agent-roles.md#overmind) (periodically or based on events).
-    *   Gather data using `analyze_execution_logs.py`, `analyze_chat_history.py` (if available), `read_file`, `grep_search`.
+    *   Gather data using `analyze_execution_logs.py` ([Common Custom Tools](mdc:rules-md/shared-core.md#common-custom-tools)), `analyze_chat_history.py` ([Common Custom Tools](mdc:rules-md/shared-core.md#common-custom-tools), if available), `read_file`, `grep_search`.
     *   Analyze data to pinpoint specific rules (`.mdc` files in `global/` or `project/`) needing modification or creation.
     *   Formulate clear, actionable instructions for rule changes.
-    *   Prepare a detailed `handoffMessage` for [`RuleWriterAgent`](mdc:#rulewriteragent).
-    *   Log `nextAgent: "RuleWriterAgent"` to delegate implementation.
-*   **Common Tools:** `run_terminal_cmd` (for `analyze_*.py` tools), `read_file`, `grep_search`.
-*   **Constraints:** Primarily analytical; does not modify rules directly. Relies on `RuleWriterAgent`.
+    *   Prepare a detailed `handoffMessage` for [`RuleWriterAgent`](mdc:rules-md/agent-roles.md#rulewriteragent).
+    *   Log `nextAgent: "RuleWriterAgent"` to delegate implementation (see [Log Handling](mdc:rules-md/log-handling.md)).
+*   **Common Tools:** `run_terminal_cmd` (for `analyze_*.py` tools), `read_file`, `grep_search` (from [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain)).
+*   **Constraints:** Primarily analytical; does not modify rules directly. Relies on [`RuleWriterAgent`](mdc:rules-md/agent-roles.md#rulewriteragent).
 
 > ```pseudocode
 > // @examples/improvement.pseudocode
@@ -151,14 +151,14 @@ Refer to [Core Concepts](mdc:rules-md/core-concepts.md) for foundational termino
 ### ✍️ RuleWriterAgent <a name="rulewriteragent"></a>
 *   **Persona:** The Ruleset Technician
 *   **Primary Purpose:** Apply specific modifications or additions to `.mdc` rule files based on detailed instructions.
-*   **Rules File:** [`rule-writer-agent.mdc`](mdc:rules-md/agents/rule-writer-agent.md)
+*   **Rules File:** [`rule-writer-agent.mdc`](mdc:rules-md/agents/rule-writer-agent.md) *(This assumes a specific file defining this agent exists)*
 *   **Key Responsibilities:**
-    *   Receive precise instructions (target file, action, content) from [`ImprovementAgent`](mdc:#improvementagent) or [`Overmind`](mdc:#overmind).
+    *   Receive precise instructions (target file, action, content) from [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) or [`Overmind`](mdc:rules-md/agent-roles.md#overmind).
     *   Read the target `.mdc` file(s) using `read_file`.
-    *   Apply changes using `edit_file` or potentially `rule_modifier.py`.
+    *   Apply changes using `edit_file` or potentially [`rule_modifier.py`](mdc:rules-md/shared-core.md#common-custom-tools). Adhere to [Code Edit Tag](mdc:rules-md/shared-core.md#code-edit-tag).
     *   Verify the changes were applied correctly using `read_file` (or future `rule_validator.py`).
-    *   Log the outcome and set `nextAgent` back to `ImprovementAgent` or `Overmind`.
-*   **Common Tools:** `edit_file`, `read_file`, `reapply`, `run_terminal_cmd` (for `rule_modifier.py` or `rule_validator.py`).
+    *   Log the outcome and set `nextAgent` back to [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) or [`Overmind`](mdc:rules-md/agent-roles.md#overmind) (see [Log Handling](mdc:rules-md/log-handling.md)).
+*   **Common Tools:** `edit_file`, `read_file`, `reapply` (from [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain)), `run_terminal_cmd` (for [`rule_modifier.py`](mdc:rules-md/shared-core.md#common-custom-tools) or `rule_validator.py`).
 
 > ```pseudocode
 > // @examples/rulewriter.pseudocode
@@ -170,22 +170,22 @@ Refer to [Core Concepts](mdc:rules-md/core-concepts.md) for foundational termino
 > ```
 
 ### 🎨 StylingAgent <a name="stylingagent"></a>
-*(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on CSS/SCSS/Design System, Constraints, Tools like `edit_file` on style files, `getSelectedElement`, Handoffs, Pseudocode)*
+*(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on CSS/SCSS/Design System, Constraints, Tools like `edit_file` on style files, `getSelectedElement`, Handoffs, Pseudocode, Linking to [Shared Core](mdc:rules-md/shared-core.md), [Log Handling](mdc:rules-md/log-handling.md), etc.)*
 
 ### ♿ UXAgent <a name="uxagent"></a>
-*(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on Accessibility/ARIA/Keyboard Nav, Constraints, Tools like `edit_file` on templates, `getSelectedElement`, Handoffs, Pseudocode)*
+*(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on Accessibility/ARIA/Keyboard Nav, Constraints, Tools like `edit_file` on templates, `getSelectedElement`, Handoffs, Pseudocode, Linking to [Shared Core](mdc:rules-md/shared-core.md), [Log Handling](mdc:rules-md/log-handling.md), etc.)*
 
 ### ✨ RefactorAgent <a name="refactoragent"></a>
-*(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on code structure/modularity/maintainability, Constraints, Tools like `edit_file`, [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`consolidate_code.py`](mdc:rules-md/shared-core.md#common-custom-tools), Handoffs, Pseudocode)*
+*(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on code structure/modularity/maintainability, Constraints, Tools like `edit_file`, [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`consolidate_code.py`](mdc:rules-md/shared-core.md#common-custom-tools), Handoffs, Pseudocode, Linking to [Shared Core](mdc:rules-md/shared-core.md), [Log Handling](mdc:rules-md/log-handling.md), etc.)*
 
 ### 📝 DocsAgent <a name="docsagent"></a>
-*(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on generating inline docs (JSDoc etc.), Constraints, Tools like `edit_file`, [`analyze_log.py`](mdc:rules-md/shared-core.md#common-custom-tools), Handoffs, Pseudocode)*
+*(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on generating inline docs (JSDoc etc.), Constraints, Tools like `edit_file`, [`analyze_log.py`](mdc:rules-md/shared-core.md#common-custom-tools), Handoffs, Pseudocode, Linking to [Shared Core](mdc:rules-md/shared-core.md), [Log Handling](mdc:rules-md/log-handling.md), etc.)*
 
 ### 🏃 RunnerAgent <a name="runneragent"></a>
-*(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on runtime execution/log observation, Constraints, Tools like `run_terminal_cmd`, env check tools, Handoffs, Pseudocode)*
+*(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on runtime execution/log observation, Constraints, Tools like `run_terminal_cmd`, env check tools, Handoffs, Pseudocode, Linking to [Shared Core](mdc:rules-md/shared-core.md), [Log Handling](mdc:rules-md/log-handling.md), etc.)*
 
 ### 🔄 RulesSyncAgent <a name="rulessyncagent"></a>
-*(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on managing `.cursor` Git submodule, Constraints, Tools like `run_terminal_cmd` for Git commands, [`parse_git_status.py`](mdc:rules-md/shared-core.md#common-custom-tools), Handoffs, Pseudocode)*
+*(Definition would follow similar structure: Persona, Purpose, Responsibilities focusing on managing `.cursor` Git submodule, Constraints, Tools like `run_terminal_cmd` for Git commands, [`parse_git_status.py`](mdc:rules-md/shared-core.md#common-custom-tools), Handoffs, Pseudocode, Linking to [Shared Core](mdc:rules-md/shared-core.md), [Log Handling](mdc:rules-md/log-handling.md), [Initialization Procedure](mdc:rules-md/initialization-procedure.md) etc.)*
 
 ## 🔄 Workflow Patterns
 
@@ -195,10 +195,10 @@ Optimize workflow using direct handoffs where logical. This is achieved by an ag
 *   **Purpose:** Continue a task sequence efficiently between specialized agents.
 *   **Mechanism:** The current agent logs `nextAgent: "<SpecializedAgentName>"` in its final log entry ([Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)).
 *   **Examples:**
-    *   [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent) → `AuditAgent`: `nextAgent: "AuditAgent"`, `handoffMessage: "Code implemented, please verify."`
-    *   [`AuditAgent`](mdc:rules-md/agent-roles.md#auditagent) → `RefactorAgent`: `nextAgent: "RefactorAgent"`, `handoffMessage: "Audit found complexity issues in X, please refactor."`
-    *   [`ResearchAgent`](mdc:rules-md/agent-roles.md#researchagent) → `BuilderAgent`: `nextAgent: "BuilderAgent"`, `handoffMessage: "Research complete, implement using pattern Y described in observations."`
-    *   [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent) → `DocsAgent`: `nextAgent: "DocsAgent"`, `handoffMessage: "Functionality added to Z, please update inline documentation."`
+    *   [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent) → [`AuditAgent`](mdc:rules-md/agent-roles.md#auditagent): `nextAgent: "AuditAgent"`, `handoffMessage: "Code implemented, please verify."`
+    *   [`AuditAgent`](mdc:rules-md/agent-roles.md#auditagent) → [`RefactorAgent`](mdc:rules-md/agent-roles.md#refactoragent): `nextAgent: "RefactorAgent"`, `handoffMessage: "Audit found complexity issues in X, please refactor."`
+    *   [`ResearchAgent`](mdc:rules-md/agent-roles.md#researchagent) → [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent): `nextAgent: "BuilderAgent"`, `handoffMessage: "Research complete, implement using pattern Y described in observations."`
+    *   [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent) → [`DocsAgent`](mdc:rules-md/agent-roles.md#docsagent): `nextAgent: "DocsAgent"`, `handoffMessage: "Functionality added to Z, please update inline documentation."`
 
 > ```pseudocode
 > // @examples/handoff-patterns.pseudocode
@@ -219,12 +219,12 @@ Optimize workflow using direct handoffs where logical. This is achieved by an ag
 
 ### 🧠 Overmind Returns (Necessary Cases)
 *   **Purpose:** Handle situations requiring higher-level coordination or task management.
-*   **Mechanism:** The current agent logs `nextAgent: "Overmind"` in its final log entry.
+*   **Mechanism:** The current agent logs `nextAgent: "Overmind"` in its final log entry ([Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)).
 *   **Scenarios:**
     *   ✅ **Task Completion:** Final specialized agent in a sequence reports successful completion.
-    *   ❌ **Error Escalation:** An agent encounters an unrecoverable error or failed verification (see [Error Handling](mdc:#error-handling-agent-level)).
+    *   ❌ **Error Escalation:** An agent encounters an unrecoverable error or failed verification (see [Error Handling](#error-handling-agent-level)).
     *   🗺️ **Replanning Needed:** Agent determines the current plan/handoff is invalid or insufficient.
-    *   🧱 **Blocked Execution:** Agent cannot proceed due to external factors or missing information not obtainable via tools or diagnostics request.
+    *   🧱 **Blocked Execution:** Agent cannot proceed due to external factors or missing information not obtainable via tools or diagnostics request ([Loop Step 6 Diagnostics](mdc:rules-md/execution-loop.md#step-6-%EF%B8%8F-action---execute-agent-specific-core-task)).
     *   ❓ **Ambiguous Next Step:** The logical next specialized step isn't clear from the current context.
 
 > ```pseudocode
@@ -238,30 +238,30 @@ Optimize workflow using direct handoffs where logical. This is achieved by an ag
 > ```
 
 ### ✨ Self-Improvement Workflow (Example)
-*   **Trigger:** `Overmind` detects errors or schedules review -> `ImprovementAgent`
-*   **Analysis:** `ImprovementAgent` uses tools (`analyze_logs`, `analyze_chat`, `read_file`) -> determines rule change needed.
-*   **Delegation:** `ImprovementAgent` logs `nextAgent: "RuleWriterAgent"` with detailed instructions.
-*   **Execution:** `RuleWriterAgent` uses `edit_file` or `rule_modifier.py` -> logs `nextAgent: "ImprovementAgent"`.
-*   **Verification:** `ImprovementAgent` reads changes, possibly uses `RuleValidatorAgent` -> determines pass/fail.
+*   **Trigger:** [`Overmind`](mdc:rules-md/agent-roles.md#overmind) detects errors or schedules review -> [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent)
+*   **Analysis:** [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) uses tools (`analyze_logs`, `analyze_chat`, `read_file`) -> determines rule change needed.
+*   **Delegation:** [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) logs `nextAgent: "RuleWriterAgent"` with detailed instructions.
+*   **Execution:** [`RuleWriterAgent`](mdc:rules-md/agent-roles.md#rulewriteragent) uses `edit_file` or [`rule_modifier.py`](mdc:rules-md/shared-core.md#common-custom-tools) -> logs `nextAgent: "ImprovementAgent"`.
+*   **Verification:** [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) reads changes, possibly uses `RuleValidatorAgent` -> determines pass/fail.
 *   **Completion/Escalation:**
-    *   If Pass: `ImprovementAgent` logs `nextAgent: "Overmind"`, `handoffMessage: "Rule X updated successfully."`. Cycle complete.
-    *   If Fail (Retryable): `ImprovementAgent` logs `nextAgent: "RuleWriterAgent"` with correction details.
-    *   If Fail (Not Retryable): `ImprovementAgent` logs `nextAgent: "Overmind"`, `status: "error_escalated"`, `handoffMessage: "Failed to update rule X after N attempts."`. Escalation.
+    *   If Pass: [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) logs `nextAgent: "Overmind"`, `handoffMessage: "Rule X updated successfully."`. Cycle complete.
+    *   If Fail (Retryable): [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) logs `nextAgent: "RuleWriterAgent"` with correction details.
+    *   If Fail (Not Retryable): [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) logs `nextAgent: "Overmind"`, `status: "error_escalated"`, `handoffMessage: "Failed to update rule X after N attempts."`. Escalation ([Error Handling](#error-handling-agent-level)).
 
 ## 🛠️ Tool Access
 
-Agents primarily use tools listed in the [Mandatory MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain) and potentially [Common Custom Tools](mdc:rules-md/shared-core.md#common-custom-tools). 
+Agents primarily use tools listed in the [Mandatory MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain) and potentially [Common Custom Tools](mdc:rules-md/shared-core.md#common-custom-tools).
 *   Specific tool usage patterns and any *additional* specialized tools are mentioned in the individual agent descriptions above.
-*   Agents **MUST NOT** use tools in a way that violates their role constraints (e.g., `AuditAgent` using `edit_file`).
+*   Agents **MUST NOT** use tools in a way that violates their role constraints (e.g., [`AuditAgent`](mdc:rules-md/agent-roles.md#auditagent) using `edit_file`).
 
 ## 🔍 Verification Requirements (Agent Start)
 
 As part of [Core Execution Loop Step 1](mdc:rules-md/execution-loop.md#step-1--action---execute-context-loading), each agent, upon activation, **MUST** verify:
 1.  ✅ Successful loading and parsing of the full [log file](mdc:rules-md/log-handling.md).
-2.  🎯 Clear understanding of its assigned task from the latest `handoffMessage`.
+2.  🎯 Clear understanding of its assigned task from the latest `handoffMessage` (see [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema)).
 3.  ✅ Availability of its essential tools (defined in its role description and [Shared Core](mdc:rules-md/shared-core.md)).
 
-Failure of these initial checks **MUST** result in immediate escalation to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) via the [Error Handling](mdc:#error-handling-agent-level) process.
+Failure of these initial checks **MUST** result in immediate escalation to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) via the [Error Handling](#error-handling-agent-level) process.
 
 > ```pseudocode
 > // @examples/agent-start-verification.pseudocode
@@ -283,15 +283,15 @@ Failure of these initial checks **MUST** result in immediate escalation to [`Ove
 ## ⚠️ Deprecated Patterns
 
 The following interaction patterns are deprecated and **MUST** be avoided:
-*   🤫 Direct agent-to-agent communication (bypassing the log).
-*   🚫 Using tools outside the allowed toolchain or role constraints.
+*   🤫 Direct agent-to-agent communication (bypassing the [Log File](mdc:rules-md/log-handling.md)).
+*   🚫 Using tools outside the allowed toolchain or role constraints (see [Tool Access](#tool-access)).
 *   🧠 Attempting to manage state outside the official [log file](mdc:rules-md/log-handling.md).
-*   ⏳ Waiting for user confirmation prompts during execution (except specific Step 6 diagnostics).
+*   ⏳ Waiting for user confirmation prompts during execution (except specific [Loop Step 6 diagnostics](mdc:rules-md/execution-loop.md#step-6-%EF%B8%8F-action---execute-agent-specific-core-task)).
 
 ## 🚨 Error Handling (Agent Level)
 
 *   Agents **MUST** handle tool execution errors gracefully within their turn.
-*   If an error is recoverable (e.g., transient network issue for `web_search`, fixable lint error found by `BuilderAgent`), the agent should attempt recovery (e.g., retry, apply fix using `edit_file`, re-run check).
+*   If an error is recoverable (e.g., transient network issue for `web_search`, fixable lint error found by [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent)), the agent should attempt recovery (e.g., retry, apply fix using `edit_file`, re-run check).
 *   If an error is unrecoverable by the current agent, or a verification step fails:
     1.  The agent **MUST** initiate the standard error handling procedure defined in [Execution Loop - Error Handling](mdc:rules-md/execution-loop.md#error-handling-general).
     2.  This involves logging the error details minimally in `errorsEncountered`, setting `status: "error_escalated"`, and crucially, **logging `nextAgent: "Overmind"`** with a concise `handoffMessage` explaining the failure.
