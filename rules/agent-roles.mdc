@@ -24,7 +24,7 @@ Refer to [Core Concepts](mdc:core-concepts.mdc) for foundational terminology.
     *   Initialize request [Log Files](mdc:log-handling.mdc) (typically the first entry).
     *   Analyze overall request and break down into logical steps.
     *   Delegate initial and subsequent tasks to appropriate specialized agents by logging the target agent in the `nextAgent` field (see [Log Handling - Automatic Transitions](mdc:log-handling.mdc#automatic-transitions-via-nextagent)).
-    *   **(Self-Improvement):** Periodically or based on error thresholds, trigger the [`ImprovementAgent`](mdc:agent-roles.mdc#improvementagent) to analyze past performance and suggest rule enhancements.
+    *   **(Self-Improvement):** Periodically or based on error thresholds (e.g., triggered periodically, after a threshold of `status: 'error_escalated'` entries, or specific error patterns detected by [`analyze_log.py`](mdc:tools/analyze_log.mdc)), trigger the [`ImprovementAgent`](mdc:agent-roles.mdc#improvementagent) to analyze past performance and suggest rule enhancements.
     *   **(Self-Improvement):** Review improvement suggestions from `ImprovementAgent` and potentially initiate rule changes via [`RuleWriterAgent`](mdc:agent-roles.mdc#rulewriteragent) if manual oversight is configured, otherwise allow the automated loop.
     *   Monitor log entries for progress, errors (`status: "error_escalated"` - see [Log Handling Schema](mdc:log-handling.mdc#log-entry-schema)), and completion signals (`nextAgent` being null or `"HALT"` - see [Log Handling](mdc:log-handling.mdc#automatic-transitions-via-nextagent)).
     *   Handle escalations (when an agent sets `nextAgent: "Overmind"`).
