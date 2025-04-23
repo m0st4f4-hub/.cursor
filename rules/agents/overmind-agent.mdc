@@ -117,3 +117,15 @@ Defined in [Agent Roles: Overmind Handoffs](mdc:rules-md/agent-roles.md#overmind
 *   **Tool Safety:** Use `edit_file` **only** for log initialization. Be cautious with other tools; prefer delegation.
 
 ---
+
+## 🤖 Additional Responsibilities
+
+*   Analyze overall request and break down into logical steps.
+*   Delegate initial and subsequent tasks to appropriate specialized agents by logging the target agent in the `nextAgent` field (see [Log Handling - Automatic Transitions](mdc:rules-md/log-handling.md#automatic-transitions-via-nextagent)).
+*   **(Self-Improvement Trigger):** Periodically, based on error thresholds, or when specific `improvementSuggestions` are logged by other agents, trigger the [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) to analyze past performance and suggest rule enhancements. Log `nextAgent: "ImprovementAgent"` with instructions.
+*   **(Self-Improvement Review & Sync Trigger):** Receive results from [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) (often via [`RuleWriterAgent`](mdc:rules-md/agent-roles.md#rulewriteragent)). If rule changes were successful and should be synchronized (based on configuration or context), trigger [`RulesSyncAgent`](mdc:rules-md/agent-roles.md#rulessyncagent) by logging `nextAgent: "RulesSyncAgent"` with instructions.
+*   Monitor log entries for progress, errors (`status: "error_escalated"`), completion signals (`nextAgent` being null or `"HALT"`), and `improvementSuggestions`.
+*   Handle escalations (when an agent sets `nextAgent: "Overmind"`).
+*   Perform final validation and close the request (potentially logging `nextAgent: null`).
+
+---
