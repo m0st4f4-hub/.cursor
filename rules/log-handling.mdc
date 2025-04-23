@@ -1,0 +1,212 @@
+---
+description: "Mandatory guidelines for log file structure, append-only usage, coordination via nextAgent, and error handling."
+globs: ["*"]
+alwaysApply: true
+---
+
+# 📁 Log Handling & Coordination
+
+## 🎯 Overview
+
+The log file is the **sole coordination and state mechanism** for the agent framework. All state management, historical context, and agent transitions **MUST** occur exclusively through this file. Adherence to these standards is critical for autonomous operation defined by the [ACTION IMPERATIVE](mdc:rules-md/core-concepts.md).
+
+Reference the [Core Execution Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step) for *when* agents log their turn and [Step 1](mdc:rules-md/execution-loop.md#step-1--action---execute-context-loading) for *when* they read the context.
+
+## 💾 Log File Structure & Usage
+
+*   **📍 Location:** `logs/<requestId>.json` (where `requestId` is defined in [Core Concepts](mdc:rules-md/core-concepts.md)).
+*   **📄 Format:** Valid JSON array. Each element is a log entry object.
+*   **➕ Appending Only:** New entries **MUST** be appended to the end of the array using `edit_file` (or equivalent mechanism). **NEVER** truncate, modify existing entries, delete, or overwrite the file. The log represents an immutable history.
+*   **⏳ History:** Agents **MUST** read the *entire* log at the start of their turn ([Loop Step 1](mdc:rules-md/execution-loop.md#step-1--action---execute-context-loading)) to understand the full context, not just the latest entry.
+
+### Log Entry Schema (Minimal Standard)
+Each log entry appended by an agent **MUST** conform strictly to this structure:
+> ```json
+> // @examples/log-structure.json
+> {
+>   "requestId": "string", // REQUIRED: Unique ID for the entire request
+>   "agentRole": "string", // REQUIRED: Role executing this turn (e.g., "BuilderAgent")
+>   "timestamp": "string", // REQUIRED: ISO 8601 UTC timestamp (e.g., "YYYY-MM-DDTHH:mm:ssZ")
+>   "projectName": "string", // Optional: Name of the project
+>   "domain": "string", // Optional: High-level task domain
+>   "status": "completed_step" | "error_escalated", // REQUIRED: Outcome of the turn
+>   "actionsTaken": [
+>     // REQUIRED: Array of actions performed this turn
+>     {
+>       "tool": "string", // Name of the tool used (e.g., "edit_file", "run_terminal_cmd")
+>       "target": "string", // Optional: Target file/resource/command snippet
+>       "summary": "string", // REQUIRED: Minimal summary of the action's purpose/result
+>       "result": "string" // Optional: Brief outcome (e.g., "success", "failure", "lint errors found")
+>     }
+>     // ... potentially more actions ...
+>   ],
+>   "observations": ["string"], // Optional: Key findings/analysis from read-only actions (e.g., ResearchAgent, AuditAgent)
+>   "errorsEncountered": ["string"], // Optional: Only if status is "error_escalated"; concise error messages.
+>   "nextAgent": "string", // REQUIRED: Role name of the next agent (e.g., "AuditAgent", "Overmind") or "HALT" (or null if explicitly allowed for final state).
+>   "handoffMessage": "string" // REQUIRED: Concise, actionable instructions for the next agent.
+> }
+> ```
+
+## 🔄 Automatic Transitions via `nextAgent`
+
+### Trigger Mechanism: The Sole Source of Truth for Flow Control
+
+The **SOLE and EXCLUSIVE** trigger for progressing the workflow is the `nextAgent` field logged by the preceding agent in the **latest** (last appended) log entry.
+
+**The [Framework](mdc:rules-md/core-concepts.md#framework) ITSELF reads this field** after the agent successfully completes the log append in [Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step). Based *only* on the value of `nextAgent`, the Framework **IMMEDIATELY and AUTOMATICALLY** transitions control by loading and executing the specified agent (see [Loop Step 10](mdc:rules-md/execution-loop.md#step-10-%EF%B8%8F-framework-action---execute-immediate-automatic-transition)).
+
+Agents **DO NOT** manage or wait for this transition; their sole responsibility during Loop Step 9 is to accurately **log** the intended `nextAgent` based on the outcome of their turn and the defined [Agent Role](mdc:rules-md/agent-roles.md) interactions. Failure to log a valid `nextAgent` (or `HALT`/null where appropriate) **WILL BREAK** the autonomous flow.
+
+> ```pseudocode
+> // @examples/transition-handling.pseudocode
+> // --- Framework Internal Logic (Conceptual) ---
+> // Function: handleTransition
+> // Purpose: **Framework action** to load and execute the next agent based **only** on the log.
+> // Triggered By: Framework detects successful log append (after Agent completes Step 9).
+> // Steps:
+> //   latestEntry = readLastEntryFromLog() // Framework reads the log
+> //   nextAgentRole = latestEntry.nextAgent // Framework extracts the directive
+> //   if isValidAgent(nextAgentRole): // Check against known agent roles
+> //     loadAndExecuteAgent(nextAgentRole) // Framework initiates the next agent **immediately**
+> //   else if nextAgentRole == "HALT" or nextAgentRole == null:
+> //     stopExecution() // Framework halts processing for this requestId
+> //   else:
+> //     logCriticalFrameworkError("Invalid nextAgent logged: " + nextAgentRole)
+> //     haltFrameworkWithError()
+> // End Function
+> ```
+
+### Enabling Direct Agent Workflows
+Setting `nextAgent` to a specific [Agent Role](mdc:rules-md/agent-roles.md) (other than [`Overmind`](mdc:rules-md/agent-roles.md#overmind)) enables direct peer-to-peer handoffs, optimizing flow as described in [Agent Roles - Workflow Patterns](mdc:rules-md/agent-roles.md#workflow-patterns).
+
+> ```json
+> // @examples/workflow-example.json
+> // Example: Builder finishes, hands off directly to Audit
+> {
+>   // ... builder log entry ...
+>   "agentRole": "BuilderAgent",
+>   "status": "completed_step",
+>   "nextAgent": "AuditAgent", // Direct handoff
+>   "handoffMessage": "Implemented feature X, ready for verification."
+>   // ... other fields ...
+> }
+> ```
+
+## 📝 Log Entry Content Guidelines
+
+*   ✨ **Minimalism:** Log only essential information. Focus on concise `actionsTaken` summaries and the critical `nextAgent` / `handoffMessage`.
+*   ⚡ **Action-Focus:** `actionsTaken` should briefly describe *what* was done (tool, target, purpose/result). Avoid verbose prose.
+*   🎯 **Clarity:** The `handoffMessage` must be clear and actionable for the `nextAgent`.
+*   ✅ **Required Fields:** Ensure all required fields in the schema are present and correctly formatted before attempting the append in [Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step).
+
+## 🔍 Verification Steps (Log Operations)
+
+Agents (or the framework supporting them) **MUST** perform these checks:
+
+*   **Before Reading (Loop Step 1):**
+    1.  Verify log file exists (`logs/<requestId>.json`). Halt/Escalate on failure.
+    2.  Verify read permissions. Halt/Escalate on failure.
+    3.  Verify the file content is a valid JSON array. Halt/Escalate if corrupted.
+*   **Before Appending (Loop Step 9):**
+    1.  Verify log file exists. Halt/Escalate on failure.
+    2.  Verify write/append permissions. Halt/Escalate on failure.
+    3.  Validate the constructed log entry object against the required schema. Correct locally or Halt/Escalate on failure.
+    4.  Confirm the target file is *still* a valid JSON array (e.g., check start `[` and end `]`). Halt/Escalate on failure.
+
+> ```pseudocode
+> // @examples/log-verification.pseudocode
+> // Function: verifyAppendPrerequisites
+> // Purpose: Checks before attempting to append to the log in Step 9.
+> // Input: requestId, logEntryObject
+> // Returns: boolean (true if OK to append)
+> // Steps:
+> //   logPath = "logs/" + requestId + ".json"
+> //   if not fileExists(logPath) or not hasWritePermissions(logPath):
+> //      handleErrorAndEscalate("Log file missing or permission error.", 9)
+> //      return false
+> //   if not validateLogEntrySchema(logEntryObject):
+> //      handleErrorAndEscalate("Log entry schema validation failed.", 9)
+> //      return false
+> //   if not verifyJsonArrayStructure(logPath):
+> //      handleErrorAndEscalate("Log file format invalid (not JSON array).", 9)
+> //      return false
+> //   return true
+> // End Function
+> ```
+
+## ⚠️ Deprecated Patterns (Strictly Forbidden)
+
+*   🧠 Managing state outside the log file.
+*   🤫 Direct agent-to-agent communication (bypassing the log).
+*   📝 Modifying existing log entries.
+*   🗑️ Truncating or overwriting the log file.
+*   🛑 Failing to append a log entry with a valid `nextAgent` (or HALT/null) at the end of a turn.
+*   ⏳ **Any agent action that involves waiting for confirmation or external triggers other than the initial handoff message and context derived solely from the log.**
+
+## 🚨 Error Handling (Log Specific)
+
+*   💾 **Log Access/Write Errors:** If reading (Step 1) or appending (Step 9) fails due to permissions or file system issues, the agent **MUST** immediately trigger the error escalation process defined in [Execution Loop - Error Handling](mdc:rules-md/execution-loop.md#error-handling-general), attempting to log the failure to `Overmind` if possible.
+*   📄 **Invalid Format:** If the log file is found to be corrupted or not a valid JSON array during read (Step 1) or pre-append check (Step 9), **HALT** and escalate to [`Overmind`](mdc:rules-md/agent-roles.md#overmind) via the error handling process.
+*   ❌ **Schema Validation Failure:** If the agent constructs an invalid log entry (detected before Step 9 append), it **MUST** correct the entry. If correction fails, **HALT** and escalate.
+
+> ```pseudocode
+> // @examples/log-error-handling.pseudocode
+> // Concept: Handling errors specific to log operations.
+> // See pseudocode in Execution Loop for the general `handleErrorAndEscalate` function.
+> // 
+> // If readFile fails in Step 1:
+> //   handleErrorAndEscalate("Failed to read log file.", 1)
+> // 
+> // If editFile append fails in Step 9:
+> //   // This is critical - may not be able to log the error itself.
+> //   logCriticalFrameworkError("CRITICAL: Failed to append to log file! Halting request.")
+> //   haltFrameworkExecutionWithSystemAlert()
+> // 
+> // If JSON is invalid / schema fails / write perms fail before append:
+> //   handleErrorAndEscalate("Log file format/permission/schema error.", 9)
+> ```
+
+## 📋 Example Log Sequence
+
+Illustrates the progression of entries in a log file.
+> ```json
+> // @examples/log-sequence.json
+> [
+>   {
+>     "requestId": "req-123",
+>     "agentRole": "Overmind",
+>     "timestamp": "2023-10-27T10:00:00Z",
+>     "status": "completed_step",
+>     "actionsTaken": [{"tool":"Planning", "summary":"Delegating task to BuilderAgent"}],
+>     "nextAgent": "BuilderAgent",
+>     "handoffMessage": "Implement feature X based on requirements @docs/spec.md."
+>   },
+>   {
+>     "requestId": "req-123",
+>     "agentRole": "BuilderAgent",
+>     "timestamp": "2023-10-27T10:05:00Z",
+>     "status": "completed_step",
+>     "actionsTaken": [
+>       {"tool":"read_file", "target":"docs/spec.md", "summary":"Read requirements"},
+>       {"tool":"edit_file", "target":"src/featureX.js", "summary":"Initial implementation"},
+>       {"tool":"run_terminal_cmd", "target":"npm run test", "summary":"Run unit tests", "result":"failure"}
+>     ],
+>     "observations": ["Unit test 'test_featureX_edge_case' failed."],
+>     "nextAgent": "BuilderAgent", // Self-handoff to fix tests
+>     "handoffMessage": "Tests failed. Fixing implementation based on observation."
+>   },
+>   {
+>     "requestId": "req-123",
+>     "agentRole": "BuilderAgent",
+>     "timestamp": "2023-10-27T10:10:00Z",
+>     "status": "completed_step",
+>     "actionsTaken": [
+>       {"tool":"edit_file", "target":"src/featureX.js", "summary":"Applied fixes for edge case"},
+>       {"tool":"run_terminal_cmd", "target":"npm run test", "summary":"Run unit tests", "result":"success"}
+>     ],
+>     "nextAgent": "AuditAgent", // Handoff to Audit
+>     "handoffMessage": "Feature implemented and tests pass. Verify code quality and adherence to standards."
+>   }
+>   // ... subsequent entries appended below ...
+> ]
+> ``` 

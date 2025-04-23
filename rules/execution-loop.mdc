@@ -1,0 +1,379 @@
+---
+description: "Mandatory 10-step core execution loop governing all agent actions and transitions."
+globs: ["*"]
+alwaysApply: true
+---
+
+# 🔄 Core Execution Loop
+
+## 🎯 Overview
+
+This document dictates the **mandatory, indestructible, and action-driven 10-step execution loop**. All active [Agent Roles](mdc:rules-md/agent-roles.md) **MUST** follow this loop precisely for every turn of execution within a given `requestId`. It commands the **non-stop execution flow**, coordinating solely via the [log file](mdc:rules-md/log-handling.md) and the [`nextAgent` field](mdc:rules-md/core-concepts.md) as interpreted by the [Framework](mdc:rules-md/core-concepts.md).
+
+Referencing the [System Prompt](mdc:rules-md/system-prompt.md) for overarching mandatory behavior rules and [Core Concepts](mdc:rules-md/core-concepts.md) for terminology.
+
+## 🔑 Core Principles (Reinforced)
+
+*   🚀 **Non-Stop Execution:** Execute actions relentlessly without pausing for user input (unless for Step 6 diagnostics). Adhere to the [ACTION IMPERATIVE](mdc:rules-md/core-concepts.md).
+*   ✍️ **Log-Driven Coordination:** Base all actions and transitions exclusively on the content of the [log file](mdc:rules-md/log-handling.md). The log is the sole state.
+*   ⚡ **Action-Focused:** Prioritize tool execution over descriptive chat. Log actions concisely.
+*   ➡️ **Immediate Transition (Framework Driven):** The [Framework](mdc:rules-md/core-concepts.md) performs transitions based **only** on the logged `nextAgent` field. Agents log the directive, they do not perform the transition.
+
+> ```pseudocode
+> // @examples/loop-principles.pseudocode
+> // Core Loop Driving Principles:
+> //   - NON_STOP_EXECUTION
+> //   - LOG_DRIVEN_COORDINATION
+> //   - ACTION_FOCUSED
+> //   - IMMEDIATE_TRANSITION_VIA_LOG (Framework Action)
+> // Forbidden Patterns:
+> //   - WAITING_FOR_USER_PROMPT
+> //   - MANUAL_STATE_CONTROL
+> //   - DIRECT_AGENT_COMMUNICATION
+> //   - BLOCKING_ON_MCP_TASK
+> ```
+
+## ⚙️ Core Loop: Execute These 10 Steps
+
+Agents **MUST** execute these steps sequentially and without deviation in every turn.
+
+### Step 1: 📥 ACTION - Execute Context Loading
+*   **ACTION:** Execute `read_file` to load the **entire** content of the [log file](mdc:rules-md/log-handling.md) (`logs/<requestId>.json`).
+*   **ACTION:** Parse **all** log entries to establish full historical context (previous actions, observations) and the latest state (specifically the `handoffMessage`).
+*   **Verification:** Perform checks outlined in [Log Handling - Verification Steps](mdc:rules-md/log-handling.md#verification-steps-log-operations). Halt and escalate on failure using the [Error Handling](#error-handling-general) process.
+*   **Optional ACTION:** Consider executing `run_terminal_cmd python tools/analyze_log.py logs/<requestId>.json` (see [Common Custom Tools](mdc:rules-md/shared-core.md#common-custom-tools)) for structured analysis.
+
+> ```pseudocode
+> // @examples/context-loading.pseudocode
+> // Function: loadFullContext
+> // Purpose: Read and parse the entire request log.
+> // Input: requestId
+> // Returns: { latestState, historicalContext } or triggers HALT/Escalation
+> // Steps:
+> //   logPath = "logs/" + requestId + ".json"
+> //   if not verifyLogReadPrerequisites(logPath): // Checks existence, perms, format
+> //      handleErrorAndEscalate("Log file read prerequisites failed.", 1)
+> //      // HALT
+> //   logContent = readFile(logPath)
+> //   allEntries = parseJson(logContent)
+> //   if parsingFailed(allEntries):
+> //      handleErrorAndEscalate("Log file JSON parsing failed.", 1)
+> //      // HALT
+> //   latestState = extractLatestState(allEntries)
+> //   historicalContext = extractHistory(allEntries)
+> //   return { latestState, historicalContext }
+> // End Function
+> ```
+
+### Step 2: ☑️ ACTION - Execute MCP Task Check (Optional & Non-Blocking)
+*   **ACTION:** If applicable to the agent role (primarily [`Overmind`](mdc:rules-md/agent-roles.md#overmind)), execute `mcp_taskmanager_get_next_task` (part of the [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain)).
+*   **Constraint:** This **MUST** be a non-blocking call. Agent execution **MUST** proceed immediately to Step 3 regardless of the outcome. [Log state](mdc:rules-md/log-handling.md), not external task systems, drives the workflow.
+
+> ```pseudocode
+> // @examples/task-management.pseudocode
+> // Procedure: checkMcpTask (Optional & Non-blocking)
+> // Purpose: Check external task system without blocking.
+> // Steps:
+> //   if agentRole == "Overmind": // Or other roles if applicable
+> //     taskInfo = executeNonBlockingApiCall("mcp_taskmanager_get_next_task")
+> //     // Log retrieval attempt if necessary, but DO NOT wait.
+> //   // Proceed immediately to Step 3.
+> // End Procedure
+> ```
+
+### Step 3: 🤔 ACTION - Execute Log Context Analysis
+*   **ACTION:** Process the `handoffMessage` and any relevant `observations` from the `latestState` loaded in Step 1.
+*   **ACTION:** Determine the specific goal(s) the agent **MUST** achieve in the current turn based *only* on the log context.
+
+> ```pseudocode
+> // @examples/log-analysis.pseudocode
+> // Function: analyzeLogContext
+> // Purpose: Determine current turn's goal from log data.
+> // Input: latestState (from Step 1)
+> // Returns: currentGoalsObject
+> // Steps:
+> //   goals = parseHandoffMessage(latestState.handoffMessage)
+> //   contextFromHistory = analyzeObservations(latestState.observations)
+> //   refinedGoals = refineGoalsWithContext(goals, contextFromHistory)
+> //   return refinedGoals
+> // End Function
+> ```
+
+### Step 4: 💻 ACTION - Execute Codebase Context Analysis
+*   **ACTION:** Based on the goal(s) from Step 3, execute necessary **read-only** tools from the [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain) (`file_search`, `read_file`, `grep_search`, `codebase_search`, `list_dir`) to gather required information from the codebase.
+*   **Constraint:** Agents designated as read-only (like [`ResearchAgent`](mdc:rules-md/agent-roles.md#researchagent), [`AuditAgent`](mdc:rules-md/agent-roles.md#auditagent)) perform their primary analysis here.
+
+> ```pseudocode
+> // @examples/codebase-analysis.pseudocode
+> // Procedure: analyzeCodebase
+> // Purpose: Gather information about the codebase relevant to the goal.
+> // Input: currentGoals (from Step 3)
+> // Internal State: Updates internal context with findings
+> // Steps:
+> //   // Execute relevant READ-ONLY tools based on currentGoals
+> //   if needsFileSearch(currentGoals):
+> //     findings = execute file_search(...)
+> //     updateInternalContext(findings)
+> //   if needsReadSpecificFiles(currentGoals):
+> //     findings = execute read_file(...)
+> //     updateInternalContext(findings)
+> //   // ... etc for grep_search, codebase_search, list_dir
+> //   // Consolidate findings internally for Step 6/7
+> // End Procedure
+> ```
+
+### Step 5: 🌍 ACTION - Execute External Context Gathering (Conditional & Non-Blocking)
+*   **Condition:** Only if the goal explicitly requires external information not present in the codebase or logs.
+*   **ACTION:** Execute `context7_*` tools or `web_search` from the [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain).
+*   **Constraint:** Use these tools judiciously and ensure they do not block execution flow. Primarily for [`ResearchAgent`](mdc:rules-md/agent-roles.md#researchagent).
+
+> ```pseudocode
+> // @examples/external-context.pseudocode
+> // Procedure: gatherExternalContext (Conditional)
+> // Purpose: Fetch external information if required by the goal.
+> // Input: currentGoals
+> // Internal State: Updates internal context with findings
+> // Steps:
+> //   if goalRequiresLibraryDocs(currentGoals):
+> //     findings = execute context7_get_library_docs(...)
+> //     updateInternalContext(findings)
+> //   if goalRequiresWebSearch(currentGoals):
+> //     findings = execute web_search(...)
+> //     updateInternalContext(findings)
+> //   // Consolidate findings internally for Step 6/7
+> // End Procedure
+> ```
+
+### Step 6: ⚡ ACTION - Execute Agent-Specific Core Task
+*   **ACTION:** Execute the primary task(s) for the current agent's role (as defined in [Agent Roles](mdc:rules-md/agent-roles.md)) using the allowed tools from the [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain) and [Common Custom Tools](mdc:rules-md/shared-core.md#common-custom-tools) (e.g., `edit_file`, `run_terminal_cmd`, `delete_file`, `run_terminal_cmd python tools/...`).
+*   **ACTION:** Perform the core value-adding work for this turn based on the analysis from Steps 3, 4, and 5.
+*   **Diagnostics Exception:** If execution fails critically and requires *specific* external diagnostic info (e.g., full error logs from a failed build, HAR files from a web interaction) not obtainable via tools, **only then** interact with the user **solely** to request this data. **ACTION:** Resume execution **immediately** upon receiving data. **DO NOT** pause for confirmation, general help, or any other reason.
+
+> ```pseudocode
+> // @examples/agent-action.pseudocode
+> // Procedure: executeAgentTask
+> // Purpose: Perform the agent's main role-specific action(s).
+> // Input: agentRole, currentGoals, collectedContext
+> // Internal State: Records results of actions performed
+> // Steps:
+> //   switch agentRole:
+> //     case "BuilderAgent":
+> //       execute edit_file(...) // Adhere to Code Edit Tag format
+> //       execute run_terminal_cmd("build script")
+> //     case "AuditAgent":
+> //       execute run_terminal_cmd("python tools/run_linter.py")
+> //       // ... other read-only checks
+> //     // ... other agent roles per agent-roles.md
+> //   recordActionResultsInternally()
+> //   // Handle tool execution results and errors
+> //   if criticalToolFailureRequiresExternalDiagnostics():
+> //      diagnosticData = requestSpecificDiagnosticsFromUser(details_needed) // ONLY time waiting is allowed
+> //      // Resume processing immediately with diagnosticData
+> //      processDiagnosticsAndRetryIfNeeded(diagnosticData)
+> //      recordActionResultsInternally()
+> // End Procedure
+> ```
+
+### Step 7: 📝 ACTION - Execute Findings Consolidation
+*   **ACTION:** Consolidate the results and outcomes of the tool executions from Steps 4, 5, and 6.
+*   **ACTION:** Prepare the `actionsTaken` array and optionally `observations` or `errorsEncountered` for the log entry, summarizing key actions, results, and findings minimally, adhering to the [Log Entry Schema](mdc:rules-md/log-handling.md#log-entry-schema).
+
+> ```pseudocode
+> // @examples/findings.pseudocode
+> // Function: consolidateFindings
+> // Purpose: Prepare structured output fields for logging.
+> // Input: internalState.actionResults, internalState.findings
+> // Returns: { actionsTaken_array, observations_array, errors_array }
+> // Steps:
+> //   actionsTaken = []
+> //   observations = []
+> //   errors = []
+> //   for each result in internalState.actionResults:
+> //     entry = { tool: result.toolName, summary: result.summary, result: result.status }
+> //     if result.target: entry.target = result.target
+> //     actionsTaken.append(entry)
+> //     if result.isError: errors.append(result.errorMessage)
+> //   for each finding in internalState.findings:
+> //     observations.append(finding.text)
+> //   return { actionsTaken, observations, errors }
+> // End Function
+> ```
+
+### Step 8: ✅ ACTION - Execute Task Finalization (Conditional & Non-Blocking)
+*   **Condition:** If the agent's action completed an assigned MCP task (mainly for [`Overmind`](mdc:rules-md/agent-roles.md#overmind)).
+*   **ACTION:** Execute `mcp_taskmanager_mark_task_done` from the [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain).
+*   **Constraint:** This **MUST** be non-blocking. **ACTION:** Initiate the call and **immediately proceed** to Step 9.
+
+> ```pseudocode
+> // @examples/task-finalization.pseudocode
+> // Procedure: finalizeMcpTask (Conditional & Non-blocking)
+> // Purpose: Mark an external task as done without waiting.
+> // Input: taskId (if applicable), currentGoals
+> // Steps:
+> //   if agentShouldMarkTaskDone(agentRole) and taskCompleted(currentGoals) and hasTaskId(taskId):
+> //     // Execute non-blocking API call
+> //     executeNonBlockingApiCall("mcp_taskmanager_mark_task_done", taskId)
+> //   // Proceed immediately to Step 9 regardless of call outcome.
+> // End Procedure
+> ```
+
+### Step 9: ✍️ ACTION - Execute Logging to Request File (CRITICAL TRIGGER STEP)
+*   **ACTION:** Determine the `nextAgent` based on the outcome of Step 6, the current `agentRole`, and the defined workflow patterns in [Agent Roles](mdc:rules-md/agent-roles.md#workflow-patterns) (e.g., direct handoff to `AuditAgent` or return to `Overmind`).
+*   **ACTION:** Formulate a concise, actionable `handoffMessage` for the `nextAgent`.
+*   **ACTION:** Consolidate results from Step 7 into the final log entry structure.
+*   **ACTION:** Construct the complete JSON log entry object adhering strictly to the [Minimal Standard Schema](mdc:rules-md/log-handling.md#log-entry-schema), including required fields like `requestId`, `agentRole`, `timestamp`, `status`, `actionsTaken`, `nextAgent`, `handoffMessage`.
+*   **Verification:** Perform checks outlined in [Log Handling - Verification Steps](mdc:rules-md/log-handling.md#verification-steps-log-operations) before attempting append. Halt/Escalate on failure.
+*   **ACTION:** Execute `edit_file` to **append** the validated JSON entry object (formatted as a string) to the [log file](mdc:rules-md/log-handling.md) (`logs/<requestId>.json`), ensuring the file remains a valid JSON array.
+*   **CRITICAL:** Successful completion of this verified append operation is the **sole trigger** for the [Framework](mdc:rules-md/core-concepts.md#framework) to initiate the next transition (Step 10). Failure here breaks the autonomous flow.
+
+> ```pseudocode
+> // @examples/logging.pseudocode
+> // Function: executeLoggingAndTriggerTransition
+> // Purpose: Log the turn's outcome and enable the framework transition.
+> // Input: agentRole, requestId, consolidatedFindings (from Step 7), /* other context */
+> // Returns: Triggers HALT/Escalation on failure
+> // Steps:
+> //   nextAgent = determineNextAgent(agentRole, consolidatedFindings.errors) // Per agent-roles.md logic
+> //   handoffMessage = createHandoffMessage(nextAgent, consolidatedFindings)
+> //   status = determineStatus(consolidatedFindings.errors)
+> //   logEntry = {
+> //     requestId: requestId,
+> //     agentRole: agentRole,
+> //     timestamp: getCurrentUtcTimestamp(),
+> //     status: status,
+> //     actionsTaken: consolidatedFindings.actionsTaken,
+> //     observations: consolidatedFindings.observations,
+> //     errorsEncountered: consolidatedFindings.errors,
+> //     nextAgent: nextAgent,
+> //     handoffMessage: handoffMessage
+> //     // ... other optional fields ...
+> //   }
+> //   // Verify log append prerequisites
+> //   if not verifyAppendPrerequisites(requestId, logEntry): // Checks schema, perms, format
+> //      // Error handled within verifyAppendPrerequisites via handleErrorAndEscalate
+> //      // HALT
+> //   
+> //   // Execute append operation (critical step)
+> //   logEntryString = formatAsJsonStringForAppend(logEntry) // Ensure comma if needed
+> //   success = executeAppend("logs/" + requestId + ".json", logEntryString)
+> //   if not success:
+> //      // This is a critical failure; log might be unrecoverable
+> //      logCriticalFrameworkError("CRITICAL: Failed to append to log file!")
+> //      haltFrameworkExecutionWithSystemAlert()
+> //      // HALT
+> //   // If append successful, agent's turn is effectively over. Framework takes over for Step 10.
+> // End Function
+> ```
+
+### Step 10: ➡️ FRAMEWORK ACTION - Execute Immediate Automatic Transition
+*   **Responsibility:** This step is executed by the **[Framework](mdc:rules-md/core-concepts.md#framework)**, not the agent.
+*   **Trigger:** Successful verified completion of the log append in Step 9 by the agent.
+*   **Framework ACTION:** The underlying framework **MUST IMMEDIATELY** read the `nextAgent` field from the just-appended log entry.
+*   **Framework ACTION:** Based **solely** on the `nextAgent` value, as detailed in [Log Handling - Automatic Transitions](mdc:rules-md/log-handling.md#automatic-transitions-via-nextagent):
+    *   If `nextAgent` is a valid agent role: Load rules for `nextAgent` and restart execution from Step 1 **without any delay**.
+    *   If `nextAgent` is null, empty, or `"HALT"`: Stop execution for this `requestId`.
+    *   If `nextAgent` is invalid/missing: Log critical framework error and halt.
+*   **Note:** The agent's execution for the current turn concludes upon successfully initiating the *verified* log append in Step 9. The framework takes over for Step 10.
+
+> ```pseudocode
+> // @examples/transition.pseudocode
+> // --- FRAMEWORK INTERNAL ACTION --- 
+> // (See pseudocode in log-handling.md for framework transition logic)
+> ```
+
+## 🔍 Verification Requirements (Per Step)
+
+Before executing the core **ACTION** of each step (1-9), agents **MUST** implicitly or explicitly verify:
+1.  ✅ Availability of required tools for the step (from [MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain) or [Custom Tools](mdc:rules-md/shared-core.md#custom-tool-development--usage)).
+2.  🔑 Necessary permissions for file access or command execution.
+3.  📥 Validity and presence of required inputs for the step's actions.
+4.  💾 Continued access and validity of the log file (especially for Steps 1 and 9, see [Log Handling Verifications](mdc:rules-md/log-handling.md#verification-steps-log-operations)).
+
+Failure at any verification **MUST** lead to immediate halt and escalation via the [Error Handling](#error-handling-general) process.
+
+> ```pseudocode
+> // @examples/step-verification.pseudocode
+> // Concept: Verification checks integrated within each step's logic before core action.
+> // Function: executeStep_N(...)
+> // Steps:
+> //   if not verifyPrerequisitesForStepN(): // Checks tools, permissions, inputs
+> //      handleErrorAndEscalate("Prerequisites failed for Step N.", N)
+> //      // HALT
+> //   executeCoreActionForStepN()
+> //   recordActionResult()
+> //   if not verifyOutcomeOfStepN(): // Check if action produced expected result type
+> //      handleErrorAndEscalate("Outcome verification failed for Step N.", N)
+> //      // HALT
+> // End Function
+> ```
+
+## ⚠️ Deprecated Patterns (Strictly Forbidden)
+
+*   ⏳ Waiting for user `"proceed"` or `"continue"` confirmations.
+*   🧠 Attempting state management outside the [log file](mdc:rules-md/log-handling.md).
+*   🤫 Direct agent-to-agent communication.
+*   ⏳ Blocking execution waiting for optional MCP task approval (Step 2 or 8).
+*   🛑 Failing to set a valid `nextAgent` in Step 9.
+*   ❓ Deviating from the 10-step sequence.
+
+## 🚨 Error Handling (General)
+
+*   If any step (1-9) encounters an unrecoverable error or fails verification:
+    1.  Prepare minimal error details for logging.
+    2.  Determine `status` as `"error_escalated"`.
+    3.  Set `nextAgent` to `"Overmind"` (or `"HALT"` for truly critical/unrecoverable framework issues).
+    4.  Provide a concise `handoffMessage` explaining the failure and the step number.
+    5.  Execute Step 9 to attempt logging the error state and hand off to `Overmind`.
+    6.  If Step 9 itself fails critically (cannot append), the framework should detect this and handle the halt.
+
+> ```pseudocode
+> // @examples/error-handling.pseudocode
+> // Function: handleErrorAndEscalate
+> // Purpose: Log error state and attempt hand off to Overmind via Step 9.
+> // Input: errorDetails (string), failedStepNumber (int)
+> // Returns: Triggers HALT
+> // Steps:
+> //   // Prepare log entry fields for error state
+> //   errorEntryData = {
+> //     status: "error_escalated",
+> //     errorsEncountered: [errorDetails],
+> //     nextAgent: "Overmind", // Default escalation target
+> //     handoffMessage: "Execution failed at Step " + failedStepNumber + ": " + errorDetails + ". Requesting Overmind review."
+> //     // ... Include other required fields like actionsTaken up to failure point ...
+> //   }
+> //   // Attempt to execute Step 9 logging with this error data
+> //   executeLoggingAndTriggerTransition(agentRole, requestId, errorEntryData, /*... partially completed context ...*/)
+> //   // If executeLogging succeeds, Overmind will be invoked by the framework.
+> //   // If executeLogging fails, it handles the critical halt internally.
+> // End Function
+> ```
+
+## 📋 Example Loop Execution (Conceptual)
+
+This illustrates the *flow* of steps within a single agent's turn, culminating in the Step 9 log entry which triggers the framework's Step 10 transition.
+> ```json
+> // @examples/loop-execution-flow.json
+> {
+>   "agentTurn": "ExampleAgent",
+>   "requestId": "req-xyz",
+>   "steps_executed": [
+>     { "step": 1, "action": "Loaded full log context", "result": "success" },
+>     { "step": 2, "action": "Skipped optional MCP task", "result": "skipped" },
+>     { "step": 3, "action": "Analyzed handoff message -> goal determined", "result": "success" },
+>     { "step": 4, "action": "Searched codebase (read_file, grep_search)", "result": "success" },
+>     { "step": 5, "action": "Skipped external context", "result": "skipped" },
+>     { "step": 6, "action": "Executed core task (e.g., edit_file)", "result": "success" },
+>     { "step": 7, "action": "Consolidated results into actionsTaken/observations", "result": "success" },
+>     { "step": 8, "action": "Skipped task finalization", "result": "skipped" },
+>     { "step": 9, "action": "Verified & Appended log entry", 
+>       "log_entry_summary": { 
+>         "status": "completed_step", 
+>         "nextAgent": "NextAgentRole", 
+>         "handoffMessage": "Task complete, proceed to verification."
+>       },
+>       "result": "success - FRAMEWORK TRANSITION TRIGGERED"
+>     }
+>     // Step 10 is a FRAMEWORK action, not logged by the agent itself.
+>   ]
+> }
+> ``` 
