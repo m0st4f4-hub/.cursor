@@ -3,7 +3,6 @@ description: "Mandatory procedure for InitializationAgent to set up or verify th
 globs: ["*"]
 alwaysApply: true
 ---
-
 # ⚙️ Framework Initialization Procedure
 
 ## 🎯 Overview
@@ -122,11 +121,15 @@ Execute these steps sequentially:
 
 Execute these steps sequentially after successfully completing one of the Phase 2 scenarios.
 
-1.  **Configure `project` Directory:**
+1.  **Configure `project` and `global` Directories:**
     *   **Action:** Execute `list_dir .cursor/rules`.
     *   **Verification:** Check output for `project` subdirectory.
     *   **If Missing:** **Action:** Execute `run_terminal_cmd mkdir .cursor/rules/project` (Windows: `New-Item -ItemType Directory -Path .cursor/rules/project`). **Verification:** Execute `list_dir .cursor/rules`. Confirm `project` exists via output. If verification fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.md#overmind)).
-2.  **Update Ruleset `.gitignore`:**
+
+    *   **Action:** Execute `list_dir .cursor/rules`.
+    *   **Verification:** Check output for `global` subdirectory.
+    *   **If Missing:** **Action:** Execute `run_terminal_cmd mkdir .cursor/rules/global` (Windows: `New-Item -ItemType Directory -Path .cursor/rules/global`). **Verification:** Execute `list_dir .cursor/rules`. Confirm `global` exists via output. If verification fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.md#overmind)).
+2.  **Update Ruleset `.gitignore`:
     *   **Action:** Execute `read_file .cursor/.gitignore` (handle potential non-existence gracefully).
     *   **Verification:** Check content for the exact line `rules/project/` on its own line.
     *   **If Missing/Incorrect:** **Action:** Use `edit_file` on `.cursor/.gitignore` to add or correct the line `rules/project/`. Adhere to [Code Edit Tag](mdc:rules-md/shared-core.md#code-edit-tag) format.
@@ -143,7 +146,7 @@ Execute these steps sequentially after successfully completing one of the Phase 
         *   **Verification:** Execute `read_file .gitignore`. Confirm the line is present via output. If verification fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.md#overmind)).
 4.  **Final Verification & Reporting:**
     *   **Action:** Execute `list_dir .cursor/rules`.
-    *   **Verification 1:** Confirm via output that `.cursor/rules` exists and contains expected core files/dirs (`shared-core.mdc`, `project/`, `agents/`).
+    *   **Verification 1:** Confirm via output that `.cursor/rules` exists and contains expected core files/dirs (`shared-core.mdc`, `project/`, `agents/`, `global/`).
     *   **Optional Action:** Execute `run_terminal_cmd python tools/verify_environment.py` ([Common Custom Tools](mdc:rules-md/shared-core.md#common-custom-tools)) for additional checks.
     *   **Verification 2 (Optional):** Check output of environment verification script for success.
     *   **If All Verifications Pass:** **Action:** Log success following [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema), setting `status: "completed_step"`, `nextAgent: "Overmind"`, and `handoffMessage: "✅ Initialization successful. Ruleset verified."`. Initialization is complete.

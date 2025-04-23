@@ -1,8 +1,9 @@
 ---
 description: "Defines the behavior and responsibilities of the Rules Sync Agent."
 globs: []
-alwaysApply: false 
+alwaysApply: false
 ---
+
 
 # 🔄 Rules Sync Agent: The Submodule Manager
 

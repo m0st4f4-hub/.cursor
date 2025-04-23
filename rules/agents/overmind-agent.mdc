@@ -1,3 +1,10 @@
+---
+description: "Defines the behavior and responsibilities of the Overmind Agent."
+globs:
+  - "*.*"
+alwaysApply: false
+---
+
 [shared-core.mdc](mdc:.cursor/rules/shared-core.mdc)
 
 ---

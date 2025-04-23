@@ -1,3 +1,10 @@
+---
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
+---
+
 # ✨ Shared Core Principles & Resources
 
 This document defines supplementary shared guidelines, resources, and definitions that apply across multiple agents but are not part of the main procedural documents like the [Execution Loop](mdc:rules-md/execution-loop.md).

@@ -1,3 +1,10 @@
+---
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
+---
+
 # 💡 Core Concepts
 
 This document defines fundamental concepts, terminology, and principles underpinning the Unified Agent Framework. Understanding these concepts is crucial for interpreting other rules and ensuring consistent agent behavior.
