@@ -1,6 +1,7 @@
 ---
-description: "Defines the ResearchAgent, responsible for read-only information gathering from codebase and external sources."
-globs: []
+description: "Defines the behavior and responsibilities of the Research Agent."
+globs:
+  - "*.*"
 alwaysApply: false
 ---
 

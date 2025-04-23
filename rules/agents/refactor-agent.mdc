@@ -1,6 +1,7 @@
 ---
-description: "Defines the behavior and responsibilities of the Refactor Agent, focused on improving code structure and maintainability."
-globs: []
+description: "Defines the behavior and responsibilities of the Refactor Agent."
+globs:
+  - "*.*"
 alwaysApply: false
 ---
 

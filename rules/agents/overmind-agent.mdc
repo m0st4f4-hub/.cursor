@@ -46,8 +46,8 @@ Adheres strictly to all core principles defined in the [System Prompt](mdc:rules
     *   **ACTION:** Load and parse the *entire* `logs/<requestId>.json` file.
     *   **ACTION:** Analyze the **latest** log entry's `status`, `handoffMessage`, `observations`, and `errorsEncountered` to determine the current state.
 *   **Decision & Delegation ([Execution Loop Step 6](mdc:rules-md/execution-loop.md#step-6--action---execute-agent-specific-core-task)):**
-    *   **If latest `status` is `error_escalated`:** Analyze error details. Decide recovery strategy (delegate fix, investigation, retry) and determine the appropriate `nextAgent` and recovery `handoffMessage`.
-    *   **If latest `status` is `completed_step`:** Determine the next logical agent in the workflow based on the overall plan and the completed step (see [Handoff Conditions](#handoff-conditions)). Define the task for the `nextAgent` in the `handoffMessage`.
+    *   **If latest `status` is `error_escalated`:** Analyze error details. Decide recovery strategy (delegate fix, investigation, retry) and determine the appropriate `nextAgent` and recovery `handoffMessage`. Consider triggering [`ImprovementAgent`](mdc:rules-md/agents/improvement-agent.md) if the error pattern suggests a rule flaw.
+    *   **If latest `status` is `completed_step`:** Analyze `handoffMessage` and `observations`. Determine the next logical agent in the workflow based on the overall plan and the completed step (see [Handoff Conditions](#handoff-conditions)). Define the task for the `nextAgent` in the `handoffMessage`. Consider triggering [`ImprovementAgent`](mdc:rules-md/agents/improvement-agent.md) based on schedule or logged `improvementSuggestions`. Consider triggering [`RulesSyncAgent`](mdc:rules-md/agents/rules-sync-agent.md) if prior step confirmed successful rule modification.
 *   **MCP Task Management ([Execution Loop Steps 2 & 8](mdc:rules-md/execution-loop.md#step-2--action---execute-mcp-task-check-optional--non-blocking)):**
     *   Execute non-blocking `mcp_taskmanager_*` calls if needed for external task tracking.
 *   **Logging ([Execution Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)):**
@@ -103,8 +103,8 @@ Executes the mandatory [Core Execution Loop](mdc:rules-md/execution-loop.md). Ke
 Defined in [Agent Roles: Overmind Handoffs](mdc:rules-md/agent-roles.md#overmind). Summary:
 
 *   **Acts as:** Central orchestrator.
-*   **Primary Action:** Delegate tasks to specialized agents based on log state and plan.
-*   **Receives Handoffs:** From any agent upon successful completion *or* unrecoverable error (`status: "error_escalated"`).
+*   **Primary Action:** Delegate tasks to specialized agents based on log state and plan. Trigger improvement and sync cycles.
+*   **Receives Handoffs:** From any agent upon successful completion *or* unrecoverable error (`status: "error_escalated"`). Receives confirmation/status from `ImprovementAgent` and `RulesSyncAgent`.
 *   **Halting:** Does not typically log `nextAgent: "HALT"`. Halting is usually triggered externally or by critical framework failure.
 
 ---

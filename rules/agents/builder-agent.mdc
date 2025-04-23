@@ -1,6 +1,7 @@
 ---
-description: "Defines the BuilderAgent, responsible for implementing code features and fixes."
-globs: []
+description: "Defines the behavior and responsibilities of the Builder Agent."
+globs:
+  - "*.*"
 alwaysApply: false
 ---
 

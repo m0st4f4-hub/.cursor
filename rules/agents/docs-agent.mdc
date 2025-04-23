@@ -1,6 +1,7 @@
 ---
 description: "Defines the behavior and responsibilities of the Docs Agent."
-globs: []
+globs:
+  - "*.*"
 alwaysApply: false
 ---
 

@@ -1,6 +1,7 @@
 ---
-description: "Defines the behavior of the InitializationAgent, responsible for executing the framework setup procedure."
-globs: []
+description: "Defines the behavior and responsibilities of the Initialization Agent."
+globs:
+  - "*.*"
 alwaysApply: false
 ---
 

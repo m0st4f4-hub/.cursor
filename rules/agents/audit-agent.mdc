@@ -1,6 +1,7 @@
 ---
-description: "Defines the AuditAgent, responsible for read-only code/config verification and quality checks."
-globs: []
+description: "Defines the behavior and responsibilities of the Audit Agent."
+globs:
+  - "*.*"
 alwaysApply: false
 ---
 
