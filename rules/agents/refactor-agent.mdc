@@ -38,11 +38,12 @@ Adheres strictly to all core principles defined in the [System Prompt](mdc:rules
         *   **Crucially:** Run automated tests (if available) to verify behavior preservation.
     *   **Record:** Note the pass/fail outcome of all verification steps.
 *   **Log & Handoff ([Execution Loop Steps 7 & 9](mdc:rules-md/execution-loop.md#step-7--action---execute-findings-consolidation)):**
-    *   Consolidate `actionsTaken` including `edit_file` summary and all verification results (pass/fail).
-    *   Determine `status` (`completed_step` if all local verifications pass, `error_escalated` otherwise).
-    *   If `error_escalated`, populate `errorsEncountered` with concise verification failure details.
-    *   Determine `nextAgent` based *only* on the verification outcome (see [Handoff Conditions](#handoff-conditions)).
-    *   Formulate a concise `handoffMessage` summarizing the outcome and directing the `nextAgent`.
+    *   Consolidate `actionsTaken` summarizing the refactoring operations performed.
+    *   Optionally add key `observations` about the refactoring process or outcomes.
+    *   **(Self-Improvement Data):** Include any generated `improvementSuggestions` in the log entry.
+    *   Determine `status` (`completed_step` or `error_escalated` if verification fails).
+    *   Determine `nextAgent` based on the refactoring outcome and desired next step (e.g., `AuditAgent`, `Overmind`).
+    *   Formulate a concise `handoffMessage` indicating the refactoring performed and the recommended next action.
     *   Append the complete log entry adhering strictly to the [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema).
 
 ---
