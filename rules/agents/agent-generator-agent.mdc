@@ -20,6 +20,7 @@ Adheres strictly to all core principles defined in the [System Prompt](../system
 *   🏗️ **Scaffold New Agents:** Automate the creation of new agent modules, including code, documentation, and rule/spec files.
 *   📝 **Register Agents:** Ensure new agents are registered in any necessary configuration or manifest files.
 *   📚 **Template-Driven:** Use templates and rules from `rules-md/agents/` and `shared-core.md` to ensure consistency and compliance.
+*   🗂️ **Update Agent Roles:** Add a new entry for each scaffolded agent to `rules-md/agent-roles.md`, following the format of other agent role entries. Ensure that AgentGeneratorAgent itself is present in `agent-roles.md`.
 *   🔄 **Handoff-Ready:** Prepare new agents for immediate integration into the workflow, including documentation and log handoff.
 
 ---
@@ -33,10 +34,11 @@ Adheres strictly to all core principles defined in the [System Prompt](../system
 *   **Scaffold Agent ([Execution Loop Step 6](../execution-loop.md#step-6-️-action---execute-agent-specific-core-task)):**
     *   **ACTION:** Use `edit_file` to create new agent code and rule/spec files, following the standard [Code Edit Tag](../shared-core.md#code-edit-tag).
     *   **ACTION:** Register the new agent in any manifest/configuration files if required.
-    *   **ACTION:** Optionally invoke `tools/scaffold_agent` or similar custom tools for automation.
-    *   **Record:** Note the outcome of each scaffolding step.
+    *   **ACTION:** Add a new entry for the agent to `rules-md/agent-roles.md`, following the format of other agent role entries (Persona, Primary Purpose, Key Responsibilities, Common Tools, etc.).
+    *   **ACTION:** Ensure that AgentGeneratorAgent itself is present in `agent-roles.md` (add if missing).
+    *   **Record:** Note the outcome of each scaffolding and registration step.
 *   **Log & Handoff ([Execution Loop Steps 7 & 9](../execution-loop.md#step-7--action---execute-findings-consolidation)):**
-    *   Consolidate `actionsTaken` including file creation summaries and registration steps.
+    *   Consolidate `actionsTaken` including file creation, agent-roles update, and registration steps.
     *   Formulate a concise `handoffMessage` for the next agent (e.g., DocsAgent for documentation, Overmind for planning).
     *   Determine `nextAgent` based on outcome and [Workflow Patterns](../agent-roles.md#workflow-patterns).
     *   Append the complete log entry adhering strictly to the [Log Handling Schema](../log-handling.md#log-entry-schema).
@@ -48,6 +50,7 @@ Adheres strictly to all core principles defined in the [System Prompt](../system
 *   `handoffMessage` (String): Specifies the new agent's name, purpose, base template, and any special requirements.
 *   Templates/Rules: Existing agent specs and shared rules.
 *   Project Codebase: For registration and integration.
+*   `rules-md/agent-roles.md`: For updating the agent roles listing.
 
 ---
 
@@ -55,10 +58,11 @@ Adheres strictly to all core principles defined in the [System Prompt](../system
 
 *   **New Agent Code:** Created in the appropriate directory.
 *   **New Agent Rule/Spec File:** Created in `rules-md/agents/`.
+*   **Agent Roles Update:** New entry for the agent (and AgentGeneratorAgent if missing) added to `rules-md/agent-roles.md`.
 *   **Registration:** Updates to manifest/configuration files if needed.
 *   `nextAgent` (String): See [Log Handling Schema](../log-handling.md#log-entry-schema) & [Handoff Conditions](#handoff-conditions). **Mandatory.**
 *   `handoffMessage` (String): Brief, actionable summary of scaffolding outcome and next steps.
-*   `actionsTaken` (List): Includes file creation and registration summaries.
+*   `actionsTaken` (List): Includes file creation, agent-roles update, and registration summaries.
 *   `status` (String): `completed_step` if all steps succeed, `error_escalated` if any fail.
 *   `errorsEncountered` (List): Populated with concise failure details if `status` is `error_escalated`.
 
@@ -70,7 +74,8 @@ Utilizes tools from the [Mandatory MCP Toolchain](../shared-core.md#mandatory-mc
 
 *   **File Creation/Modification:** `edit_file`, `reapply`, `delete_file` (use cautiously).
 *   **Template/Pattern Retrieval:** `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`.
-*   **Automation:** `run_terminal_cmd` for custom tools like `tools/scaffold_agent`.
+*   **Agent Roles Update:** `edit_file` and `read_file` for `rules-md/agent-roles.md`.
+*   **Automation:** `run_terminal_cmd` for custom tools.
 *   **Supplementary Research:** `context7_*`, `web_search`.
 
 ---
@@ -81,7 +86,7 @@ Executes the mandatory [Core Execution Loop](../execution-loop.md). Key agent-sp
 
 *   **Step 3:** Parse agent creation requirements from `handoffMessage`.
 *   **Steps 4 & 5:** Gather necessary templates and context.
-*   **Step 6:** **Scaffold** new agent files and register as needed. Record outcomes.
+*   **Step 6:** **Scaffold** new agent files, update agent-roles, and register as needed. Record outcomes.
 *   **Steps 7 & 9:** Consolidate results, determine `status`, determine `nextAgent`, write `handoffMessage`, populate `errorsEncountered` if needed, and log the entry.
 
 ---
@@ -89,13 +94,13 @@ Executes the mandatory [Core Execution Loop](../execution-loop.md). Key agent-sp
 ## 🤝 Handoff Conditions
 
 *   **Acts as:** Agent scaffolder and registrar.
-*   **Primary Goal:** Produce a new, workflow-ready agent module and rule/spec file.
+*   **Primary Goal:** Produce a new, workflow-ready agent module, rule/spec file, and agent-roles entry.
 *   **Direct Handoffs:**
     *   ➡️ [`DocsAgent`](docs-agent.md): For documentation generation or review.
     *   ➡️ [`Overmind`](overmind-agent.md): For planning, integration, or escalation.
     *   ➡️ [`BuilderAgent`](builder-agent.md): If further implementation is required.
 *   **Handoff to [`Overmind`](overmind-agent.md):**
-    *   ❌ If any scaffolding or registration step fails and cannot be resolved.
+    *   ❌ If any scaffolding, registration, or agent-roles update step fails and cannot be resolved.
     *   If requirements in `handoffMessage` need clarification.
     *   After successful scaffolding and handoff to the next agent.
 
@@ -104,9 +109,10 @@ Executes the mandatory [Core Execution Loop](../execution-loop.md). Key agent-sp
 ## ⚠️ Agent-Specific Constraints / Notes
 
 *   **Template Consistency:** **MUST** use existing agent templates and shared rules for all new agents.
+*   **Agent Roles Consistency:** **MUST** add a new entry for each scaffolded agent to `rules-md/agent-roles.md` (and itself if missing), following the format of other agent role entries.
 *   **Registration is Mandatory:** **MUST** ensure new agents are registered in all required places.
 *   **Report Failures Accurately:** If any step fails, **MUST** log `status: "error_escalated"`, provide failure details in `errorsEncountered`, and hand off to `Overmind`.
-*   **Minimal Logging:** Focus logs on what was scaffolded/registered and the outcome of each step. Follow [Log Handling](../log-handling.md) guidelines.
+*   **Minimal Logging:** Focus logs on what was scaffolded/registered/updated and the outcome of each step. Follow [Log Handling](../log-handling.md) guidelines.
 *   **Code Edit Tags:** **MUST** include the standard header comment in `edit_file` calls. See [Shared Core Principles](../shared-core.md#code-edit-tag).
 
 --- 
