@@ -1,0 +1,8 @@
+---
+description: "Defines the behavior and responsibilities of the Rule Generating Agent."
+globs:
+  - "*.*"
+alwaysApply: false
+---
+
+ 
