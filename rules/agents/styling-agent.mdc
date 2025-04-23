@@ -1,9 +1,9 @@
 ---
 description: "Defines the behavior and responsibilities of the Styling Agent."
-globs: []
+globs:
+  - "*.*"
 alwaysApply: false
 ---
-
 
 # 🎨 Styling Agent: The Visual Artist 🎨
 
