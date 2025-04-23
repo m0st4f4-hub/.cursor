@@ -5,70 +5,146 @@ globs:
 alwaysApply: false
 ---
 
-# ✨ Shared Core Principles & Resources
+# 🧱 Shared Core Concepts & Rules
 
-This document defines supplementary shared guidelines, resources, and definitions that apply across multiple agents but are not part of the main procedural documents like the [Execution Loop](mdc:rules-md/execution-loop.md).
+This document defines foundational elements shared across all agents and processes within the Unified Agent Framework.
 
-## 🔗 Mandatory MCP Toolchain <a name="mandatory-mcp-toolchain"></a>
+## 🚀 ACTION IMPERATIVE
 
-This lists the core tools generally available via the MCP (Mandatory Control Plane / Platform) to most agents. Specific roles defined in [Agent Roles](mdc:rules-md/agent-roles.md) may have additional specialized tools.
+**This is the absolute core directive:**
 
-| Tool                      | Purpose                            | Notes                                      |
-|---------------------------|------------------------------------|--------------------------------------------|
-| `mcp_taskmanager_*`       | Task tracking (Mainly [Overmind](mdc:rules-md/agent-roles.md#overmind))    | `mark_task_done` is non-blocking for agent ([Loop Step 8](mdc:rules-md/execution-loop.md#step-8--action---execute-task-finalization-conditional--non-blocking)) |
-| `edit_file`               | Apply code changes / Create file   | Adhere to [Code Edit Tag](#code-edit-tag) format. |
-| `run_terminal_cmd`        | Build, test, execute scripts, Git  | Use for [custom tools](#common-custom-tools), env checks. **Use `| cat` for commands with pagers (e.g., `git log`). Check exit codes.** |
-| `context7_*`              | Retrieve internal docs (APIs, etc.)| Primarily for [ResearchAgent](mdc:rules-md/agent-roles.md#researchagent) ([Loop Step 5](mdc:rules-md/execution-loop.md#step-5--action---execute-external-context-gathering-conditional--non-blocking)) |
-| `web_search`              | Fetch external data/patterns       | Primarily for [ResearchAgent](mdc:rules-md/agent-roles.md#researchagent) ([Loop Step 5](mdc:rules-md/execution-loop.md#step-5--action---execute-external-context-gathering-conditional--non-blocking)) |
-| `file_search`             | Fuzzy file path search             | [Loop Step 4](mdc:rules-md/execution-loop.md#step-4--action---execute-codebase-context-analysis) |
-| `read_file`               | Read file contents                 | [Loop Step 1](mdc:rules-md/execution-loop.md#step-1--action---execute-context-loading) & [Step 4](mdc:rules-md/execution-loop.md#step-4--action---execute-codebase-context-analysis) |
-| `list_dir`                | List directory contents            | [Loop Step 4](mdc:rules-md/execution-loop.md#step-4--action---execute-codebase-context-analysis), [Init Procedure](mdc:rules-md/initialization-procedure.md) |
-| `grep_search`             | Regex search within files          | [Loop Step 4](mdc:rules-md/execution-loop.md#step-4--action---execute-codebase-context-analysis) |
-| `delete_file`             | Delete a file                      | Use with caution. [Loop Step 6](mdc:rules-md/execution-loop.md#step-6-%EF%B8%8F-action---execute-agent-specific-core-task) |
-| `reapply`                 | Re-attempt failed `edit_file`      |                                            |
-| `run_terminal_cmd` (custom)| Execute custom scripts (`tools/*`) | e.g., `python tools/analyze_log.py` - See [Custom Tool Usage](#custom-tool-development--usage) |
-*(Note: Specialized agents like Audit/UX/Styling may have additional platform-provided tools, e.g., `runPerformanceAudit`, `getSelectedElement`)*
+***Agents MUST execute actions continuously and transition AUTOMATICALLY based SOLELY on the `nextAgent` field logged in the request log file.***
 
-## 🏷️ Code Edit Tag <a name="code-edit-tag"></a>
+*   **🚫 NO WAITING:** Agents **NEVER** wait for user prompts (like "proceed", "continue", "ok"), confirmations, or external triggers *unless* performing the explicit Step 6 Diagnostics exception in the [Execution Loop](mdc:execution-loop.mdc#step-6-action---execute-agent-specific-action).
+*   **➡️ IMMEDIATE AUTOMATIC TRANSITION:** Transitions between agents are **immediate** and handled **by the framework**, triggered **only** by the `nextAgent` value in the latest log entry ([Log Handling - Coordination via nextAgent](mdc:log-handling.mdc#coordination-via-nextagent)).
+*   **🔄 RELENTLESS PROGRESS:** The system is designed for non-stop, autonomous execution. Any pause not related to Step 6 Diagnostics is a violation of this imperative.
+*   **👤 USER INPUT:** User input is generally **ignored** during active execution unless it's providing specific diagnostic data explicitly requested by an agent in Step 6.
 
-Each `edit_file` block **MUST** include this comment header for tracking and context (Mandatory for agents like [BuilderAgent](mdc:rules-md/agent-roles.md#builderagent), [RuleWriterAgent](mdc:rules-md/agent-roles.md#rulewriteragent), [InitializationAgent](mdc:rules-md/agent-roles.md#initializationagent)):
+## 🆔 Request ID (`requestId`)
 
-```javascript
-// Task ID: <taskId> // If applicable (from MCP or similar)
-// Agent Role: <agent_role> // e.g., BuilderAgent
-// Request ID: <requestId> // The overall request ID ([Core Concepts](mdc:rules-md/core-concepts.md#request-id-requestid))
-// Project: <projectName> // Optional project identifier
-// Timestamp: <YYYY-MM-DDTHH:mm:ssZ> // UTC timestamp
+*   **Purpose:** A unique identifier for a complete user request or task sequence.
+*   **Format:** String (e.g., `req_12345abc`, `task_refactor_auth_20231027`).
+*   **Usage:**
+    *   Used as the filename for the request-specific log (`logs/<requestId>.json`). See [Log Handling](mdc:log-handling.mdc).
+    *   Included in MCP Taskmanager calls (`requestId` parameter).
+    *   Included in [Code Edit Tags](mdc:shared-core.mdc#code-edit-tag).
+*   **Origin:** Typically generated by `Overmind` when initiating a new request or can be provided externally.
+
+## ⚙️ Framework
+
+*   **Definition:** The underlying engine or platform executing the agents.
+*   **Responsibility:**
+    *   Loads the appropriate agent rules based on the `nextAgent` field from the log.
+    *   Provides the tools (MCP, file system, terminal, search) to the active agent.
+    *   **Enforces the IMMEDIATE AUTOMATIC TRANSITION** based on the `nextAgent` field ([Log Handling - Coordination via nextAgent](mdc:log-handling.mdc#coordination-via-nextagent)).
+    *   Manages the overall execution lifecycle.
+*   **Interaction:** Agents interact *with* the framework primarily by receiving context (log state) and calling tools provided *by* the framework.
+
+## 🪵 Log File (`logs/<requestId>.json`)
+
+*   **The Single Source of Truth:** As detailed in [Log Handling](mdc:log-handling.mdc), this append-only JSON array is the **exclusive** mechanism for:
+    *   State persistence between agent turns.
+    *   Historical context.
+    *   **Triggering the next agent via the `nextAgent` field.**
+*   **Mandatory Usage:** All agents **MUST** read the log at the start of their turn and **MUST** append a valid log entry (including `nextAgent`) at the end.
+
+## `nextAgent` Field
+
+*   **Critical Control Signal:** The string value in the `nextAgent` field of the **latest** log entry dictates which agent the **Framework** will execute next.
+*   **Automatic Trigger:** This is **not** a suggestion; it's the direct command for the Framework's immediate transition mechanism. See [Log Handling - Coordination via nextAgent](mdc:log-handling.mdc#coordination-via-nextagent).
+*   **Values:** Must be a valid [Agent Role](mdc:agent-roles.mdc) name (e.g., `"BuilderAgent"`, `"Overmind"`) or `null`/`"HALT"` for completion/stop.
+
+## 🛠️ Mandatory MCP Toolchain
+
+These tools form the baseline capabilities available to most agents. Specific agents may have additional specialized tools.
+
+| Tool                      | Purpose                                                                                                                            | Notes                                                                                                                                                                                                                              |
+|---------------------------|------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `mcp_taskmanager_*`       | Task tracking & management.                                                                                                        | Primarily used by `Overmind`. `mark_task_done` is non-blocking for the agent calling it; the agent proceeds immediately to Step 9 (Logging). User approval (`approve_task_completion`) happens **outside** the agent's execution loop. |
+| `edit_file`               | Apply code changes or create files.                                                                                                | Requires adherence to the [Code Edit Tag](#code-edit-tag) format.                                                                                                                                                                  |
+| `run_terminal_cmd`        | Execute shell commands (builds, tests, environment checks, **custom tool scripts**).                                                 | Use `python tools/script_name.py`, `powershell tools/script_name.ps1`, etc., to run custom tools located in the `tools/` directory.                                                                                                   |
+| `context7_*`              | Fetch library/framework documentation (`resolve-library-id` first, then `get-library-docs`).                                       | Used by `ResearchAgent`, `BuilderAgent`, etc., for understanding APIs, syntax, patterns.                                                                                                                                           |
+| `web_search`              | Access external web information (error messages, best practices, non-library specific info).                                     | Used by `ResearchAgent`, `BuilderAgent` (for error resolution).                                                                                                                                                                    |
+| `file_search`/`read_file` | Find and read files within the codebase.                                                                                           | Fundamental for context gathering by most agents.                                                                                                                                                                                  |
+| `list_dir`                | Explore directory structures.                                                                                                      | Useful for initial exploration or verifying file locations.                                                                                                                                                                        |
+| `grep_search`             | Perform text/regex searches within files.                                                                                          | More targeted than `codebase_search` for specific strings or patterns.                                                                                                                                                             |
+| `codebase_search`         | Perform semantic searches for concepts or functionality.                                                                           | Broader search than `grep_search`; good for finding related code when exact terms are unknown.                                                                                                                                     |
+| `delete_file`             | Remove files.                                                                                                                      | Use with caution. `InitializationAgent` might use it for cleanup.                                                                                                                                                                  |
+| `reapply`                 | Request re-application of the last `edit_file` if the first attempt failed unexpectedly.                                           | Use sparingly, only immediately after a failed `edit_file` diff.                                                                                                                                                                   |
+
+## 🐍 Common Custom Tools (`tools/` directory)
+
+These are example Python scripts (run via `run_terminal_cmd`) that agents can leverage. Agents can also *create* new tools here.
+
+*   **`analyze_log.py`:** Parses a `logs/<requestId>.json` file to extract summaries, timelines, or specific event types. Useful for `Overmind`, `DocsAgent`, `ImprovementAgent`.
+*   **`verify_environment.py`:** Checks for presence and basic configuration of required development tools (e.g., Node.js, Python, Git, specific linters). Used by `InitializationAgent`, `RunnerAgent`.
+*   **`parse_git_status.py`:** Runs `git status --porcelain=v1` and parses the output into a structured format (JSON) indicating staged, unstaged, untracked files, and branch status. Used by `InitializationAgent`, `RulesSyncAgent`, potentially `Overmind`.
+*   **`check_dependencies.py`:** Analyzes project dependency files (`package.json`, `requirements.txt`, etc.) for potential issues (e.g., outdated versions, conflicts - *basic checks*). Used by `InitializationAgent`, `BuilderAgent`, `AuditAgent`, `RunnerAgent`.
+*   **`run_linter.py`:** Executes a configured linter (e.g., ESLint, Pylint) on specified files or directories and reports results. Used by `BuilderAgent`, `RefactorAgent`, `AuditAgent`.
+*   **`check_versions.py`:** Specifically checks versions of critical tools/libraries against predefined minimums or ranges. Used by `InitializationAgent`, `BuilderAgent`, `RunnerAgent`.
+*   **`consolidate_code.py`:** (Conceptual) Takes multiple file paths as input, reads them, and outputs a consolidated block of text/code, potentially with separators. Useful for `ResearchAgent` or `RefactorAgent` preparing context.
+*   **`get_current_time.ps1`:** (Example PowerShell) Simple script to get the current UTC time, perhaps as an alternative if Python's `datetime` isn't readily available in the `run_terminal_cmd` environment.
+
+*Self-Correction Note:* The original Unified Prompt mentioned `.cursor/tools/` but the example tools were listed as if in the root `tools/`. This document assumes the root `tools/` directory is the correct location for custom scripts executed via `run_terminal_cmd python tools/your_script.py`.
+
+## 🧾 Code Edit Tag
+
+Every `edit_file` operation **MUST** include this comment block at the beginning of the `code_edit` string. Use the appropriate comment syntax for the target language (e.g., `//` for JS/TS/CSS, `#` for Python/Ruby/Shell, `<!-- -->` for HTML/XML).
+
+```
+COMMENT_START Task ID: <taskId> // Optional MCP Task ID
+COMMENT_START Agent Role: <agent_role>
+COMMENT_START Request ID: <requestId>
+COMMENT_START Project: <projectName> // Extracted from log
+COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
+COMMENT_END (if applicable, e.g., HTML)
 ```
 
-## 🔧 Custom Tool Development & Usage <a name="custom-tool-development--usage"></a>
+**Example (JavaScript):**
 
--   **📍 Location:** Project-specific tools should reside in the root `tools/` directory.
--   **✍️ Development:** Agents like [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent) can create or modify tool scripts using `edit_file`.
--   **⚡ Execution:** Use `run_terminal_cmd`, specifying the interpreter and path (e.g., `python tools/run_linter.py --config project-lint.cfg`, `powershell tools/get_current_time.ps1`).
--   **📜 Tool Rules:** For discoverability and correct usage, complex tools *should* have a corresponding `.mdc` file in `rules-md/tools/` defining their purpose, arguments, I/O, and examples (e.g., `rules-md/tools/run_linter.mdc`). *(Links would use `mdc:rules-md/tools/tool-name.md`)*
+```javascript
+// Task ID: task_update_login_ui
+// Agent Role: BuilderAgent
+// Request ID: req_auth_refactor_002
+// Project: WebAppX
+// Timestamp: 2023-10-27T14:30:00Z
 
-## ✅ Common Custom Tools (Examples) <a name="common-custom-tools"></a>
+// ... existing code ...
+function updatedLogin() {
+  // new code here
+}
+// ... existing code ...
+```
 
-These are examples of Python scripts expected to be available in the `tools/` directory. Refer to their respective `.md` definitions in `rules-md/tools/` for details (if they exist).
+**Example (Python):**
 
-*   [`analyze_log.py`](mdc:rules-md/tools/analyze_log.md): Parses and analyzes `logs/<requestId>.json` files ([Log Handling](mdc:rules-md/log-handling.md)), often used by [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) to find error patterns or inefficiencies for self-improvement.
-*   [`analyze_chat_history.py`](mdc:rules-md/tools/analyze_chat_history.md): *(External Data Dependent)* Analyzes chat logs (if available and accessible) to extract user corrections and feedback, primarily for [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent).
-*   [`verify_environment.py`](mdc:rules-md/tools/verify_environment.md): Checks environment prerequisites (tool versions, dependencies). Used by [`InitializationAgent`](mdc:rules-md/agent-roles.md#initializationagent), [`AuditAgent`](mdc:rules-md/agent-roles.md#auditagent).
-*   [`parse_git_status.py`](mdc:rules-md/tools/parse_git_status.md): Provides structured output of `git status`. Used by [`InitializationAgent`](mdc:rules-md/agent-roles.md#initializationagent).
-*   [`check_dependencies.py`](mdc:rules-md/tools/check_dependencies.md): Checks for outdated or vulnerable dependencies. Used by [`AuditAgent`](mdc:rules-md/agent-roles.md#auditagent).
-*   [`run_linter.py`](mdc:rules-md/tools/run_linter.md): Executes configured linters/formatters. Used by [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent), [`AuditAgent`](mdc:rules-md/agent-roles.md#auditagent).
-*   [`check_versions.py`](mdc:rules-md/tools/check_versions.md): Checks specific tool/library versions.
-*   [`consolidate_code.py`](mdc:rules-md/tools/consolidate_code.md): Gathers code snippets based on context. Used by [`ResearchAgent`](mdc:rules-md/agent-roles.md#researchagent).
-*   [`rule_modifier.py`](mdc:rules-md/tools/rule_modifier.md): Applies structured modifications to `.md` rule files, used by [`RuleWriterAgent`](mdc:rules-md/agent-roles.md#rulewriteragent).
-*   [`rule_validator.py`](mdc:rules-md/tools/rule_validator.md): *(Future Tool)* Validates the syntax and potentially the structure/consistency of `.md` rule files, used by [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) or [`RuleWriterAgent`](mdc:rules-md/agent-roles.md#rulewriteragent) after modifications.
-*(Note: Tool availability depends on the specific project setup and the [Initialization Procedure](mdc:rules-md/initialization-procedure.md).)*
+```python
+# Task ID: task_add_user_endpoint
+# Agent Role: BuilderAgent
+# Request ID: req_api_feature_005
+# Project: BackendAPI
+# Timestamp: 2023-10-28T09:15:10Z
 
-**Core Documents Reference:**
+# ... existing code ...
 
-*   [System Prompt](mdc:rules-md/system-prompt.md): Overall framework and rules.
-*   [Core Concepts](mdc:rules-md/core-concepts.md): Fundamental terminology.
-*   [Execution Loop](mdc:rules-md/execution-loop.md): Detailed flow of agent operation.
-*   [Log Handling](mdc:rules-md/log-handling.md): Rules for interacting with the request log.
-*   [Agent Roles](mdc:rules-md/agent-roles.md): Definitions of specialized agents.
-*   [Initialization Procedure](mdc:rules-md/initialization-procedure.md): Steps for setting up the ruleset. 
+class UserAPI:
+    # ... existing code ...
+    def get_profile(self, user_id):
+        # new code here
+        pass
+
+# ... existing code ...
+```
+
+## 🚦 Core Agent Behavior Rules (Summary)
+
+These are the absolute, non-negotiable rules reinforcing the **ACTION IMPERATIVE**:
+
+1.  🚀 **ACTION-DRIVEN NON-STOP EXECUTION:** Prioritize **acting** via tool calls based on rules and log state.
+2.  ➡️ **IMMEDIATE AUTOMATIC TRANSITION:** Transitions are **ONLY** via `nextAgent` logged in Step 9, executed **by the framework**.
+3.  ✅ **SET `nextAgent`:** **MUST** determine and log the correct `nextAgent` ([Agent Role](mdc:agent-roles.mdc) or `HALT`/null) in Step 9.
+4.  ↔️ **DIRECT PEER TRANSITIONS:** **SHOULD** use direct agent-to-agent `nextAgent` values (e.g., `BuilderAgent` -> `AuditAgent`) for efficient workflows when logical. Return to `Overmind` for planning/escalation.
+5.  🚫 **NO WAITING:** **NEVER** wait for user input (except Step 6 Diagnostics) or external triggers. **Ignore** non-diagnostic user messages.
+6.  💾 **ACTION: LOG APPEND:** **MUST** append to the log ([Log Handling](mdc:log-handling.mdc)) at the end of the turn.
+7.  🔄 **ACTION: CONTINUOUS PRODUCTION:** **MUST** execute the [Execution Loop](mdc:execution-loop.mdc) relentlessly.
+8.  🛑 **ACTION: HALT ON FAILURE:** If critical verification fails or an unrecoverable error occurs, log the failure, set `nextAgent` appropriately (usually `Overmind` or `HALT`), and stop processing for that `requestId`. 
