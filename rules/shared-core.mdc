@@ -9,60 +9,60 @@ alwaysApply: false
 
 This document defines supplementary shared guidelines, resources, and definitions that apply across multiple agents but are not part of the main procedural documents like the [Execution Loop](mdc:rules-md/execution-loop.md).
 
-## 🔗 Mandatory MCP Toolchain
+## 🔗 Mandatory MCP Toolchain <a name="mandatory-mcp-toolchain"></a>
 
 This lists the core tools generally available via the MCP (Mandatory Control Plane / Platform) to most agents. Specific roles defined in [Agent Roles](mdc:rules-md/agent-roles.md) may have additional specialized tools.
 
 | Tool                      | Purpose                            | Notes                                      |
 |---------------------------|------------------------------------|--------------------------------------------|
-| `mcp_taskmanager_*`       | Task tracking (Mainly Overmind)    | `mark_task_done` is non-blocking for agent |
+| `mcp_taskmanager_*`       | Task tracking (Mainly [Overmind](mdc:rules-md/agent-roles.md#overmind))    | `mark_task_done` is non-blocking for agent ([Loop Step 8](mdc:rules-md/execution-loop.md#step-8--action---execute-task-finalization-conditional--non-blocking)) |
 | `edit_file`               | Apply code changes / Create file   | Adhere to [Code Edit Tag](#code-edit-tag) format. |
-| `run_terminal_cmd`        | Build, test, execute scripts, Git  | Use for custom tools, env checks. **Use `| cat` for commands with pagers (e.g., `git log`). Check exit codes.** |
-| `context7_*`              | Retrieve internal docs (APIs, etc.)|                                            |
-| `web_search`              | Fetch external data/patterns       |                                            |
-| `file_search`             | Fuzzy file path search             |                                            |
-| `read_file`               | Read file contents                 |                                            |
-| `list_dir`                | List directory contents            |                                            |
-| `grep_search`             | Regex search within files          |                                            |
-| `delete_file`             | Delete a file                      | Use with caution.                          |
+| `run_terminal_cmd`        | Build, test, execute scripts, Git  | Use for [custom tools](#common-custom-tools), env checks. **Use `| cat` for commands with pagers (e.g., `git log`). Check exit codes.** |
+| `context7_*`              | Retrieve internal docs (APIs, etc.)| Primarily for [ResearchAgent](mdc:rules-md/agent-roles.md#researchagent) ([Loop Step 5](mdc:rules-md/execution-loop.md#step-5--action---execute-external-context-gathering-conditional--non-blocking)) |
+| `web_search`              | Fetch external data/patterns       | Primarily for [ResearchAgent](mdc:rules-md/agent-roles.md#researchagent) ([Loop Step 5](mdc:rules-md/execution-loop.md#step-5--action---execute-external-context-gathering-conditional--non-blocking)) |
+| `file_search`             | Fuzzy file path search             | [Loop Step 4](mdc:rules-md/execution-loop.md#step-4--action---execute-codebase-context-analysis) |
+| `read_file`               | Read file contents                 | [Loop Step 1](mdc:rules-md/execution-loop.md#step-1--action---execute-context-loading) & [Step 4](mdc:rules-md/execution-loop.md#step-4--action---execute-codebase-context-analysis) |
+| `list_dir`                | List directory contents            | [Loop Step 4](mdc:rules-md/execution-loop.md#step-4--action---execute-codebase-context-analysis), [Init Procedure](mdc:rules-md/initialization-procedure.md) |
+| `grep_search`             | Regex search within files          | [Loop Step 4](mdc:rules-md/execution-loop.md#step-4--action---execute-codebase-context-analysis) |
+| `delete_file`             | Delete a file                      | Use with caution. [Loop Step 6](mdc:rules-md/execution-loop.md#step-6-%EF%B8%8F-action---execute-agent-specific-core-task) |
 | `reapply`                 | Re-attempt failed `edit_file`      |                                            |
-| `run_terminal_cmd` (custom)| Execute custom scripts (`tools/*`) | e.g., `python tools/analyze_log.py`    |
+| `run_terminal_cmd` (custom)| Execute custom scripts (`tools/*`) | e.g., `python tools/analyze_log.py` - See [Custom Tool Usage](#custom-tool-development--usage) |
 *(Note: Specialized agents like Audit/UX/Styling may have additional platform-provided tools, e.g., `runPerformanceAudit`, `getSelectedElement`)*
 
-## 🏷️ Code Edit Tag
+## 🏷️ Code Edit Tag <a name="code-edit-tag"></a>
 
-Each `edit_file` block **MUST** include this comment header for tracking and context:
+Each `edit_file` block **MUST** include this comment header for tracking and context (Mandatory for agents like [BuilderAgent](mdc:rules-md/agent-roles.md#builderagent), [RuleWriterAgent](mdc:rules-md/agent-roles.md#rulewriteragent), [InitializationAgent](mdc:rules-md/agent-roles.md#initializationagent)):
 
 ```javascript
 // Task ID: <taskId> // If applicable (from MCP or similar)
 // Agent Role: <agent_role> // e.g., BuilderAgent
-// Request ID: <requestId> // The overall request ID
+// Request ID: <requestId> // The overall request ID ([Core Concepts](mdc:rules-md/core-concepts.md#request-id-requestid))
 // Project: <projectName> // Optional project identifier
 // Timestamp: <YYYY-MM-DDTHH:mm:ssZ> // UTC timestamp
 ```
 
-## 🔧 Custom Tool Development & Usage
+## 🔧 Custom Tool Development & Usage <a name="custom-tool-development--usage"></a>
 
 -   **📍 Location:** Project-specific tools should reside in the root `tools/` directory.
 -   **✍️ Development:** Agents like [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent) can create or modify tool scripts using `edit_file`.
 -   **⚡ Execution:** Use `run_terminal_cmd`, specifying the interpreter and path (e.g., `python tools/run_linter.py --config project-lint.cfg`, `powershell tools/get_current_time.ps1`).
 -   **📜 Tool Rules:** For discoverability and correct usage, complex tools *should* have a corresponding `.mdc` file in `rules-md/tools/` defining their purpose, arguments, I/O, and examples (e.g., `rules-md/tools/run_linter.mdc`). *(Links would use `mdc:rules-md/tools/tool-name.md`)*
 
-## ✅ Common Custom Tools (Examples)
+## ✅ Common Custom Tools (Examples) <a name="common-custom-tools"></a>
 
-These are examples of Python scripts expected to be available in the `tools/` directory. Refer to their respective `.md` definitions in `rules-md/tools/` for details.
+These are examples of Python scripts expected to be available in the `tools/` directory. Refer to their respective `.md` definitions in `rules-md/tools/` for details (if they exist).
 
-*   [`analyze_log.py`](mdc:rules-md/tools/analyze_log.md): Parses and analyzes `logs/<requestId>.json` files, often used by `ImprovementAgent` to find error patterns or inefficiencies for self-improvement.
-*   [`analyze_chat_history.py`](mdc:rules-md/tools/analyze_chat_history.md): *(External Data Dependent)* Analyzes chat logs (if available and accessible) to extract user corrections and feedback, primarily for `ImprovementAgent`.
-*   [`verify_environment.py`](mdc:rules-md/tools/verify_environment.mdc): Checks environment prerequisites (tool versions, dependencies).
-*   [`parse_git_status.py`](mdc:rules-md/tools/parse_git_status.mdc): Provides structured output of `git status`.
-*   [`check_dependencies.py`](mdc:rules-md/tools/check_dependencies.mdc): Checks for outdated or vulnerable dependencies.
-*   [`run_linter.py`](mdc:rules-md/tools/run_linter.mdc): Executes configured linters/formatters.
-*   [`check_versions.py`](mdc:rules-md/tools/check_versions.mdc): Checks specific tool/library versions.
-*   [`consolidate_code.py`](mdc:rules-md/tools/consolidate_code.mdc): Gathers code snippets based on context.
-*   [`rule_modifier.py`](mdc:rules-md/tools/rule_modifier.md): Applies structured modifications to `.md` rule files, used by `RuleWriterAgent`.
-*   [`rule_validator.py`](mdc:rules-md/tools/rule_validator.md): *(Future Tool)* Validates the syntax and potentially the structure/consistency of `.md` rule files, used by `ImprovementAgent` or `RuleWriterAgent` after modifications.
-*(Note: Tool availability depends on the specific project setup and the initialization procedure.)*
+*   [`analyze_log.py`](mdc:rules-md/tools/analyze_log.md): Parses and analyzes `logs/<requestId>.json` files ([Log Handling](mdc:rules-md/log-handling.md)), often used by [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) to find error patterns or inefficiencies for self-improvement.
+*   [`analyze_chat_history.py`](mdc:rules-md/tools/analyze_chat_history.md): *(External Data Dependent)* Analyzes chat logs (if available and accessible) to extract user corrections and feedback, primarily for [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent).
+*   [`verify_environment.py`](mdc:rules-md/tools/verify_environment.md): Checks environment prerequisites (tool versions, dependencies). Used by [`InitializationAgent`](mdc:rules-md/agent-roles.md#initializationagent), [`AuditAgent`](mdc:rules-md/agent-roles.md#auditagent).
+*   [`parse_git_status.py`](mdc:rules-md/tools/parse_git_status.md): Provides structured output of `git status`. Used by [`InitializationAgent`](mdc:rules-md/agent-roles.md#initializationagent).
+*   [`check_dependencies.py`](mdc:rules-md/tools/check_dependencies.md): Checks for outdated or vulnerable dependencies. Used by [`AuditAgent`](mdc:rules-md/agent-roles.md#auditagent).
+*   [`run_linter.py`](mdc:rules-md/tools/run_linter.md): Executes configured linters/formatters. Used by [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent), [`AuditAgent`](mdc:rules-md/agent-roles.md#auditagent).
+*   [`check_versions.py`](mdc:rules-md/tools/check_versions.md): Checks specific tool/library versions.
+*   [`consolidate_code.py`](mdc:rules-md/tools/consolidate_code.md): Gathers code snippets based on context. Used by [`ResearchAgent`](mdc:rules-md/agent-roles.md#researchagent).
+*   [`rule_modifier.py`](mdc:rules-md/tools/rule_modifier.md): Applies structured modifications to `.md` rule files, used by [`RuleWriterAgent`](mdc:rules-md/agent-roles.md#rulewriteragent).
+*   [`rule_validator.py`](mdc:rules-md/tools/rule_validator.md): *(Future Tool)* Validates the syntax and potentially the structure/consistency of `.md` rule files, used by [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) or [`RuleWriterAgent`](mdc:rules-md/agent-roles.md#rulewriteragent) after modifications.
+*(Note: Tool availability depends on the specific project setup and the [Initialization Procedure](mdc:rules-md/initialization-procedure.md).)*
 
 **Core Documents Reference:**
 
