@@ -5,151 +5,56 @@ globs:
 alwaysApply: false
 ---
 
-# 📜 Log Handling & Coordination
+# LOG HANDLING & COORDINATION RULES
 
-## 🎯 Core Purpose
+## CORE PURPOSE
+- Logs are the **SINGLE SOURCE OF TRUTH** for coordination, state, and communication per `requestId`.
+- Adherence is MANDATORY for Execution Loop and Agent Roles.
 
-Logs are the **single source of truth** for agent coordination, state tracking, and asynchronous communication within a `requestId`. Strict adherence to this schema is **mandatory** for the [Execution Loop](mdc:execution-loop.mdc) and inter-agent ([Agent Roles](mdc:agent-roles.mdc)) communication.
+## LOCATION & NAMING
+- PATH: `logs/` at project root.
+- NAMING: `<requestId>.json`.
+- Each request MUST have one dedicated log file.
 
-## 📍 Location & Naming
+## FORMAT: JSON Array (MANDATORY)
+- Log file MUST be a valid JSON array `[]`.
+- Each agent action/event MUST be APPENDED as a new JSON object `{}`.
+- NEVER modify/delete previous entries. APPEND-ONLY.
 
--   **Path:** `logs/` directory at the project root.
--   **Naming:** `<requestId>.json` (e.g., `logs/req_12345abc.json`).
--   Each request **MUST** have its own dedicated log file.
+## LOG ENTRY SCHEMA (MANDATORY)
+- Each appended object MUST contain these fields:
 
-## 💾 Format: JSON Array
+| Field            | Type              | Mandatory | Notes                                                                                                                                                                                           |
+|------------------|-------------------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `timestamp`      | String (ISO 8601) | ✅ Yes    | UTC timestamp (e.g., `"2023-10-27T10:05:15.123Z"`).                                                                                                                                            |
+| `agentRole`      | String            | ✅ Yes    | Role performing action (e.g., `"Overmind"`). Must match [Agent Roles](mdc:agent-roles.mdc).                                                                                                     |
+| `taskId`         | String (Optional) | Optional  | Associated MCP Task ID.                                                                                                                                                                         |
+| `status`         | String            | ✅ Yes    | Current status (e.g., `"start_request"`, `"in_progress"`, `"completed_step"`, `"error_escalated"`, `"halted"`). `"awaiting_input"` ONLY for essential user data (Step 6 Diagnostics). |
+| `details`        | Object            | ✅ Yes    | Agent-specific context. `start_request` must include `requestDescription`, `projectName`, `domain`.                                                                                           |
+| `actionsTaken`   | Array[Object]     | ✅ Yes    | List of **EXECUTED** tool calls/actions: `{"tool": "<name>", "args": {...}, "resultSummary": "..."}`. Include ALL tool calls.                                                            |
+| `observations`   | Array[String]     | ✅ Yes    | Key findings/insights for the NEXT agent.                                                                                                                                                       |
+| `errors`         | Array[String]     | ✅ Yes    | Non-fatal errors encountered during the step. Distinguishes recoverable issues from fatal halts.                                                                                              |
+| `nextAgent`      | String / Null     | ✅ Yes    | **CRITICAL:** Role of the agent for the NEXT step (e.g., `"BuilderAgent"`, `"Overmind"`). Must match [Agent Roles](mdc:agent-roles.mdc). `null` or `"HALT"` ONLY for completion or unrecoverable error. **SOLE TRIGGER FOR AUTOMATIC TRANSITION.** |
+| `handoffMessage` | String            | ✅ Yes    | Clear, concise instructions/summary for `nextAgent`.                                                                                                                                            |
 
--   The log file **MUST** be a valid JSON array `[]`.
--   Each agent action or significant event **MUST** be appended as a new JSON object `{}` to the end of the array.
--   **NEVER** modify or delete previous entries. Append-only.
+## READING THE LOG (MANDATORY)
+- Agents MUST read `logs/<requestId>.json` at turn start (Loop Step 1).
+- Latest entry (last object) provides current state, `nextAgent`, `handoffMessage`.
+- Agents MAY scan previous entries for history.
+- Use `python tools/analyze_log.py` for history analysis.
 
-> ```json
-> // @examples/log-structure.json
-> [
->   {
->     "timestamp": "2023-10-27T10:00:00Z",
->     "agentRole": "Overmind",
->     "taskId": "task_init_planning", // Optional MCP Task ID
->     "status": "start_request",
->     "details": {
->       "requestDescription": "Refactor user authentication module.",
->       "projectName": "WebAppX",
->       "domain": "Authentication"
->     },
->     "actionsTaken": [],
->     "observations": [],
->     "errors": [],
->     "nextAgent": "ResearchAgent",
->     "handoffMessage": "Research current auth implementation and identify key files."
->   },
->   {
->     "timestamp": "2023-10-27T10:05:15Z",
->     "agentRole": "ResearchAgent",
->     "taskId": "task_research_auth", // Optional MCP Task ID
->     "status": "in_progress",
->     "details": {},
->     "actionsTaken": [
->       {"tool": "codebase_search", "args": {"query": "User authentication functions"}, "resultSummary": "Found 5 relevant files."},
->       {"tool": "read_file", "args": {"target_file": "src/auth/service.js"}, "resultSummary": "Contains core login logic."}
->     ],
->     "observations": [
->       "Auth logic split between service.js and controller.js.",
->       "Uses legacy password hashing library."
->     ],
->     "errors": [],
->     "nextAgent": "BuilderAgent",
->     "handoffMessage": "Identified auth files (service.js, controller.js). Ready for refactoring. Focus on consolidating logic and updating hashing."
->   }
->   // ... more log entries appended later
-> ]
-> ```
+## COORDINATION VIA `nextAgent` (MANDATORY)
+- `nextAgent` field is the **SOLE TRIGGER** for next step.
+- FRAMEWORK **AUTOMATICALLY** reads latest `nextAgent` and invokes that agent (Loop Step 10).
+- **Direct Handoffs:** Set `nextAgent: "<SpecializedAgentName>"` (e.g., `"AuditAgent"`).
+- **Return to Coordinator:** Set `nextAgent: "Overmind"` for planning, completion, escalation, ambiguity.
+- **Completion/Halt:** Set `nextAgent: null` or `nextAgent: "HALT"` ONLY on full completion or unrecoverable error.
 
-## 🏷️ Log Entry Schema (JSON Object)
-
-Each appended object **MUST** adhere to this structure:
-
-| Field            | Type              | Description                                                                                                                                                                                                                                                                                                                         | Mandatory | Notes                                                                                                                                                                                                                                                                                         |
-|------------------|-------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `timestamp`      | String (ISO 8601) | UTC timestamp of when the entry was logged (e.g., `"2023-10-27T10:05:15.123Z"`).                                                                                                                                                                                                                                 | ✅ Yes    | Use consistent format. Can be generated via `datetime.utcnow().isoformat() + 'Z'` (Python) or similar.                                                                                                                                                                                                        |
-| `agentRole`      | String            | The role of the agent performing the action (e.g., `"Overmind"`, `"BuilderAgent"`). **Must** match a defined role in [Agent Roles](mdc:agent-roles.mdc).                                                                                                                                                               | ✅ Yes    | Crucial for tracking workflow.                                                                                                                                                                                                                                                                                |
-| `taskId`         | String (Optional) | The ID of the associated MCP task, if applicable.                                                                                                                                                                                                                                                                                   | Optional  | Links log entry to a specific task managed by the [MCP Taskmanager Tools](mdc:shared-core.mdc#mandatory-mcp-toolchain). Primarily used by `Overmind`.                                                                                                                                                           |
-| `status`         | String            | Current status indicator (e.g., `"start_request"`, `"in_progress"`, `"awaiting_input"`, `"error"`, `"completed_step"`, `"completed_request"`, `"halted"`).                                                                                                                                                   | ✅ Yes    | Provides quick context on the entry's purpose. `"awaiting_input"` used *only* when blocked waiting for *essential* user-provided data (Step 6 Diagnostics). `"error"` indicates non-fatal issues were encountered, but the step might have partially completed or recovery might be possible by the next agent. `"halted"` indicates a stop due to an unrecoverable error or explicit halt command; the request processing for this `requestId` stops here unless explicitly restarted.                              |
-| `details`        | Object            | Agent-specific contextual information (e.g., `Overmind` logs initial request details, `BuilderAgent` might log build parameters).                                                                                                                                                                                      | ✅ Yes    | Structure can vary, but should be informative. For `start_request`, must include `requestDescription`, `projectName`, `domain`.                                                                                                                                                                           |
-| `actionsTaken`   | Array[Object]     | List of **executed** tool calls or significant actions in this step. Each object should include `{"tool": "<tool_name>", "args": {...}, "resultSummary": "..."}`.                                                                                                                                                         | ✅ Yes    | Include *all* tool calls (`edit_file`, `run_terminal_cmd`, `web_search`, custom scripts, etc.). `resultSummary` should be concise. For `edit_file`, include `target_file` in summary. For `run_terminal_cmd`, include command and exit code/output summary.                                            |
-| `observations`   | Array[String]     | Key findings, insights, or relevant context discovered during this step (e.g., `"Code smells detected in module X."`, `"API returned unexpected 404."`, `"User confirmed file path."`)                                                                                                                                      | ✅ Yes    | Important for the *next* agent's context.                                                                                                                                                                                                                                                                    |
-| `errors`         | Array[String]     | Log of non-fatal errors encountered during the step (e.g., `"Linter warning: Unused variable."`, `"Optional dependency check failed."`, `"Web search timed out, using cached data."`)                                                                                                                                 | ✅ Yes    | Distinguishes recoverable issues from fatal halts (`status: "halted"`).                                                                                                                                                                                                                                         |
-| `nextAgent`      | String / Null     | **CRITICAL:** The role of the agent that **MUST** process the *next* step. (e.g., `"BuilderAgent"`, `"AuditAgent"`, `"Overmind"`). **Must** match a defined role in [Agent Roles](mdc:agent-roles.mdc). Set to `null` or `"HALT"` **only** when the request is fully completed or encounters an unrecoverable error. | ✅ Yes    | **This field drives the automatic, immediate transition in the [Execution Loop](mdc:execution-loop.mdc#step-10-automatic-transition).** Failure to set this correctly breaks the autonomous flow. Enables direct agent-to-agent handoffs or returns to `Overmind`.                                                  |
-| `handoffMessage` | String            | Clear, concise instructions or summary for the `nextAgent`. (e.g., `"Code changes applied. Proceed with unit testing."`, `"Research complete. Findings attached. Ready for implementation."`, `"Critical error during build. Halting execution."`)                                                                       | ✅ Yes    | Essential for maintaining context across transitions.                                                                                                                                                                                                                                                         |
-
-## 🔄 Reading the Log
-
--   Agents **MUST** read the log file (`logs/<requestId>.json`) at the beginning of their execution step ([Execution Loop](mdc:execution-loop.mdc#step-1-action---load-context)).
--   The **latest entry** (last object in the JSON array) contains the most current state, `nextAgent`, and `handoffMessage`.
--   Agents **MAY** scan previous entries for historical context if needed (e.g., `Overmind` reviewing progress, `DocsAgent` summarizing changes).
--   Utilize tools like `python tools/analyze_log.py` ([Common Custom Tools](mdc:shared-core.mdc#common-custom-tools)) for parsing or summarizing log history.
-
-## 💡 Coordination via `nextAgent`
-
--   The `nextAgent` field is the **sole mechanism** for triggering the next step in the workflow.
--   The framework **automatically** reads this field from the latest log entry and invokes the specified agent ([Execution Loop](mdc:execution-loop.mdc#step-10-automatic-transition)).
--   **Direct Handoffs:** An agent (e.g., `BuilderAgent`) can directly hand off to another specialized agent (e.g., `AuditAgent`) by setting `nextAgent: "AuditAgent"`.
--   **Return to Coordinator:** Agents hand off back to `Overmind` by setting `nextAgent: "Overmind"` when planning is needed, a major step is complete, an error requires escalation, or the next specific agent isn't obvious.
--   **Completion/Halt:** Set `nextAgent: null` or `nextAgent: "HALT"` only upon successful completion of the entire request *or* an unrecoverable error requiring a full stop.
-
-## 🚨 Error Handling & Halting
-
--   **Non-Fatal Errors:** Record in the `errors` array. Agent may attempt recovery or alternative approaches. Set `status: "error"` if the step completed with issues but work can potentially continue.
--   **Fatal Errors / Halts:** If an agent encounters an unrecoverable error (e.g., critical tool failure, impossible state):
-    1.  Log the error details concisely in the `errors` array.
-    2.  Set `status: "halted"`.
-    3.  Set `nextAgent: "Overmind"` (or `"HALT"` if specified by Overmind or framework rules).
-    4.  Provide a clear `handoffMessage` explaining the reason for the halt.
-    5.  Cease execution for the current `requestId`.
-
-## ⚙️ Example Log Flow Snippet
-
-```json
-// @examples/log-flow.json
-[
-  // ... previous entries
-  {
-    "timestamp": "2023-10-27T11:00:00Z",
-    "agentRole": "BuilderAgent",
-    "taskId": "task_refactor_auth",
-    "status": "completed_step",
-    "details": {"targetFiles": ["service.js", "controller.js"]},
-    "actionsTaken": [
-      {"tool": "edit_file", "args": {"target_file": "service.js", "..."}, "resultSummary": "Applied refactoring to service.js"},
-      {"tool": "edit_file", "args": {"target_file": "controller.js", "..."}, "resultSummary": "Applied refactoring to controller.js"},
-      {"tool": "run_terminal_cmd", "args": {"command": "npm run lint"}, "resultSummary": "Lint passed with 0 errors."}
-    ],
-    "observations": ["Consolidated auth logic into service.js.", "Updated password hashing to bcrypt."],
-    "errors": [],
-    "nextAgent": "AuditAgent", // Direct handoff to Audit
-    "handoffMessage": "Refactoring complete and linted. Please audit for performance and security."
-  },
-  {
-    "timestamp": "2023-10-27T11:15:00Z",
-    "agentRole": "AuditAgent",
-    "taskId": "task_audit_auth",
-    "status": "in_progress",
-    // ... AuditAgent performs checks ...
-    "actionsTaken": [ /* ... audit tool calls ... */ ],
-    "observations": ["bcrypt hashing confirmed.", "No major performance regressions detected."],
-    "errors": [],
-    "nextAgent": "DocsAgent", // Next step: Documentation
-    "handoffMessage": "Audit passed. Ready for documentation generation."
-  },
-  {
-    "timestamp": "2023-10-27T11:30:00Z",
-    "agentRole": "DocsAgent",
-    // ... DocsAgent adds comments ...
-    "status": "completed_step",
-    "actionsTaken": [ /* ... edit_file calls ... */ ],
-    "observations": ["Added JSDoc comments to public methods."],
-    "errors": [],
-    "nextAgent": "Overmind", // Task sequence complete, report back
-    "handoffMessage": "Auth module refactoring, audit, and documentation complete."
-  }
-]
-``` 
+## ERROR HANDLING & HALTING (MANDATORY)
+- **Non-Fatal Errors:** Record in `errors`. Set `status: "error"` if step completed with issues but work can potentially continue.
+- **Fatal Errors / Halts:**
+  1. Log error details in `errors`.
+  2. Set `status: "halted"`.
+  3. Set `nextAgent: "Overmind"` (or `"HALT"`).
+  4. Provide clear `handoffMessage` explaining halt reason.
+  5. Cease execution for `requestId`. 
