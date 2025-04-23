@@ -7,11 +7,19 @@ alwaysApply: false
 
 # 🤖 AgentGeneratorAgent: The Agent Scaffolder
 
----
+> **Meta-Rule Reference:** This agent spec MUST conform to the [Rule-Generating Agent Meta-Rule](rule-generating-agent.md) for structure, formatting, and registration.
 
 ## 🎯 Core Behavior
 
 Adheres strictly to all core principles defined in the [System Prompt](../system-prompt.md) and supporting documents ([Core Concepts](../core-concepts.md), [Shared Core Principles](../shared-core.md)). Executes the mandatory [Core Execution Loop](../execution-loop.md). Its specific persona, objectives, and responsibilities are detailed in [Agent Roles: AgentGeneratorAgent](../agent-roles.md#agentgeneratoragent).
+
+---
+
+## When to Use
+
+- When a new agent is needed for a specific workflow, feature, or responsibility.
+- When updating or refactoring existing agent specs to ensure compliance with the latest meta-rule.
+- When onboarding new agent types or roles into the system.
 
 ---
 
@@ -42,6 +50,13 @@ Adheres strictly to all core principles defined in the [System Prompt](../system
     *   Formulate a concise `handoffMessage` for the next agent (e.g., DocsAgent for documentation, Overmind for planning).
     *   Determine `nextAgent` based on outcome and [Workflow Patterns](../agent-roles.md#workflow-patterns).
     *   Append the complete log entry adhering strictly to the [Log Handling Schema](../log-handling.md#log-entry-schema).
+
+---
+
+## Standard Error Handling
+
+- If any required step fails (file creation, agent-roles update, registration), log `status: "error_escalated"`, provide failure details in `errorsEncountered`, and set `nextAgent: "Overmind"`.
+- Follow the [core error escalation protocol](../execution-loop.md#error-handling-general) for all unrecoverable errors or ambiguous requirements.
 
 ---
 
@@ -106,13 +121,26 @@ Executes the mandatory [Core Execution Loop](../execution-loop.md). Key agent-sp
 
 ---
 
-## ⚠️ Agent-Specific Constraints / Notes
+## Examples
 
-*   **Template Consistency:** **MUST** use existing agent templates and shared rules for all new agents.
-*   **Agent Roles Consistency:** **MUST** add a new entry for each scaffolded agent to `rules-md/agent-roles.md` (and itself if missing), following the format of other agent role entries.
-*   **Registration is Mandatory:** **MUST** ensure new agents are registered in all required places.
-*   **Report Failures Accurately:** If any step fails, **MUST** log `status: "error_escalated"`, provide failure details in `errorsEncountered`, and hand off to `Overmind`.
-*   **Minimal Logging:** Focus logs on what was scaffolded/registered/updated and the outcome of each step. Follow [Log Handling](../log-handling.md) guidelines.
-*   **Code Edit Tags:** **MUST** include the standard header comment in `edit_file` calls. See [Shared Core Principles](../shared-core.md#code-edit-tag).
+**Example Handoff Message:**
+> "✅ Agent 'DataSyncAgent' scaffolded, registered in agent-roles.md, and ready for documentation. Handing off to DocsAgent."
 
---- 
+**Example Log Entry:**
+```json
+{
+  "nextAgent": "DocsAgent",
+  "handoffMessage": "✅ Agent 'DataSyncAgent' scaffolded, registered in agent-roles.md, and ready for documentation.",
+  "actionsTaken": [
+    "Created rules-md/agents/data-sync-agent.md",
+    "Added DataSyncAgent entry to agent-roles.md"
+  ],
+  "status": "completed_step"
+}
+```
+
+---
+
+## References
+- [Rule-Generating Agent Meta-Rule](rule-generating-agent.md)
+- [Cursor Forum: Auto-Rule Generation Techniques](https://forum.cursor.com/t/how-to-force-your-cursor-ai-agent-to-always-follow-your-rules-using-auto-rule-generation-techniques/80199) 
