@@ -5,154 +5,113 @@ globs:
 alwaysApply: false
 ---
 
-# ⚙️ Framework Initialization Procedure
+# 1. Initialization Procedure (Self-Contained)
 
-## 🎯 Overview
+**Purpose:** Ensures the agent framework's foundational ruleset (`.cursor/` directory) is present and correctly configured before any other operations can proceed. This procedure **must** be executed by the [`InitializationAgent`](mdc:agents/initialization-agent.mdc) if the ruleset is missing or incomplete, typically triggered by [`Overmind`](mdc:agents/overmind-agent.mdc) upon starting a new project or encountering a corrupted environment.
 
-This document dictates the **mandatory, self-contained initialization procedure** for the [`InitializationAgent`](mdc:rules-md/agent-roles.mdc#initializationagent). Execute these steps precisely to ensure the agent framework's foundational ruleset (`.cursor/rules` directory) is present and correctly configured.
+**Core Principles:**
+*   **Idempotency:** Running this procedure multiple times should result in the same valid end state.
+*   **Verification:** Rely on tool outputs (`list_dir`, `read_file`, `git status`, custom tools like [`parse_git_status.py`](mdc:tools/parse_git_status.mdc)) to confirm the success of each step, not just command exit codes.
+*   **Error Handling:** If a step fails verification, log the error and halt the procedure, reporting failure to [`Overmind`](mdc:agents/overmind-agent.mdc).
+*   **Tool Usage:** Prefer standard tools ([Shared Core](mdc:shared-core.mdc#mandatory-mcp-toolchain)) and core Git commands over complex shell scripts.
 
-Reference [Core Concepts](mdc:rules-md/core-concepts.mdc) for terminology and the [System Prompt](mdc:rules-md/system-prompt.mdc) for the overall framework context.
+## ✅ Initialization Workflow
 
-## 🔑 Core Principles
+The [`InitializationAgent`](mdc:agents/initialization-agent.mdc) must first determine the project's state and then follow the corresponding workflow:
 
-Adhere strictly to these principles:
+### Phase 1: Determine Project State
 
-1.  **Idempotency:** Execution **MUST** result in the same valid end state, regardless of the number of times run.
-2.  **Verification:** **MUST** verify the success of each **Action** using tool outputs (`list_dir`, `read_file`, `run_terminal_cmd git ... | cat`, `run_terminal_cmd python tools/parse_git_status.py`). Do **NOT** rely solely on command exit codes. Halt immediately on verification failure.
-3.  **Error Handling:** If verification fails, **MUST** log the specific error and **HALT** the procedure immediately. **Action:** Log the failure details following the [Log Handling Schema](mdc:rules-md/log-handling.mdc#log-entry-schema), set `nextAgent: "Overmind"` (or `"HALT"` if critical framework failure), provide a clear `handoffMessage` explaining the failure point, and cease further steps in *this* procedure.
-4.  **Tool Usage:** **MUST** prefer standard tools (`list_dir`, `read_file`, `edit_file` - from [MCP Toolchain](mdc:rules-md/shared-core.mdc#mandatory-mcp-toolchain)) and core Git commands (executed via `run_terminal_cmd`) over complex shell scripts. Use [Common Custom Tools](mdc:rules-md/shared-core.mdc#common-custom-tools) like `parse_git_status.py` where appropriate.
+1.  **Check Git Status:**
+    *   Run `git rev-parse --is-inside-work-tree | cat`.
+    *   Alternatively, use `python tools/parse_git_status.py` for structured output ([Tool Definition](mdc:tools/parse_git_status.mdc)).
+    *   Note the result (`isGitRepo`: true/false).
+2.  **Check Existing `.cursor` Directory:**
+    *   Run `list_dir .`. Check if `.cursor` exists.
+    *   Note the result (`cursorDirExists`: true/false).
+3.  **Check if Directory Empty (if not Git Repo):**
+    *   **Only if `isGitRepo` is false:** Run `list_dir .`. Check if the directory contains *any* files or folders other than potentially `.cursor` or `.git` (if cloning directly).
+    *   Note the result (`isNotEmpty`: true/false).
 
-> ```pseudocode
-> // @examples/init-principles.pseudocode
-> // Define Initialization Principles:
-> //   - IDEMPOTENCY
-> //   - VERIFICATION_VIA_TOOL_OUTPUT
-> //   - ERROR_HANDLING_VIA_LOG_AND_HALT (Escalate to Overmind)
-> //   - PREFER_STANDARD_TOOLS_AND_GIT
-> ```
+### Phase 2: Execute Scenario-Specific Workflow
 
-## 🤔 Phase 1: Determine Project State
-
-Execute these steps sequentially to determine the project's current state.
-
-### Step 1.1: Check Git Status
-*   **Action:** Execute `run_terminal_cmd git rev-parse --is-inside-work-tree | cat`. Alternatively, execute `run_terminal_cmd python tools/parse_git_status.py` ([Common Custom Tools](mdc:rules-md/shared-core.mdc#common-custom-tools)) for structured output.
-*   **Verification:** Check command output. Determine if inside a Git work tree.
-*   **Record:** Note `isGitRepo` (boolean: `true`/`false`).
-
-### Step 1.2: Check `.cursor` Directory Existence
-*   **Action:** Execute `list_dir .` (from [MCP Toolchain](mdc:rules-md/shared-core.mdc#mandatory-mcp-toolchain)).
-*   **Verification:** Check output for the presence of `.cursor` directory.
-*   **Record:** Note `cursorDirExists` (boolean: `true`/`false`).
-
-### Step 1.3: Check if Directory is Empty (Conditional)
-*   **Condition:** Execute **only if** `isGitRepo` is `false`.
-*   **Action:** Execute `list_dir .`.
-*   **Verification:** Check output. Ignore `.git` and `.cursor` if present. Determine if any *other* files or folders exist.
-*   **Record:** Note `isNotEmpty` (boolean: `true`/`false`) based on whether other relevant content exists.
-
-## 📋 Phase 2: Execute Scenario-Specific Workflow
-
-Based on the state determined in Phase 1 (`isGitRepo`, `cursorDirExists`, `isNotEmpty`), execute **exactly one** of the following scenarios (A, B, or C).
-
-### Scenario A: 🐙 Project is a Git Repository (`isGitRepo` is `true`)
-
-Execute these steps sequentially:
+➡️ **Scenario A: Project is a Git Repository (`isGitRepo` is true)**
 
 1.  **Handle Existing `.cursor`:**
-    *   If `cursorDirExists` is `false`: Proceed to Step A.2.
-    *   If `cursorDirExists` is `true`:
-        *   **Action:** Execute `run_terminal_cmd git submodule status .cursor | cat`.
-        *   **Verification:** Analyze output. If it indicates a valid registered submodule (typically starts with `+` or commit hash), proceed directly to **Step A.4 (Update Submodule)**.
-        *   **If Not Submodule (or error):** Log warning. **Action:** Execute `run_terminal_cmd rm -rf .cursor` (Windows: `Remove-Item -Recurse -Force .cursor`). **Verification:** Execute `list_dir .` and confirm `.cursor` is removed via output. If verification fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
-        *   Proceed to **Step A.2**.
+    *   If `cursorDirExists` is true:
+        *   Run `git submodule status .cursor | cat`.
+        *   **If Valid Submodule:** Output indicates a registered submodule. Proceed to **Step A.4 (Update Submodule)**.
+        *   **If Not a Submodule (or error):** Log warning. Attempt removal: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor` on Windows). **Verify** removal with `list_dir .`. If fails, **HALT**. Proceed to **Step A.2**.
+    *   If `cursorDirExists` is false: Proceed to **Step A.2**.
 2.  **Check & Temporarily Modify Root `.gitignore`:**
-    *   Set flag `rootGitignoreModified = false`.
-    *   **Action:** Execute `read_file .gitignore` (handle potential non-existence gracefully).
-    *   **Verification:** Check content for the exact line `.cursor/` (not commented out).
-    *   **If Found:**
-        *   **Action:** Use `edit_file` on `.gitignore` to comment out the line (e.g., change to `# .cursor/`). Adhere to [Code Edit Tag](mdc:rules-md/shared-core.mdc#code-edit-tag) format. Log this action.
-        *   **Verification:** Execute `read_file .gitignore`. Confirm the line is commented via output. If verification fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
-        *   Set `rootGitignoreModified = true`.
+    *   Initialize flag: `rootGitignoreModified = false`.
+    *   Run `read_file .gitignore` (handle potential non-existence gracefully).
+    *   Search the content for the exact line `.cursor/`.
+    *   **If found:**
+        *   Use `edit_file` on `.gitignore` to comment out the `.cursor/` line (e.g., change to `# .cursor/`). Log this action.
+        *   Set flag: `rootGitignoreModified = true`.
+        *   **Verify** the change with `read_file .gitignore`. If commenting failed, **HALT**.
     *   Proceed to **Step A.3**.
 3.  **Add Submodule:**
-    *   **Action:** Execute `run_terminal_cmd git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`.
-    *   **Verification 1:** Execute `list_dir .`. Confirm `.cursor` AND `.gitmodules` exist via output.
-    *   **Verification 2:** Execute `read_file .gitmodules`. Confirm `[submodule ".cursor"]` entry exists via output.
-    *   **If Verification Fails:** Check if failure was likely due to pre-existing (but removed) directory conflict. If so, attempt `run_terminal_cmd git submodule add --force https://github.com/m0st4f4-hub/.cursor .cursor` *once*. Re-verify. If still fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
+    *   Run `git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`.
+    *   **Verification:**
+        *   Run `list_dir .`. Confirm `.cursor` AND `.gitmodules` exist.
+        *   Run `read_file .gitmodules`. Confirm it contains an entry for `[submodule ".cursor"]`.
+        *   If verification fails, try `git submodule add --force ...` once *if* a conflict was the likely cause (e.g., if Step A.1 removed an old directory). If it still fails, **HALT** and report error.
     *   Proceed to **Step A.4**.
 4.  **Update Submodule:**
-    *   **Action:** Execute `run_terminal_cmd git submodule update --init --recursive`.
-    *   **Verification:** Execute `list_dir .cursor/rules`. Confirm essential rule files (e.g., `shared-core.mdc`, `agents/`, `project/`) are present via output. Retry update action once if verification fails. If still fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
+    *   Run `git submodule update --init --recursive`.
+    *   **Verification:** Run `list_dir .cursor/rules`. Confirm critical rule files (e.g., [`shared-core.mdc`](mdc:shared-core.mdc)) are present. Retry update once if needed. If still fails, **HALT**.
     *   Proceed to **Phase 3**.
 
-### Scenario B: 🍃 Project is NOT Git Repo AND is Empty (`isGitRepo` `false`, `isNotEmpty` `false`)
-
-Execute these steps sequentially:
+➡️ **Scenario B: Project is NOT a Git Repository AND is Empty (`isGitRepo` is false, `isNotEmpty` is false)**
 
 1.  **Handle Existing `.cursor`:**
-    *   If `cursorDirExists` is `true`: Log warning. **Action:** Execute `run_terminal_cmd rm -rf .cursor` (Windows: `Remove-Item -Recurse -Force .cursor`). **Verification:** Execute `list_dir .` and confirm removal via output. If fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
+    *   If `cursorDirExists` is true: Log warning. Attempt removal: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor`). **Verify** removal. If fails, **HALT**.
     *   Proceed to **Step B.2**.
 2.  **Direct Clone:**
-    *   **Action:** Execute `run_terminal_cmd git clone https://github.com/m0st4f4-hub/.cursor .cursor`.
-    *   **Verification:** Execute `list_dir .cursor/rules`. Confirm essential rule files (e.g., `shared-core.mdc`, `agents/`, `project/`) are present via output. If fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
+    *   Run `git clone https://github.com/m0st4f4-hub/.cursor .cursor`.
+    *   **Verification:** `list_dir .cursor/rules` (check [`shared-core.mdc`](mdc:shared-core.mdc)). If fails, **HALT**.
     *   Proceed to **Phase 3**.
 
-### Scenario C: 📦 Project is NOT Git Repo AND is NOT Empty (`isGitRepo` `false`, `isNotEmpty` `true`)
+➡️ **Scenario C: Project is NOT a Git Repository AND is NOT Empty (`isGitRepo` is false, `isNotEmpty` is true)**
 
-**Warning:** Complex scenario. Manual intervention likely needed if errors occur.
-Execute these steps sequentially:
-
+*   **Warning:** Complex scenario. Manual intervention might be needed.
 1.  **Handle Existing `.cursor`:**
-    *   If `cursorDirExists` is `true`: Log critical warning. **HALT**. **Action:** Log the critical conflict following [Log Handling Schema](mdc:rules-md/log-handling.mdc#log-entry-schema), set `nextAgent: "Overmind"`, and `handoffMessage: "CRITICAL: Initialization conflict. Existing '.cursor' directory found in non-empty, non-Git project. Manual intervention required."`. Cease further steps.
-    *   If `cursorDirExists` is `false`: Proceed to **Step C.2**.
+    *   If `cursorDirExists` is true: Log critical warning. **HALT**. Report need for manual intervention. *Do not automatically delete.*
+    *   If `cursorDirExists` is false: Proceed to **Step C.2**.
 2.  **Temp Clone & Move:**
     *   Define `temp_dir` = `temp_ruleset_clone`.
-    *   **Action (Cleanup):** Execute `run_terminal_cmd rm -rf temp_dir` (Windows: `Remove-Item -Recurse -Force temp_dir`).
-    *   **Action (Clone):** Execute `run_terminal_cmd git clone https://github.com/m0st4f4-hub/.cursor temp_dir`.
-    *   **Verification (Clone):** Check command output for success. If fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
-    *   **Action (Init Submodules):** Execute `run_terminal_cmd cd temp_dir && git submodule update --init --recursive && cd ..` (adapt `cd` command based on OS shell if necessary, e.g., `Set-Location temp_dir; git ...; Set-Location ..` in PowerShell).
-    *   **Verification (Submodules):** Check command output for success. If fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
-    *   **Action (Move):** Execute `run_terminal_cmd mv temp_dir/.cursor .` (Windows: `Move-Item -Path temp_dir/.cursor -Destination .`).
-    *   **Verification (Move):** Execute `list_dir .` (confirm `.cursor` exists via output) AND `list_dir .cursor/rules` (confirm `shared-core.mdc` exists via output). If verification fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
-    *   **Action (Cleanup Temp):** Execute `run_terminal_cmd rm -rf temp_dir` (Windows: `Remove-Item -Recurse -Force temp_dir`).
-    *   **Verification (Cleanup Temp):** Execute `list_dir .`. Confirm `temp_dir` is removed via output. Log warning if cleanup fails but proceed.
+    *   **Cleanup:** `rm -rf temp_dir` (or `Remove-Item`).
+    *   **Clone:** `git clone https://github.com/m0st4f4-hub/.cursor temp_dir`. Verify.
+    *   **Init Submodules:** `cd temp_dir && git submodule update --init --recursive && cd ..`. Verify.
+    *   **Move:** `mv temp_dir/.cursor .` (or `Move-Item`).
+    *   **Verification:** `list_dir .` (check `.cursor`), `list_dir .cursor/rules` (check [`shared-core.mdc`](mdc:shared-core.mdc)). If fails, **HALT**.
+    *   **Cleanup:** `rm -rf temp_dir` (or `Remove-Item`). Verify.
     *   Proceed to **Phase 3**.
 
-## ✅ Phase 3: Common Configuration Steps <a name="phase-3-common-configuration-steps"></a>
+### Phase 3: Common Configuration Steps
 
-Execute these steps sequentially after successfully completing one of the Phase 2 scenarios.
-
-1.  **Configure `project` and `global` Directories:**
-    *   **Action:** Execute `list_dir .cursor/rules`.
-    *   **Verification:** Check output for `project` subdirectory.
-    *   **If Missing:** **Action:** Execute `run_terminal_cmd mkdir .cursor/rules/project` (Windows: `New-Item -ItemType Directory -Path .cursor/rules/project`). **Verification:** Execute `list_dir .cursor/rules`. Confirm `project` exists via output. If verification fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
-
-    *   **Action:** Execute `list_dir .cursor/rules`.
-    *   **Verification:** Check output for `global` subdirectory.
-    *   **If Missing:** **Action:** Execute `run_terminal_cmd mkdir .cursor/rules/global` (Windows: `New-Item -ItemType Directory -Path .cursor/rules/global`). **Verification:** Execute `list_dir .cursor/rules`. Confirm `global` exists via output. If verification fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
-2.  **Update Ruleset `.gitignore`:
-    *   **Action:** Execute `read_file .cursor/.gitignore` (handle potential non-existence gracefully).
-    *   **Verification:** Check content for the exact line `rules/project/` on its own line.
-    *   **If Missing/Incorrect:** **Action:** Use `edit_file` on `.cursor/.gitignore` to add or correct the line `rules/project/`. Adhere to [Code Edit Tag](mdc:rules-md/shared-core.mdc#code-edit-tag) format.
-    *   **Verification:** Execute `read_file .cursor/.gitignore`. Confirm the line exists and is correct via output. If verification fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
+1.  **Configure Project Dir:**
+    *   Run `list_dir .cursor/rules`. Check if `project` subdirectory exists.
+    *   If not, create it: `run_terminal_cmd mkdir .cursor/rules/project` (or `New-Item -ItemType Directory -Path .cursor\rules\project` on Windows).
+    *   **Verification:** `list_dir .cursor/rules`. If fails, **HALT**.
+2.  **Update Ruleset `.gitignore`:**
+    *   **Check:** Run `read_file .cursor/.gitignore`. Check if the exact line `rules/project/` exists on its own line. Handle potential non-existence or incorrect formatting.
+    *   **Add/Fix if Missing/Incorrect:** Use `edit_file` on `.cursor/.gitignore` to ensure `rules/project/` exists on its own line.
+    *   **Verification:** `read_file .cursor/.gitignore`. If fails, **HALT**.
 3.  **Update/Restore Root `.gitignore` (Scenario A only):**
-    *   **Condition:** Only if `isGitRepo` is `true` (determined in Phase 1).
-    *   **If `rootGitignoreModified` is `true` (from Step A.2):**
-        *   **Action:** Use `edit_file` on `.gitignore` to uncomment `# .cursor/` back to `.cursor/`. Adhere to [Code Edit Tag](mdc:rules-md/shared-core.mdc#code-edit-tag) format. Log this action.
-        *   **Verification:** Execute `read_file .gitignore`. Confirm `.cursor/` is present and uncommented via output. If verification fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
-    *   **Else (if `.cursor/` wasn't originally in root `.gitignore` or was already uncommented):**
-        *   **Action:** Execute `read_file .gitignore` (handle potential non-existence).
-        *   **Verification:** Check content for the exact line `.cursor/` (uncommented).
-        *   **If Missing:** **Action:** Use `edit_file` on `.gitignore` (create file if needed) to add `.cursor/` on a new line. Adhere to [Code Edit Tag](mdc:rules-md/shared-core.mdc#code-edit-tag) format.
-        *   **Verification:** Execute `read_file .gitignore`. Confirm the line is present via output. If verification fails, **HALT** (log error, escalate to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind)).
-4.  **Final Verification & Reporting:**
-    *   **Action:** Execute `list_dir .cursor/rules`.
-    *   **Verification 1:** Confirm via output that `.cursor/rules` exists and contains expected core files/dirs (`shared-core.mdc`, `project/`, `agents/`, `global/`).
-    *   **Optional Action:** Execute `run_terminal_cmd python tools/verify_environment.py` ([Common Custom Tools](mdc:rules-md/shared-core.mdc#common-custom-tools)) for additional checks.
-    *   **Verification 2 (Optional):** Check output of environment verification script for success.
-    *   **If All Verifications Pass:** **Action:** Log success following [Log Handling Schema](mdc:rules-md/log-handling.mdc#log-entry-schema), setting `status: "completed_step"`, `nextAgent: "Overmind"`, and `handoffMessage: "✅ Initialization successful. Ruleset verified."`. Initialization is complete.
-    *   **If Any Verification Fails:** **HALT** (log error, set `nextAgent: "Overmind"`, `handoffMessage: "❌ Initialization failed during final verification. Reason: <details>"`).
+    *   **If `isGitRepo` is true:**
+        *   **If `rootGitignoreModified` is true (from Step A.2):**
+            *   Use `edit_file` on `.gitignore` to uncomment the `# .cursor/` line back to `.cursor/`. Log this action.
+            *   **Verification:** `read_file .gitignore`. Confirm `.cursor/` is present and uncommented. If restoration fails, **HALT**.
+        *   **Else (if `.cursor/` wasn't originally present in the root `.gitignore` or commented out):**
+            *   **Check:** `read_file .gitignore` for the exact line `.cursor/` (uncommented). Handle non-existence of the file.
+            *   **Add if Missing:** Use `edit_file` (create if needed) to add `.cursor/` on a new line.
+            *   **Verification:** `read_file .gitignore`. If fails, **HALT**.
+4.  **Final Verification:**
+    *   Run `list_dir .cursor/rules`. Confirm it exists and contains expected subdirectories/files ([`shared-core.mdc`](mdc:shared-core.mdc), `project/`, [`agents/`](mdc:agent-roles.mdc)).
+    *   Optionally run `python tools/verify_environment.py` ([Tool Definition](mdc:tools/verify_environment.mdc)) or `python tools/check_versions.py` ([Tool Definition](mdc:tools/check_versions.mdc)) for additional environment consistency checks.
+    *   Report success or failure (with reason) to [`Overmind`](mdc:agents/overmind-agent.mdc).
 
 ## 🏆 Success Criteria
 
@@ -162,7 +121,7 @@ Initialization is successful **ONLY IF**:
 3.  The `.cursor/rules/` directory exists with the expected core structure.
 4.  Git submodule is correctly configured (Scenario A).
 5.  `.gitignore` files are correctly configured.
-6.  Success is logged and reported to [`Overmind`](mdc:rules-md/agent-roles.mdc#overmind) as described in Step 3.4.
+6.  Success is logged and reported to [`Overmind`](mdc:agents/overmind-agent.mdc) as described in Step 3.4.
 
 ## ⚠️ Deprecated Patterns (Strictly Forbidden)
 
