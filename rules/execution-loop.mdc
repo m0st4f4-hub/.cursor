@@ -3,7 +3,6 @@ description: "Mandatory 10-step core execution loop governing all agent actions 
 globs: ["*"]
 alwaysApply: true
 ---
-
 # 🔄 Core Execution Loop
 
 ## 🎯 Overview
@@ -177,6 +176,7 @@ Agents **MUST** execute these steps sequentially and without deviation in every 
 ### Step 7: 📝 ACTION - Execute Findings Consolidation
 *   **ACTION:** Consolidate the results and outcomes of the tool executions from Steps 4, 5, and 6.
 *   **ACTION:** Prepare the `actionsTaken` array and optionally `observations` or `errorsEncountered` for the log entry, summarizing key actions, results, and findings minimally, adhering to the [Log Entry Schema](mdc:rules-md/log-handling.md#log-entry-schema).
+    *   **Self-Improvement Note:** Ensure sufficient detail is logged here (especially in `errorsEncountered` and related `errorContext`, plus any `improvementSuggestions`) to enable effective analysis by the [`ImprovementAgent`](mdc:rules-md/agent-roles.md#improvementagent) later. See [Log Handling Guidelines](mdc:rules-md/log-handling.md#log-entry-content-guidelines).
 
 > ```pseudocode
 > // @examples/findings.pseudocode
@@ -222,6 +222,7 @@ Agents **MUST** execute these steps sequentially and without deviation in every 
 *   **ACTION:** Formulate a concise, actionable `handoffMessage` for the `nextAgent`.
 *   **ACTION:** Consolidate results from Step 7 into the final log entry structure.
 *   **ACTION:** Construct the complete JSON log entry object adhering strictly to the [Minimal Standard Schema](mdc:rules-md/log-handling.md#log-entry-schema), including required fields like `requestId`, `agentRole`, `timestamp`, `status`, `actionsTaken`, `nextAgent`, `handoffMessage`.
+    *   **Self-Improvement Note:** Include any `improvementSuggestions` or detailed `errorContext` gathered in Step 7.
 *   **Verification:** Perform checks outlined in [Log Handling - Verification Steps](mdc:rules-md/log-handling.md#verification-steps-log-operations) before attempting append. Halt/Escalate on failure.
 *   **ACTION:** Execute `edit_file` to **append** the validated JSON entry object (formatted as a string) to the [log file](mdc:rules-md/log-handling.md) (`logs/<requestId>.json`), ensuring the file remains a valid JSON array.
 *   **CRITICAL:** Successful completion of this verified append operation is the **sole trigger** for the [Framework](mdc:rules-md/core-concepts.md#framework) to initiate the next transition (Step 10). Failure here breaks the autonomous flow.
@@ -322,7 +323,7 @@ Failure at any verification **MUST** lead to immediate halt and escalation via t
     1.  Prepare minimal error details for logging.
     2.  Determine `status` as `"error_escalated"`.
     3.  Set `nextAgent` to `"Overmind"` (or `"HALT"` for truly critical/unrecoverable framework issues).
-    4.  Provide a concise `handoffMessage` explaining the failure and the step number.
+    4.  Provide a concise `handoffMessage` explaining the failure and the step number. Include detailed error messages and context in `errorsEncountered` / `errorContext` for potential self-improvement analysis.
     5.  Execute Step 9 to attempt logging the error state and hand off to `Overmind`.
     6.  If Step 9 itself fails critically (cannot append), the framework should detect this and handle the halt.
 
