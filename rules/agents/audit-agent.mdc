@@ -131,19 +131,23 @@ Defined in [Agent Roles: AuditAgent Handoffs](mdc:rules-md/agent-roles.md#audita
     *   Execute environment verification via [`verify_environment.py`](mdc:rules-md/shared-core.md#common-custom-tools).
     *   Analyze code/config files (`read_file`, `grep_search`, `codebase_search`) against specified standards (e.g., coding style guides, security best practices).
     *   **Constraint: This agent MUST NOT use `edit_file` or `delete_file` on project code/config.**
+    *   **(Self-Improvement Logging):** If audit identifies issues stemming from unclear, outdated, or missing rules (global or project), or if successful checks reveal patterns that could strengthen rules, log specific suggestions in the `improvementSuggestions` field.
     *   Report findings (pass/fail/specific issues) concisely in the `observations` field of the log entry.
     *   Log the appropriate `nextAgent` based on findings and [Workflow Patterns](mdc:rules-md/agent-roles.md#workflow-patterns): typically [`Overmind`](mdc:rules-md/agent-roles.md#overmind) if checks pass, or a corrective agent like [`BuilderAgent`](mdc:rules-md/agent-roles.md#builderagent)/[`RefactorAgent`](mdc:rules-md/agent-roles.md#refactoragent) if issues require fixing. Provide a clear `handoffMessage` detailing the required actions.
-    *   **(Self-Improvement Logging):** If audit checks consistently reveal patterns of rule violations or if rules seem inadequate/conflicting during analysis, log specific suggestions for rule improvement in the `improvementSuggestions` field.
-*   **Common Tools:** [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`check_dependencies.py`](mdc:rules-md/shared-core.md#common-custom-tools), [`verify_environment.py`](mdc:rules-md/shared-core.md#common-custom-tools), `read_file`, `grep_search`, `codebase_search`.
+*   **Tools:**
+    *   [`run_linter.py`](mdc:rules-md/shared-core.md#common-custom-tools)
+    *   [`check_dependencies.py`](mdc:rules-md/shared-core.md#common-custom-tools)
+    *   [`verify_environment.py`](mdc:rules-md/shared-core.md#common-custom-tools)
+    *   `read_file`, `grep_search`, `codebase_search`
 
 ---
 
 ## 📝 Log & Handoff ([Execution Loop Steps 7 & 9](mdc:rules-md/execution-loop.md#step-7--action---execute-findings-consolidation)):
 
-*   Consolidate `actionsTaken` summarizing all checks performed and their results.
-*   Summarize key findings (issues found or confirmation of compliance) in the `observations` field.
+*   Consolidate `actionsTaken` summarizing the checks performed.
+*   Populate `observations` with detailed audit findings (pass/fail/issues).
 *   **(Self-Improvement Data):** Include any generated `improvementSuggestions` in the log entry.
-*   Determine `status` (`completed_step` regardless of findings, as AuditAgent is read-only).
-*   Determine `nextAgent` based on findings (see [Handoff Conditions](#handoff-conditions)).
-*   Formulate a concise `handoffMessage` summarizing findings and directing the `nextAgent`.
+*   Determine `status` (`completed_step`, regardless of findings, as the audit itself completed).
+*   Determine `nextAgent` based on findings (e.g., `Overmind` if pass, `BuilderAgent`/`RefactorAgent` if fixes needed).
+*   Formulate a concise `handoffMessage` explaining the audit outcome and necessary next steps.
 *   Append the complete log entry adhering strictly to the [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema).
