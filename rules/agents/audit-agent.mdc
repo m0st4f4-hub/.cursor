@@ -37,12 +37,16 @@ The Audit Agent acts as a **read-only Quality Inspector**. Its primary purpose i
 *   **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`audit-agent.md`).
 *   **Step 4: Construct Role-Prompt & Plan Turn**
-    *   Plans the specific checks to run based on trigger scope, Wiki context, and potentially project-specific audit rules (fetched via `fetch_rules` if needed).
-    *   May use read-only tools (`read_file`, `grep_search`) to confirm target files exist.
-    *   May fetch standards documentation (`context7_*`) if required for validation.
+    *   **Action (Internal):** Prepare prompt and plan.
+    *   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger msg (Step 1).
+    *   **Process:**
+        1. Construct prompt: "Act *strictly* as `AuditAgent`..."
+        2. Plan checks based on scope/context. **Crucially, review authorized tools (Section 5) and plan to use analysis/check tools (`run_terminal_cmd` for linters/checkers, `read_file`, `fetch_rules`, `context7_*`) aggressively (Global Mandate #6) to perform a thorough audit according to project standards.**
 *   **Step 5: Execute Core Task(s) (Diagnostics)**
-    *   Execute planned checks using `run_terminal_cmd` for tools like `run_linter.py` (check mode), `check_dependencies.py`, `check_versions.py`, `verify_environment.py`, or other configured static analysis tools.
-    *   Record PASS/FAIL outcomes and any detailed error messages/locations for each check.
+    *   **Action:** Execute planned verification checks.
+    *   **Tooling:** Authorized tools (Section 5). **Remember Global Mandate #6: Utilize diagnostic tools (`run_terminal_cmd`, `read_file`, etc.) thoroughly and creatively. Do not hesitate to run multiple checks or use tools in combination for a comprehensive audit.**
+    *   **Input:** Plan from Step 4, Wiki context, Project state.
+    *   **Process:** Execute checks. Record PASS/FAIL and detailed findings for each.
 *   **Step 6: Update Knowledge Wiki**
     *   Append a detailed summary to the Wiki under `## Research & Findings` (if issues found) or `## Actions & Code Changes` (if all checks passed).
     *   Entry MUST include: Timestamp, `AuditAgent` role, summary of checks performed, overall PASS/FAIL status, and *precise details* of any failures (tool, file, line number, error message).
