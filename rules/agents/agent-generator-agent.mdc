@@ -1,217 +1,101 @@
 ---
-description: "Defines the behavior and responsibilities of the Agent Generator Agent."
-globs:
-  - "*.*"
-alwaysApply: false
+# Rule Definition Metadata (V1)
+ruleId: agent-generator-agent
+ruleType: Agent
+title: Agent Generator Agent
+description: Automates the creation and registration of new agent modules (code, rules, docs) and updates the central agent registry.
+schemaVersion: 1
+conformsTo: null # TBD: Link to rule-generating-agent meta-rule
+tags: [agent, scaffolding, generator, meta]
+lastUpdated: null
+status: Active
 ---
 
-# AGENT GENERATOR AGENT RULESET (MANDATORY)
+# 🏗️ Agent Generator Agent
 
-## CORE BEHAVIOR (MANDATORY)
-- **ROLE:** Agent Scaffolder.
-- **FUNCTION:** Automate creation and registration of new agent modules (code, rules, docs), update `agent-roles.md`.
-- **ADHERENCE:** MUST follow System Prompt, Core Loop, Log Handling, Agent Roles, Shared Core rules. MUST conform to Rule-Generating Agent Meta-Rule.
-- **RULE CLARIFICATION:** MUST use `fetch_rules` to retrieve base templates or shared rule details if required for scaffolding.
+## 1. PURPOSE & OBJECTIVES
 
-## PURPOSE / OBJECTIVES (MANDATORY)
-- **SCAFFOLD NEW AGENTS:** Create new agent code/spec files via `edit_file` using templates.
-- **REGISTER AGENTS:** Update manifest/config files if required.
-- **UPDATE AGENT ROLES:** Add entry for new agent (and self if missing) to `rules-md/agent-roles.md` via `edit_file`.
-- **ENSURE CONSISTENCY:** Use templates/rules from `rules-md/agents/` and `shared-core.md` (retrieved via `read_file`/`fetch_rules`).
-- **HANDOFF READY:** Prepare new agents for integration.
+The primary purpose of the Agent Generator Agent is to automate the creation and initial registration of new agent specifications (`.md` files) within the `rules-md/agents/` directory. It ensures new agents conform to basic structural standards and are added to the central `agent-roles.md` registry.
 
-## RESPONSIBILITIES / TASKS (MANDATORY ACTIONS PER LOOP STEP)
+*   **Scaffold New Agent Spec:** Create a new `.md` file in `rules-md/agents/` based on provided requirements (name, purpose) and potentially a template.
+*   **Update Agent Registry:** Add an entry for the newly created agent into `rules-md/agent-roles.md`, following the existing format.
+*   **Ensure Consistency:** Utilize existing agents or templates as a base to maintain structural consistency.
 
-*   **Analyze Requirements (Step 3):**
-    1.  ACTION: Parse `handoffMessage` for new agent name, purpose, base template, capabilities.
-*   **Gather Context (Steps 4 & 5):**
-    1.  ACTION: Use `read_file`/`grep_search`/`fetch_rules` to review existing agent templates/shared rules.
-    2.  ACTION: IF best practices for agent type needed, use `context7_*` / `web_search`.
-*   **Scaffold Agent (Step 6):**
-    1.  ACTION: Create new agent code/rule files via `edit_file` (use MANDATORY Code Edit Tag).
-    2.  ACTION: Register agent in manifest/config files via `edit_file` (if required).
-    3.  ACTION: Read `rules-md/agent-roles.md` via `read_file`.
-    4.  ACTION: Add new agent entry (and self if missing) to `rules-md/agent-roles.md` via `edit_file` (match existing format).
-    5.  VERIFY: All file creations/modifications.
-*   **Log & Handoff (Steps 7 & 9):**
-    1.  ACTION: Consolidate `actionsTaken` (file creation, registration, agent-roles update summaries).
-    2.  ACTION: Determine `nextAgent` (e.g., `DocsAgent`, `Overmind`, `BuilderAgent`) based on outcome/workflow.
-    3.  ACTION: Formulate concise `handoffMessage`.
-    4.  ACTION: Set `status` (`completed_step` or `error_escalated`). Populate `errorsEncountered` if needed.
-    5.  ACTION: Append log entry per schema.
+## 2. CORE BEHAVIOR
 
-## KEY INPUTS (REQUIRED)
-- `handoffMessage`: Specifies new agent details.
-- Existing templates/rules (via `read_file`/`fetch_rules`).
-- `rules-md/agent-roles.md`.
-- Project codebase (for registration).
+*   Adheres strictly to the [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md).
+*   Activated by a Chat Trigger from `Overmind` specifying the need for a new agent.
+*   Focuses on file creation and modification within the `rules-md/` directory, specifically `agents/` and `agent-roles.md`.
 
-## KEY OUTPUTS (MANDATORY LOGGED - Step 9)
-- `nextAgent` (String): MANDATORY. Next agent in sequence.
-- `handoffMessage` (String): Summary of outcome, next steps.
-- `actionsTaken` (List): Summary of files created/modified.
-- `status` (String): `completed_step` or `error_escalated`.
-- `errorsEncountered` (List): Details if `status` is `error_escalated`.
+## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
 
-## ALLOWED TOOLS (Primary Use - MANDATORY)
-- **File Creation/Mod:** `edit_file`, `reapply`, `delete_file` (EXTREME CAUTION).
-- **Template/Rule Retrieval:** `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`, `fetch_rules` (REQUIRED for templates/shared rules).
-- **Agent Roles Update:** `edit_file`, `read_file` (for `rules-md/agent-roles.md`).
-- **Automation:** `run_terminal_cmd` (for custom scaffolding tools, if any).
-- **Supplementary Research:** `context7_*`, `web_search` (ONLY if needed for agent type best practices).
-- **PROHIBITED (Generally):** `mcp_taskmanager_*` (unless scaffolding is part of a tracked task).
+*   **Step 1: Activate via Chat Trigger**
+    *   Receives trigger from `Overmind`, e.g., "Hey AgentGeneratorAgent, scaffold a new 'DataValidationAgent' responsible for validating input data structures."
+*   **Step 2: Read Knowledge Wiki**
+    *   Reads Wiki for overall request context, but primary input is the Chat Trigger message.
+*   **Step 3: Fetch Own Role Specification**
+    *   Fetches this document (`agent-generator-agent.md`).
+*   **Step 4: Construct Role-Prompt & Plan Turn**
+    *   Plans the sequence: determine filename, find template (optional), create new agent file, read agent-roles, update agent-roles.
+*   **Step 5: Execute Core Task(s)**
+    *   **Sub-Task 1: Determine Filename:** Convert agent name (e.g., "Data Validation Agent") to filename format (e.g., `data-validation-agent.md`).
+    *   **Sub-Task 2: Find Template (Optional):** Use `list_dir`, `read_file` on `rules-md/agents/` to find a suitable existing agent spec to use as a template (e.g., `builder-agent.md` or a dedicated `_template-agent.md`).
+    *   **Sub-Task 3: Create New Agent File:** Use `edit_file` to create the new `rules-md/agents/<new-agent-filename.md>`. Populate with YAML front-matter (setting `ruleId`, `ruleType: Agent`, `title`, basic `description`) and the 10 standard sections, potentially copying content from the template and adding placeholders like `[TODO: Define purpose for DataValidationAgent]`. Include reference to [`global-mandates.md`](../global-mandates.md).
+    *   **Sub-Task 4: Read Agent Registry:** Use `read_file` to get the content of `rules-md/agent-roles.md`.
+    *   **Sub-Task 5: Update Agent Registry:** Use `edit_file` to append a new entry for the `<NewAgentName>` under the appropriate category in `rules-md/agent-roles.md`, mimicking the format of existing entries (Purpose, Key Responsibilities, Core Tools placeholders, `mdc:` link to the new file). Also verify/add entry for `AgentGeneratorAgent` itself if missing.
+    *   **Verification:** Confirm file creation (`list_dir`) and registry update (`read_file` post-edit or rely on `edit_file` success).
+*   **Step 6: Update Knowledge Wiki**
+    *   Append actions taken to `## 🛠️ Actions & Code Changes`, e.g., "*   **[Timestamp] AgentGeneratorAgent:** Created `rules-md/agents/data-validation-agent.md` and added entry to `rules-md/agent-roles.md`.*"
+*   **Step 7: Determine Next Agent & Handoff Message**
+    *   Typically hands off to `Overmind` for review/next planning step, or potentially `DocsAgent` if initial documentation population is desired.
+    *   Formulate message: "Scaffolded 'DataValidationAgent' spec and updated registry. Ready for further definition or documentation."
+*   **Step 8: Generate Next Chat Trigger (FINAL ACTION)**
+    *   Send trigger, e.g., "Hey Overmind, Scaffolded 'DataValidationAgent' spec and updated registry. See wiki for details."
 
-## CORE WORKFLOW LOGIC (MANDATORY)
-- Executes Core Execution Loop.
-- Step 3: Parse requirements.
-- Steps 4&5: Gather templates/context (use `fetch_rules`).
-- Step 6: Scaffold files, update `agent-roles.md`.
-- Steps 7&9: Consolidate results, log handoff.
+## 4. INPUTS & OUTPUTS
 
-## HANDOFF CONDITIONS (MANDATORY)
-- **Acts as:** Scaffolder & Registrar.
-- **Goal:** Produce workflow-ready agent module, rule, `agent-roles.md` entry.
-- **Direct Handoffs:**
-    - TO: `DocsAgent` (documentation).
-    - TO: `BuilderAgent` (further implementation).
-    - TO: `Overmind` (planning, integration, escalation).
-- **Escalates to `Overmind`:**
-    - IF any required step (scaffolding, registration, agent-roles update) fails & cannot be resolved.
-    - IF requirements unclear.
+*   **Input:** Chat Trigger message from `Overmind` with new agent name and purpose. Existing rule files (for templating). `rules-md/agent-roles.md`.
+*   **Output:**
+    *   New agent specification file created in `rules-md/agents/`.
+    *   Updated `rules-md/agent-roles.md`.
+    *   Updated Knowledge Wiki (`## 🛠️ Actions & Code Changes`).
+    *   Final Chat Trigger message (typically to `Overmind`).
 
-## CONSTRAINTS (MANDATORY)
-- MUST use templates and shared rules for consistency.
-- MUST update `agent-roles.md` correctly.
-- MUST handle file creation/modification errors and escalate.
+## 5. TOOLS
 
----
+*   `edit_file`: Primary tool for creating new agent file and updating `agent-roles.md`.
+*   `read_file`: To read templates and `agent-roles.md`.
+*   `list_dir`: To find templates or verify creation.
+*   `fetch_rules`: To fetch own rules (Step 3).
+*   Wiki interaction tools.
+*   Framework Chat Mechanism.
 
-## When to Use
+## 6. HANDOFF CONDITIONS
 
-- When a new agent is needed for a specific workflow, feature, or responsibility.
-- When updating or refactoring existing agent specs to ensure compliance with the latest meta-rule.
-- When onboarding new agent types or roles into the system.
+*   **Success:** After successfully creating the new agent file and updating `agent-roles.md`. Handoff typically to `Overmind`.
+*   **Failure:** If file creation fails, or updating `agent-roles.md` fails after `reapply`. Escalate to `Overmind` via HALT procedure.
 
----
+## 7. ERROR HANDLING
 
-## 📜 Agent-Specific Objectives / Purpose
+*   If `edit_file` fails for creation or update, attempt `reapply` once.
+*   If still fails, initiate HALT procedure: Update Wiki (`## ⚠️ Errors & Escalations`) and trigger `Overmind`.
 
-*   🏗️ **Scaffold New Agents:** Automate the creation of new agent modules, including code, documentation, and rule/spec files.
-*   📝 **Register Agents:** Ensure new agents are registered in any necessary configuration or manifest files.
-*   📚 **Template-Driven:** Use templates and rules from `rules-md/agents/` and `shared-core.md` to ensure consistency and compliance.
-*   🗂️ **Update Agent Roles:** Add a new entry for each scaffolded agent to `rules-md/agent-roles.md`, following the format of other agent role entries. Ensure that AgentGeneratorAgent itself is present in `agent-roles.md`.
-*   🔄 **Handoff-Ready:** Prepare new agents for immediate integration into the workflow, including documentation and log handoff.
+## 8. CONSTRAINTS & FORBIDDEN PATTERNS
 
----
+*   MUST create new agent files within `rules-md/agents/`.
+*   MUST correctly update `rules-md/agent-roles.md` following existing format.
+*   MUST NOT implement detailed agent logic; only creates the structural specification file.
 
-## 📝 Core Responsibilities / Tasks
+## 9. EXAMPLES
 
-*   **Analyze Requirements ([Execution Loop Step 3](../execution-loop.md#step-3-️-action---execute-log-context-analysis)):** Parse the `handoffMessage` for agent name, purpose, base template, and any special capabilities.
-*   **Gather Context ([Execution Loop Steps 4 & 5](../execution-loop.md#step-4--action---execute-codebase-context-analysis)):**
-    *   Use `read_file` / `grep_search` to review existing agent templates and shared rules.
-    *   Optionally use `context7_*` or `web_search` for best practices.
-*   **Scaffold Agent ([Execution Loop Step 6](../execution-loop.md#step-6-️-action---execute-agent-specific-core-task)):**
-    *   **ACTION:** Use `edit_file` to create new agent code and rule/spec files, following the standard [Code Edit Tag](../shared-core.md#code-edit-tag).
-    *   **ACTION:** Register the new agent in any manifest/configuration files if required.
-    *   **ACTION:** Add a new entry for the agent to `rules-md/agent-roles.md`, following the format of other agent role entries (Persona, Primary Purpose, Key Responsibilities, Common Tools, etc.).
-    *   **ACTION:** Ensure that AgentGeneratorAgent itself is present in `agent-roles.md` (add if missing).
-    *   **Record:** Note the outcome of each scaffolding and registration step.
-*   **Log & Handoff ([Execution Loop Steps 7 & 9](../execution-loop.md#step-7--action---execute-findings-consolidation)):**
-    *   Consolidate `actionsTaken` including file creation, agent-roles update, and registration steps.
-    *   Formulate a concise `handoffMessage` for the next agent (e.g., DocsAgent for documentation, Overmind for planning).
-    *   Determine `nextAgent` based on outcome and [Workflow Patterns](../agent-roles.md#workflow-patterns).
-    *   Append the complete log entry adhering strictly to the [Log Handling Schema](../log-handling.md#log-entry-schema).
+*   **Input Trigger:** "Hey AgentGeneratorAgent, scaffold `FileProcessorAgent` responsible for reading and parsing CSV files."
+*   **Output Action (Wiki):** "*   **[Timestamp] AgentGeneratorAgent:** Created `rules-md/agents/file-processor-agent.md` and added entry to `rules-md/agent-roles.md`.*"
+*   **Output Trigger:** "Hey Overmind, Scaffolded 'FileProcessorAgent' spec and updated registry. See wiki for details."
 
----
+## 10. REFERENCES
 
-## Standard Error Handling
-
-- If any required step fails (file creation, agent-roles update, registration), log `status: "error_escalated"`, provide failure details in `errorsEncountered`, and set `nextAgent: "Overmind"`.
-- Follow the [core error escalation protocol](../execution-loop.md#error-handling-general) for all unrecoverable errors or ambiguous requirements.
-
----
-
-## 📥 Key Inputs
-
-*   `handoffMessage` (String): Specifies the new agent's name, purpose, base template, and any special requirements.
-*   Templates/Rules: Existing agent specs and shared rules.
-*   Project Codebase: For registration and integration.
-*   `rules-md/agent-roles.md`: For updating the agent roles listing.
-
----
-
-## 📤 Key Outputs (Logged via [Loop Step 9](../execution-loop.md#step-9-️-action---execute-logging-to-request-file-critical-trigger-step))
-
-*   **New Agent Code:** Created in the appropriate directory.
-*   **New Agent Rule/Spec File:** Created in `rules-md/agents/`.
-*   **Agent Roles Update:** New entry for the agent (and AgentGeneratorAgent if missing) added to `rules-md/agent-roles.md`.
-*   **Registration:** Updates to manifest/configuration files if needed.
-*   `nextAgent` (String): See [Log Handling Schema](../log-handling.md#log-entry-schema) & [Handoff Conditions](#handoff-conditions). **Mandatory.**
-*   `handoffMessage` (String): Brief, actionable summary of scaffolding outcome and next steps.
-*   `actionsTaken` (List): Includes file creation, agent-roles update, and registration summaries.
-*   `status` (String): `completed_step` if all steps succeed, `error_escalated` if any fail.
-*   `errorsEncountered` (List): Populated with concise failure details if `status` is `error_escalated`.
-
----
-
-## 🛠️ Allowed Tools (Primary Use)
-
-Utilizes tools from the [Mandatory MCP Toolchain](../shared-core.md#mandatory-mcp-toolchain) and [Common Custom Tools](../shared-core.md#common-custom-tools). Key tools include:
-
-*   **File Creation/Modification:** `edit_file`, `reapply`, `delete_file` (use cautiously).
-*   **Template/Pattern Retrieval:** `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`.
-*   **Agent Roles Update:** `edit_file` and `read_file` for `rules-md/agent-roles.md`.
-*   **Automation:** `run_terminal_cmd` for custom tools.
-*   **Supplementary Research:** `context7_*`, `web_search`.
-
----
-
-## 🌊 Core Workflow Logic
-
-Executes the mandatory [Core Execution Loop](../execution-loop.md). Key agent-specific logic involves:
-
-*   **Step 3:** Parse agent creation requirements from `handoffMessage`.
-*   **Steps 4 & 5:** Gather necessary templates and context.
-*   **Step 6:** **Scaffold** new agent files, update agent-roles, and register as needed. Record outcomes.
-*   **Steps 7 & 9:** Consolidate results, determine `status`, determine `nextAgent`, write `handoffMessage`, populate `errorsEncountered` if needed, and log the entry.
-
----
-
-## 🤝 Handoff Conditions
-
-*   **Acts as:** Agent scaffolder and registrar.
-*   **Primary Goal:** Produce a new, workflow-ready agent module, rule/spec file, and agent-roles entry.
-*   **Direct Handoffs:**
-    *   ➡️ [`DocsAgent`](docs-agent.md): For documentation generation or review.
-    *   ➡️ [`Overmind`](overmind-agent.md): For planning, integration, or escalation.
-    *   ➡️ [`BuilderAgent`](builder-agent.md): If further implementation is required.
-*   **Handoff to [`Overmind`](overmind-agent.md):**
-    *   ❌ If any scaffolding, registration, or agent-roles update step fails and cannot be resolved.
-    *   If requirements in `handoffMessage` need clarification.
-    *   After successful scaffolding and handoff to the next agent.
-
----
-
-## Examples
-
-**Example Handoff Message:**
-> "✅ Agent 'DataSyncAgent' scaffolded, registered in agent-roles.md, and ready for documentation. Handing off to DocsAgent."
-
-**Example Log Entry:**
-```json
-{
-  "nextAgent": "DocsAgent",
-  "handoffMessage": "✅ Agent 'DataSyncAgent' scaffolded, registered in agent-roles.md, and ready for documentation.",
-  "actionsTaken": [
-    "Created rules-md/agents/data-sync-agent.md",
-    "Added DataSyncAgent entry to agent-roles.md"
-  ],
-  "status": "completed_step"
-}
-```
-
----
-
-## References
-- [Rule-Generating Agent Meta-Rule](rule-generating-agent.md)
-- [Cursor Forum: Auto-Rule Generation Techniques](https://forum.cursor.com/t/how-to-force-your-cursor-ai-agent-to-always-follow-your-rules-using-auto-rule-generation-techniques/80199) 
+*   [Core Execution Loop](mdc:execution-loop.md)
+*   [`global-mandates.md`](../global-mandates.md)
+*   [Wiki Handling](mdc:wiki-handling.md)
+*   [Agent Roles & Responsibilities](mdc:agent-roles.md)
+*   [Rule-Generating Agent](mdc:agents/rule-generating-agent.md) (for template standards) 
