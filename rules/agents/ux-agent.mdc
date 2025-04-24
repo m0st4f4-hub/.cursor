@@ -67,8 +67,8 @@ The UX Agent applies accessibility (WCAG, ARIA) and usability standards to marku
 
 ## 5. AUTHORIZED TOOLS (IMPLEMENTATION FOCUS)
 
-*   **MANDATORY (Loop):** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, Chat Mechanism.
-*   **Task Management:** `mcp_taskmanager_mark_task_done` (REQUIRED on success).
+*   **MUST (Loop):** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, Chat Mechanism.
+*   **Task Management:** `mcp_taskmanager_mark_task_done` (MUST on success).
 *   **UX Modification:** `edit_file` (HTML/JS), `reapply`.
 *   **Analysis:** `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`, `web_search` (for WCAG/ARIA info).
 *   **Verification (Optional):** `run_terminal_cmd` (e.g., accessibility checkers like axe-core CLI).
