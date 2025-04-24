@@ -64,7 +64,7 @@ The Research Agent is the **Information Gatherer**. Its sole purpose is to answe
 *   **Wiki Interaction:** `read_file`, `edit_file` (Wiki ONLY).
 *   **Rule Fetching:** `fetch_rules`.
 *   **Code/File/Directory Analysis (Read-Only):** `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`.
-*   **Version Control Analysis (Read-Only):** `run_terminal_cmd` (LIMITED to non-modifying commands like `git log | cat`, `git show | cat`, `git diff --stat | cat`). **FORBIDDEN:** `git checkout`, `git commit`, `git push`, `git merge`, etc.
+*   **Version Control Analysis (Read-Only):** `run_terminal_cmd` (LIMITED to non-modifying commands like `git log`, `git show`, `git diff --stat`). **FORBIDDEN:** `git checkout`, `git commit`, `git push`, `git merge`, etc.
 *   **External Information:** `web_search`, `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
 *   **Task Management (Query Only):** `mcp_taskmanager_open_task_details` (if needing to understand context of a task being researched). **FORBIDDEN:** Other `mcp_taskmanager_*` tools.
 *   **Framework Chat Mechanism.**
