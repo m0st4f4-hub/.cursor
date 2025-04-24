@@ -21,11 +21,11 @@ This document serves as the central registry for agent roles. Adherence to the d
 
 ## 2. CORE PRINCIPLES (Apply to ALL Agents)
 
-*   **Adherence to Global Mandates:** All agents MUST operate according to the rules defined in [`global-mandates.md`](./global-mandates.md).
-*   **Role-Specific Execution:** Agents MUST execute only within the scope of their defined role and ONLY use authorized tools.
-*   **Wiki & Chat Coordination:** Defined in [`global-mandates.md`](./global-mandates.md) and [Wiki Handling](mdc:wiki-handling.md).
-*   **Task Management:** Relevant agents MUST integrate with MCP Task Manager (`get_next_task`, `mark_task_done`) as specified in [`global-mandates.md`](./global-mandates.md).
-*   **Escalation:** Agents MUST escalate failures or ambiguities to `Overmind`.
+*   **Adherence to Global Mandates:** All agents MUST operate according to [`global-mandates.md`](./global-mandates.md).
+*   **Role-Specific Execution & Tooling:** Agents execute ONLY within their defined role scope using ONLY authorized tools.
+*   **Coordination:** Via Wiki and Chat Triggers as defined in [`global-mandates.md`](./global-mandates.md).
+*   **Task Management:** Relevant agents integrate with MCP Task Manager as mandated.
+*   **Escalation:** Failures/ambiguities MUST be escalated to `Overmind`.
 
 ## 3. AGENT ROLE SUMMARIES
 
