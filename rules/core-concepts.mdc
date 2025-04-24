@@ -24,22 +24,22 @@ status: Active
     *   See [Shared Core Concepts & Rules](mdc:shared-core.md#2-core-concepts--definitions).
 *   **Agent Roles:**
     *   See [Shared Core Concepts & Rules](mdc:shared-core.md#2-core-concepts--definitions). Also see [Agent Roles & Responsibilities](mdc:agent-roles.md) for the registry.
-*   **Chat Trigger:** REQUIRED control signal via platform chat message. Sole trigger for Agent activation and handoff. Agent MUST generate trigger message as final action. See [Execution Loop](mdc:execution-loop.md).
-*   **ACTION IMPERATIVE:** REQUIRED principle. Continuous execution triggered by chat, context passed via trigger, rules from `fetch_rules`. Waiting MUST NOT occur. See [Execution Loop](mdc:execution-loop.md).
-*   **Tools:** REQUIRED capabilities for environment interaction (MCP, file system, terminal, custom). See [Shared Core](mdc:shared-core.mdc).
-*   **Rules (`.cursor/rules/`, `rules-md/`):** REQUIRED `.mdc` files defining behavior, standards, workflow. See [System Prompt](mdc:system-prompt.md).
-*   **Framework:** REQUIRED External execution engine. Parses chat triggers, provides tools, facilitates agent execution based on fetched rules and context from trigger. See [System Prompt](mdc:system-prompt.md).
-*   **Autonomous Execution:** REQUIRED. Agents operate independently, activated by chat triggers, driven by rules and context passed in triggers. User interaction MUST occur ONLY for requested diagnostics (Loop Step 4).
+*   **Chat Trigger:** MUST be the control signal via platform chat message. Sole trigger for Agent activation and handoff. Agent MUST generate trigger message as final action. See [Execution Loop](mdc:execution-loop.md).
+*   **ACTION IMPERATIVE:** MUST be the principle. Continuous execution triggered by chat, context passed via trigger, rules from `fetch_rules`. Waiting MUST NOT occur. See [Execution Loop](mdc:execution-loop.md).
+*   **Tools:** MUST be the capabilities for environment interaction (MCP, file system, terminal, custom). See [Shared Core](mdc:shared-core.mdc).
+*   **Rules (`.cursor/rules/`, `rules-md/`):** MUST be the `.mdc` files defining behavior, standards, workflow. See [System Prompt](mdc:system-prompt.md).
+*   **Framework:** MUST be the External execution engine. Parses chat triggers, provides tools, facilitates agent execution based on fetched rules and context from trigger. See [System Prompt](mdc:system-prompt.md).
+*   **Autonomous Execution:** MUST ensure agents operate independently, activated by chat triggers, driven by rules and context passed in triggers. User interaction MUST occur ONLY for requested diagnostics (Loop Step 4).
 *   **Chat-Driven Coordination:**
-    *   The REQUIRED principle that the Chat Trigger mechanism is the sole method for passing control, context, findings, goals, and errors between agents.
+    *   MUST be the principle that the Chat Trigger mechanism is the sole method for passing control, context, findings, goals, and errors between agents.
 *   **Specialized Agents:**
     *   The design pattern of breaking down complex tasks into functions performed by distinct Agent Roles, each with a specific purpose and ruleset.
 *   **Sequential Activation:**
-    *   The REQUIRED execution flow where only one agent is active at a time for a given `requestId`, triggered sequentially by Chat messages. Parallel execution within a single request chain MUST NOT occur.
+    *   MUST be the execution flow where only one agent is active at a time for a given `requestId`, triggered sequentially by Chat messages. Parallel execution within a single request chain MUST NOT occur.
 *   **Direct Peer Handoffs:**
     *   The RECOMMENDED practice for an agent to trigger another specialized agent directly via Chat Trigger when the workflow logically follows (e.g., `BuilderAgent` -> `AuditAgent`), minimizing unnecessary steps through `Overmind`. Return to `Overmind` for planning, escalation, or completion reporting.
 *   **Self-Improvement Loop:**
-    *   The REQUIRED secondary goal of the framework where agents (`ImprovementAgent`, `RuleWriterAgent`) collaborate via Chat Triggers to analyze past performance and automatically refine or generate rules. See [System Prompt](mdc:system-prompt.md).
+    *   MUST be the secondary goal of the framework where agents (`ImprovementAgent`, `RuleWriterAgent`) collaborate via Chat Triggers to analyze past performance and automatically refine or generate rules. See [System Prompt](mdc:system-prompt.md).
 *   **Global Rules (`.cursor/rules/global/`):**
     *   Foundational rules providing core behaviors and capabilities, typically shared across projects. See [System Prompt](mdc:system-prompt.md).
 *   **Project Rules (`.cursor/rules/project/`):**

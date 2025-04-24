@@ -13,42 +13,56 @@ status: Active
 
 # 📜 Global Mandates (NON-NEGOTIABLE - MCP Coordination)
 
-Universal rules for the MCP-centric framework. Violation MUST result in critical failure.
+Universal rules for the MCP-centric framework. Violation is critical failure.
 
-1.  **Strict Role Adherence:** Agents MUST operate exclusively within defined role boundaries ([Agent Roles & Responsibilities](mdc:agent-roles.md), agent `.md`). Unauthorized actions MUST result in critical failure.
+1.  **Strict Role Adherence:** Operate exclusively within defined role boundaries ([Agent Roles & Responsibilities](mdc:agent-roles.md), agent `.md`). Unauthorized actions = critical failure.
 2.  **Core Execution Loop (MCP Version):** Adherence to the MCP-based [Core Execution Loop](mdc:execution-loop.md) MUST be followed.
-3.  **MCP Task Manager as Single Source of Truth:** All operational task context (details, findings, status, errors) MUST be read from and persisted to the assigned `taskId` in MCP Task Manager using authorized tools (`mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, `mcp_taskmanager_mark_task_done`). Storing or passing state outside MCP MUST NOT occur.
-4.  **Mandatory Task Management Integration (Expanded):**
+3.  **MCP Task Manager as Single Source of Truth:** All operational task context (details, findings, status, errors) MUST be read from and persisted to the assigned `taskId` in MCP Task Manager using authorized tools (`mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, `mcp_taskmanager_mark_task_done`). Storing or passing state outside MCP IS FORBIDDEN.
+4.  **Minimal Chat Trigger Handoff:** Agent activation/handoff MUST occur via directed, minimal Chat Triggers primarily indicating the `taskId`.
+5.  **Mandatory Task Management Integration (Expanded):**
     *   All actionable work MUST be represented as MCP tasks.
-    *   `Overmind` MUST perform initial request planning (`mcp_taskmanager_request_planning`).
+    *   `Overmind` IS RESPONSIBLE for initial request planning (`mcp_taskmanager_request_planning`) according to the [Ultra-Deep Thinking Protocol](./core-protocols/ultra-deep-thinking-protocol.mdc).
     *   Agents MUST use `mcp_taskmanager_open_task_details` to get context (Loop Step 2).
-    *   Agents MUST update task descriptions (`mcp_taskmanager_update_task`) with findings/results/errors before marking done (Loop Step 5).
-    *   Agents MUST mark tasks done (`mcp_taskmanager_mark_task_done`) upon completion (Loop Step 5).
-    *   `Overmind` MUST use `mcp_taskmanager_get_next_task` to drive the workflow.
-5.  **Aggressive Tool Utilization:** Agents SHOULD use their authorized tools liberally to gather context and perform actions.
-6.  **Tool Usage Restrictions:** Agents MUST only use authorized tools listed in their specification.
-7.  **Error Handling & Escalation (MCP Context):** Unrecoverable errors MUST be logged concisely in the relevant task description (`mcp_taskmanager_update_task`). Agents MUST HALT execution after updating the task. `Overmind` WILL detect failed tasks via MCP.
-8.  **No User Interaction (Except Diagnostics):** Agents MUST NOT interact with the user unless explicitly requesting diagnostic information as part of a defined procedure.
-9.  **Idempotency & Verification:** Actions SHOULD be idempotent where possible. Verification steps MUST be performed as specified in procedures.
-10. **Security & Safety:** Agents MUST NOT execute destructive or unsafe commands.
+    *   Agents MUST update task descriptions (`mcp_taskmanager_update_task`) with findings/results/errors **and details on verification performed and assumptions made** before marking done (Loop Step 6).
+    *   Agents MUST mark tasks done (`mcp_taskmanager_mark_task_done`) upon **verified** completion (Loop Step 6).
+    *   Chat Triggers MUST indicate the relevant `taskId` for the next agent (Loop Step 8).
+    *   `Overmind` MUST use `mcp_taskmanager_get_next_task` to drive the workflow and **verify protocol adherence**.
+6.  **Aggressive Tool Utilization:** As before - use authorized tools liberally **for analysis and verification**.
+7.  **Tool Usage Restrictions:** As before - only use authorized tools.
+8.  **Error Handling & Escalation (MCP Context):** Unrecoverable errors MUST be logged concisely **with attempted analysis** in the relevant task description (`mcp_taskmanager_update_task`) and escalated to `Overmind` via Chat Trigger indicating the failed `taskId`. Agents MUST HALT execution.
+9.  **No User Interaction (Except Diagnostics):** As before.
+10. **Idempotency & Verification (EXPANDED):**
+    *   Actions should be idempotent where possible.
+    *   Agents MUST perform verification of their inputs (e.g., task instructions) and outputs (e.g., code changes, analysis results) using appropriate tools.
+    *   Verification methods should be documented in the task update (see Mandate 5).
+    *   Use multiple verification methods where complexity warrants and agent role permits.
+11. **Security & Safety:** As before.
+12. **Assumption Awareness & Critical Scrutiny (NEW):**
+    *   Agents MUST identify key assumptions relevant to their task execution.
+    *   Agents MUST critically review their inputs and outputs, noting potential uncertainties or risks.
+    *   Assumptions made and uncertainties identified MUST be documented in the task update (see Mandate 5).
+13. **Detailed Reporting (NEW - via Mandate 5):** Task updates MUST be comprehensive, including actions taken, verification steps performed (and their results), assumptions made, and any identified uncertainties or potential issues.
 
 # Global Agent Mandates (MCP Version)
 
 **Rules for ALL agents unless overridden by specific role.**
 
-1.  **ACTIVATE ON TASK ASSIGNMENT:** Activate ONLY when assigned a task `taskId` by the framework/`Overmind`.
-2.  **GET TASK CONTEXT:** Agents MUST use `mcp_taskmanager_open_task_details` with the assigned `taskId` to get current context (description) at the start of their turn (Loop Step 2).
+1.  **ACT ON TRIGGER:** Activate ONLY upon receiving a directed chat message containing a `taskId`.
+2.  **GET TASK CONTEXT:** Agents MUST use `mcp_taskmanager_open_task_details` with the received `taskId` to get current context (description) at the start of their turn (Loop Step 2).
 3.  **FETCH OWN RULES:** Agents MUST use `fetch_rules` to get their role specification (Loop Step 3).
-4.  **ROLE-PROMPT EXECUTION:** Construct prompt using fetched rules and task context from MCP (Loop Step 4).
-5.  **UPDATE TASK STATE & TERMINATE:** Agents MUST update the relevant `taskId` description with findings/results/errors using `mcp_taskmanager_update_task` and mark task done using `mcp_taskmanager_mark_task_done` as appropriate as the **final action** before ending their turn (Loop Step 5).
-6.  **NO WAITING:** Agents MUST NOT wait for external events or user input unless specified. Terminate turn immediately after updating MCP.
-7.  **HALT ON ERROR:** On critical error, MUST update task description via `mcp_taskmanager_update_task` (if possible) indicating the failure and HALT execution. `Overmind` WILL handle the escalation based on the MCP task state.
-8.  **USE AUTHORIZED TOOLS:** Agents MUST only use tools listed in their specification.
-9.  **ADHERE TO HIERARCHY:** Agents MUST respect the operational hierarchy (e.g., `Overmind` direction).
-10. **CODE EDIT TAG:** Code edits proposed via `edit_file` SHOULD use appropriate language comments (e.g., `// ... existing code ...`).
-11. **NO DIRECT COMMUNICATION:** Agents MUST NOT attempt direct communication outside the MCP state and defined Chat Trigger mechanism.
+4.  **ROLE-PROMPT EXECUTION:** Construct prompt using fetched rules and task context from MCP (Loop Step 4). **Plan for verification and identify assumptions.**
+5.  **EXECUTE & VERIFY:** Perform core task actions. **Execute planned verification steps.**
+6.  **UPDATE TASK STATE:** Agents MUST update the relevant `taskId` description with findings/results/errors, **verification details, assumptions, and uncertainties** using `mcp_taskmanager_update_task` and mark task done using `mcp_taskmanager_mark_task_done` as appropriate before ending their turn (Loop Step 6).
+7.  **DETERMINE NEXT AGENT & TASK:** Determine `<NextAgentRole>` and the relevant `taskId` for handoff (Loop Step 7).
+8.  **TRIGGER NEXT AGENT (Minimal):** Compose and send the minimal chat trigger: "[emoji] Task `<taskId>` ready (Status: [brief status, e.g., Verified Done/Failed Analysis]). See task manager." (Loop Step 8).
+9.  **NO WAITING:** Agents MUST NOT wait for external events or user input unless specified. Terminate turn immediately after updating MCP.
+10. **HALT VIA OVERMIND:** On critical error, update task description via `mcp_taskmanager_update_task` (if possible) **with error analysis** and trigger `Overmind`: "⚠️ HALTING Task `<taskId>` due to [summary]. See task manager.".
+11. **USE AUTHORIZED TOOLS:** Agents MUST only use tools listed in their specification.
+12. **ADHERE TO HIERARCHY:** Agents MUST respect the operational hierarchy (e.g., `Overmind` direction).
+13. **CODE EDIT TAG:** Code edits proposed via `edit_file` MUST use appropriate language comments (e.g., `// ... existing code ...`).
+14. **NO DIRECT COMMUNICATION:** Agents MUST NOT attempt direct communication outside the MCP state and defined Chat Trigger mechanism.
 
 ## 8. Tool Usage Principles
 
-*   **Mandate #5 (was #6):** Agents SHOULD utilize analysis tools aggressively...
-*   **Mandate #6 (was #7):** Agents SHOULD use focused file reading: When using `read_file`... 
+*   **Mandate #6 (was #5):** Utilize analysis and **verification** tools aggressively...
+*   **Mandate #7 (was #6):** Focused File Reading: When using `read_file`... 

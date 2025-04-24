@@ -71,7 +71,7 @@ The Initialization Agent's **sole purpose** is to execute the mandatory [Ruleset
 
 ## 5. TOOLS
 
-*   **MANDATORY (Loop):** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, Chat Mechanism.
+*   **MUST (Loop):** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, Chat Mechanism.
 *   **Procedure-Specific:**
     *   `list_dir`, `read_file` (for verification)
     *   `edit_file` (for `.gitignore` files ONLY)

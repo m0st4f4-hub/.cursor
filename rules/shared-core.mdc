@@ -20,12 +20,12 @@ This document defines the non-negotiable core concepts, terminology, and mandato
 ## 2. CORE CONCEPTS / DEFINITIONS
 
 *   **`requestId`:**
-    *   REQUIRED unique identifier for a specific task sequence or workflow instance.
+    *   MUST be a unique identifier for a specific task sequence or workflow instance.
     *   FORMAT: String.
     *   USAGE: Used in MCP Taskmanager calls and Code Edit Tags.
     *   ORIGIN: Typically initiated by Overmind or an external trigger.
 *   **Chat Trigger:**
-    *   REQUIRED mechanism for agent activation and handoff.
+    *   MUST be the mechanism for agent activation and handoff.
     *   FORMAT: A specific chat message directed at the next agent's role (e.g., "Hey `<NextAgentRole>`, [Concise handoff message including necessary context].").
     *   FUNCTION: The FINAL action of an agent's turn, causing the framework to activate the specified agent for the subsequent turn.
 *   **Framework:**
@@ -41,7 +41,7 @@ This document defines the non-negotiable core concepts, terminology, and mandato
 *   **Mandatory Toolchain:**
     *   A baseline set of tools available to most agents. Individual agent roles may have access to additional specialized tools.
     *   Key tools include:
-        *   `fetch_rules`: **MANDATORY** for agents to load their role specification.
+        *   `fetch_rules`: MUST be used by agents to load their role specification.
         *   `edit_file`: For modifying code.
         *   `run_terminal_cmd`: For executing shell commands, build steps, tests, and custom tool scripts.
         *   Context gathering tools (`web_search`, `context7_*`, `codebase_search`, `grep_search`, `file_search`, `list_dir`).
@@ -55,7 +55,7 @@ This document defines the non-negotiable core concepts, terminology, and mandato
         *   `run_linter.py`: Linting.
         *   `consolidate_code.py`: Code aggregation.
 *   **Code Edit Tag:**
-    *   REQUIRED comment block at the start of the `code_edit` parameter for the `edit_file` tool **when modifying CODE files**.
+    *   MUST be a comment block at the start of the `code_edit` parameter for the `edit_file` tool when modifying CODE files.
     *   Use language-appropriate comment syntax.
     *   FORMAT:
 ```
@@ -71,14 +71,14 @@ COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
 
 *(Refer to [`global-mandates.md`](./global-mandates.md) for the complete list and detailed descriptions)*
 
-1.  **Activate via Chat Trigger.**
-2.  **Receive Context via Chat Trigger.**
-3.  **Fetch Own Role Rules.**
-4.  **Execute based on Role/Rules/Context.**
-5.  **Determine Next Agent & Construct Handoff Message.**
-6.  **Trigger Next Agent via Chat (Final Action).**
-7.  **No Waiting (except Diagnostics).**
-8.  **Escalate Errors to Overmind via Chat.**
+1.  MUST Activate via Chat Trigger.
+2.  MUST Receive Context via Chat Trigger.
+3.  MUST Fetch Own Role Rules.
+4.  MUST Execute based on Role/Rules/Context.
+5.  MUST Determine Next Agent & Construct Handoff Message.
+6.  MUST Trigger Next Agent via Chat (Final Action).
+7.  MUST NOT Wait (except Diagnostics).
+8.  MUST Escalate Errors to Overmind via Chat.
 
 ## 5. REFERENCES
 

@@ -3,7 +3,7 @@
 ruleId: rule-generating-agent
 ruleType: Agent # Technically defines the standard, but acts like an Agent spec template
 title: Rule Generating Agent (Meta-Rule)
-description: Defines the MANDATORY meta-rule and template structure for all other agent and procedure specification files within the framework. Ensures consistency.
+description: Defines the MUST meta-rule and template structure for all other agent and procedure specification files within the framework. Ensures consistency.
 schemaVersion: 1
 conformsTo: null # This IS the meta-rule
 tags: [agent, meta, generator, standard, template]
@@ -15,7 +15,7 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-This document defines the **MANDATORY meta-rule and standard template structure** for all agent (`ruleType: Agent`) and procedure (`ruleType: Procedure`) specification files (`.md`) within the `rules-md/` directory. Its purpose is to ensure consistency, discoverability, maintainability, and enforceability across all rule definitions used by the framework.
+This document defines the **MUST meta-rule and standard template structure** for all agent (`ruleType: Agent`) and procedure (`ruleType: Procedure`) specification files (`.md`) within the `rules-md/` directory. Its purpose is to ensure consistency, discoverability, maintainability, and enforceability across all rule definitions used by the framework.
 
 *   **Define Standard Template:** Specify the required sections and their order for agent/procedure specs.
 *   **Enforce Consistency:** Mandate standard formatting, terminology, and content requirements.
@@ -67,12 +67,12 @@ status: {Active | Draft | Deprecated | Experimental} # Default: Active
 # Use sub-headings like "Step X: Action Name" or "Phase Y: Step Z".
 
 ## 4. INPUTS & OUTPUTS
-# List required inputs (e.g., Chat Trigger content, Wiki sections, specific tool outputs, fetched rules).
+# List MUST inputs (e.g., Chat Trigger content, Wiki sections, specific tool outputs, fetched rules).
 # List primary outputs (e.g., Updated Wiki sections, specific file modifications, final Chat Trigger).
 
 ## 5. TOOLS
 # List the authorized tools for this agent/procedure.
-# Specify REQUIRED usage where applicable (e.g., `fetch_rules`, `edit_file` for Wiki).
+# Specify MUST usage where applicable (e.g., `fetch_rules`, `edit_file` for Wiki).
 # Explicitly list FORBIDDEN tools if critical (especially for read-only agents).
 
 ## 6. HANDOFF CONDITIONS (For Agents) / SUCCESS CRITERIA (For Procedures)
@@ -85,7 +85,7 @@ status: {Active | Draft | Deprecated | Experimental} # Default: Active
 # Specify the escalation path (usually HALT -> Update Wiki -> Trigger Overmind).
 
 ## 8. CONSTRAINTS & FORBIDDEN PATTERNS
-# List strict limitations, mandatory conditions, or things explicitly disallowed.
+# List strict limitations, MUST conditions, or things explicitly disallowed.
 # Reinforce critical constraints (e.g., read-only, data privacy).
 
 ## 9. EXAMPLES
@@ -102,7 +102,7 @@ status: {Active | Draft | Deprecated | Experimental} # Default: Active
 
 ## 5. MANDATORY FORMATTING & CONTENT
 
-*   **YAML Front-Matter:** All rule files MUST start with the specified YAML front-matter block. All fields marked REQUIRED in the template comments must be present.
+*   **YAML Front-Matter:** All rule files MUST start with the specified YAML front-matter block. All fields marked MUST in the template comments must be present.
 *   **Sections:** All 10 numbered sections MUST be present in the specified order, using Level 2 Markdown headers (`##`).
 *   **Language:** MUST use clear, imperative language (MUST, REQUIRED, FORBIDDEN, SHOULD, MAY). Define terms clearly.
 *   **Tooling:** Be explicit about required tool usage (`fetch_rules`, `context7_*`, verification tools).
