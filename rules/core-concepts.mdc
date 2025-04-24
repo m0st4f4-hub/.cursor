@@ -24,18 +24,11 @@ alwaysApply: false
 - **Global Rules (`.cursor/rules/global/`):** REQUIRED foundational rules. MUST be followed unless overridden by Project Rules.
 - **Project Rules (`.cursor/rules/project/`):** REQUIRED project-specific rules. MUST override Global Rules when present.
 
-## 📍 Key Rule Directories (MANDATORY DEFINITIONS)
+## 📍 Key Rule Directories (MANDATORY RUNTIME DEFINITIONS)
 
-**Within the `rulesrepo` (this project):**
-- **`rules-md/`**: Development/staging directory where rules are created and modified collaboratively. Edits happen here first.
-- **`rules/`**: The canonical source directory containing the validated `.mdc` rule files, intended to be the source for Git submodules in other projects. This directory is synchronized from `rules-md/` after validation.
-
-**In Consuming Projects (Projects using these rules):**
-- **`.cursor/rules/`**: The active ruleset directory used by the AI agent framework during runtime. Its content is populated/synchronized directly from the `rules/` directory of the `rulesrepo` project, typically via `git submodule update` during initialization ([Initialization Procedure](mdc:initialization-procedure.mdc)). This directory contains the effective global and project rules for that specific consuming project.
-
-**Common Structure (within the active `.cursor/rules/`):**
-- **`global/`**: Contains foundational rules applicable across projects, sourced from `rulesrepo`.
-- **`project/`**: Contains project-specific rules (created within the consuming project) that override global rules.
+- **`.cursor/rules/`**: The active ruleset directory used by the AI agent framework during runtime execution. It contains the effective global and project rules for the current project context.
+- **`global/` (within `.cursor/rules/`)**: Contains foundational rules generally applicable across projects.
+- **`project/` (within `.cursor/rules/`)**: Contains project-specific rules that override global rules for the current project context.
 
 ## CORE TOOL INTEGRATION (MANDATORY)
 - **`fetch_rules`:** Agents MUST use `fetch_rules` to retrieve full rule content when only a reference (`mdc:`) is available and clarification is needed for execution.
