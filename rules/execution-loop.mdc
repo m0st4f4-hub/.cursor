@@ -40,18 +40,24 @@ alwaysApply: false
 - PROCEED IMMEDIATELY to Step 9.
 
 ### Step 9: ACTION - Log To Request File (CRITICAL IMMEDIATE HANDOFF TRIGGER)
-- **MUST APPEND** to `logs/<requestId>.json`:
+- **Append** to `logs/<requestId>.json`:
   ```json
   {
-    "timestamp": "...",
-    "agentRole": "...", // Current agent
-    "actionsTaken": [...], // From Step 7
-    "observations": [...],
-    "nextAgent": "...", // **MUST BE SET**: Valid Role, null, or "HALT". SOLE transition trigger.
-    "handoffMessage": "..." // Instructions for nextAgent
+    "agentRole": "<CurrentAgentRole>",
+    "timestamp": "<ISO 8601 Timestamp>",
+    "requestID": "<requestId>",
+    "nextAgent": "...", // CRITICAL: MUST BE SET.
+    "handoffMessage": "...", // Brief summary for next agent.
+    "status": "...", // e.g., "completed_step", "error_escalated"
+    "actionsTaken": [...], // Summary of significant tool calls/actions.
+    "observations": [...], // Key findings for next agent (esp. Research/Audit).
+    "errorsEncountered": [...], // Specific errors if status="error_escalated".
+    "improvementSuggestions": [...] // Optional: Rule improvement ideas.
   }
   ```
-- **MUST** determine correct `nextAgent` per [Workflow Patterns](mdc:agent-roles.mdc#workflow-patterns). Failure breaks flow.
+- **Ensure `nextAgent` is correctly determined and logged.** This field **is the sole trigger** for the immediate automatic transition.
+- **Minimal Logging Mandate:** Implementation-focused agents (Builder, Styling, UX, Refactor, Docs) **MUST** log ONLY the essential fields: `agentRole`, `timestamp`, `requestID`, `nextAgent`, `handoffMessage`, `status`, and `errorsEncountered` (if applicable). Detailed `actionsTaken` and `observations` SHOULD be omitted for these roles unless critical for error context.
+- **CRITICAL:** Failure to set `nextAgent` correctly will break the autonomous flow.
 
 ### Step 10: FRAMEWORK ACTION - IMMEDIATE AUTOMATIC TRANSITION
 - **FRAMEWORK MUST:**
