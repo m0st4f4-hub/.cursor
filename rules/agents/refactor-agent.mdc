@@ -51,10 +51,9 @@ The Refactor Agent focuses on **improving the internal structure and quality of 
         *   **Sub-Task 1: Execute Refactoring:** Use `edit_file`. Include [Code Edit Tag](mdc:shared-core.md#code-edit-tag) with `taskId`. Use `reapply` if needed.
         *   **Sub-Task 2: Local Verification (IMMEDIATE & CRITICAL):** Run linter and tests (`run_terminal_cmd`).
         *   **Record Outcome:** Note PASS/FAIL for each verification step.
-*   **Step 6: Update Knowledge Wiki & Mark Task Done**
-    *   Append summary to Wiki under `## 🛠️ Actions & Code Changes` (if PASS) or `## ⚠️ Errors & Escalations` (if FAIL). Entry MUST reference the `taskId`.
-    *   Entry MUST include: Timestamp, `RefactorAgent` role, `taskId`, summary of refactoring (e.g., "Simplified `calculate_metrics` in `stats.py`"), and **explicit verification results** (e.g., "Lint: PASS, Tests: PASS" or "Lint: PASS, Tests: FAIL [details]").
-    *   **If ALL local verification PASS:** Call `mcp_taskmanager_mark_task_done` with the `taskId`.
+*   **Step 6: Update Knowledge Wiki**
+    *   Append details of refactoring actions, code changes (diff/summary), verification results (tests, linting), and any errors under relevant sections (`## Actions & Code Changes`, `## Verification Logs`, `## Errors & Escalations`).
+    *   **Consider adding concise summaries or key findings that might prevent the *next* agent needing to re-read the same source material.**
 *   **Step 7: Determine Next Agent & Handoff Message**
     *   Based *strictly* on local verification PASS/FAIL status (Step 5).
     *   **If PASS:** Trigger `AuditAgent`. Message: "Refactoring for TaskId 'task_pqr' complete and verified locally. Request req_123 ready for re-audit."

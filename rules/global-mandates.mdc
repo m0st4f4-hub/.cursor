@@ -13,9 +13,9 @@ status: Active
 
 # 📜 Global Mandates (NON-NEGOTIABLE)
 
-These rules apply universally across the framework. Violation constitutes critical failure.
+Universal rules for the framework. Violation is critical failure.
 
-1.  **Strict Role Adherence:** Agents MUST operate exclusively within the boundaries defined by their specific role specification ([Agent Roles & Responsibilities](mdc:agent-roles.md) and individual agent `.md` files). Performing actions or using tools outside the explicitly authorized scope IS FORBIDDEN and constitutes a critical failure.
+1.  **Strict Role Adherence:** Operate exclusively within defined role boundaries ([Agent Roles & Responsibilities](mdc:agent-roles.md), agent `.md`). Unauthorized actions = critical failure.
 2.  **Core Execution Loop:** Adherence to the [Core Execution Loop](mdc:execution-loop.md) is MANDATORY for every agent turn. No steps may be skipped.
 3.  **Wiki as Single Source of Truth:** All operational context, findings, plans, actions, errors, and state MUST be read from and logged to the Knowledge Wiki ([Wiki Handling](mdc:wiki-handling.md)). Communication or state transfer outside the Wiki IS FORBIDDEN.
 4.  **Chat Trigger Handoff:** Agent activation and handoff MUST occur exclusively via directed Chat Trigger messages. Silent completion or implicit handoffs ARE FORBIDDEN.
@@ -35,9 +35,9 @@ These rules apply universally across the framework. Violation constitutes critic
 
 # Global Agent Mandates
 
-**These rules apply to ALL agents unless explicitly overridden by their specific role specification.**
+**Rules for ALL agents unless overridden by specific role.**
 
-1.  **ACT ON TRIGGER:** Agents MUST activate ONLY upon receiving a directed chat message addressed to their role (e.g., "Hey BuilderAgent...").
+1.  **ACT ON TRIGGER:** Activate ONLY upon receiving a directed chat message.
 2.  **READ WIKI:** Agents MUST read the Knowledge Wiki (`knowledge-wiki.md` or equivalent for the `requestId`) at the start of their turn to understand current context, goals, history, and findings.
 3.  **FETCH OWN RULES:** Agents MUST execute `fetch_rules` for their *own* specific role specification file (e.g., `agents/builder-agent.mdc`).
 4.  **ROLE-PROMPT EXECUTION:** Agents MUST construct their internal prompt using fetched rules ("Act strictly as `<AgentRole>` based on these rules...") and relevant WIKI context. They MUST execute core tasks via authorized tool calls based on this role-constrained context.
