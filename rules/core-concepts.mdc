@@ -15,7 +15,7 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-This document provides definitions for fundamental concepts and terminology used within the Chat/Wiki agent framework. It supplements the definitions in [Shared Core Concepts & Rules](mdc:shared-core.md) and serves as a quick reference glossary.
+This document provides definitions for fundamental concepts and terminology used within the Chat Trigger agent framework. It supplements the definitions in [Shared Core Concepts & Rules](mdc:shared-core.md) and serves as a quick reference glossary.
 
 ## 2. KEY CONCEPTS & DEFINITIONS
 
@@ -23,16 +23,14 @@ This document provides definitions for fundamental concepts and terminology used
     *   See [Shared Core Concepts & Rules](mdc:shared-core.md#2-core-concepts--definitions).
 *   **Agent Roles:**
     *   See [Shared Core Concepts & Rules](mdc:shared-core.md#2-core-concepts--definitions). Also see [Agent Roles & Responsibilities](mdc:agent-roles.md) for the registry.
-*   **Knowledge Wiki (`<requestId>-wiki.md`):**
-    *   See [Shared Core Concepts & Rules](mdc:shared-core.md#2-core-concepts--definitions). Also see [Wiki Handling](mdc:wiki-handling.md) for protocol details.
 *   **Chat Trigger:** REQUIRED control signal via platform chat message. Sole trigger for Agent activation and handoff. Agent MUST generate trigger message as final action. See [Execution Loop](mdc:execution-loop.md).
-*   **ACTION IMPERATIVE:** MANDATORY principle. Continuous execution triggered by chat, context from wiki, rules from `fetch_rules`. NO WAITING. See [Execution Loop](mdc:execution-loop.md).
+*   **ACTION IMPERATIVE:** MANDATORY principle. Continuous execution triggered by chat, context passed via trigger, rules from `fetch_rules`. NO WAITING. See [Execution Loop](mdc:execution-loop.md).
 *   **Tools:** MANDATORY capabilities for environment interaction (MCP, file system, terminal, custom). See [Shared Core](mdc:shared-core.mdc).
 *   **Rules (`.cursor/rules/`, `rules-md/`):** MANDATORY `.mdc` files defining behavior, standards, workflow. See [System Prompt](mdc:system-prompt.md).
-*   **Framework:** REQUIRED External execution engine. Parses chat triggers, provides tools, facilitates agent execution based on fetched rules and wiki context. See [System Prompt](mdc:system-prompt.md).
-*   **Autonomous Execution:** MANDATORY. Agents operate independently, activated by chat triggers, driven by wiki state. User interaction ONLY for requested diagnostics (Loop Step 5).
-*   **Wiki-Driven Coordination:**
-    *   The principle that the Knowledge Wiki is the sole mechanism for sharing detailed context, findings, goals, and errors between agents.
+*   **Framework:** REQUIRED External execution engine. Parses chat triggers, provides tools, facilitates agent execution based on fetched rules and context from trigger. See [System Prompt](mdc:system-prompt.md).
+*   **Autonomous Execution:** MANDATORY. Agents operate independently, activated by chat triggers, driven by rules and context passed in triggers. User interaction ONLY for requested diagnostics (Loop Step 4).
+*   **Chat-Driven Coordination:**
+    *   The principle that the Chat Trigger mechanism is the sole method for passing control, context, findings, goals, and errors between agents.
 *   **Specialized Agents:**
     *   The design pattern of breaking down complex tasks into functions performed by distinct Agent Roles, each with a specific purpose and ruleset.
 *   **Sequential Activation:**
@@ -40,7 +38,7 @@ This document provides definitions for fundamental concepts and terminology used
 *   **Direct Peer Handoffs:**
     *   The recommended practice for an agent to trigger another specialized agent directly via Chat Trigger when the workflow logically follows (e.g., `BuilderAgent` -> `AuditAgent`), minimizing unnecessary steps through `Overmind`. Return to `Overmind` for planning, escalation, or completion reporting.
 *   **Self-Improvement Loop:**
-    *   The mandated secondary goal of the framework where agents (`ImprovementAgent`, `RuleWriterAgent`) collaborate via the Wiki and Chat Triggers to analyze past performance and automatically refine or generate rules. See [System Prompt](mdc:system-prompt.md).
+    *   The mandated secondary goal of the framework where agents (`ImprovementAgent`, `RuleWriterAgent`) collaborate via Chat Triggers to analyze past performance and automatically refine or generate rules. See [System Prompt](mdc:system-prompt.md).
 *   **Global Rules (`.cursor/rules/global/`):**
     *   Foundational rules providing core behaviors and capabilities, typically shared across projects. See [System Prompt](mdc:system-prompt.md).
 *   **Project Rules (`.cursor/rules/project/`):**
@@ -55,7 +53,7 @@ This document provides definitions for fundamental concepts and terminology used
 ## 4. CORE TOOL INTEGRATION RULES (MANDATORY)
 
 *   **`fetch_rules`:** Agents MUST use `fetch_rules` to retrieve the full content of referenced rules (`mdc:...`) when the definition is required for detailed understanding or execution beyond the summary provided in registry files like `agent-roles.md`.
-*   **`mcp_taskmanager_*`:** Primarily used by `Overmind` for task lifecycle management. Agents completing specific sub-tasks MAY use `mark_task_done` but MUST treat it as non-blocking and proceed immediately to Wiki update and Chat Trigger.
+*   **`mcp_taskmanager_*`:** Primarily used by `Overmind` for task lifecycle management. Agents completing specific sub-tasks MAY use `mark_task_done` but MUST treat it as non-blocking and proceed immediately to constructing the Chat Trigger handoff.
 *   **`context7_*`:** Agents involved in implementation or detailed analysis requiring external library/framework knowledge (e.g., `BuilderAgent`, `ResearchAgent`) MUST use `mcp_context7_resolve-library-id` followed by `mcp_context7_get-library-docs` *before* attempting implementation or analysis relying on that external documentation.
 
 ## 5. REFERENCES
@@ -63,7 +61,6 @@ This document provides definitions for fundamental concepts and terminology used
 *   [Shared Core Concepts & Rules](mdc:shared-core.md)
 *   [System Prompt](mdc:system-prompt.md)
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
-*   [Wiki Handling](mdc:wiki-handling.md)
 *   [Execution Loop](mdc:execution-loop.md)
 *   [Initialization Procedure](mdc:initialization-procedure.md)
 *   [Framework Definition](mdc:framework.md) 
