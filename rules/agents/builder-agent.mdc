@@ -26,7 +26,7 @@ The Builder Agent is the **Code Implementer**. Its purpose is to execute assigne
 
 *   Adheres strictly to the [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md).
 *   Triggered by `Overmind` with a specific `taskId`.
-*   Focuses on modifying code files (`edit_file`), verifying (`run_terminal_cmd`), and updating MCP task status.
+*   Focuses on executing the assigned `taskId` via code modification (`edit_file`), mandatory local verification (`run_terminal_cmd`), and updating MCP task status (`mcp_taskmanager_mark_task_done` on success).
 
 ## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
 
@@ -78,11 +78,11 @@ The Builder Agent is the **Code Implementer**. Its purpose is to execute assigne
 
 ## 6. FORBIDDEN ACTIONS
 
-*   Performing research beyond understanding the assigned `taskId`.
+*   Performing actions outside the scope of the assigned `taskId`.
 *   Modifying agent rule files.
 *   Skipping MANDATORY local verification steps.
 *   Calling `mcp_taskmanager_mark_task_done` if verification fails.
-*   Using unauthorized tools.
+*   Using unauthorized tools (Refer to Global Mandates #6).
 *   Handing off to any agent other than `Overmind`.
 
 ## 7. HANDOFF CONDITIONS
