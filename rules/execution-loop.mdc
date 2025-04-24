@@ -5,88 +5,75 @@ globs:
 alwaysApply: false
 ---
 
-# CORE EXECUTION LOOP (MANDATORY & NON-STOP)
+# CORE EXECUTION LOOP (V2 - Chat/Wiki Coordination)
 
-**ACTION IMPERATIVE:** EXECUTE ACTIONS CONTINUOUSLY. TRANSITION AUTOMATICALLY VIA LOGGED `nextAgent` ONLY. NO PAUSES (Except Step 6 Diagnostics). FRAMEWORK EXECUTES TRANSITIONS IMMEDIATELY.
+**ACTION IMPERATIVE:** Respond to chat triggers. Execute tasks based on fetched rules and wiki context. Update wiki. Trigger next agent via chat.
 
-### Step 1: ACTION - Load Context
-- EXECUTE `read_file logs/<requestId>.json`.
-- EXTRACT latest state (`projectName`, `domain`, `handoffMessage`).
-- OPTIONAL: EXECUTE `run_terminal_cmd python tools/analyze_log.py logs/<requestId>.json`.
+## AGENT TURN WORKFLOW (MANDATORY SEQUENCE)
 
-### Step 2: ACTION - Get MCP Task (Optional & Restricted)
-- EXECUTE `mcp_taskmanager_get_next_task` (Non-blocking).
-- Log state drives execution.
+### Step 1: ACTIVATE via Chat Trigger
+- Agent is activated by a preceding chat message explicitly addressing its role (e.g., "Hey BuilderAgent...").
+- Extract initial instructions/query from the trigger message.
 
-### Step 3: ACTION - Analyze Log Context
-- PROCESS latest `handoffMessage`/`observations` -> Determine turn goal.
+### Step 2: ACTION - Read Knowledge Wiki
+- **MANDATORY:** EXECUTE `read_file` (or specialized tool) on `knowledge-wiki.md` (or the designated wiki file defined in [Wiki Handling](mdc:wiki-handling.md)).
+- **MANDATORY:** PARSE wiki content to understand:
+    - Overall request goal (`requestId`, description).
+    - Current task/milestone.
+    - Findings/context from previous agents.
+    - Relevant user input summaries.
+    - Current codebase state summaries (if applicable).
 
-### Step 4: ACTION - Analyze Codebase Context
-- EXECUTE `file_search`, `read_file`, `grep_search`, `codebase_search` AS NEEDED.
+### Step 3: ACTION - Fetch Own Role Specification
+- **MANDATORY:** EXECUTE `fetch_rules` specifying the agent's *own* role specification file (e.g., `fetch_rules(rule_names=["agents/builder-agent"])`).
 
-### Step 5: ACTION - Gather External Context (If Needed & Restricted)
-- EXECUTE `context7_*` for docs.
-- EXECUTE `web_search` for external patterns/errors.
+### Step 4: ACTION - Construct Role-Prompt & Plan Turn
+- **MANDATORY (Internal):** Construct the prompt for the LLM execution:
+    - Start with: "Act *strictly* as `<AgentRole>` based on the following rules and context."
+    - Inject fetched rules from Step 3.
+    - Inject relevant context summary from the wiki (Step 2).
+    - Include the query/instruction from the trigger message (Step 1).
+- **MANDATORY (Internal):** Develop a minimal execution plan for the turn based on role, context, and instructions.
 
-### Step 6: ACTION - Execute Agent-Specific Core Task
-- EXECUTE core task via tools (`edit_file`, `run_terminal_cmd`, custom tools) per Agent Role.
-- DIAGNOSTICS EXCEPTION: IF execution fails AND requires external info, EXECUTE user interaction ONLY for specific data (logs, HAR). RESUME ACTION IMMEDIATELY on receipt. DO NOT PAUSE OTHERWISE.
+### Step 5: ACTION - Execute Core Task(s)
+- **MANDATORY:** Execute the agent's primary function using authorized tools (`edit_file`, `codebase_search`, `web_search`, `run_terminal_cmd`, etc.) as defined in the agent's role specification and dictated by the plan.
+- **DIAGNOSTICS EXCEPTION:** If execution fails and requires external info (user logs, HAR files), agent MAY generate a targeted request *to the user* via chat, clearly stating what is needed. Upon receiving data, agent MUST immediately resume its task.
 
-### Step 7: ACTION - Record Actions
-- CONSOLIDATE tool results into `actionsTaken` structure.
+### Step 6: ACTION - Update Knowledge Wiki
+- **MANDATORY:** Consolidate results, findings, summaries of actions taken, or errors encountered during Step 5.
+- **MANDATORY:** EXECUTE `edit_file` (or specialized tool) to APPEND the consolidated information to the `knowledge-wiki.md` according to the structure defined in [Wiki Handling](mdc:wiki-handling.md).
+    - Include agent role and timestamp for the entry.
+    - Clearly label findings, action summaries, errors, or milestone updates.
 
-### Step 8: ACTION - Finalize Task (Optional, Non-Blocking & Restricted)
-- EXECUTE `mcp_taskmanager_mark_task_done`.
-- PROCEED IMMEDIATELY to Step 9.
+### Step 7: ACTION - Determine Next Agent & Handoff Strategy
+- **MANDATORY:** Based on the outcome of Step 5/6, the agent's role specification ([Transfer Conditions](mdc:agent-roles.md)), and the overall workflow, DETERMINE the role of the next agent required (`<NextAgentRole>`). This could be another specialized agent or `Overmind` for planning/escalation.
+- **MANDATORY:** Formulate a concise handoff message summarizing the outcome of the current turn and stating the objective for the next agent.
 
-### Step 9: ACTION - Log To Request File (CRITICAL IMMEDIATE HANDOFF TRIGGER)
-- **Append** to `logs/<requestId>.json`:
-  ```json
-  {
-    "agentRole": "<CurrentAgentRole>",
-    "timestamp": "<ISO 8601 Timestamp>",
-    "requestID": "<requestId>",
-    "nextAgent": "...", // CRITICAL: MUST BE SET.
-    "handoffMessage": "...", // Brief summary for next agent.
-    "status": "...", // e.g., "completed_step", "error_escalated"
-    "actionsTaken": [...], // Summary of significant tool calls/actions.
-    "observations": [...], // Key findings for next agent (esp. Research/Audit).
-    "errorsEncountered": [...], // Specific errors if status="error_escalated".
-    "improvementSuggestions": [...] // Optional: Rule improvement ideas.
-  }
-  ```
-- **Ensure `nextAgent` is correctly determined and logged.** This field **is the sole trigger** for the immediate automatic transition.
-- **Minimal Logging Mandate:** Implementation-focused agents (Builder, Styling, UX, Refactor, Docs) **MUST** log ONLY the essential fields: `agentRole`, `timestamp`, `requestID`, `nextAgent`, `handoffMessage`, `status`, and `errorsEncountered` (if applicable). Detailed `actionsTaken` and `observations` SHOULD be omitted for these roles unless critical for error context.
-- **CRITICAL:** Failure to set `nextAgent` correctly will break the autonomous flow.
-
-### Step 10: FRAMEWORK ACTION - IMMEDIATE AUTOMATIC TRANSITION
-- **FRAMEWORK MUST:**
-  - READ `nextAgent` from latest log entry IMMEDIATELY after Step 9.
-  - IF valid Agent Role: LOAD rules for `nextAgent`, RESTART from Step 1 with `nextAgent` WITHOUT DELAY.
-  - IF null/empty/"HALT": STOP execution for `requestId`.
-  - IF invalid/missing: REPORT error, HALT.
+### Step 8: ACTION - Generate Next Chat Trigger (FINAL ACTION)
+- **MANDATORY:** Compose the **final response** for the current turn.
+- **FORMAT:** "Hey `<NextAgentRole>`, [Concise handoff message from Step 7]. See wiki for details."
+- **CRITICAL:** This message acts as the trigger for the next agent in the sequence. The turn ends immediately after sending this message.
 
 ## PER-STEP VERIFICATION (MANDATORY)
-- Before each ACTION (Steps 1-9), agent MUST verify:
-  1. Required tools available.
-  2. Necessary permissions exist.
-  3. Required inputs valid and present.
-  4. Log file accessible and valid (esp. Steps 1, 9).
-- FAILURE -> HALT & ESCALATE via [Error Handling](#error-handling-general).
+- Before each ACTION (Steps 2-8), agent MUST verify:
+  1. Required tools available & functional.
+  2. Necessary inputs (wiki content, fetched rules, trigger message) are present and valid.
+  3. Wiki file accessible and valid (esp. Steps 2, 6).
+- FAILURE -> HALT & ESCALATE via [Error Handling](#error-handling-chat-wiki).
 
-## FORBIDDEN PATTERNS
-- Waiting for user confirmation.
-- State management outside log file.
-- Direct agent-to-agent communication.
-- Blocking on optional MCP task approval.
-- Failing to set valid `nextAgent` in Step 9.
-- Deviating from the 10-step sequence.
+## FORBIDDEN PATTERNS (V2)
+- Waiting for user confirmation (except for Step 5 Diagnostics).
+- State management outside the knowledge wiki.
+- Direct agent communication outside the defined chat trigger/wiki mechanism.
+- Failing to fetch own rules (Step 3).
+- Failing to update the wiki (Step 6).
+- Failing to generate the next chat trigger message (Step 8).
+- Deviating from the 8-step sequence.
 
-## ERROR HANDLING (GENERAL) <a name="error-handling-general"></a>
-- On unrecoverable error or failed verification (Steps 1-9):
+## ERROR HANDLING (Chat/Wiki) <a name="error-handling-chat-wiki"></a>
+- On unrecoverable error or failed verification:
   1. PREPARE minimal error details.
-  2. SET `status: "error_escalated"`.
-  3. SET `nextAgent: "Overmind"` (or `"HALT"` for critical framework issues).
-  4. PREPARE concise `handoffMessage` (failure step#) + details in `errorsEncountered`/`errorContext`.
-  5. EXECUTE Step 9 to log error state and hand off.
-  6. IF Step 9 fails critically, FRAMEWORK handles halt. 
+  2. UPDATE wiki (Step 6) with error status, agent role, timestamp, and error details.
+  3. DETERMINE `nextAgent` as `Overmind` (Step 7).
+  4. FORMULATE handoff message indicating failure and need for assessment (Step 7).
+  5. EXECUTE Step 8 to trigger `Overmind` via chat: "Hey Overmind, encountered error [brief summary]. Escalating for assessment. See wiki for details." 
