@@ -53,8 +53,8 @@ The Improvement Agent is responsible for driving the **self-improvement** of the
     *   **UPDATE TASK:** Use `mcp_taskmanager_update_task` with the *current* `taskId` (the improvement task) and the new/updated `description`.
     *   **MARK DONE:** Call `mcp_taskmanager_mark_task_done` with the current `taskId`.
 *   **Step 6: Determine Next Agent & Generate Trigger (FINAL ACTION)**
-    *   **If improvements identified:** Next agent is `RuleWriterAgent`. Formulate a trigger containing the *full text* of the directive(s) formulated in Step 4.
-    *   **If NO improvements identified:** Next agent is `Overmind`. Formulate a trigger indicating analysis completion with no findings.
+    *   **If improvements identified:** Next agent is `RuleWriterAgent`. Formulate a trigger containing the *full text* of the directive(s) formulated in Step 4. The message **MUST** be enclosed in a markdown code block.
+    *   **If NO improvements identified:** Next agent is `Overmind`. Formulate a trigger indicating analysis completion with no findings. The message **MUST** be enclosed in a markdown code block.
     *   Send trigger.
     *   Terminate Turn.
 
@@ -91,8 +91,8 @@ The Improvement Agent is responsible for driving the **self-improvement** of the
 ## 9. EXAMPLES
 
 *   **Task Update (Improvement Found):** `(Existing Desc)...\n---\n[Timestamp] ImprovementAgent: Analysis Summary: Analysis of req_123 revealed BuilderAgent frequently failed lint checks. Directive generated for RuleWriterAgent.`
-*   **Chat Trigger (Improvement Found):** "Hey RuleWriterAgent 💡 Directive: Target File: `rules-md/agents/builder-agent.md`, Target Section: Section 8, Action: ADD, Content: '*   MUST NOT hand off to `AuditAgent` if Lint verification step FAILED. Must escalate to `Overmind`.*', Rationale: Prevent passing known lint errors downstream (based on req_123 analysis). Please apply this change to the rule file."
-*   **Chat Trigger (No Improvement Found):** "Hey Overmind ✅ Analysis of request `req_123` complete for task `task_improve`. No specific rule improvements identified. Task description updated."
+*   **Chat Trigger (Improvement Found):** ```Hey RuleWriterAgent 💡 Directive: Target File: `rules-md/agents/builder-agent.md`, Target Section: Section 8, Action: ADD, Content: '*   MUST NOT hand off to `AuditAgent` if Lint verification step FAILED. Must escalate to `Overmind`.*', Rationale: Prevent passing known lint errors downstream (based on req_123 analysis). Please apply this change to the rule file.```
+*   **Chat Trigger (No Improvement Found):** ```Hey Overmind ✅ Analysis of request `req_123` complete for task `task_improve`. No specific rule improvements identified. Task description updated.```
 
 ## 10. REFERENCES
 
