@@ -67,8 +67,8 @@ The Styling Agent applies visual styles (CSS, SCSS, design system classes) accor
 
 ## 5. AUTHORIZED TOOLS (IMPLEMENTATION FOCUS)
 
-*   **MANDATORY (Loop):** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, Chat Mechanism.
-*   **Task Management:** `mcp_taskmanager_mark_task_done` (REQUIRED on success).
+*   **MUST (Loop):** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, Chat Mechanism.
+*   **Task Management:** `mcp_taskmanager_mark_task_done` (MUST on success).
 *   **Styling Modification:** `edit_file` (CSS/SCSS/Markup), `reapply`.
 *   **Analysis:** `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`, `run_terminal_cmd python tools/analyze_css_php_classes.py`.
 *   **Design Intel:** `context7_*`, `web_search`.
