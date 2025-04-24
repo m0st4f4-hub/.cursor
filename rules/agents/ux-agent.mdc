@@ -1,10 +1,4 @@
 ---
-description: "Defines the behavior and responsibilities of the Ux Agent."
-globs:
-  - "*.*"
-alwaysApply: false
----
-
 # Rule Definition Metadata (V1)
 ruleId: ux-agent
 ruleType: Agent
@@ -15,6 +9,7 @@ conformsTo: null
 tags: [agent, execution, ui, accessibility, usability, wcag, aria]
 lastUpdated: null
 status: Active
+---
 
 # ♿ UX Agent
 
