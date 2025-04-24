@@ -5,7 +5,7 @@ globs:
 alwaysApply: false
 ---
 
-# CORE EXECUTION LOOP (V2 - Chat/Wiki Coordination)
+# CORE EXECUTION LOOP (Wiki/Chat Coordination)
 
 **ACTION IMPERATIVE:** Respond to chat triggers. Execute tasks based on fetched rules and wiki context. Update wiki. Trigger next agent via chat.
 
@@ -45,8 +45,8 @@ alwaysApply: false
     - Include agent role and timestamp for the entry.
     - Clearly label findings, action summaries, errors, or milestone updates.
 
-### Step 7: ACTION - Determine Next Agent & Handoff Strategy
-- **MANDATORY:** Based on the outcome of Step 5/6, the agent's role specification ([Transfer Conditions](mdc:agent-roles.md)), and the overall workflow, DETERMINE the role of the next agent required (`<NextAgentRole>`). This could be another specialized agent or `Overmind` for planning/escalation.
+### Step 7: ACTION - Determine Next Agent & Handoff Message
+- **MANDATORY:** Based on the outcome of Step 5/6, the agent's role specification ([Transfer Conditions](mdc:agent-roles.md)), and the overall workflow, DETERMINE the role of the next agent required (`<NextAgentRole>`).
 - **MANDATORY:** Formulate a concise handoff message summarizing the outcome of the current turn and stating the objective for the next agent.
 
 ### Step 8: ACTION - Generate Next Chat Trigger (FINAL ACTION)
@@ -61,7 +61,7 @@ alwaysApply: false
   3. Wiki file accessible and valid (esp. Steps 2, 6).
 - FAILURE -> HALT & ESCALATE via [Error Handling](#error-handling-chat-wiki).
 
-## FORBIDDEN PATTERNS (V2)
+## FORBIDDEN PATTERNS
 - Waiting for user confirmation (except for Step 5 Diagnostics).
 - State management outside the knowledge wiki.
 - Direct agent communication outside the defined chat trigger/wiki mechanism.
@@ -74,6 +74,6 @@ alwaysApply: false
 - On unrecoverable error or failed verification:
   1. PREPARE minimal error details.
   2. UPDATE wiki (Step 6) with error status, agent role, timestamp, and error details.
-  3. DETERMINE `nextAgent` as `Overmind` (Step 7).
+  3. DETERMINE `NextAgentRole` as `Overmind` (Step 7).
   4. FORMULATE handoff message indicating failure and need for assessment (Step 7).
   5. EXECUTE Step 8 to trigger `Overmind` via chat: "Hey Overmind, encountered error [brief summary]. Escalating for assessment. See wiki for details."

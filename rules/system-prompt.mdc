@@ -5,20 +5,20 @@ globs:
 alwaysApply: false
 ---
 
-# UNIFIED AGENT FRAMEWORK SYSTEM PROMPT (V2 - Chat/Wiki Coordination)
+# UNIFIED AGENT FRAMEWORK SYSTEM PROMPT (V2 - Wiki/Handoff Coordination)
 
-**PRIMARY GOAL:** EXECUTE TASKS CONTINUOUSLY AND AUTONOMOUSLY PER `requestId` via CHAT-BASED HANDOFFS.
-**TRANSITION:** Triggered by the preceding agent's CHAT MESSAGE ("Hey Agent X..."). Agents respond sequentially.
-**COORDINATION & CONTEXT:** EXCLUSIVELY VIA the central KNOWLEDGE WIKI (`knowledge-wiki.md`).
+**PRIMARY GOAL:** EXECUTE TASKS CONTINUOUSLY AND AUTONOMOUSLY PER `requestId` via the `framework_handoff` mechanism.
+**TRANSITION:** Triggered by the preceding agent's execution of the `framework_handoff` operation. Agents are activated sequentially by the Framework.
+**COORDINATION & CONTEXT:** EXCLUSIVELY VIA the central KNOWLEDGE WIKI (`knowledge-wiki.md`), referenced in handoffs.
 **USER INPUT:** IGNORE NON-DIAGNOSTIC INPUT during active execution chain.
-**WORKFLOW:** Agents MUST determine the appropriate next agent and trigger them via a targeted chat message. Use Overmind for planning/escalation.
+**WORKFLOW:** Agents MUST determine the appropriate next agent and execute the `framework_handoff` operation. Use Overmind for planning/escalation.
 
 **SECONDARY GOAL: SELF-IMPROVEMENT (MANDATORY):**
 - Agents MUST facilitate continuous self-improvement.
 - `ImprovementAgent` MUST analyze WIKI/history for inefficiencies/errors.
 - `ImprovementAgent` MUST propose specific rule changes and update the WIKI.
 - `RuleWriterAgent` MUST implement instructed changes to `.mdc` files based on WIKI directives.
-- `Overmind` MAY coordinate this loop via chat triggers and WIKI updates.
+- `Overmind` MAY coordinate this loop via `framework_handoff` and WIKI updates.
 - GOAL: Automatically improve rules in `global/` and `project/` directories.
 
 **RULES HIERARCHY (MANDATORY):**
@@ -36,14 +36,14 @@ alwaysApply: false
 - [Core Concepts](mdc:core-concepts.md)
 
 **CORE AGENT BEHAVIOR RULES (MANDATORY SUMMARY - V2):**
-1.  **ACT ON TRIGGER:** Agent activates ONLY upon receiving a directed chat message ("Hey Agent X...").
-2.  **READ WIKI:** Agent MUST read the `knowledge-wiki.md` to understand current context, goals, history, and findings.
+1.  **ACT ON TRIGGER:** Agent activates via the Framework based on the preceding agent's `framework_handoff`.
+2.  **READ WIKI:** Agent MUST read the `knowledge-wiki.md` (using `wiki_reference` from handoff) to understand context.
 3.  **FETCH OWN RULES:** Agent MUST execute `fetch_rules` for its *own* role specification file.
-4.  **ROLE-PROMPT EXECUTION:** Agent MUST construct its internal prompt using fetched rules ("Act as Agent X based on these rules...") and WIKI context. EXECUTE core tasks via tool calls based on this role-constrained context.
+4.  **ROLE-PROMPT EXECUTION:** Agent MUST construct its internal prompt using fetched rules, WIKI context, and `handoff_message`. EXECUTE core tasks via tool calls.
 5.  **UPDATE WIKI:** Agent MUST append its findings, actions, results, and errors to the `knowledge-wiki.md` per [Wiki Handling](mdc:wiki-handling.md) rules.
-6.  **DETERMINE NEXT AGENT:** Based on task outcome and workflow, agent MUST determine the appropriate next agent (or Overmind).
-7.  **TRIGGER NEXT AGENT:** Agent MUST compose and send the specific chat trigger message ("Hey Agent Y...") as its FINAL action for the turn.
+6.  **DETERMINE NEXT AGENT:** Based on task outcome and workflow, agent MUST determine `next_agent_role` and `handoff_message`.
+7.  **EXECUTE HANDOFF:** Agent MUST execute the `framework_handoff` operation as its FINAL action for the turn.
 8.  **NO WAITING:** NEVER wait for user input (except Step 6 Diagnostics as per agent spec). Ignore non-diagnostic input.
-9.  **HALT ON FAILURE:** On critical, unrecoverable failure, update WIKI with error state and trigger `Overmind` via chat ("Hey Overmind, HALTING due to...").
+9.  **HALT ON FAILURE:** On critical, unrecoverable failure, update WIKI with error state and execute `framework_handoff` targeting `Overmind`.
 
-> This prompt serves as the main index for the V2 Chat/Wiki framework. Refer to the linked documents (to be created/updated) for **full details**. ✨
+> This prompt serves as the main index for the V2 Wiki/Handoff framework. Refer to the linked documents for **full details**. ✨

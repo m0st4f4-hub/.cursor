@@ -105,5 +105,5 @@ The wiki file will use Markdown headings to structure information. Agents **MUST
 ## 🤝 Coordination
 
 - The wiki serves as the shared context.
-- Agent transitions are triggered via **Chat Messages** ([Execution Loop V2 - Step 8](mdc:execution-loop.md#step-8-action---generate-next-chat-trigger-final-action)).
-- The chat message should be brief, indicating the next agent and the general task, explicitly stating that details are in the wiki (e.g., "Hey AuditAgent, build complete. Please run checks. See wiki for details."). 
+- Agent transitions are triggered via the **`framework_handoff` mechanism** ([Shared Core](mdc:shared-core.md#handoff-mechanism-v2-replaces-chat-trigger)).
+- The `handoff_message` parameter within the `framework_handoff` operation should be brief, indicating the next agent's objective and explicitly stating that details are in the wiki (referenced by the `wiki_reference` parameter).
