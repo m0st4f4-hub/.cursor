@@ -20,7 +20,7 @@ This document defines the non-negotiable core concepts, terminology, entities, a
     *   DEFINITION: Specialized functional units within the framework (e.g., BuilderAgent, AuditAgent). Each role has specific responsibilities, allowed tools, and behaviors defined in its own rule specification file.
     *   REFERENCE: See [Agent Roles & Responsibilities](mdc:agent-roles.md) for the registry.
 *   **Chat Trigger:**
-    *   (Legacy/Alternative Coordination) MUST be the control signal via platform chat message when MCP Task Manager is not the primary coordinator. Sole trigger for Agent activation and handoff in chat-driven mode. Agent MUST generate trigger message as final action. See [Execution Loop](mdc:framework-execution-loop.mdc).
+    *   (Legacy/Alternative Coordination) MUST be the control signal via platform chat message when MCP Task Manager is not the primary coordinator. Sole trigger for Agent activation and handoff in chat-driven mode. Agent MUST generate trigger message as final action. See [Framework & Execution Loop](mdc:framework-execution-loop.mdc).
 *   **Framework:**
     *   DEFINITION: The underlying execution engine that manages the agent lifecycle based on rules and coordination mechanism (Chat or MCP).
     *   RESPONSIBILITIES: Parsing triggers/MCP state, activating agents, providing tools, facilitating execution.
@@ -30,7 +30,7 @@ This document defines the non-negotiable core concepts, terminology, entities, a
 *   **Tools:**
     *   MUST be the capabilities provided by the Framework for environment interaction (MCP, file system, terminal, custom APIs). Availability defined per-agent role.
 *   **Autonomous Execution:**
-    *   MUST ensure agents operate independently, activated by the framework based on triggers or MCP state, driven by rules and context. User interaction MUST occur ONLY for requested diagnostics (Loop Step 4).
+    *   MUST ensure agents operate independently, activated by the framework based on triggers or MCP state, driven by rules and context. User interaction MUST occur ONLY for requested diagnostics ([Framework & Execution Loop](mdc:framework-execution-loop.mdc) Part 2, Step 4).
 *   **Coordination Mechanisms:**
     *   **Chat-Driven Coordination:** Control passed via Chat Trigger messages. Context included in trigger payload.
     *   **MCP Task Manager Coordination:** Control flow managed by `Overmind` polling MCP Task Manager (`get_next_task`). Context and state persisted in MCP task descriptions. This is the PREFERRED model.

@@ -21,7 +21,7 @@ The Framework MUST perform the following functions:
     *   **(MCP Mode):** Activate agents based on task assignments in MCP, typically orchestrated by `Overmind` polling `get_next_task`.
     *   **(Chat Mode):** Monitor agent output for the final Chat Trigger message, parse it, identify the target agent and context.
     *   Load necessary rules (`.md` / `.mdc` files from `.cursor/rules/`, respecting project/global hierarchy) for the target agent.
-    *   Invoke/activate the target agent, providing its rules and the initial context (assigned `taskId` in MCP Mode, trigger payload in Chat Mode). This MUST align with Part 2, Step 1.
+    *   Invoke/activate the target agent, providing its rules and the initial context (assigned `taskId` in MCP Mode, trigger payload in Chat Mode). This MUST align with **Part 2, Step 1** of this document.
     *   Ensure strictly sequential execution for a given `requestId`.
 
 2.  **Tool Provision & Execution:**
@@ -47,13 +47,13 @@ The Framework MUST perform the following functions:
 
 *   Framework interacts with agents via Activation, Tool Interface, and Transition detection (Chat Mode) or by providing MCP tool access (MCP Mode).
 *   Framework MUST NOT need to understand semantic content of Chat Triggers or MCP task descriptions.
-*   Framework MUST enforce the core behavioral loop and sequential execution.
+*   Framework MUST enforce the core behavioral loop (**Part 2**) and sequential execution.
 
 ### 1.4. ASSUMPTIONS
 
 *   Rules exist in the expected location and structure.
 *   (Chat Mode) Chat Triggers follow the standard format.
-*   Agents correctly implement the Core Execution Loop (Part 2).
+*   Agents correctly implement the Core Execution Loop (**Part 2**).
 *   (MCP Mode) `Overmind` correctly orchestrates using MCP tools.
 
 ---
@@ -75,7 +75,7 @@ Ensure consistent, predictable, and auditable agent behavior using MCP Task Mana
 
 ### 2.2. CORE BEHAVIOR
 
-*   Sequential execution of Steps 1-6 MUST be followed.
+*   Sequential execution of **Steps 1-6** MUST be followed.
 *   Steps MUST NOT be skipped unless part of defined error handling (HALT).
 *   Interaction points (MCP Task Manager, Tools, Chat) MUST be defined per step.
 *   The coordination mechanism (MCP Task / Chat Payload) MUST be the **single source of truth** for task details, status, and operational context.
@@ -110,7 +110,7 @@ Ensure consistent, predictable, and auditable agent behavior using MCP Task Mana
 *   **Input:** Fetched rules (Step 3), Task Context (Step 2).
 *   **Process:**
     1.  Construct prompt reflecting role, rules, context, and goal.
-    2.  Plan specific tool calls needed for Step 5, including **mandatory verification steps** and addressing identified **assumptions** as required by [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc).
+    2.  Plan specific tool calls needed for **Step 5**, including **mandatory verification steps** and addressing identified **assumptions** as required by [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc).
 *   **Output:** Internal prompt string, structured plan.
 
 **Step 5: Execute Core Task(s) & Verify**
@@ -127,7 +127,7 @@ Ensure consistent, predictable, and auditable agent behavior using MCP Task Mana
 *   **Action:** Persist results to the coordination mechanism and terminate the turn.
 *   **Tooling (MCP Mode):** `mcp_taskmanager_update_task`, `mcp_taskmanager_mark_task_done`.
 *   **Tooling (Chat Mode):** Chat Mechanism.
-*   **Input:** `taskId` (MCP Mode), Internal results/analysis (Step 5).
+*   **Input:** `taskId` (MCP Mode), Internal results/analysis (**Step 5**).
 *   **Process (MCP Mode):**
     1.  **Update Description:** Use `mcp_taskmanager_update_task` to append **detailed, comprehensive** findings: actions taken, verification steps/results, assumptions, uncertainties, errors (as per Mandate 10 in [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc)).
     2.  **Mark Done:** If task is complete (Success/Failure), call `mcp_taskmanager_mark_task_done`.
@@ -143,13 +143,13 @@ Ensure consistent, predictable, and auditable agent behavior using MCP Task Mana
 
 *   **Get Context Failure (Step 2):** HALT. (`Overmind` should detect stall in MCP Mode).
 *   **Update State/Trigger Failure (Step 6):** Attempt retry once. If still fails, HALT. Log error locally if possible. (`Overmind` should detect stall in MCP Mode).
-*   **Execution Errors (Step 5):** MUST log detailed error analysis into the MCP Task description or Chat Handoff Payload (Step 6 Process #1 or #2) before potentially marking done (if recoverable) or halting. Escalate to `Overmind` via the appropriate mechanism.
+*   **Execution Errors (Step 5):** MUST log detailed error analysis into the MCP Task description or Chat Handoff Payload (**Step 6** Process #1 or #2) before potentially marking done (if recoverable) or halting. Escalate to `Overmind` via the appropriate mechanism.
 
 ### 2.5. CONSTRAINTS & FORBIDDEN PATTERNS
 
-*   MUST follow steps 1-6 sequentially.
+*   MUST follow **Steps 1-6** sequentially.
 *   The coordination mechanism (MCP Task / Chat Payload) MUST be the SOLE state/context source.
-*   MUST provide detailed updates including verification/assumptions (Step 6).
+*   MUST provide detailed updates including verification/assumptions (**Step 6**).
 
 ### 2.6. REFERENCES
 
