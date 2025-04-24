@@ -3,6 +3,14 @@
 ruleId: execution-loop
 ruleType: Procedure
 title: Core Agent Execution Loop (Chat/Wiki Coordination)
+description: Defines the mandatory, sequential steps each agent MUST follow during its execution turn within the Chat/Wiki framework.
+schemaVersion: 1
+conformsTo: null
+tags: [core, framework, procedure, execution, agent-turn]
+lastUpdated: null
+status: Active
+---
+
 # 🔁 Core Agent Execution Loop
 
 ## 1. PURPOSE & OBJECTIVES
@@ -21,11 +29,11 @@ Agents operate in discrete turns, activated by a Chat Trigger. Within a turn, th
 *   **Process:** Extract initial instructions, query, or task context from the message.
 
 ### Step 2: Read Knowledge Wiki
-*   **Action:** Read and parse the Knowledge Wiki file (`wiki/<requestId>-<description>.md`).
+*   **Action:** Read and parse the Knowledge Wiki file (`<requestId>-wiki.md`).
 *   **Tooling:** `read_file` (or potentially `analyze_wiki.py` via `run_terminal_cmd`).
-*   **Input:** `requestId`, potentially `<description>` if known.
+*   **Input:** `requestId`.
 *   **Process:** Extract necessary context including overall goal, current task, history, findings from previous agents, user input summaries, and relevant project state. Refer to [Wiki Handling](mdc:wiki-handling.md) for structure.
-*   **Verification:** Wiki file exists in `wiki/`, is readable, and contains expected baseline information.
+*   **Verification:** Wiki file exists, is readable, and contains expected baseline information.
 
 ### Step 3: Fetch Own Role Specification
 *   **Action:** Fetch the agent's specific behavior rules.
@@ -51,9 +59,9 @@ Agents operate in discrete turns, activated by a Chat Trigger. Within a turn, th
 ### Step 6: Update Knowledge Wiki
 *   **Action:** Append a record of the turn's activities and outcomes to the Wiki.
 *   **Tooling:** `edit_file`.
-*   **Input:** Results, findings, action summaries, errors from Step 5. `requestId`, `<description>`.
-*   **Process:** Consolidate information into a timestamped entry attributed to the agent role. Append this entry under the appropriate section(s) in the `wiki/<requestId>-<description>.md` file, following [Wiki Handling](mdc:wiki-handling.md) structure.
-*   **Verification:** Wiki file is accessible in `wiki/`; append operation is structured correctly.
+*   **Input:** Results, findings, action summaries, errors from Step 5. `requestId`.
+*   **Process:** Consolidate information into a timestamped entry attributed to the agent role. Append this entry under the appropriate section(s) in the `<requestId>-wiki.md` file, following [Wiki Handling](mdc:wiki-handling.md) structure.
+*   **Verification:** Wiki file is accessible; append operation is structured correctly.
 
 ### Step 7: Determine Next Agent & Handoff Message
 *   **Action (Internal):** Decide which agent role should execute the next turn and prepare the handoff instructions.
@@ -110,13 +118,6 @@ Agents operate in discrete turns, activated by a Chat Trigger. Within a turn, th
 ## 9. EXAMPLES
 
 *   N/A (Procedural document)
-
-## 10. REFERENCES
-
-*   [`global-mandates.md`](./global-mandates.md)
-*   [Wiki Handling](mdc:wiki-handling.md)
-*   [Agent Roles & Responsibilities](mdc:agent-roles.md)
-*   [Shared Core Concepts & Rules](mdc:shared-core.md)
 
 ## 10. REFERENCES
 

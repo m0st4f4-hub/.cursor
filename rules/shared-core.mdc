@@ -1,8 +1,16 @@
 ---
+# Rule Definition Metadata (V1)
+ruleId: shared-core
+ruleType: Shared
+title: Shared Core Concepts & Rules
 description: Defines fundamental concepts, entities, and mandatory mechanisms for the Chat/Wiki agent framework.
-globs: 
-alwaysApply: false
+schemaVersion: 1
+conformsTo: null # TBD: Link to a meta-rule definition if created
+tags: [core, framework, concepts, shared]
+lastUpdated: null # Will be set upon merge
+status: Active
 ---
+
 # 🧱 Shared Core Concepts & Rules
 
 ## 1. PURPOSE & OBJECTIVES
@@ -17,9 +25,7 @@ This document defines the non-negotiable core concepts, terminology, and mandato
     *   USAGE: Used in Knowledge Wiki filenames (e.g., `<requestId>-wiki.md`), MCP Taskmanager calls, and Code Edit Tags.
     *   ORIGIN: Typically initiated by Overmind or an external trigger.
 *   **Knowledge Wiki:**
-    *   REQUIRED: The **single source of truth** for a `requestId`, implemented as an append-only Markdown file.
-    *   LOCATION: Resides in the `wiki/` directory.
-    *   NAMING: `wiki/<requestId>-<description>.md` (e.g., `wiki/req-123-feature-summary.md`).
+    *   REQUIRED: The **single source of truth** for a `requestId`, implemented as an append-only Markdown file (e.g., `<requestId>-wiki.md`).
     *   PURPOSE: Persists context, goals, history, agent findings, actions, errors, and user input summaries.
     *   ACCESS: Agents MUST read context from the Wiki at the start of their turn and MUST append a relevant entry before concluding their turn. See [Wiki Handling](mdc:wiki-handling.md) for detailed structure and interaction protocols.
 *   **Chat Trigger:**
@@ -35,7 +41,7 @@ This document defines the non-negotiable core concepts, terminology, and mandato
 ## 3. MANDATORY MECHANISMS & TOOLING
 
 *   **Global Mandates:**
-    *   All agents MUST adhere to the rules defined in [`global-mandates.md`](mdc:global-mandates.md) unless explicitly overridden by their specific role specification or project-level rules.
+    *   All agents MUST adhere to the rules defined in [`global-mandates.md`](./global-mandates.md) unless explicitly overridden by their specific role specification or project-level rules.
 *   **Mandatory Toolchain:**
     *   A baseline set of tools available to most agents. Individual agent roles may have access to additional specialized tools.
     *   Key tools include:
@@ -69,7 +75,7 @@ COMMENT_END (if applicable)
 
 ## 4. KEY BEHAVIORAL RULES SUMMARY
 
-*(Refer to [`global-mandates.md`](mdc:global-mandates.md) for the complete list and detailed descriptions)*
+*(Refer to [`global-mandates.md`](./global-mandates.md) for the complete list and detailed descriptions)*
 
 1.  **Activate via Chat Trigger.**
 2.  **Read Wiki for Context.**
@@ -83,15 +89,9 @@ COMMENT_END (if applicable)
 
 ## 5. REFERENCES
 
-*   [`global-mandates.md`](mdc:global-mandates.md)
+*   [`global-mandates.md`](./global-mandates.md)
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
 *   [Core Execution Loop](mdc:execution-loop.md)
 *   [Wiki Handling](mdc:wiki-handling.md)
 *   [Framework Definition](mdc:framework.md)
 *   [System Prompt](mdc:system-prompt.md)
-
-## General Improvement Rule: Remove Redundant or Legacy Artifacts
-
-- **Lesson Learned:** In any project, redundant or legacy artifacts—including template files, logic, GUI elements, configuration files, tokens, or any other code or resource—can cause conflicts, confusion, and maintenance issues.
-- **Directive:** Always audit for and remove redundant or legacy files, logic, GUI elements, configuration, tokens, or any artifacts when refactoring or updating the structure of any codebase, not just project-specific ones. Ensure only the intended, modern, and necessary elements are present for each part of the system.
-- **Rationale:** This prevents accidental use of outdated logic or resources, ensures consistency, and reduces technical debt across all projects, regardless of architecture or technology stack.

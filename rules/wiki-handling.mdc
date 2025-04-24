@@ -3,7 +3,6 @@
 ruleId: wiki-handling
 ruleType: Procedure
 title: Knowledge Wiki Handling Protocol
---- 
 description: Defines the structure, content, and interaction protocols for the Knowledge Wiki, the central state and context store for each request.
 schemaVersion: 1
 conformsTo: null
@@ -16,94 +15,41 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-This document specifies the mandatory procedures for interacting with the Knowledge Wiki file located in the `wiki/` directory. The Wiki serves as the **single source of truth** for context, goals, history, findings, actions, and errors within a specific `requestId`. Correct handling is essential for maintaining state and enabling effective agent coordination.
+This document specifies the mandatory procedures for interacting with the Knowledge Wiki file (`<requestId>-wiki.md`). The Wiki serves as the **single source of truth** for context, goals, history, findings, actions, and errors within a specific `requestId`. Correct handling is essential for maintaining state and enabling effective agent coordination.
 
 ## 2. CORE BEHAVIOR
 
-*   **Location:** Wiki files MUST reside in the `wiki/` directory.
 *   **Centrality:** The Wiki is the *only* approved mechanism for persisting state and detailed context between agent turns.
 *   **Append-Only:** Agents MUST only append information. Modifying or deleting existing entries is FORBIDDEN to preserve history.
 *   **Mandatory Interaction:** Agents MUST read the Wiki at the start of their turn and MUST append relevant updates before concluding their turn (as defined in the [Core Execution Loop](mdc:execution-loop.md)).
 
-## 3. NAMING CONVENTION (MANDATORY)
+## 3. ACTION SEQUENCE / PROCEDURES
 
-*   FORMAT: `wiki/<requestId>-<description>.md`
-    *   `<requestId>`: The unique ID for the workflow (e.g., `req-123`).
-    *   `<description>`: A brief, hyphenated description of the request's purpose (e.g., `woocommerce-audit`, `header-refactor`).
-*   EXAMPLE: `wiki/req-384-woocommerce-audit.md`
-*   UNIQUENESS: Ensure the combination is unique for each request. `Overmind` typically establishes this filename when initializing the request.
+### 3.1. Initialization (Responsibility: Overmind or Initial Trigger)
+*   A new Wiki file MUST be created at the start of a request.
+*   Initial content MUST include the `## 📜 Request Overview` section populated with `requestId`, initial goal, project details, and status.
+
+### 3.2. Reading the Wiki (Agent Turn: Step 2)
+*   **Action:** Read and parse the Wiki file.
+*   **Tooling:** `read_file` (potentially `analyze_wiki.py` via `run_terminal_cmd` for large files).
+*   **Process:** Agents should prioritize parsing sections relevant to their current task (e.g., `Request Overview`, latest entries in `Findings`, `Actions`, `Errors`, `Plan & Strategy`). Avoid reading the entire file unnecessarily if it becomes very large.
+
+### 3.3. Appending to the Wiki (Agent Turn: Step 6)
+*   **Action:** Append consolidated findings, action summaries, results, or errors from the agent's turn.
+*   **Tooling:** `edit_file`.
+*   **Process:**
+    1.  Format the information as a Markdown list item.
+    2.  Prefix the item with `*   **[Timestamp] <AgentRole>:** ` (Use ISO 8601 Z for timestamp).
+    3.  Use `edit_file` with specific instructions to append the formatted list item under the *most appropriate* section header (e.g., `## 📚 Research & Findings`, `## 🛠️ Actions & Code Changes`, `## ⚠️ Errors & Escalations`).
+    4.  **CRITICAL:** The `edit_file` call MUST include sufficient context (e.g., the target section heading) to ensure the append operation occurs correctly. Example instruction: "Append the following list item under the '## 📚 Research & Findings' heading: *   **[2023-10-27T10:00:00Z] ResearchAgent:** Found relevant API doc at [URL]."
+*   **Verification:** Ensure the entry is correctly formatted and appended under the intended section.
 
 ## 4. WIKI STRUCTURE & SECTIONS (MANDATORY HEADERS)
 
 The Wiki file MUST use the following Level 2 Markdown headers. Agents append timestamped list items under the relevant section.
 
 ```markdown
-# Knowledge Wiki: <requestId> - <Description>
-
-## 1. 🎯 Overall Goal & Request Context
-# [...]
-## 2. 📜 Session History & Key Decisions
-# [...]
-## 3. 📚 Research & Findings
-# [...]
-## 4. 🛠️ Actions & Code Changes
-# [...]
-## 5. ❓ Open Questions & Blockers
-# [...]
-## 6. 💡 Improvement Suggestions
-# [...]
-## 7. ⚠️ Errors & Escalations
-# [...]
-## 8. ✅ Final Output & Verification
-# [...]
-```
-*Internal Note: Structure ensures semantic grouping for easier parsing.*
-
-## 5. INTERACTION PROTOCOL (MANDATORY)
-
-1.  **Read Phase (Agent Turn Start - Execution Loop Step 2):**
-    *   Agent MUST read the **entire** content of the relevant `wiki/<requestId>-<description>.md` file.
-    *   Tool: `read_file` (or potentially `analyze_wiki.py` via `run_terminal_cmd`).
-    *   Purpose: To load all necessary context, history, previous findings, goals, and errors.
-
-2.  **Append Phase (Agent Turn End - Execution Loop Step 6):**
-    *   Agent MUST append its findings, actions, errors, or relevant outputs as a new entry under the appropriate section(s).
-    *   Tool: `edit_file`.
-    *   FORMAT: Use Markdown. Start with a timestamped agent identifier (e.g., `*   **[ISO 8601 Timestamp] BuilderAgent:** [Summary of action/finding]`).
-    *   LOCATION: Append to the correct file in the `wiki/` directory (e.g., `wiki/req-384-woocommerce-audit.md`).
-    *   ATOMICITY: Each agent appends its own entry; editing previous entries is forbidden (except potentially by `Overmind` or specialized correction agents under strict conditions).
-    *   **CRITICAL:** The `edit_file` call MUST include sufficient context (e.g., the target section heading) to ensure the append operation occurs correctly. Example instruction: "Append the following list item under the '## 📚 Research & Findings' heading in `wiki/req-384-woocommerce-audit.md`: *   **[2023-10-27T10:00:00Z] ResearchAgent:** Found relevant API doc at [URL]."
-
-## 6. ERROR HANDLING (Related to Wiki Interaction)
-
-*   **Read Failure:** If the Wiki file (`wiki/<requestId>-<description>.md`) cannot be read at the start of a turn (Step 2), the agent MUST immediately trigger the HALT procedure defined in the [Core Execution Loop](mdc:execution-loop.md).
-*   **Append Failure:** If `edit_file` fails to append to the Wiki (Step 6), the agent should attempt `reapply` once. If it still fails, the agent MUST trigger the HALT procedure.
-
-## 7. CONSTRAINTS
-
-*   MUST use the specified Markdown structure and headers.
-*   MUST use the append-only approach.
-*   MUST correctly timestamp and attribute entries.
-*   MUST handle read/write errors gracefully via escalation.
-*   MUST store wiki files in the `wiki/` directory.
-
-## 8. REFERENCES
-
-*   [Core Execution Loop](mdc:execution-loop.md) (Steps 2 & 6 reference Wiki I/O)
-*   [Shared Core Concepts & Rules](mdc:shared-core.md) (Defines `requestId`)
-*   [System Prompt](mdc:system-prompt.md) (Overall framework context)
-*   `tools/analyze_wiki.py` (Optional helper script)
-*   [Core Execution Loop](mdc:execution-loop.md)
-*   [`global-mandates.md`](./global-mandates.md)
-*   [Shared Core Concepts & Rules](mdc:shared-core.md)
-
-## 9. REFERENCES
-
-*   [Core Execution Loop](mdc:execution-loop.md) (Steps 2 & 6 reference Wiki I/O)
-*   [Shared Core Concepts & Rules](mdc:shared-core.md) (Defines `requestId`)
-*   [System Prompt](mdc:system-prompt.md) (Overall framework context)
-*   `tools/analyze_wiki.py` (Optional helper script)
-*   MUST handle read/write errors gracefully via escalation.
+# Knowledge Wiki: <requestId>
 
 ## 📜 Request Overview
 # REQUIRED: Initial setup by Overmind. Contains fundamental request details.
@@ -173,20 +119,6 @@ The Wiki file MUST use the following Level 2 Markdown headers. Agents append tim
 *   MUST use the specified Markdown structure and headers.
 *   MUST use the append-only approach.
 *   MUST correctly timestamp and attribute entries.
-*   MUST handle read/write errors gracefully via escalation.
-
-## 8. REFERENCES
-
-*   [Core Execution Loop](mdc:execution-loop.md)
-*   [`global-mandates.md`](./global-mandates.md)
-*   [Shared Core Concepts & Rules](mdc:shared-core.md)
-
-## 9. REFERENCES
-
-*   [Core Execution Loop](mdc:execution-loop.md) (Steps 2 & 6 reference Wiki I/O)
-*   [Shared Core Concepts & Rules](mdc:shared-core.md) (Defines `requestId`)
-*   [System Prompt](mdc:system-prompt.md) (Overall framework context)
-*   `tools/analyze_wiki.py` (Optional helper script)
 *   MUST handle read/write errors gracefully via escalation.
 
 ## 8. REFERENCES
