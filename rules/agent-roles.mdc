@@ -3,6 +3,7 @@
 ruleId: agent-roles
 ruleType: Shared
 title: Agent Roles & Responsibilities Registry
+description: Provides a central registry and brief summary of responsibilities for all defined agent roles within the Chat Trigger framework.
 description: Provides a central registry and brief summary of responsibilities for all defined agent roles within the Chat/Wiki framework.
 schemaVersion: 1
 conformsTo: null
