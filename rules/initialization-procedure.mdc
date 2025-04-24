@@ -20,15 +20,15 @@ status: Active
 **PRINCIPLES (MANDATORY):**
 - **IDEMPOTENCY:** Repeated execution MUST yield same valid state.
 - **VERIFICATION:** MUST confirm success via tool outputs (`list_dir`, `read_file`, `git status`, `parse_git_status.py`), NOT exit codes.
-- **ERROR HANDLING:** On verification failure, MUST append error details to the **Knowledge Wiki** (`## ⚠️ Errors & Escalations`), HALT procedure, and trigger `Overmind` via **Chat Trigger**. See [Error Handling](#error-handling-initialization).
+- **ERROR HANDLING:** On verification failure, MUST HALT procedure and trigger `Overmind` via **Chat Trigger**, reporting the error details. See [Error Handling](#error-handling-initialization).
 - **TOOL USAGE:** MUST use standard tools/Git commands.
-- **WIKI LOGGING:** All significant actions, warnings, and final outcomes **MUST** be appended to the **Knowledge Wiki** under appropriate sections (e.g., `## 🛠️ Actions & Code Changes`, `## ⚠️ Errors & Escalations`).
+- **REPORTING:** All significant actions, warnings, and final outcomes **MUST** be included in the final **Chat Trigger** to `Overmind`.
 
 ## WORKFLOW (MANDATORY)
 
-### Phase 0: Fetch Rules (NEW)
+### Phase 0: Fetch Rules & Get Context
 1.  **FETCH OWN RULES:** Execute `fetch_rules` for `initialization-agent.md`.
-2.  **READ WIKI:** Execute `read_file` on `<requestId>-wiki.md` for context.
+2.  **PARSE CONTEXT:** Extract `requestId` and any other relevant info from the incoming Chat Trigger.
 
 ### Phase 1: Determine Project State
 1.  **Check Git Status:**
@@ -50,14 +50,14 @@ status: Active
     - IF `cursorDirExists` is true:
         - EXECUTE: `git submodule status .cursor`.
         - IF Valid Submodule: GOTO Step A.4.
-        - IF Not Submodule/Error: **Log warning to Wiki.** EXECUTE: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor`). VERIFY removal (`list_dir .`). IF fails, HALT & Escalate. GOTO Step A.2.
+        - IF Not Submodule/Error: **Log warning internally.** EXECUTE: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor`). VERIFY removal (`list_dir .`). IF fails, HALT & Escalate. GOTO Step A.2.
     - ELSE (`cursorDirExists` is false): GOTO Step A.2.
 2.  **CHECK/MODIFY ROOT `.gitignore`:**
     - SET flag: `rootGitignoreModified = false`.
     - EXECUTE: `read_file .gitignore` (Handle non-existence).
     - SEARCH for exact line `.cursor/`.
     - IF found:
-        - EXECUTE: `edit_file .gitignore` (Comment out: `# .cursor/`). **Log action to Wiki.**
+        - EXECUTE: `edit_file .gitignore` (Comment out: `# .cursor/`). **Log action internally.**
         - SET flag: `rootGitignoreModified = true`.
         - VERIFY change (`read_file .gitignore`). IF fails, HALT & Escalate.
     - GOTO Step A.3.
@@ -75,7 +75,7 @@ status: Active
 
 ➡️ **Scenario B: Non-Git, Empty (`isGitRepo`: false, `isNotEmpty`: false)**
 1.  **HANDLE EXISTING `.cursor`:**
-    - IF `cursorDirExists` is true: **Log warning to Wiki.** EXECUTE: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor`). VERIFY removal. IF fails, HALT & Escalate.
+    - IF `cursorDirExists` is true: **Log warning internally.** EXECUTE: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor`). VERIFY removal. IF fails, HALT & Escalate.
     - GOTO Step B.2.
 2.  **DIRECT CLONE:**
     *   Execute `run_terminal_cmd git clone https://github.com/m0st4f4-hub/.cursor .cursor`.
