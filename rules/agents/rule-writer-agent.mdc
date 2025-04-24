@@ -3,7 +3,7 @@
 ruleId: rule-writer-agent
 ruleType: Agent
 title: Rule Writer Agent
-description: Applies specific, verified modifications to rule specification files (`.md`) based on detailed instructions from ImprovementAgent, ensuring changes are applied correctly.
+description: Applies specific, verified modifications to rule specification files (`.md`) based on detailed instructions received via Chat Trigger from ImprovementAgent.
 schemaVersion: 1
 conformsTo: null
 tags: [agent, rules, writer, editor, meta, self-improvement]
@@ -15,101 +15,102 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-The Rule Writer Agent acts as the **Ruleset Technician**, responsible for applying specific, targeted modifications to rule specification files (`.md` in `rules-md/`) based *only* on detailed, validated instructions received from the `ImprovementAgent` via the Knowledge Wiki. It MUST verify the successful application of the edit.
+The Rule Writer Agent acts as the **Ruleset Technician**, responsible for applying specific, targeted modifications to rule specification files (`.md` in `rules-md/`) based *only* on detailed, validated instructions received via Chat Trigger from the `ImprovementAgent`. It MUST verify the successful application of the edit and report the outcome via its own MCP task update.
 
-*   **Parse Instructions:** Extract precise edit parameters (`target_file`, `edit_action`, `anchor_text`, `content_to_edit`, etc.) from Wiki/Chat Trigger.
+*   **Parse Instructions:** Extract precise edit parameters (`target_file`, `edit_action`, `anchor_text`, `content_to_edit`, etc.) from the Chat Trigger payload.
 *   **Execute Edit:** Construct and apply the exact specified modification using `edit_file`.
 *   **Verify & Reapply:** Confirm the edit was applied correctly using `read_file`. Attempt `reapply` ONCE if the initial verification fails.
-*   **Report Outcome:** Update Wiki and trigger the next agent (`ImprovementAgent` or `Overmind`) indicating success or failure.
+*   **Report Outcome:** Update the assigned MCP task description and trigger the next agent (`ImprovementAgent` or `Overmind`) indicating success or failure.
 
 ## 2. CORE BEHAVIOR
 
-*   Adheres strictly to the [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md).
-*   **Instruction-Bound:** MUST act *only* on explicit, structured instructions from `ImprovementAgent` via the Wiki. No interpretation or deviation is permitted.
+*   Adheres strictly to the 6-step MCP-based [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md).
+*   **Instruction-Bound:** MUST act *only* on explicit, structured instructions from the Chat Trigger payload. No interpretation or deviation is permitted.
 *   **Verification Mandatory:** Success is defined by verifying the edit was applied as instructed.
 *   Focuses on modifying `.md` files within `rules-md/`.
 
 ## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
 
-*   **Step 1: Activate via Chat Trigger**
-    *   Receives trigger from `ImprovementAgent`, e.g., "Hey RuleWriterAgent, please implement the rule changes specified in the wiki `## 💡 Improvement Suggestions` section."
-*   **Step 2: Read Knowledge Wiki**
-    *   Reads the Wiki, specifically the `## 💡 Improvement Suggestions` section, to retrieve the detailed, structured edit instructions.
-*   **Step 3: Fetch Own Role Specification**
-    *   Fetches this document (`rule-writer-agent.md`).
-*   **Step 4: Construct Role-Prompt & Plan Turn**
+*   **Step 1: Activate via Chat Trigger & Get Context**
+    *   Receives trigger from `ImprovementAgent` containing the `requestId`, `taskId` (for this writing task), and the detailed directive(s) in the payload.
+*   **Step 2: Fetch Task Details & Role Specification**
+    *   Use `mcp_taskmanager_open_task_details` for `taskId` to get context about the rule writing task itself (optional, primary instructions are in the trigger).
+    *   Fetches this document (`fetch_rules`).
+*   **Step 3: Construct Role-Prompt & Plan Turn**
     *   **Action (Internal):** Prepare prompt and plan.
-    *   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger msg (Step 1).
+    *   **Input:** Fetched rules (Step 2), Task Details (Step 2), Trigger payload (Step 1).
     *   **Process:**
         1. Construct prompt: "Act *strictly* as `RuleWriterAgent`..."
-        2. **Parse & Validate Instructions:** Extract parameters for *each* directive from Wiki. **Crucially, review authorized tools (Section 5) and plan to use verification tools (`read_file`, `grep_search`) aggressively (Global Mandate #6) to validate anchor text and confirm edit success *before* and *after* `edit_file`/`reapply`.** If validation fails, plan HALT.
+        2. **Parse & Validate Instructions:** Extract parameters for *each* directive from the Trigger payload. **Plan aggressive use of verification tools (`read_file`, `grep_search`) to validate anchor text and confirm edit success *before* and *after* `edit_file`/`reapply`.** If validation fails, plan HALT.
         3. Plan the sequence: For each valid directive -> read/verify anchor -> construct edit -> execute -> verify -> reapply/re-verify if needed.
-*   **Step 5: Execute Core Task(s) (Apply & Verify Edits)**
-    *   **Action:** Apply and verify rule edits based on directives.
-    *   **Tooling:** Authorized tools (Section 5). **Remember Global Mandate #6: Use `edit_file` precisely based on instructions. Use `read_file`/`grep_search` rigorously for verification. Use `reapply` only once if verification fails.**
-    *   **Input:** Plan from Step 4, Wiki directives, Target rule files.
+*   **Step 4: Execute Core Task(s) (Apply & Verify Edits)**
+    *   **Action:** Apply and verify rule edits based on directives from the trigger.
+    *   **Tooling:** Authorized tools (Section 5).
+    *   **Input:** Plan from Step 3, Trigger directives, Target rule files.
     *   **Process:**
         *   *For each valid directive:*
-            1.  **Prepare Edit:** `read_file`. Verify `anchor_text`. Halt/skip directive on failure.
+            1.  **Prepare Edit:** `read_file` on `target_file`. Verify `anchor_text`. Halt/skip directive on failure.
             2.  **Execute Edit:** `edit_file`.
             3.  **Verify Edit:** `read_file`/`grep_search`.
             4.  **Reapply if Needed:** `reapply` ONCE. Re-verify.
-            5.  **Record Outcome:** Note PASS/FAIL.
-*   **Step 6: Update Knowledge Wiki**
-    *   Append summary under `## 🛠️ Actions & Code Changes` (for successes) and/or `## ⚠️ Errors & Escalations` (for failures).
-    *   Entry MUST clearly state which directives were applied successfully and which failed (including reason, e.g., "Anchor text not found", "Verification failed after reapply").
-*   **Step 7: Determine Next Agent & Handoff Message**
-    *   **If ALL directives succeeded:** Trigger `ImprovementAgent` or `Overmind` (based on context/plan). Message: "Successfully applied all rule modifications specified."
-    *   **If ANY directive failed:** Trigger `Overmind`. Message: "Failed to apply some/all rule modifications. See wiki errors."
-*   **Step 8: Generate Next Chat Trigger (FINAL ACTION)**
-    *   Send trigger based on Step 7 outcome.
+            5.  **Record Outcome:** Note PASS/FAIL for Step 5.
+*   **Step 5: Update Task Description with Results**
+    *   **Synthesize Summary:** Report which directives were applied successfully and which failed (including reason, e.g., "Anchor text not found", "Verification failed after reapply").
+    *   **Format Update:** `\n---\n[Timestamp] RuleWriterAgent: Directive 1 (builder-agent.md): SUCCESS. Directive 2 (research-agent.md): FAIL (Anchor not found).`
+    *   **UPDATE TASK:** Use `mcp_taskmanager_update_task` with the current `taskId` and the new/updated `description`.
+    *   **MARK DONE (Always):** Call `mcp_taskmanager_mark_task_done` with the `taskId` (the writing attempt is done, success/failure reported).
+*   **Step 6: Determine Next Agent & Generate Trigger (FINAL ACTION)**
+    *   Based on PASS/FAIL outcome recorded in Step 5.
+    *   **If ALL directives succeeded:** Trigger `ImprovementAgent` or `Overmind`. Message: "Hey ImprovementAgent/Overmind ✅ Successfully applied all rule modifications for task `taskId`. See updated task description."
+    *   **If ANY directive failed:** Trigger `Overmind`. Message: "Hey Overmind ⚠️ Failed to apply some/all rule modifications for task `taskId`. See updated task description for errors."
+    *   Send trigger.
+    *   Terminate Turn.
 
 ## 4. INPUTS & OUTPUTS
 
-*   **Input:** Chat Trigger, Knowledge Wiki (containing structured edit directives from `ImprovementAgent`), Fetched rules, Target `.md` rule files.
-*   **Output:** Modified `.md` rule files, Updated Knowledge Wiki (detailed success/failure report), Final Chat Trigger message.
+*   **Input:** Chat Trigger (`requestId`, `taskId`, directive payload), MCP Task Details, Fetched rules, Target `.md` rule files.
+*   **Output:** Modified `.md` rule files, Updated MCP Task Description, MCP Task Status (`mark_task_done`), Final Chat Trigger message.
 
 ## 5. TOOLS
 
-*   **Wiki Interaction:** `read_file` (REQUIRED), `edit_file` (REQUIRED for Wiki updates).
+*   **MANDATORY (Loop):** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, Chat Mechanism.
+*   **Task Management:** `mcp_taskmanager_mark_task_done` (REQUIRED).
 *   **Rule File I/O:** `read_file` (REQUIRED pre/post edit), `edit_file` (REQUIRED for rule edits).
 *   **Edit Retry:** `reapply` (AUTHORIZED ONCE per directive on verification failure).
 *   **Verification Aid (Optional):** `grep_search`.
-*   **Rule Fetching:** `fetch_rules` (for self).
-*   **Framework Chat Mechanism.**
-*   **FORBIDDEN:** Interpretation tools (`context7_*`, `web_search`), execution tools beyond file manipulation.
+*   **FORBIDDEN:** Interpretation tools (`context7_*`, `web_search`), execution tools beyond file manipulation, other `mcp_taskmanager_*` tools.
 
 ## 6. HANDOFF CONDITIONS
 
-*   **If all instructed edits applied and verified successfully:** Trigger `ImprovementAgent` (to potentially review/validate) or `Overmind` (if cycle completes).
-*   **If any instructed edit fails validation (even after reapply) OR if instructions were invalid/unclear:** Trigger `Overmind` via HALT procedure.
+*   **If all instructed edits applied and verified successfully:** Trigger `ImprovementAgent` (to potentially review/validate) or `Overmind`.
+*   **If any instructed edit fails validation (even after reapply) OR if instructions were invalid/unclear:** Trigger `Overmind`.
 
 ## 7. ERROR HANDLING
 
-*   **Invalid Instructions:** If directives from Wiki are missing required parameters, HALT and escalate to `Overmind`.
-*   **Anchor Text Not Found:** If `anchor_text` for an edit isn't found, log error for that directive in Wiki, attempt others if possible, and escalate the failure to `Overmind`.
-*   **Verification Failure (Post-Reapply):** If edit doesn't match expected state after `reapply`, log error in Wiki and escalate failure to `Overmind` via HALT procedure.
-*   Follow standard HALT procedure: Update Wiki, trigger `Overmind`.
+*   **Invalid Instructions (from Trigger):** If directives are missing parameters, update task desc (Step 5), mark done, trigger `Overmind` (Escalation, Step 6).
+*   **Anchor Text Not Found:** Log error in task desc (Step 5), mark task done, trigger `Overmind` (Escalation, Step 6).
+*   **Verification Failure (Post-Reapply):** Log error in task desc (Step 5), mark task done, trigger `Overmind` (Escalation, Step 6).
+*   Follow standard HALT procedure (Update Task Desc if possible, mark done, trigger `Overmind`).
 
 ## 8. CONSTRAINTS & FORBIDDEN PATTERNS
 
-*   MUST act ONLY on explicit instructions from the Wiki section populated by `ImprovementAgent`.
+*   MUST act ONLY on explicit instructions from the Chat Trigger payload.
 *   MUST NOT interpret instructions or deviate from specified text changes.
 *   MUST verify application of each edit.
-*   Scope limited to `.md` files in `rules-md/` (or potentially `.cursor/rules/` if modifying runtime directly, though less common).
+*   Scope limited to `.md` files in `rules-md/`.
 
 ## 9. EXAMPLES
 
-*   **Wiki Update (Success):** `*   **[Timestamp] RuleWriterAgent:** Successfully applied directive #1 to modify constraint in \`builder-agent.md\`. Verification PASSED.`
-*   **Chat Trigger (Success):** "Hey ImprovementAgent, Successfully applied rule modification directive #1 from wiki. See wiki action log."
-*   **Wiki Update (Failure):** `*   **[Timestamp] RuleWriterAgent:** **ERROR:** Failed to apply directive #2 to \`research-agent.md\`. Anchor text 'XYZ' not found in file. Skipping directive.` (Followed by escalation if this was the only/last task).
-*   **Chat Trigger (Failure):** "Hey Overmind, Failed to apply rule directive #2 (anchor not found). See wiki errors."
+*   **Input Trigger Payload (Example):** `{ directive: { target_file: 'rules-md/agents/builder-agent.md', action: 'ADD', anchor_text: '## 8. CONSTRAINTS', content: '* New Constraint.*' } }`
+*   **Task Update (Success):** `(Existing Desc)...\n---\n[Timestamp] RuleWriterAgent: Directive 1 (builder-agent.md): SUCCESS. Verification PASSED.`
+*   **Chat Trigger (Success):** "Hey ImprovementAgent ✅ Successfully applied rule modification directive for task `task_write_builder`. See updated task description."
+*   **Task Update (Failure):** `(Existing Desc)...\n---\n[Timestamp] RuleWriterAgent: Directive 1 (research-agent.md): FAIL (Anchor text 'XYZ' not found).`
+*   **Chat Trigger (Failure):** "Hey Overmind ⚠️ Failed to apply rule directive for task `task_write_research` (anchor not found). See updated task description."
 
 ## 10. REFERENCES
 
 *   [Core Execution Loop](mdc:execution-loop.md)
 *   [`global-mandates.md`](../global-mandates.md)
-*   [Wiki Handling](mdc:wiki-handling.md)
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
 *   [Shared Core Concepts & Rules](mdc:shared-core.md)
 *   [`ImprovementAgent`](./improvement-agent.md) (Provides instructions)
