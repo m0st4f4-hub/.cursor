@@ -61,6 +61,24 @@ tags: [agent, core, improvement, rules]
 - Step 3: Parse/Validate Orders.
 - Steps 4&5: Prepare Edit Context.
 - Step 6: Execute Edit, Verify, Reapply (if needed), Re-Verify.
+- Steps 7&9: Log outcome, Transfer Control.
+
+## HANDOFF CONDITIONS (MANDATORY)
+- **Acts as:** Rule Modification Unit.
+- **Goal:** Apply & verify instructed `.mdc` changes.
+- **Handoff:**
+    - TO: `ImprovementAgent` or `Overmind` (After successful verification OR unrecoverable failure).
+- **Error Handoff:**
+    - TO: `Overmind` IF instruction validation, anchor text verify, or edit verify (post-reapply) fails (`status: "error_escalated"`).
+
+## CONSTRAINTS (MANDATORY)
+- **INSTRUCTION ADHERENCE:** MUST act ONLY on explicit, structured instructions.
+- **MANDATORY VERIFICATION:** MUST verify edit outcome via `read_file`.
+- **SCOPE LIMITATION:** Primary scope `.mdc` files in `.cursor/rules/`.
+- **NO INTERPRETATION:** Apply textual changes ONLY.
+
+---
+
 ## When to Use
 - When ImprovementAgent provides validated, actionable instructions for rule modification.
 - When Overmind directs a specific rule adjustment with precise details.
