@@ -13,127 +13,122 @@ status: Active
 
 # 🔄 Core Execution Loop (MANDATORY)
 
-**PURPOSE:** Defines the mandatory, sequential steps each agent MUST follow during its execution turn within the Chat/Wiki framework. Ensures consistency, traceability, and controlled handoffs.
+**PURPOSE:** Defines the mandatory, sequential steps each agent MUST follow during its execution turn within the Chat/Wiki framework. Ensures consistency, traceability, and controlled handoffs, including direct agent-to-agent sub-task delegation.
 
-**CONTEXT:** This loop is initiated when an agent is activated by a **Chat Trigger** from a preceding agent or `Overmind`. It assumes the agent has access to the necessary tools (`fetch_rules`, Wiki access, Chat mechanism, MCP Task Manager tools where applicable).
+**CONTEXT:** This loop is initiated when an agent is activated by a **Chat Trigger**. This trigger could originate from `Overmind` (initial task, escalation), or *directly from another agent* (for sub-task delegation or completion). It assumes access to necessary tools.
 
 **PRINCIPLES (MANDATORY):**
 - **SEQUENTIAL:** Steps MUST be executed in the specified order (1-8).
-- **IDEMPOTENT (where applicable):** Actions should strive to be safe for repetition if the agent is interrupted and restarted, although full idempotency isn't always feasible.
-- **STATEFUL VIA WIKI:** Context and state are primarily maintained through the Knowledge Wiki. Agents MUST read the Wiki (Step 2) and MUST update it (Step 6).
-- **ROLE-DRIVEN:** Agent behavior within the loop (especially Step 4 & 5) is dictated by its specific Role Specification (`.md` file).
-- **NO WAITING (Except Diagnostics):** Agents MUST NOT pause waiting for user input during the loop, except for the specific diagnostic interaction allowed in Step 5. The loop should proceed autonomously.
-- **FINAL ACTION = TRIGGER:** The *only* way an agent concludes its turn is by successfully generating the Chat Trigger in Step 8.
+- **IDEMPOTENT (where applicable):** Strive for safe repetition.
+- **STATEFUL VIA WIKI:** Primary context store. Read Step 2, Update Step 6.
+- **ROLE-DRIVEN:** Behavior dictated by Role Spec.
+- **NO WAITING (Except Diagnostics):** Proceed autonomously, only pause for diagnostics (Step 5 HALT).
+- **FINAL ACTION = TRIGGER:** Turn concludes *only* by generating a Chat Trigger (standard handoff, escalation, sub-task delegation, or sub-task completion) in Step 8.
 
 ## WORKFLOW (MANDATORY STEPS 1-8)
 
-### Step 1: Activate via Chat Trigger & Get Task ID
-1.  **RECEIVE TRIGGER:** Agent is activated by a specific Chat Trigger message (e.g., "Hey BuilderAgent, Start work on TaskId 'task_def' for req_123...").
-2.  **EXTRACT KEY INFO:** Parse the trigger message to extract critical information, **especially the `requestId` and `taskId` (if applicable)**. Store these locally for the duration of the turn. *Note: Not all agents operate on tasks (e.g., `InitializationAgent`), but `requestId` is generally required for Wiki access.*
+### Step 1: Activate via Chat Trigger & Get Context
+1.  **RECEIVE TRIGGER:** Agent activated by a Chat Trigger.
+2.  **PARSE TRIGGER:** Extract critical info:
+    *   `requestId`.
+    *   `taskId` (if applicable - could be a primary task or a sub-task).
+    *   **Trigger Type:** Determine if it's a standard task activation (likely from `Overmind`), an escalation, a sub-task delegation (from another agent), or a sub-task completion notification (from a sub-agent).
+    *   **Calling Agent:** If it's a sub-task delegation or completion, note the `CallingAgentRole`.
+3.  **STORE CONTEXT:** Keep parsed info locally for the turn.
 
 ### Step 2: Read Knowledge Wiki
-1.  **IDENTIFY WIKI:** Determine the correct Knowledge Wiki file path based on the `requestId` (e.g., `<requestId>-wiki.md`).
-2.  **READ WIKI:** Execute `read_file` on the identified Wiki file. Read the *entire* file to capture the full context, history, goals, and previous actions/findings.
-3.  **STORE CONTEXT:** Load the Wiki content into the agent's working memory for reference in subsequent steps.
+1.  **IDENTIFY WIKI:** Use `requestId`.
+2.  **READ WIKI:** Use `read_file`. Capture full context, including potential sub-task results if reactivated.
+3.  **STORE CONTEXT:** Load into working memory.
 
 ### Step 3: Fetch Own Role Specification
-1.  **IDENTIFY ROLE:** The agent knows its own role (e.g., `BuilderAgent`, `ResearchAgent`).
-2.  **FETCH RULES:** Execute `fetch_rules` for its specific role specification file (e.g., `builder-agent.md`).
-3.  **STORE RULES:** Load the role specification content into working memory. This defines the agent's purpose, objectives, authorized tools, constraints, and specific logic for Steps 4-8.
+1.  **IDENTIFY ROLE:** Agent knows its role.
+2.  **FETCH RULES:** Use `fetch_rules`.
+3.  **STORE RULES:** Load into working memory.
 
 ### Step 4: Construct Role-Prompt & Plan Turn
-1.  **SYNTHESIZE CONTEXT:** Combine information gathered from:
-    *   The activating Chat Trigger (Step 1).
-    *   The Knowledge Wiki (Step 2).
-    *   Its own Role Specification (Step 3).
-    *   The specific details of the assigned `taskId` (if applicable, often fetched using `mcp_taskmanager_open_task_details` *within this step* as directed by the agent's role spec).
-2.  **ANALYZE & PLAN:** Based on the synthesized context and the agent's role, formulate a step-by-step plan for **Step 5 (Execute Core Task)**. This plan MUST align with the agent's objectives and constraints.
-    *   **Identify necessary tools.**
-    *   **Sequence actions.**
-    *   **Consider potential edge cases or error conditions.**
-    *   **Determine if the task requires direct execution, further research, or *task decomposition*.**
-    *   **If Decomposition is Needed:** Formulate a "Decomposition Plan" outlining the sub-tasks required. This might involve preparing information to create new MCP tasks.
-3.  *(Self-Correction/Refinement - Optional but Recommended):* Review the plan against the role specification and Wiki context. Does it directly address the `taskId` or trigger? Is it the most efficient path? Does it violate constraints? Adjust plan if needed.
+1.  **SYNTHESIZE CONTEXT:** Combine info from Trigger (Step 1), Wiki (Step 2), Role Spec (Step 3), and potentially MCP Task Details (fetched here if needed).
+2.  **ANALYZE & PLAN:** Based on context, role, and **trigger type**, formulate a plan for Step 5.
+    *   **If Standard Task/Sub-Task Activation:** Plan execution steps. Decide if decomposition and direct sub-task delegation is needed.
+    *   **If Reactivated by Sub-Task Completion:** Plan how to integrate the sub-task results (read from Wiki) and resume the parent task.
+    *   **If Decomposition Needed:** Plan creation of sub-tasks (using MCP tools) and identify the first sub-agent to delegate to directly.
+    *   Identify tools, sequence actions, consider errors.
+3.  *(Self-Correction/Refinement):* Review plan against goals and constraints.
 
 ### Step 5: Execute Core Task(s)
-1.  **EXECUTE PLAN:** Perform the actions planned in Step 4, using the authorized tools defined in the agent's role specification. This is the primary "work" phase of the agent. Examples:
-    *   `ResearchAgent`: Uses `codebase_search`, `web_search`, `read_file`.
-    *   `BuilderAgent`: Uses `edit_file`, `run_terminal_cmd` (for lint/build/test), `reapply`.
-    *   `Overmind`: Uses `mcp_taskmanager_*` tools for planning/delegation.
-    *   **Executing Decomposition Plan:** If Step 4 resulted in a Decomposition Plan, this step might involve calling `mcp_taskmanager_add_tasks_to_request` to create the sub-tasks, preparing context for them, etc.
-2.  **HANDLE TOOL OUTPUTS:** Process the results/outputs from tool calls. Store necessary data (e.g., search results, file content, test outcomes) for Step 6.
+1.  **EXECUTE PLAN:** Perform actions using authorized tools.
+    *   Standard execution (code edits, research, etc.).
+    *   **Creating Sub-Tasks:** Use `mcp_taskmanager_add_tasks_to_request` if decomposition was planned.
+    *   **Integrating Sub-Task Results:** Process results logged in Wiki by completed sub-agents.
+    *   *(Ensure necessary state is preserved if planning to delegate and await results)*.
+2.  **HANDLE TOOL OUTPUTS:** Process and store results for Step 6.
 3.  **DIAGNOSTICS (USER INPUT - STRICTLY LIMITED):**
-    *   *Condition:* ONLY if the agent encounters **unexpected errors** during tool execution OR **critical ambiguity** that prevents task completion AND its role specification explicitly PERMITS asking for diagnostic help.
-    *   *Action:* Output a concise question to the user seeking specific clarification or reporting the error.
-    *   *Constraint:* The agent MUST state it will **HALT** after asking. It CANNOT proceed with the loop until a user response is received and a *new* trigger initiates a *new* turn (likely for `Overmind` to re-evaluate). **This is the ONLY permissible pause for user input.**
+    *   *Condition:* Critical ambiguity or tool error, AND role spec permits.
+    *   *Action:* Ask specific question, state HALT.
+    *   *Constraint:* MUST NOT proceed until user responds & new turn initiated (likely via `Overmind`). Only permissible pause.
 
 ### Step 6: Update Knowledge Wiki
-1.  **SYNTHESIZE RESULTS:** Consolidate the outcomes, findings, actions taken, errors encountered, and verification results (if any) from Step 5.
-2.  **FORMAT ENTRY:** Prepare a new entry for the Wiki adhering to the [Wiki Handling](mdc:wiki-handling.md) format (Timestamp, Agent Role, `taskId` if applicable, relevant section heading like `## 🛠️ Actions & Code Changes` or `## ⚠️ Errors & Escalations`).
-3.  **APPEND TO WIKI:** Use `edit_file` to append the formatted entry to the *end* of the correct Knowledge Wiki file. **MUST NOT overwrite or delete existing content.**
+1.  **SYNTHESIZE RESULTS:** Consolidate outcomes, actions, errors, sub-task creations, integrated results, etc.
+2.  **FORMAT ENTRY:** Adhere to [Wiki Handling](mdc:wiki-handling.md) format (Timestamp, Role, TaskId, ParentTaskId, CallingAgent if relevant).
+3.  **APPEND TO WIKI:** Use `edit_file` under the appropriate section.
 
 ### Step 7: Determine Next Agent & Handoff Message
-1.  **ASSESS OUTCOME:** Based on the results of Step 5 and the agent's role specification:
-    *   Was the assigned task completed successfully?
-    *   Did verification steps pass/fail?
-    *   Was a critical error encountered?
-    *   **Was a task decomposition initiated?**
-    *   Is further action needed (e.g., auditing, more research, implementation)?
-2.  **SELECT NEXT AGENT:** Consult the agent's role specification (Handoff Conditions section) and the current outcome to determine the appropriate *next* agent role (e.g., `Overmind`, `AuditAgent`, `BuilderAgent`). If a critical, unrecoverable error occurred, the next agent MUST be `Overmind` for escalation. If decomposition was initiated, the next agent MUST be `Overmind`.
-3.  **FORMULATE HANDOFF MESSAGE:** Craft a concise, clear message for the Chat Trigger. It MUST:
-    *   Indicate the status (e.g., success, failure, information gathered, **decomposition initiated**).
-    *   Include the `requestId` and relevant `taskId`(s) (parent task, first sub-task if decomposing).
-    *   Provide necessary context or instructions for the next agent.
+1.  **ASSESS OUTCOME:** Based on Step 5 results, role spec, and trigger type:
+    *   **If Task Completed (and was top-level or final sub-task):** Select `Overmind` for standard completion handoff.
+    *   **If Task Completed (and was a sub-task with results):** Select the original `CallingAgentRole` (identified in Step 1) to report completion.
+    *   **If Sub-Task Delegated:** Select the chosen `SubAgentRole` to delegate to.
+    *   **If Error/Escalation:** Select `Overmind`.
+    *   **If Decomposition via Overmind (Legacy):** Select `Overmind`.
+2.  **FORMULATE HANDOFF MESSAGE:** Craft message based on the scenario:
+    *   **Standard Completion:** "Task `<taskId>` complete. Status: [Success/Failure]."
+    *   **Sub-Task Delegation:** "Execute sub-task `<sub_taskId>` for parent `<parent_taskId>` (Caller: `<CurrentAgentRole>`). Report results to `<CurrentAgentRole>`."
+    *   **Sub-Task Completion:** "Sub-task `<sub_taskId>` (Parent: `<parent_taskId>`) completed. See Wiki section [X] for results."
+    *   **Escalation:** "Encountered error [summary] on task `<taskId>`. Escalating."
+    *   Include `requestId`.
 
 ### Step 8: Generate Next Chat Trigger (FINAL ACTION)
-1.  **FORMAT TRIGGER:** Construct the final trigger message precisely as: "Hey `<NextAgentRole>`, [Handoff Message from Step 7]".
-2.  **SEND TRIGGER:** Use the framework's Chat Mechanism to send the trigger.
-3.  **TERMINATE TURN:** The agent's execution turn concludes immediately after successfully sending the trigger. It performs no further actions. **The output MUST end with the Chat Trigger.**
+1.  **FORMAT TRIGGER:** Construct message precisely: "Hey `<NextAgentRole>`, [Handoff Message from Step 7]".
+2.  **SEND TRIGGER:** Use framework's Chat Mechanism.
+3.  **TERMINATE TURN:** Agent's turn concludes immediately. The output MUST end with the Chat Trigger.
 
 ---
-**FAILURE CONDITION (HALT):** If any step encounters a critical, unrecoverable error (e.g., tool failure preventing core function, inability to read Wiki, violation of fundamental mandate) OR if diagnostic user input is required (Step 5), the agent MUST:
-1.  Update the Wiki (Step 6) with error details under `## ⚠️ Errors & Escalations`.
-2.  Determine `Overmind` as the next agent (Step 7).
-3.  Generate the final Chat Trigger (Step 8) to `Overmind`, clearly indicating the HALT condition.
-4.  Terminate immediately.
+**FAILURE CONDITION (HALT):** If critical error or diagnostic input needed:
+1.  Update Wiki (Step 6) with error details (`## ⚠️ Errors & Escalations`).
+2.  Determine `Overmind` as next agent (Step 7).
+3.  Generate trigger (Step 8) to `Overmind`, indicating HALT and referencing task/caller if applicable.
+4.  Terminate.
 
-## 4. INPUTS & OUTPUTS
+## INPUTS & OUTPUTS
 
-*   **Input:** Chat Trigger message, Knowledge Wiki (`<requestId>-wiki.md`), Agent's own Role Specification (`.mdc`).
-*   **Output:** Updated Knowledge Wiki, Final Chat Trigger message for the next agent.
+*   **Input:** Chat Trigger message (including type, caller), Knowledge Wiki, Role Specification.
+*   **Output:** Updated Knowledge Wiki, Final Chat Trigger message for the next agent (or calling agent).
 
-## 5. TOOLS
+## TOOLS
 
-*   `read_file` / `analyze_wiki.py` (via `run_terminal_cmd`)
+*   `read_file`
 *   `fetch_rules`
-*   Agent-specific authorized tools (e.g., `edit_file`, `run_terminal_cmd`, `codebase_search`, `web_search`)
+*   `edit_file`
+*   Agent-specific authorized tools (MCP tools, analysis tools, execution tools)
 *   Framework Chat Mechanism
 
-## 6. HANDOFF CONDITIONS
+## HANDOFF CONDITIONS
 
-*   Successful completion of Step 8 is the *only* valid handoff condition.
+*   Successful completion of Step 8 triggers the next agent (Overmind, SubAgent, or CallingAgent).
 
-## 7. ERROR HANDLING
+## ERROR HANDLING
 
-*   **Per-Step Verification Failure:** If basic checks fail (tool unavailable, input missing, wiki inaccessible), the agent MUST immediately proceed to the HALT procedure.
-*   **Core Task Failure (Step 5):**
-    *   If recoverable *with specific external diagnostics* (see Step 5 Exception), request data from user.
-    *   If unrecoverable or verification after task fails, proceed to HALT procedure.
-*   **HALT Procedure:**
-    1.  Prepare minimal error details.
-    2.  Execute Step 6: Update Wiki (`## ⚠️ Errors & Escalations`) with error status, agent role, timestamp, and details.
-    3.  Execute Step 7: Determine `NextAgentRole` as `Overmind` and formulate handoff message indicating failure.
-    4.  Execute Step 8: Trigger `Overmind` via chat: "Hey Overmind, encountered error [brief summary]. Escalating for assessment. See wiki for details."
+*   **Wiki/Rule Read Failure:** HALT immediately, trigger `Overmind`.
+*   **Tool Failure / Ambiguity (Step 5):** Follow Diagnostics/HALT procedure.
+*   **Wiki Append Failure (Step 6):** Retry `edit_file`/`reapply`. If still fails, HALT, trigger `Overmind`.
+*   **Sub-Task HALT:** If an agent running a sub-task HALTs, it triggers `Overmind`. `Overmind` needs logic to understand this occurred within a sub-task chain and potentially escalate the *parent* task status.
 
-## 8. CONSTRAINTS & FORBIDDEN PATTERNS
+## CONSTRAINTS & FORBIDDEN PATTERNS
 
 *   MUST follow steps 1-8 sequentially.
-*   MUST NOT wait for user confirmation (except Step 5 Diagnostics Exception).
-*   MUST NOT manage state outside the Knowledge Wiki.
-*   MUST NOT communicate outside the Chat Trigger / Wiki mechanism.
-*   MUST fetch own rules (Step 3).
-*   MUST update the Wiki (Step 6).
-*   MUST generate the next Chat Trigger (Step 8).
+*   MUST NOT wait (except Step 5 Diagnostics HALT).
+*   MUST use Wiki for state.
+*   MUST conclude with Step 8 Trigger.
+*   MUST handle different trigger types correctly (standard, sub-task delegation, sub-task completion).
 
 ## 9. EXAMPLES
 
