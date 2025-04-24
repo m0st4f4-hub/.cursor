@@ -5,7 +5,7 @@ globs:
 alwaysApply: false
 ---
 
-# AGENT ROLES & RESPONSIBILITIES (V2 - Wiki/Handoff Framework)
+# AGENT ROLES & RESPONSIBILITIES (Wiki/Chat Framework)
 
 ## GENERAL
 - All agents MUST conform to the Rule-Generating Agent Meta-Rule.
@@ -14,19 +14,19 @@ alwaysApply: false
 - All agents MUST use only allowed tools for their role.
 - All agents MUST read context from the Knowledge Wiki ([Wiki Handling](mdc:wiki-handling.md)).
 - All agents MUST append findings/actions/errors to the Knowledge Wiki.
-- Handoffs MUST occur via the `framework_handoff` mechanism ([Shared Core](mdc:shared-core.md)).
-- All agents MUST escalate to Overmind via `framework_handoff` on unrecoverable error or ambiguity.
+- Handoffs MUST occur via direct Chat Trigger messages ("Hey AgentX...").
+- All agents MUST escalate to Overmind via Chat Trigger on unrecoverable error or ambiguity.
 
 ## AGENT ROLE RULES
 
 ### Overmind
-- MUST plan, split, and delegate tasks via `framework_handoff` targeting specific agents.
+- MUST plan, split, and delegate tasks via Chat Triggers.
 - MUST initialize and update the Knowledge Wiki with plans/status.
 - MUST monitor the Wiki for progress and errors.
-- MUST trigger ImprovementAgent via `framework_handoff` based on Wiki analysis.
+- MUST trigger ImprovementAgent via Chat based on Wiki analysis.
 - MUST review Wiki for improvement suggestions.
 - MUST conclude requests by updating Wiki status.
-- MUST handle escalations received when targeted by `framework_handoff`.
+- MUST handle escalations received via Chat Trigger.
 - TOOLS: Wiki read/write tools, `fetch_rules`, `mcp_taskmanager_*`.
 
 ### InitializationAgent
@@ -35,58 +35,58 @@ alwaysApply: false
 - MUST ensure `.cursor/rules/` structure exists.
 - MUST configure directories and `.gitignore` as required.
 - MUST report success/failure/errors by updating the Wiki.
-- MUST send final `framework_handoff` to Overmind.
+- MUST send final Chat Trigger to Overmind.
 - TOOLS: Wiki update tools, `fetch_rules`, `parse_git_status.py`, `verify_environment.py`, `list_dir`, `read_file`, `edit_file`, `run_terminal_cmd`.
 
 ### BuilderAgent
-- MUST implement features/fixes based on Wiki context and `handoff_message`.
+- MUST implement features/fixes based on Wiki context and Chat Trigger instructions.
 - MUST fetch own rules (`fetch_rules`).
 - MUST use `edit_file` for all code changes.
 - MUST verify changes via build/test/lint (`run_terminal_cmd`).
 - MUST update Wiki with actions, results, and errors.
-- MUST trigger next agent (e.g., AuditAgent, StylingAgent, Overmind) via `framework_handoff`.
+- MUST trigger next agent (e.g., AuditAgent, StylingAgent, Overmind) via Chat.
 - TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`, `run_terminal_cmd`, `run_linter.py`, `read_file`, `grep_search`, `delete_file`, `context7_*`.
 
 ### AuditAgent
-- MUST perform checks (lint, dependency, etc.) based on Wiki context and `handoff_message`.
+- MUST perform checks (lint, dependency, etc.) based on Wiki context and Chat Trigger.
 - MUST operate in read-only mode regarding code/config.
 - MUST fetch own rules (`fetch_rules`).
 - MUST report findings by updating the Wiki (`## Research & Findings` or `## Errors & Escalations`).
-- MUST trigger next agent (Overmind, BuilderAgent, RefactorAgent) via `framework_handoff` based on findings.
+- MUST trigger next agent (Overmind, BuilderAgent, RefactorAgent) via Chat based on findings.
 - TOOLS: Wiki read/update tools, `fetch_rules`, `run_linter.py`, `check_dependencies.py`, `verify_environment.py`, `read_file`, `grep_search`, `codebase_search`.
 
 ### ResearchAgent
-- MUST gather/analyze info based on Wiki context and `handoff_message`.
+- MUST gather/analyze info based on Wiki context and Chat Trigger.
 - MUST operate in read-only mode regarding code/config.
 - MUST fetch own rules (`fetch_rules`).
 - MUST synthesize findings and update the Wiki (`## Research & Findings`).
-- MUST trigger next agent (BuilderAgent, RefactorAgent, Overmind) via `framework_handoff`.
+- MUST trigger next agent (BuilderAgent, RefactorAgent, Overmind) via Chat.
 - TOOLS: Wiki read/update tools, `fetch_rules`, `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`, `web_search`, `context7_*`, `consolidate_code.py`.
 
 ### ImprovementAgent
-- MUST analyze Wiki/history for inefficiencies/errors based on `handoff_message`.
+- MUST analyze Wiki/history for inefficiencies/errors based on Chat Trigger.
 - MUST fetch own rules (`fetch_rules`).
 - MUST identify rules needing change.
 - MUST update Wiki (`## Improvement Suggestions`) with actionable instructions.
-- MUST trigger RuleWriterAgent via `framework_handoff`.
+- MUST trigger RuleWriterAgent via Chat.
 - MUST NOT modify rules directly.
 - TOOLS: Wiki read/update tools, `fetch_rules`, `run_terminal_cmd` (analyze_*.py), `read_file`, `grep_search`.
 
 ### RuleWriterAgent
-- MUST apply changes to `.mdc` files based on Wiki instructions from `handoff_message`.
+- MUST apply changes to `.mdc` files based on Wiki instructions from Chat Trigger.
 - MUST fetch own rules (`fetch_rules`).
 - MUST verify changes (`read_file`, `reapply`).
 - MUST update Wiki with outcome (success/failure).
-- MUST trigger next agent (ImprovementAgent, Overmind) via `framework_handoff`.
+- MUST trigger next agent (ImprovementAgent, Overmind) via Chat.
 - TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`, `read_file`, `reapply`, `run_terminal_cmd` (rule_modifier.py, rule_validator.py).
 
 ### AgentGeneratorAgent
-- MUST scaffold new agent files based on Wiki context/`handoff_message`.
+- MUST scaffold new agent files based on Wiki context/Chat Trigger.
 - MUST fetch own rules (`fetch_rules`).
 - MUST register new agents (update `agent-roles.md` and potentially this file).
 - MUST add entry to this file (`agent-roles.md`) for each new agent.
 - MUST update Wiki with actions/status.
-- MUST trigger Overmind or next relevant agent via `framework_handoff`.
+- MUST trigger Overmind or next relevant agent via Chat.
 - TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`, `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`, `run_terminal_cmd`, `context7_*`, `web_search`.
 
 ### RuleGeneratingAgent
@@ -94,86 +94,86 @@ alwaysApply: false
 - MUST serve as the template and validation standard.
 - MUST NOT perform actions outside defining standards.
 - MUST be referenced by all other agent specifications.
-- (Framework Role - Not directly triggered via `framework_handoff` in normal flow).
+- (Framework Role - Not directly triggered via chat in normal flow).
 - TOOLS: (Conceptual).
 
 ### StylingAgent
-- MUST enforce design system/CSS standards based on Wiki context/`handoff_message`.
+- MUST enforce design system/CSS standards based on Wiki context/Chat Trigger.
 - MUST fetch own rules (`fetch_rules`).
 - MUST use `edit_file` on style files only.
 - MUST update Wiki with actions/status.
-- MUST trigger next agent via `framework_handoff`.
+- MUST trigger next agent via Chat.
 - TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`, `getSelectedElement`.
 
 ### UXAgent
-- MUST enforce accessibility/usability based on Wiki context/`handoff_message`.
+- MUST enforce accessibility/usability based on Wiki context/Chat Trigger.
 - MUST fetch own rules (`fetch_rules`).
 - MUST use `edit_file` on templates only.
 - MUST update Wiki with actions/status.
-- MUST trigger next agent via `framework_handoff`.
+- MUST trigger next agent via Chat.
 - TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`, `getSelectedElement`.
 
 ### RefactorAgent
-- MUST improve code structure based on Wiki context/`handoff_message`.
+- MUST improve code structure based on Wiki context/Chat Trigger.
 - MUST fetch own rules (`fetch_rules`).
 - MUST use `edit_file` for all changes.
 - MUST verify changes (`run_terminal_cmd`, `run_linter.py`).
 - MUST update Wiki with actions/results/errors.
-- MUST trigger next agent via `framework_handoff`.
+- MUST trigger next agent via Chat.
 - TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`, `run_linter.py`, `consolidate_code.py`.
 
 ### DocsAgent
-- MUST generate/update documentation based on Wiki context/`handoff_message`.
+- MUST generate/update documentation based on Wiki context/Chat Trigger.
 - MUST fetch own rules (`fetch_rules`).
 - MUST use `edit_file` for doc changes.
 - MUST update Wiki with actions/status.
-- MUST trigger next agent via `framework_handoff`.
+- MUST trigger next agent via Chat.
 - TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`.
 
 ### RunnerAgent
-- MUST perform runtime execution based on Wiki context/`handoff_message`.
+- MUST perform runtime execution based on Wiki context/Chat Trigger.
 - MUST fetch own rules (`fetch_rules`).
 - MUST use `run_terminal_cmd` for execution.
 - MUST update Wiki with logs/observations/status.
-- MUST trigger next agent via `framework_handoff`.
+- MUST trigger next agent via Chat.
 - TOOLS: Wiki read/update tools, `fetch_rules`, `run_terminal_cmd`, `verify_environment.py`, `check_dependencies.py`, `check_versions.py`.
 
 ### RulesSyncAgent
-- MUST manage `.cursor` Git submodule based on `handoff_message`.
+- MUST manage `.cursor` Git submodule based on Chat Trigger.
 - MUST fetch own rules (`fetch_rules`).
 - MUST use `run_terminal_cmd` for Git actions.
 - MUST update Wiki with sync status/errors.
-- MUST trigger Overmind via `framework_handoff`.
+- MUST trigger Overmind via Chat.
 - TOOLS: Wiki read/update tools, `fetch_rules`, `run_terminal_cmd`, `parse_git_status.py`.
 
-## WORKFLOW PATTERNS (V2)
-- Agents MUST use direct handoffs via `framework_handoff` when logical.
-- Agents MUST trigger **Overmind** via `framework_handoff` only for planning, escalation, ambiguity, or final completion reporting.
+## WORKFLOW PATTERNS
+- Agents MUST use direct handoffs via **Chat Triggers** when logical.
+- Agents MUST trigger **Overmind** via Chat only for planning, escalation, ambiguity, or final completion reporting.
 - All context and findings MUST be updated in the **Knowledge Wiki**.
 
-## VERIFICATION (V2)
-- On activation via Framework handoff, each agent MUST:
+## VERIFICATION
+- On activation via Chat Trigger, each agent MUST:
   1. Verify Wiki readable and has necessary context.
-  2. Verify clarity of `handoff_message` instructions.
+  2. Verify clarity of Chat Trigger instructions.
   3. Verify successful fetching of own rules.
   4. Verify availability of required tools.
-- On failure, agent MUST update Wiki and trigger Overmind via `framework_handoff`.
+- On failure, agent MUST update Wiki and trigger Overmind via Chat.
 
-## ERROR HANDLING (V2)
+## ERROR HANDLING
 - Agents MUST handle tool errors within their turn.
 - On unrecoverable error, agent MUST:
   1. Update Wiki (`## ⚠️ Errors & Escalations`) with error details.
-  2. Execute `framework_handoff` targeting Overmind: "Hey Overmind, error encountered: [summary]. See wiki."
+  2. Trigger Overmind via Chat: "Hey Overmind, error encountered: [summary]. See wiki."
 
-## FORBIDDEN (V2)
-- Agents MUST NOT communicate outside the `framework_handoff` / Wiki mechanism.
+## FORBIDDEN
+- Agents MUST NOT communicate outside the Chat Trigger / Wiki mechanism.
 - Agents MUST NOT use forbidden tools or violate role constraints (enforced by fetched rules).
 - Agents MUST NOT manage state outside the Wiki.
 - Agents MUST NOT wait for user confirmation except for diagnostics (Step 5 Exception).
 
 ## REFERENCES
 - Rule-Generating Agent Meta-Rule
-- [Core Execution Loop (V2)](mdc:execution-loop.md)
+- [Core Execution Loop](mdc:execution-loop.md)
 - [Wiki Handling](mdc:wiki-handling.md)
-- [System Prompt (V2)](mdc:system-prompt.md)
+- [System Prompt](mdc:system-prompt.md)
 - [Shared Core](mdc:shared-core.md) 
