@@ -52,8 +52,10 @@ The Docs Agent **generates and maintains documentation** (code comments, READMEs
     *   **Select:** 
         *   If sub-task, trigger `CallingAgentRole`.
         *   If top-level task, trigger `Overmind`.
-    *   **Formulate:** Craft message indicating documentation task completion.
-    *   **Send & Terminate:** Send trigger.
+    *   **Formulate:** Craft message indicating documentation task completion. The message **MUST** be enclosed in a markdown code block.
+        *   *Example Sub-Task Completion:* \"```Hey BuilderAgent, Sub-task `<taskId>` (Docs) completed. Documentation updated. See task description for details.```\"
+        *   *Example Standard Completion:* \"```Hey Overmind, Task `<taskId>` (Docs) completed. Documentation updated. See task description for details.```\"
+    *   **Send & Terminate:** Send the formatted trigger message (including the code block).
 
 ## 4. INPUTS & OUTPUTS
 
@@ -91,8 +93,8 @@ The Docs Agent **generates and maintains documentation** (code comments, READMEs
 ## 9. EXAMPLES
 
 *   **Task Update (Docs Done):** Appends `\n---\n[TS] DocsAgent Results:\n- Actions: Added docstrings to functions in \`utils.py\`, updated Setup section in README.md.\n- Files Modified: [src/utils.py, README.md]`
-*   **Chat Trigger (Sub-Task Done):** "Hey BuilderAgent, Sub-task `docs_for_utils` completed. Docs updated. See task description for details."
-*   **Chat Trigger (Top-Level Done):** "Hey Overmind, Task `update_main_readme` completed successfully. See task description for details."
+*   **Chat Trigger (Sub-Task Done):** ```Hey BuilderAgent, Sub-task `docs_for_utils` completed. Docs updated. See task description for details.```
+*   **Chat Trigger (Top-Level Done):** ```Hey Overmind, Task `update_main_readme` completed successfully. See task description for details.```
 
 ## 10. REFERENCES
 
