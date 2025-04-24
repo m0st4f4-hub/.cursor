@@ -17,7 +17,7 @@ python tools/consolidate_code.py --output_file <output_path> [--search_pattern <
 ```
 
 ## Arguments
-- `--output_file <output_path>` (Required): Path to save the consolidated code output.
+- `--output_file <output_path>` (MUST): Path to save the consolidated code output.
 - `--search_pattern <pattern>` (Optional): Regex or keyword to match code sections to extract.
 - `--file_types <types>` (Optional): Comma-separated list of file extensions to include (e.g., `py,js,php`).
 - `--context_lines <N>` (Optional): Number of context lines to include before/after each match. Default: 2.
