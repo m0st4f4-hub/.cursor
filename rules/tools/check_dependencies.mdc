@@ -16,7 +16,7 @@ This rule defines how agents should utilize the `check_dependencies.py` script l
 -   **Script Path:** `tools/check_dependencies.py`
 -   **Execution:** Run using `python tools/check_dependencies.py <manager_type>`.
 -   **Arguments:**
-    -   `manager_type`: (Required) The package manager to use. Currently supported values (case-insensitive): `npm`, `pip`.
+    -   `manager_type`: (MUST) The package manager to use. Currently supported values (case-insensitive): `npm`, `pip`.
 -   **Prerequisites:**
     -   For `npm`: Requires `npm` (version 6 or higher recommended for `--json` support) to be installed and a `package-lock.json` or `npm-shrinkwrap.json` file to exist.
     -   For `pip`: Requires `pip-audit` to be installed (`pip install pip-audit`) and project dependencies defined (e.g., in `requirements.txt` or via installed packages).
