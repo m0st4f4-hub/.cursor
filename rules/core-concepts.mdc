@@ -24,6 +24,14 @@ alwaysApply: false
 - **Global Rules (`.cursor/rules/global/`):** REQUIRED foundational rules. MUST be followed unless overridden by Project Rules.
 - **Project Rules (`.cursor/rules/project/`):** REQUIRED project-specific rules. MUST override Global Rules when present.
 
+## 📍 Key Rule Directories (MANDATORY DEFINITIONS)
+
+- **`rules-md/`**: Development/staging directory where new rules are created and modified collaboratively. Not directly used by the agent during execution.
+- **`rules/`**: Canonical source directory containing the validated `.mdc` rule files. This directory is tracked by Git and potentially used as a submodule source to synchronize rules across multiple projects.
+- **`.cursor/rules/`**: The active ruleset directory used by the AI agent framework during runtime execution. Its content is populated/synchronized from the canonical `rules/` directory (e.g., via Git submodule update during initialization or by a dedicated sync process). It may contain subdirectories like `global/` and `project/`.
+- **`rules/global/` (within `.cursor/rules/`)**: Contains foundational rules applicable across projects.
+- **`rules/project/` (within `.cursor/rules/`)**: Contains project-specific rules that override global rules.
+
 ## CORE TOOL INTEGRATION (MANDATORY)
 - **`fetch_rules`:** Agents MUST use `fetch_rules` to retrieve full rule content when only a reference (`mdc:`) is available and clarification is needed for execution.
 - **`mcp_taskmanager_*`:** Agents (primarily `Overmind`) MUST use these tools for task lifecycle management (planning, status updates). Agents performing final sub-tasks MAY use `mark_task_done` (non-blocking).
