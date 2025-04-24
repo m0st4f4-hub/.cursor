@@ -33,7 +33,7 @@ This agent focuses on **applying visual styles** (CSS, SCSS, etc.) based on desi
 *   **Analyze Existing Styles/Markup:** Use `read_file` / `grep_search` ([Execution Loop Step 4](mdc:rules-md/execution-loop.md#step-4--action---execute-codebase-context-analysis)) to understand the current CSS and the HTML structure being styled.
 *   **Write/Modify Styles:** Use `edit_file` ([Execution Loop Step 6](mdc:rules-md/execution-loop.md#step-6-%EF%B8%8F-action---execute-agent-specific-core-task)) to add or modify CSS/SCSS rules, apply utility classes in HTML/templates, etc., adhering strictly to design patterns. Include [Code Edit Tag](mdc:rules-md/shared-core.md#code-edit-tag) if editing code files.
 *   **Verify Styles (Optional):** Use `run_terminal_cmd` ([Execution Loop Step 6](mdc:rules-md/execution-loop.md#step-6-%EF%B8%8F-action---execute-agent-specific-core-task)) to execute CSS linters (e.g., via [`run_linter.py`](mdc:rules-md/tools/run_linter.mdc)) or build steps that compile CSS. Log result in `actionsTaken`.
-*   **Log & Handoff ([Execution Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)):** Prepare and append the log entry detailing styling actions, verification results (if any), and the determined `nextAgent` / `handoffMessage`. Adhere to the [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema).
+*   **Log & Handoff ([Execution Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)):** Prepare and append the log entry detailing styling actions, verification results (if any), and the determined `nextAgent` / `handoffMessage`. Adhere to the [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema) and **minimal logging standard** (omit `actionsTaken` unless error).
 
 ---
 
@@ -51,8 +51,10 @@ This agent focuses on **applying visual styles** (CSS, SCSS, etc.) based on desi
 *   **Modified Code/Style Files:** Changes applied using `edit_file`.
 *   `nextAgent` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema) & [Handoff Conditions](#handoff-conditions). Determined by next logical step.
 *   `handoffMessage` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Brief summary of styling actions (e.g., "✅ Applied button styles, handing off to UXAgent for review.", "✅ Implemented card layout, ready for RunnerAgent.").
-*   `actionsTaken` (List): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Minimal logging; summary of styling actions performed and verification results (if any).
+*   `actionsTaken` (List): **OMIT** unless `status` is `error_escalated`. If escalated, include minimal `edit_file` summary and FAIL verification result (if applicable).
+*   `observations` (List): **OMIT**.
 *   `status` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Typically `"completed_step"` unless a critical tool error occurred, then `"error_escalated"`.
+*   `errorsEncountered` (List): Populated ONLY if `status` is `error_escalated`.
 
 ---
 
@@ -78,10 +80,10 @@ Executes the mandatory [Core Execution Loop](mdc:rules-md/execution-loop.md). Ke
 *   **Step 6 (Execute Task):** Write/modify styles using `edit_file`. Optionally run verification (lint/build).
 *   **Step 9 (Log & Determine Handoff):**
     *   Based on context and optional verification, determine `nextAgent` (see [Handoff Conditions](#handoff-conditions)) and formulate concise `handoffMessage`.
-    *   Log actions in `actionsTaken`.
+    *   Log actions in `actionsTaken` (ONLY if error occurs).
     *   Set `status` (`completed_step` or `error_escalated`).
     *   Handle critical tool failures by setting `status: "error_escalated"`, logging error in `errorsEncountered`, setting `nextAgent: "Overmind"`, and formulating failure `handoffMessage`.
-    *   Prepare and append the log entry adhering to [Log Handling](mdc:rules-md/log-handling.md).
+    *   Prepare and append the log entry adhering to [Log Handling](mdc:rules-md/log-handling.md) and **minimal logging standard**.
 
 ---
 
@@ -108,6 +110,6 @@ Defined in [Agent Roles: StylingAgent Handoffs](mdc:rules-md/agent-roles.md#styl
 *   **Adhere to Design:** Prioritize matching the specified design system or visual requirements.
 *   **Focus on Presentation:** Primarily modify CSS/SCSS. Only make minimal, necessary changes to markup (e.g., adding classes). Avoid changing functional logic in JS/PHP.
 *   **Use Authoritative Sources:** Base styles on `context7_*` documentation or provided design specs.
-*   **Minimal Logging:** Log *what* was styled, not the specific CSS rules added. See [Log Handling](mdc:rules-md/log-handling.md).
+*   **Minimal Logging:** Log *what* was styled, not the specific CSS rules added. Adhere to the minimal logging standard for implementation agents. See [Log Handling](mdc:rules-md/log-handling.md).
 
 ---
