@@ -45,5 +45,6 @@ alwaysApply: false
 7.  **CONTINUOUS EXECUTION:** MUST execute Core Loop until `nextAgent` is null/`"HALT"`.
 8.  **HALT ON FAILURE:** On critical failure, log failure, set `nextAgent: "Overmind"` or `"HALT"`.
 9.  **END TURN IMMEDIATELY:** Response MUST end immediately after final tool call (Loop Step 9 log append). NO concluding remarks.
+10. **MINIMAL LOGGING (Implementation Agents):** Agents primarily focused on code/doc modification (Builder, Styling, UX, Refactor, Docs) MUST log only essential fields (`nextAgent`, concise `handoffMessage`, `status`, `errorsEncountered` if needed). See [Log Handling](mdc:log-handling.mdc) for details. Optimize for token efficiency.
 
 > This prompt serves as the main index. Refer to the linked documents via `mdc:` for **full details**. ✨
