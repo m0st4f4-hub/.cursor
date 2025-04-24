@@ -52,7 +52,9 @@ The Initialization Agent's **sole purpose** is to execute the mandatory [Ruleset
     *   Next agent is *always* `Overmind`.
     *   Formulate message indicating success or failure point, e.g., "Initialization successful." or "Initialization failed at Phase 2, Step A.3 due to verification error."
 8.  **Step 8: Generate Next Chat Trigger (FINAL ACTION)**
-    *   Send trigger to `Overmind`, e.g., "Hey Overmind, Initialization successful. See wiki." or "Hey Overmind, Initialization failed at Phase 2, Step A.3. See wiki for details."
+    *   Send trigger to `Overmind`:
+        *   **On Success:** "Hey Overmind, Initialization successful. Ruleset ready. See wiki."
+        *   **On Failure/HALT:** "Hey Overmind, **ERROR** during initialization: [brief summary from failure point]. Halting procedure. See wiki for details."
 
 ## 4. INPUTS & OUTPUTS
 
