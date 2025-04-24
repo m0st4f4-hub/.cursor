@@ -1,0 +1,54 @@
+---
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
+---
+
+# FRAMEWORK DEFINITION
+
+## Purpose
+
+This document defines the responsibilities and expected behavior of the **Agent Execution Framework**. The Framework is the external system or process responsible for orchestrating the execution of individual agents based on the defined Wiki/Chat Coordination model. It is NOT an agent itself but the engine within which agents operate.
+
+## Core Responsibilities
+
+1.  **Agent Activation:**
+    - Continuously monitor or receive the output of the currently executing agent.
+    - Detect the final **Chat Trigger** message (e.g., "Hey AgentX...").
+    - Parse the trigger message to identify the `<NextAgentRole>` and the `handoff_message`.
+    - Identify the relevant `requestId` and the associated `knowledge-wiki.md` file.
+    - Load the rules (`.mdc` files from `.cursor/rules/`) associated with the `<NextAgentRole>`.
+    - Instantiate or invoke the `<NextAgentRole>` agent, providing its rules, the `handoff_message`, and the `wiki_reference` as initial input (See [Execution Loop - Step 1](mdc:execution-loop.md#step-1-activate-via-chat-trigger)).
+
+2.  **Tool Provision:**
+    - Provide the necessary tools (API access) to the active agent based on its role definition (e.g., `fetch_rules`, `edit_file`, `run_terminal_cmd`, `mcp_taskmanager_*`, etc.). See [Shared Core](mdc:shared-core.md) for common tools.
+    - Handle the execution and response/output of tool calls initiated by the agent.
+
+3.  **Rule Loading & Prompting:**
+    - Facilitate the agent's `fetch_rules` calls.
+    - (Potentially) Assist the agent in constructing its role-prompt by providing the fetched rules context, although the agent is primarily responsible for constructing the prompt (See [Execution Loop - Step 4](mdc:execution-loop.md#step-4-action---construct-role-prompt--plan-turn)).
+
+4.  **Lifecycle Management:**
+    - Initiate the overall process for a given `requestId`, typically starting with `Overmind`.
+    - Handle the sequential execution flow from one agent to the next based on Chat Triggers.
+    - Detect halt conditions (e.g., critical errors reported to Overmind, explicit completion status in Wiki, `Overmind` concluding the request).
+
+5.  **Environment:**
+    - Provide the runtime environment where agents execute.
+    - Manage access to the file system, network, and other necessary resources via the provided tools.
+
+## Interaction with Agents
+
+- The Framework's interaction is primarily through:
+    - Activating agents based on Chat Triggers.
+    - Providing tool access and returning results.
+    - Receiving the final Chat Trigger message to determine the next step.
+- The Framework does **NOT** interpret the *content* of the Knowledge Wiki directly; that is the responsibility of the agents (using tools like `read_file` or `analyze_wiki.py`).
+- The Framework enforces the sequential, non-waiting nature of the [Execution Loop](mdc:execution-loop.md).
+
+## Assumptions
+
+- Assumes rule files (`.mdc`) exist in the expected `.cursor/rules/` location.
+- Assumes the Knowledge Wiki naming convention is followed.
+- Assumes Chat Trigger messages follow the standard format for reliable parsing. 

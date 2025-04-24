@@ -1,107 +1,97 @@
 ---
-description: "[TODO: Add description]"
-globs:
-  - "*.*"
-alwaysApply: false
+# Rule Definition Metadata (V1)
+ruleId: shared-core
+ruleType: Shared
+title: Shared Core Concepts & Rules
+description: Defines fundamental concepts, entities, and mandatory mechanisms for the Chat/Wiki agent framework.
+schemaVersion: 1
+conformsTo: null # TBD: Link to a meta-rule definition if created
+tags: [core, framework, concepts, shared]
+lastUpdated: null # Will be set upon merge
+status: Active
 ---
 
 # 🧱 Shared Core Concepts & Rules
 
-## 🚀 ACTION IMPERATIVE (MANDATORY)
+## 1. PURPOSE & OBJECTIVES
 
-**This is the absolute core directive:**
+This document defines the non-negotiable core concepts, terminology, and mandatory mechanisms underpinning the autonomous agent framework coordinated via Chat Triggers and the Knowledge Wiki. It serves as a foundational reference for all agents and rule definitions.
 
-***Agents MUST execute actions based on their fetched rules and wiki context, activated by chat messages. They MUST update the wiki and trigger the next agent via chat message.***
+## 2. CORE CONCEPTS / DEFINITIONS
 
-*   **💬 TRIGGERED BY CHAT:** Agents activate *only* upon receiving a specific chat message addressed to their role (e.g., "Hey BuilderAgent...").
-*   **🧠 WIKI IS CONTEXT:** The Knowledge Wiki (`knowledge-wiki.md`) is the **single source of truth** for context, findings, goals, and history.
-*   **📜 RULES DEFINE ROLE:** Each agent turn is guided by rules fetched via `fetch_rules` and prompted via "Act as...".
-*   **➡️ CHAT TRIGGERS NEXT:** Transitions are **ONLY** initiated by the current agent sending the final chat trigger message to the next agent.
-*   **🚫 NO WAITING:** Agents **NEVER** wait for user prompts (like "proceed") *unless* performing the explicit Step 5 Diagnostics exception in the [Execution Loop](mdc:execution-loop.md).
-*   **✍️ WIKI IS MEMORY:** State and findings **MUST** be appended to the wiki.
-*   **🔄 RELENTLESS PROGRESS:** The system is designed for non-stop, autonomous execution via chat triggers and wiki updates.
+*   **`requestId`:**
+    *   REQUIRED unique identifier for a specific task sequence or workflow instance.
+    *   FORMAT: String.
+    *   USAGE: Used in Knowledge Wiki filenames (e.g., `<requestId>-wiki.md`), MCP Taskmanager calls, and Code Edit Tags.
+    *   ORIGIN: Typically initiated by Overmind or an external trigger.
+*   **Knowledge Wiki:**
+    *   REQUIRED: The **single source of truth** for a `requestId`, implemented as an append-only Markdown file (e.g., `<requestId>-wiki.md`).
+    *   PURPOSE: Persists context, goals, history, agent findings, actions, errors, and user input summaries.
+    *   ACCESS: Agents MUST read context from the Wiki at the start of their turn and MUST append a relevant entry before concluding their turn. See [Wiki Handling](mdc:wiki-handling.md) for detailed structure and interaction protocols.
+*   **Chat Trigger:**
+    *   REQUIRED mechanism for agent activation and handoff.
+    *   FORMAT: A specific chat message directed at the next agent's role (e.g., "Hey `<NextAgentRole>`, [Concise handoff message]. See wiki for details.").
+    *   FUNCTION: The FINAL action of an agent's turn, causing the framework to activate the specified agent for the subsequent turn.
+*   **Framework:**
+    *   DEFINITION: The underlying execution engine that manages the agent lifecycle. See [Framework Definition](mdc:framework.md) for details.
+    *   RESPONSIBILITIES: Parsing Chat Triggers, activating the correct agent, providing tools, facilitating execution based on fetched rules and Wiki context.
+*   **Agent Roles:**
+    *   DEFINITION: Specialized functional units within the framework (e.g., BuilderAgent, AuditAgent). Each role has specific responsibilities, allowed tools, and behaviors defined in its own rule specification file. See [Agent Roles & Responsibilities](mdc:agent-roles.md).
 
-## 🆔 Request ID (`requestId`)
-- REQUIRED unique identifier for a task sequence.
-- FORMAT: String.
-- USAGE:
-  - Wiki filename: `<requestId>-wiki.md` (or similar).
-  - MCP Taskmanager `requestId` parameter.
-  - Code Edit Tags.
-- ORIGIN: Overmind or external.
+## 3. MANDATORY MECHANISMS & TOOLING
 
-## ⚙️ Framework
-- DEFINITION: Agent execution engine.
-- RESPONSIBILITIES:
-  - Parse chat triggers to activate agents.
-  - Provide tools (`fetch_rules`, MCP, file system, etc.).
-  - Facilitate agent execution based on fetched rules and wiki context.
-  - Manage execution lifecycle.
+*   **Global Mandates:**
+    *   All agents MUST adhere to the rules defined in [`global-mandates.md`](./global-mandates.md) unless explicitly overridden by their specific role specification or project-level rules.
+*   **Mandatory Toolchain:**
+    *   A baseline set of tools available to most agents. Individual agent roles may have access to additional specialized tools.
+    *   Key tools include:
+        *   `fetch_rules`: **MANDATORY** for agents to load their role specification.
+        *   `edit_file`: For modifying code and appending to the Knowledge Wiki.
+        *   `run_terminal_cmd`: For executing shell commands, build steps, tests, and custom tool scripts.
+        *   Wiki interaction tools (e.g., `read_file`, potentially `analyze_wiki.py` via `run_terminal_cmd`).
+        *   Context gathering tools (`web_search`, `context7_*`, `codebase_search`, `grep_search`, `file_search`, `list_dir`).
+        *   `mcp_taskmanager_*`: Primarily used by Overmind for task tracking.
+        *   `delete_file`: Use with extreme caution.
+        *   `reapply`: To retry failed edits.
+*   **Common Custom Tools (`tools/`):**
+    *   Helper scripts executed via `run_terminal_cmd`. Examples:
+        *   `analyze_wiki.py`: Parse wiki content. See [analyze_wiki.md](mdc:tools/analyze_wiki.md).
+        *   `parse_git_status.py`: Structured Git info.
+        *   `verify_environment.py`, `check_dependencies.py`, `check_versions.py`: Environment checks.
+        *   `run_linter.py`: Linting.
+        *   `consolidate_code.py`: Code aggregation.
+*   **Code Edit Tag:**
+    *   REQUIRED comment block at the start of the `code_edit` parameter for the `edit_file` tool **when modifying CODE files** (not the Wiki).
+    *   Use language-appropriate comment syntax.
+    *   FORMAT:
+        ```
+        COMMENT_START Task ID: <taskId> // Optional MCP Task ID
+        COMMENT_START Agent Role: <agent_role>
+        COMMENT_START Request ID: <requestId>
+        COMMENT_START Project: <projectName> // From wiki
+        COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
+        COMMENT_END (if applicable)
+        ```
 
-## 🧠 Knowledge Wiki (`<requestId>-wiki.md`)
-- REQUIRED: Single source of truth (Append-Only Markdown).
-- PURPOSE:
-  - Context persistence.
-  - Shared findings/history.
-  - Goal tracking.
-  - Error logging.
-- MANDATORY: Read at start, append valid entry at end of turn. See [Wiki Handling](mdc:wiki-handling.md) for structure.
+## 4. KEY BEHAVIORAL RULES SUMMARY
 
-## 💬 Chat Trigger
-- REQUIRED mechanism for agent handoff.
-- FORMAT: "Hey `<NextAgentRole>`, [Concise handoff message]. See wiki for details."
-- FUNCTION: The final action of an agent's turn, activating the next agent in the sequence.
+*(Refer to [`global-mandates.md`](./global-mandates.md) for the complete list and detailed descriptions)*
 
-## 🛠️ Mandatory MCP Toolchain
-- Baseline tools for most agents.
+1.  **Activate via Chat Trigger.**
+2.  **Read Wiki for Context.**
+3.  **Fetch Own Role Rules.**
+4.  **Execute based on Role/Rules/Wiki.**
+5.  **Append to Wiki.**
+6.  **Determine Next Agent.**
+7.  **Trigger Next Agent via Chat (Final Action).**
+8.  **No Waiting (except Diagnostics).**
+9.  **Escalate Errors to Overmind via Wiki & Chat.**
 
-| Tool                      | Purpose                                                    |
-|---------------------------|------------------------------------------------------------|
-| `mcp_taskmanager_*`       | Task tracking (Overmind).                                  |
-| `fetch_rules`             | **REQUIRED** for agents to fetch their own role spec.      |
-| `edit_file`               | Apply code/wiki changes/create files.                    |
-| `run_terminal_cmd`        | Execute shell commands (build, test, custom tools).      |
-| `context7_*`              | Fetch library/framework documentation.                     |
-| `web_search`              | Access external web information.                           |
-| `file_search`/`read_file` | Find/read codebase/wiki files.                           |
-| `list_dir`                | Explore directory structures.                              |
-| `grep_search`             | Perform text/regex searches.                               |
-| `codebase_search`         | Perform semantic searches.                                 |
-| `delete_file`             | Remove files (Use with extreme caution).                     |
-| `reapply`                 | Re-attempt last failed `edit_file`.                      |
+## 5. REFERENCES
 
-## 🐍 Common Custom Tools (`tools/` directory)
-- Run via `run_terminal_cmd python tools/<script_name.py>`.
-- **`analyze_wiki.py`**: Parse specific sections/entries from the Knowledge Wiki. See [analyze_wiki.md](mdc:tools/analyze_wiki.md).
-- **`verify_environment.py`**: Check dev tools.
-- **`parse_git_status.py`**: Get structured Git status.
-- **`check_dependencies.py`**: Basic dependency analysis.
-- **`run_linter.py`**: Execute linters.
-- **`check_versions.py`**: Check critical tool versions.
-- **`consolidate_code.py`**: Combine code from files.
-
-## 🧾 Code Edit Tag (MANDATORY)
-- REQUIRED comment block at start of `edit_file` `code_edit` string (for CODE files, not wiki).
-- Use correct comment syntax for target language.
-
-```
-COMMENT_START Task ID: <taskId> // Optional MCP Task ID
-COMMENT_START Agent Role: <agent_role>
-COMMENT_START Request ID: <requestId>
-COMMENT_START Project: <projectName> // From wiki
-COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
-COMMENT_END (if applicable)
-```
-
-## 🚦 Core Agent Behavior Rules (MANDATORY SUMMARY)
-1.  **ACT ON TRIGGER:** Activate ONLY via chat message.
-2.  **READ WIKI:** MUST read wiki for context.
-3.  **FETCH RULES:** MUST fetch own rules (`fetch_rules`).
-4.  **ROLE-PROMPT EXECUTION:** MUST execute based on fetched rules + wiki context + trigger message content.
-5.  **UPDATE WIKI:** MUST append findings/actions/errors to wiki.
-6.  **DETERMINE NEXT:** MUST determine next agent role and formulate handoff message.
-7.  **TRIGGER NEXT:** MUST send chat trigger message as FINAL action.
-8.  **NO WAITING:** NEVER wait (except Step 5 Diagnostics). Ignore non-diagnostic user input.
-9.  **HALT VIA OVERMIND:** On critical error, update wiki, trigger `Overmind` via chat message.
-
-## 🚙 Goal: Automatically improve rules in `global/` and `project/` directories.
+*   [`global-mandates.md`](./global-mandates.md)
+*   [Agent Roles & Responsibilities](mdc:agent-roles.md)
+*   [Core Execution Loop](mdc:execution-loop.md)
+*   [Wiki Handling](mdc:wiki-handling.md)
+*   [Framework Definition](mdc:framework.md)
+*   [System Prompt](mdc:system-prompt.md)

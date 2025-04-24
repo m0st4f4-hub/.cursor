@@ -12,7 +12,7 @@ alwaysApply: false
 **PRINCIPLES (MANDATORY):**
 - **IDEMPOTENCY:** Repeated execution MUST yield same valid state.
 - **VERIFICATION:** MUST confirm success via tool outputs (`list_dir`, `read_file`, `git status`, `parse_git_status.py`), NOT exit codes.
-- **ERROR HANDLING:** On verification failure, MUST log error, HALT procedure, report failure to Overmind.
+- **ERROR HANDLING:** On verification failure, MUST log error, HALT procedure, update Knowledge Wiki with failure details, and trigger Overmind via Chat Trigger.
 - **TOOL USAGE:** MUST use standard tools/Git commands.
 
 ## WORKFLOW (MANDATORY)
@@ -103,9 +103,10 @@ alwaysApply: false
             - ADD if missing: `edit_file` (create if needed) add `.cursor/` on new line.
             - VERIFY: `read_file .gitignore`. IF fails, HALT.
 4.  **FINAL VERIFICATION:**
-    - EXECUTE: `list_dir .cursor/rules`. Confirm exists with `shared-core.mdc`, `project/`, `agents/`.
+    - EXECUTE: `list_dir .cursor/rules`. Confirm exists with `shared-core.mdc` (or other core rule files), `project/`, `agents/`.
     - OPTIONAL: EXECUTE `python tools/verify_environment.py` / `python tools/check_versions.py`.
-    - REPORT success/failure (with reason) to Overmind.
+    - UPDATE Knowledge Wiki with success/failure summary.
+    - TRIGGER Overmind via Chat Trigger as FINAL ACTION, indicating completion status (e.g., "Hey Overmind, Initialization completed [successfully/with errors]. See wiki for details.").
 
 ## SUCCESS CRITERIA (MANDATORY)
 - Initialization succeeds ONLY IF:
@@ -114,7 +115,7 @@ alwaysApply: false
   3. `.cursor/rules/` exists with core structure.
   4. Git submodule configured correctly (Scenario A).
   5. `.gitignore` files configured correctly.
-  6. Success logged and reported to Overmind (Phase 3.4).
+  6. Success/failure logged to Wiki and reported to Overmind via Chat Trigger (Phase 3.4).
 
 ## FORBIDDEN PATTERNS
 - Skipping VERIFICATION steps.

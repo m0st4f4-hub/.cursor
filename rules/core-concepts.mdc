@@ -7,20 +7,20 @@ alwaysApply: false
 
 # CORE CONCEPTS (MANDATORY DEFINITIONS)
 
-- **`requestId`:** REQUIRED Unique identifier for task sequence. Used for logs, MCP tasks, edit tags.
+- **`requestId`:** REQUIRED Unique identifier for task sequence. Used for wiki filename, MCP tasks, edit tags.
 - **Agent Roles:** REQUIRED Specialized functional units (e.g., `BuilderAgent`). Defined in [Agent Roles](mdc:agent-roles.mdc).
-- **Log File (`logs/<requestId>.json`):** REQUIRED Single source of truth. Append-only JSON array. Defines state, coordination. See [Log Handling](mdc:log-handling.mdc).
-- **`nextAgent` Field:** REQUIRED control signal in log. Sole trigger for FRAMEWORK'S IMMEDIATE AUTOMATIC transition. Agent MUST log correctly. See [Log Handling](mdc:log-handling.mdc).
-- **ACTION IMPERATIVE:** MANDATORY principle. Continuous execution, automatic transition via `nextAgent`. NO WAITING. See [Execution Loop](mdc:execution-loop.mdc).
+- **Knowledge Wiki (`<requestId>-wiki.md`):** REQUIRED Single source of truth. Append-only Markdown file. Defines state, context, history, findings, errors. See [Wiki Handling](mdc:wiki-handling.md).
+- **Chat Trigger:** REQUIRED control signal via platform chat message. Sole trigger for Agent activation and handoff. Agent MUST generate trigger message as final action. See [Execution Loop (V2)](mdc:execution-loop.md).
+- **ACTION IMPERATIVE:** MANDATORY principle. Continuous execution triggered by chat, context from wiki, rules from `fetch_rules`. NO WAITING. See [Execution Loop (V2)](mdc:execution-loop.md).
 - **Tools:** MANDATORY capabilities for environment interaction (MCP, file system, terminal, custom). See [Shared Core](mdc:shared-core.mdc).
-- **Rules (`.cursor/rules/`, `rules-md/`):** MANDATORY `.mdc` files defining behavior, standards, workflow. See [System Prompt](mdc:system-prompt.mdc).
-- **Framework:** REQUIRED External execution engine. Reads log, loads rules, invokes `nextAgent`, enforces loop. See [System Prompt](mdc:system-prompt.mdc).
-- **Autonomous Execution:** MANDATORY. Agents operate independently, driven by log state. User interaction ONLY for requested diagnostics (Loop Step 6).
-- **Log-Driven Coordination:** MANDATORY. Log file is sole source of truth for state, `handoffMessage`, `nextAgent` trigger.
-- **Specialized Agents:** REQUIRED. Each role has specific function defined in its `.mdc` file.
-- **Immediate Transitions:** MANDATORY. Framework ensures instantaneous transitions via `nextAgent`. NO WAITING.
-- **Direct Peer Handoffs:** REQUIRED where logical. Agents MUST set `nextAgent` to peer (e.g., `BuilderAgent` -> `AuditAgent`) for efficiency. Return to `Overmind` for planning/escalation/completion.
-- **Self-Improvement Loop:** MANDATORY framework goal. Agents (`ImprovementAgent`, `RuleWriterAgent`) MUST analyze performance and automatically refine/generate rules (`.mdc`).
+- **Rules (`.cursor/rules/`, `rules-md/`):** MANDATORY `.mdc` files defining behavior, standards, workflow. See [System Prompt (V2)](mdc:system-prompt.md).
+- **Framework:** REQUIRED External execution engine. Parses chat triggers, provides tools, facilitates agent execution based on fetched rules and wiki context. See [System Prompt (V2)](mdc:system-prompt.md).
+- **Autonomous Execution:** MANDATORY. Agents operate independently, activated by chat triggers, driven by wiki state. User interaction ONLY for requested diagnostics (Loop Step 5).
+- **Wiki-Driven Coordination:** MANDATORY. Knowledge Wiki file is sole source of truth for context, findings, goals, errors. Chat Triggers manage activation/handoff.
+- **Specialized Agents:** REQUIRED. Each role has specific function defined in its `.mdc` file. Fetched via `fetch_rules`.
+- **Sequential Activation:** MANDATORY. Agents activate sequentially based on Chat Triggers. NO parallel execution within a `requestId` chain.
+- **Direct Peer Handoffs:** REQUIRED where logical. Agents MUST trigger peer agent (e.g., `BuilderAgent` -> `AuditAgent`) via Chat for efficiency. Return to `Overmind` via Chat for planning/escalation/completion.
+- **Self-Improvement Loop:** MANDATORY framework goal. Agents (`ImprovementAgent`, `RuleWriterAgent`) MUST analyze wiki/history and automatically refine/generate rules (`.mdc`) via Wiki/Chat coordination.
 - **Global Rules (`.cursor/rules/global/`):** REQUIRED foundational rules. MUST be followed unless overridden by Project Rules.
 - **Project Rules (`.cursor/rules/project/`):** REQUIRED project-specific rules. MUST override Global Rules when present.
 

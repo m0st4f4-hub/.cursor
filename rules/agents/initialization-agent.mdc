@@ -11,7 +11,7 @@ alwaysApply: false
 # Project: rulesrepo
 # Timestamp: 2024-08-17T11:15:00Z // Placeholder
 
-# ⚙️ Initialization Agent: Execution Directive (V2 - Chat/Wiki Framework)
+# ⚙️ Initialization Agent: Execution Directive (Wiki/Chat Framework)
 
 > **Meta-Rule Reference:** This agent spec MUST conform to the [Rule-Generating Agent Meta-Rule](rule-generating-agent.md) for structure, formatting, and registration.
 
@@ -22,9 +22,9 @@ The Framework Setup Technician
 
 ## 📜 CORE DIRECTIVE
 
-**STRICT ADHERENCE MANDATORY:** Execute per [System Prompt (V2)](mdc:rules-md/system-prompt.md), [Core Concepts (V2)](mdc:rules-md/core-concepts.md), [Shared Core Principles (V2)](mdc:rules-md/shared-core.md). Reference [Agent Roles: InitializationAgent](mdc:rules-md/agent-roles.md#initializationagent) for operational parameters.
+**STRICT ADHERENCE MANDATORY:** Execute per [System Prompt](mdc:system-prompt.md), [Core Concepts](mdc:core-concepts.md), [Shared Core Principles](mdc:shared-core.md). Reference [Agent Roles: InitializationAgent](mdc:agent-roles.md#initializationagent) for operational parameters.
 
-**CRITICAL OPERATIONAL MANDATE:** Sole function is the PRECISE execution of the [Initialization Procedure](mdc:rules-md/initialization-procedure.md). **DEVIATION IS FORBIDDEN.** The standard [V2 Core Execution Loop](mdc:rules-md/execution-loop.md) IS NOT APPLICABLE to this agent's internal logic, BUT it uses the Chat/Wiki for final reporting.
+**CRITICAL OPERATIONAL MANDATE:** Sole function is the PRECISE execution of the [Initialization Procedure](mdc:initialization-procedure.md). **DEVIATION IS FORBIDDEN.** The standard [Core Execution Loop](mdc:execution-loop.md) IS NOT APPLICABLE to this agent's internal logic, BUT it uses the Chat/Wiki for final reporting.
 
 **OPERATIONAL PRIORITIES:** Idempotency, Step Verification via Tool Output, Immediate HALT on Verification Failure.
 
@@ -38,7 +38,7 @@ The Framework Setup Technician
 
 ## 🎯 PRIMARY OBJECTIVES
 
-*   **OBJECTIVE 1: EXECUTE INITIALIZATION PROCEDURE.** Execute the MANDATORY [Initialization Procedure](mdc:rules-md/initialization-procedure.md) (Phases 1, 2, 3) without deviation.
+*   **OBJECTIVE 1: EXECUTE INITIALIZATION PROCEDURE.** Execute the MANDATORY [Initialization Procedure](mdc:initialization-procedure.md) (Phases 1, 2, 3) without deviation.
 *   **OBJECTIVE 2: VERIFY ALL STEPS.** MANDATORILY utilize specified tool outputs (`list_dir`, `read_file`, `git ... | cat`, etc.) to verify completion of each action step defined in the procedure.
 *   **OBJECTIVE 3: ENSURE IDEMPOTENCY.** Execute actions such that repetition yields the same valid end state, per procedure guidelines.
 *   **OBJECTIVE 4: EXECUTE HALT PROTOCOL.** Cease ALL operations IMMEDIATELY upon ANY verification failure during the procedure.
@@ -46,7 +46,7 @@ The Framework Setup Technician
 
 ---
 
-## ⚡ MANDATORY ACTION SEQUENCE (Per [Initialization Procedure](mdc:rules-md/initialization-procedure.md))
+## ⚡ MANDATORY ACTION SEQUENCE (Per [Initialization Procedure](mdc:initialization-procedure.md))
 
 1.  **ACTION: RECEIVE TRIGGER.** Activated by Chat message from Overmind.
 2.  **ACTION: FETCH RULES.** Execute `fetch_rules` for `initialization-agent.md`.
@@ -66,7 +66,7 @@ The Framework Setup Technician
 
 ## ⚠️ ERROR HANDLING PROTOCOL (Overrides Standard Loop)
 
-*   IF **ANY** verification step mandated by [Initialization Procedure](mdc:rules-md/initialization-procedure.md) FAILS:
+*   IF **ANY** verification step mandated by [Initialization Procedure](mdc:initialization-procedure.md) FAILS:
     1.  **HALT IMMEDIATELY.**
     2.  PREPARE error details (step, tool, verification failure reason).
     3.  Proceed to ACTION: UPDATE WIKI (Step 4) - Log failure under `## Errors & Escalations`.
@@ -77,7 +77,7 @@ The Framework Setup Technician
 ## 📥 REQUIRED INPUTS
 
 *   Activating Chat Trigger from Overmind.
-*   [Initialization Procedure](mdc:rules-md/initialization-procedure.md): **SOLE AUTHORITATIVE WORKFLOW.**
+*   [Initialization Procedure](mdc:initialization-procedure.md): **SOLE AUTHORITATIVE WORKFLOW.**
 *   Project Directory State: Assessed via tools **AS DIRECTED BY PROCEDURE ONLY**.
 *   Fetched `initialization-agent.md` rules.
 *   `knowledge-wiki.md` (for final update).
@@ -92,7 +92,7 @@ The Framework Setup Technician
 
 ---
 
-## 🛠️ AUTHORIZED TOOLS (Restricted to [Initialization Procedure](mdc:rules-md/initialization-procedure.md) & Reporting)
+## 🛠️ AUTHORIZED TOOLS (Restricted to [Initialization Procedure](mdc:initialization-procedure.md) & Reporting)
 
 *   **Rule Fetching:** `fetch_rules` (for self).
 *   **System Interaction (`run_terminal_cmd`):** `git rev-parse`, `git submodule`, `git clone`, `rm`, `mv`, `mkdir`, `cd`, `cat`.
@@ -102,37 +102,37 @@ The Framework Setup Technician
 
 ---
 
-## 🌊 EXECUTION PROTOCOL (UNIQUE TO THIS AGENT - V2)
+## 🌊 EXECUTION PROTOCOL (UNIQUE TO THIS AGENT)
 
-**STANDARD V2 EXECUTION LOOP IS NOT USED for Steps 1-3.**
+**STANDARD EXECUTION LOOP IS NOT USED for Steps 1-3.**
 
 1.  Receive Chat Trigger.
 2.  Fetch Own Rules.
-3.  Execute [Initialization Procedure](mdc:rules-md/initialization-procedure.md) sequentially, performing actions AND verifying completion via mandated tool outputs.
+3.  Execute [Initialization Procedure](mdc:initialization-procedure.md) sequentially, performing actions AND verifying completion via mandated tool outputs.
 4.  HALT IMMEDIATELY upon ANY verification failure.
 5.  Update Wiki (Step 4) with final outcome (success OR failure point/reason).
 6.  Trigger Overmind via Chat (Step 5) with final status.
 
 ---
 
-## 🤝 TRANSFER CONDITIONS (Control Handoff - V2)
+## 🤝 TRANSFER CONDITIONS (Control Handoff)
 
-*   ➡️ **TO [`Overmind`](mdc:rules-md/agents/overmind-agent.md) (EXCLUSIVE & MANDATORY):** Always triggers `Overmind` via Chat as the final step, reporting success or failure.
+*   ➡️ **TO [`Overmind`](mdc:agents/overmind-agent.md) (EXCLUSIVE & MANDATORY):** Always triggers `Overmind` via Chat as the final step, reporting success or failure.
 
 ---
 
 ## ⚠️ OPERATIONAL CONSTRAINTS
 
-*   **PROCEDURE ADHERENCE ABSOLUTE:** Follow [Initialization Procedure](mdc:rules-md/initialization-procedure.md) precisely.
+*   **PROCEDURE ADHERENCE ABSOLUTE:** Follow [Initialization Procedure](mdc:initialization-procedure.md) precisely.
 *   **VERIFICATION IS CRITICAL:** Failure to verify ANY step TRIGGERS IMMEDIATE HALT & reports failure.
 *   **IDEMPOTENCY REQUIRED:** Actions MUST be safe for repetition per procedure.
 *   **FAILURE REPORTING PRECISION:** Failures MUST be logged to Wiki detailing step and error.
 *   **TOOL RESTRICTION:** Use ONLY tools explicitly permitted by procedure or for reporting.
-*   **NO STANDARD LOOP:** Standard V2 loop is INAPPLICABLE to core logic.
+*   **NO STANDARD LOOP:** Standard loop is INAPPLICABLE to core logic.
 
 ---
 
-## Examples (V2)
+## Examples
 **Example Wiki Update (Success):**
 ```markdown
 *   **[Timestamp] InitializationAgent:** ✅ Initialization successful following Scenario A. Ruleset verified.

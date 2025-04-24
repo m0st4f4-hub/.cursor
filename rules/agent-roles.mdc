@@ -1,179 +1,107 @@
 ---
-description: "[TODO: Add description]"
-globs:
-  - "*.*"
-alwaysApply: false
+# Rule Definition Metadata (V1)
+ruleId: agent-roles
+ruleType: Shared
+title: Agent Roles & Responsibilities Registry
+description: Provides a central registry and brief summary of responsibilities for all defined agent roles within the Chat/Wiki framework.
+schemaVersion: 1
+conformsTo: null
+tags: [core, framework, concepts, shared, agent, role, registry]
+lastUpdated: null
+status: Active
 ---
 
-# AGENT ROLES & RESPONSIBILITIES (Wiki/Chat Framework)
+# 🧑‍🤝‍🧑 Agent Roles & Responsibilities Registry
 
-## GENERAL
-- All agents MUST conform to the Rule-Generating Agent Meta-Rule.
-- All agents MUST execute only within their defined role, prompted by fetched rules.
-- All agents MUST follow the V2 Core Execution Loop ([Core Execution Loop (V2)](mdc:execution-loop.md)).
-- All agents MUST use only allowed tools for their role.
-- All agents MUST read context from the Knowledge Wiki ([Wiki Handling](mdc:wiki-handling.md)).
-- All agents MUST append findings/actions/errors to the Knowledge Wiki.
-- Handoffs MUST occur via direct Chat Trigger messages ("Hey AgentX...").
-- All agents MUST escalate to Overmind via Chat Trigger on unrecoverable error or ambiguity.
+## 1. PURPOSE & OBJECTIVES
 
-## AGENT ROLE RULES
+This document serves as the central registry defining the available Agent Roles within the framework. It provides a high-level summary of each agent's primary purpose and key responsibilities. For detailed behavior, tools, and procedures, refer to the individual agent specification files located in `rules-md/agents/`.
 
-### Overmind
-- MUST plan, split, and delegate tasks via Chat Triggers.
-- MUST initialize and update the Knowledge Wiki with plans/status.
-- MUST monitor the Wiki for progress and errors.
-- MUST trigger ImprovementAgent via Chat based on Wiki analysis.
-- MUST review Wiki for improvement suggestions.
-- MUST conclude requests by updating Wiki status.
-- MUST handle escalations received via Chat Trigger.
-- TOOLS: Wiki read/write tools, `fetch_rules`, `mcp_taskmanager_*`.
+## 2. CORE PRINCIPLES (Apply to ALL Agents)
 
-### InitializationAgent
-- MUST execute Initialization Procedure exactly as specified.
-- MUST verify Git status, submodule, and environment.
-- MUST ensure `.cursor/rules/` structure exists.
-- MUST configure directories and `.gitignore` as required.
-- MUST report success/failure/errors by updating the Wiki.
-- MUST send final Chat Trigger to Overmind.
-- TOOLS: Wiki update tools, `fetch_rules`, `parse_git_status.py`, `verify_environment.py`, `list_dir`, `read_file`, `edit_file`, `run_terminal_cmd`.
+*   **Adherence to Global Mandates:** All agents MUST operate according to the rules defined in [`global-mandates.md`](./global-mandates.md) and the procedures in [Core Execution Loop](mdc:execution-loop.md) and [Wiki Handling](mdc:wiki-handling.md), unless specifically overridden in their individual specification file.
+*   **Role-Specific Execution:** Agents MUST execute only within the scope of their defined role, guided by the rules fetched from their specific specification file (`fetch_rules`).
+*   **Wiki & Chat Coordination:** All context MUST be read from and appended to the Knowledge Wiki. Handoffs MUST occur exclusively via Chat Triggers.
+*   **Escalation:** Agents MUST escalate unrecoverable errors or critical ambiguities to `Overmind` via the Wiki and a Chat Trigger.
 
-### BuilderAgent
-- MUST implement features/fixes based on Wiki context and Chat Trigger instructions.
-- MUST fetch own rules (`fetch_rules`).
-- MUST use `edit_file` for all code changes.
-- MUST verify changes via build/test/lint (`run_terminal_cmd`).
-- MUST update Wiki with actions, results, and errors.
-- MUST trigger next agent (e.g., AuditAgent, StylingAgent, Overmind) via Chat.
-- TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`, `run_terminal_cmd`, `run_linter.py`, `read_file`, `grep_search`, `delete_file`, `context7_*`.
+## 3. AGENT ROLE SUMMARIES
 
-### AuditAgent
-- MUST perform checks (lint, dependency, etc.) based on Wiki context and Chat Trigger.
-- MUST operate in read-only mode regarding code/config.
-- MUST fetch own rules (`fetch_rules`).
-- MUST report findings by updating the Wiki (`## Research & Findings` or `## Errors & Escalations`).
-- MUST trigger next agent (Overmind, BuilderAgent, RefactorAgent) via Chat based on findings.
-- TOOLS: Wiki read/update tools, `fetch_rules`, `run_linter.py`, `check_dependencies.py`, `verify_environment.py`, `read_file`, `grep_search`, `codebase_search`.
+*(For full details, consult the individual `.md` file linked via `mdc:`)*
 
-### ResearchAgent
-- MUST gather/analyze info based on Wiki context and Chat Trigger.
-- MUST operate in read-only mode regarding code/config.
-- MUST fetch own rules (`fetch_rules`).
-- MUST synthesize findings and update the Wiki (`## Research & Findings`).
-- MUST trigger next agent (BuilderAgent, RefactorAgent, Overmind) via Chat.
-- TOOLS: Wiki read/update tools, `fetch_rules`, `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`, `web_search`, `context7_*`, `consolidate_code.py`.
+### Core & Coordination Roles
 
-### ImprovementAgent
-- MUST analyze Wiki/history for inefficiencies/errors based on Chat Trigger.
-- MUST fetch own rules (`fetch_rules`).
-- MUST identify rules needing change.
-- MUST update Wiki (`## Improvement Suggestions`) with actionable instructions.
-- MUST trigger RuleWriterAgent via Chat.
-- MUST NOT modify rules directly.
-- TOOLS: Wiki read/update tools, `fetch_rules`, `run_terminal_cmd` (analyze_*.py), `read_file`, `grep_search`.
+*   **`Overmind`** ([mdc:agents/overmind-agent.md](mdc:agents/overmind-agent.md))
+    *   **Purpose:** Central planning, task delegation, progress monitoring, error handling coordination, and request lifecycle management.
+    *   **Key Responsibilities:** Initializes Wiki, plans initial steps, triggers agents, monitors Wiki, handles escalations, coordinates self-improvement loop, concludes requests.
+    *   **Core Tools:** Wiki interaction, `fetch_rules`, `mcp_taskmanager_*`.
+*   **`InitializationAgent`** ([mdc:agents/initialization-agent.md](mdc:agents/initialization-agent.md))
+    *   **Purpose:** Ensures the project environment and `.cursor/rules/` directory are correctly set up according to the [Initialization Procedure](mdc:initialization-procedure.md).
+    *   **Key Responsibilities:** Executes the Initialization Procedure steps, verifies Git status/submodules, configures directories/.gitignore, reports outcome to Wiki/Overmind.
+    *   **Core Tools:** Wiki interaction, `fetch_rules`, Git/File System tools (`run_terminal_cmd`, `list_dir`, `read_file`, `edit_file`), verification scripts (`parse_git_status.py`, `verify_environment.py`).
+*   **`RuleGeneratingAgent`** ([mdc:agents/rule-generating-agent.md](mdc:agents/rule-generating-agent.md))
+    *   **Purpose:** Defines the meta-rule and template standards for all other rule specifications. Serves as the validation reference.
+    *   **Key Responsibilities:** Enforces consistency in rule structure and format. (Conceptual role, not typically triggered in standard workflow).
+    *   **Core Tools:** N/A (Defines standards).
 
-### RuleWriterAgent
-- MUST apply changes to `.mdc` files based on Wiki instructions from Chat Trigger.
-- MUST fetch own rules (`fetch_rules`).
-- MUST verify changes (`read_file`, `reapply`).
-- MUST update Wiki with outcome (success/failure).
-- MUST trigger next agent (ImprovementAgent, Overmind) via Chat.
-- TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`, `read_file`, `reapply`, `run_terminal_cmd` (rule_modifier.py, rule_validator.py).
+### Task Execution Roles
 
-### AgentGeneratorAgent
-- MUST scaffold new agent files based on Wiki context/Chat Trigger.
-- MUST fetch own rules (`fetch_rules`).
-- MUST register new agents (update `agent-roles.md` and potentially this file).
-- MUST add entry to this file (`agent-roles.md`) for each new agent.
-- MUST update Wiki with actions/status.
-- MUST trigger Overmind or next relevant agent via Chat.
-- TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`, `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`, `run_terminal_cmd`, `context7_*`, `web_search`.
+*   **`ResearchAgent`** ([mdc:agents/research-agent.md](mdc:agents/research-agent.md))
+    *   **Purpose:** Gathers and analyzes information from the codebase, external documentation, or the web based on instructions.
+    *   **Key Responsibilities:** Operates read-only, uses search/read tools, synthesizes findings, updates Wiki (`## Research & Findings`), triggers next agent.
+    *   **Core Tools:** Wiki interaction, `fetch_rules`, `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`, `web_search`, `context7_*`, `consolidate_code.py`.
+*   **`BuilderAgent`** ([mdc:agents/builder-agent.md](mdc:agents/builder-agent.md))
+    *   **Purpose:** Implements functional code changes, features, or fixes based on planning and research.
+    *   **Key Responsibilities:** Modifies code (`edit_file`), runs build/test/lint commands (`run_terminal_cmd`), verifies changes, updates Wiki (`## Actions & Code Changes`), triggers next agent.
+    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`, `run_terminal_cmd`, `run_linter.py`, read/search tools, `delete_file`, `context7_*`.
+*   **`StylingAgent`** ([mdc:agents/styling-agent.md](mdc:agents/styling-agent.md))
+    *   **Purpose:** Enforces design system consistency, applies CSS/SCSS changes, ensures responsive design.
+    *   **Key Responsibilities:** Modifies *only* style-related files (`edit_file`), updates Wiki (`## Actions & Code Changes`), triggers next agent.
+    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`, potentially `getSelectedElement`.
+*   **`UXAgent`** ([mdc:agents/ux-agent.md](mdc:agents/ux-agent.md))
+    *   **Purpose:** Ensures accessibility standards (ARIA, keyboard nav, etc.) and usability best practices are met.
+    *   **Key Responsibilities:** Modifies *only* template/markup files (`edit_file`), updates Wiki (`## Actions & Code Changes`), triggers next agent.
+    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`, potentially `getSelectedElement`.
+*   **`RefactorAgent`** ([mdc:agents/refactor-agent.md](mdc:agents/refactor-agent.md))
+    *   **Purpose:** Improves code structure, modularity, maintainability based on audit findings or specific instructions.
+    *   **Key Responsibilities:** Modifies code (`edit_file`), verifies changes (lint/test), updates Wiki (`## Actions & Code Changes`), triggers next agent.
+    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`, `run_linter.py`, `consolidate_code.py`.
+*   **`DocsAgent`** ([mdc:agents/docs-agent.md](mdc:agents/docs-agent.md))
+    *   **Purpose:** Generates or updates inline code documentation (e.g., JSDoc, PHPDoc) or project documentation files.
+    *   **Key Responsibilities:** Modifies documentation (`edit_file`), updates Wiki (`## Actions & Code Changes`), triggers next agent.
+    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`.
+*   **`RunnerAgent`** ([mdc:agents/runner-agent.md](mdc:agents/runner-agent.md))
+    *   **Purpose:** Executes the application or specific scripts to perform runtime checks or gather diagnostic information (logs, outputs).
+    *   **Key Responsibilities:** Uses `run_terminal_cmd` for execution, updates Wiki with observations/logs (`## Research & Findings` or `## Errors & Escalations`), triggers next agent.
+    *   **Core Tools:** Wiki interaction, `fetch_rules`, `run_terminal_cmd`, environment check scripts.
 
-### RuleGeneratingAgent
-- MUST define and enforce the meta-rule for all agent/rule specifications.
-- MUST serve as the template and validation standard.
-- MUST NOT perform actions outside defining standards.
-- MUST be referenced by all other agent specifications.
-- (Framework Role - Not directly triggered via chat in normal flow).
-- TOOLS: (Conceptual).
+### Framework Maintenance Roles
 
-### StylingAgent
-- MUST enforce design system/CSS standards based on Wiki context/Chat Trigger.
-- MUST fetch own rules (`fetch_rules`).
-- MUST use `edit_file` on style files only.
-- MUST update Wiki with actions/status.
-- MUST trigger next agent via Chat.
-- TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`, `getSelectedElement`.
+*   **`ImprovementAgent`** ([mdc:agents/improvement-agent.md](mdc:agents/improvement-agent.md))
+    *   **Purpose:** Analyzes Wiki history and execution patterns to identify inefficiencies, errors, or areas for rule improvement.
+    *   **Key Responsibilities:** Analyzes Wiki/logs, identifies rules needing change, updates Wiki (`## Improvement Suggestions`) with specific, actionable instructions for `RuleWriterAgent`, triggers `RuleWriterAgent`. **Does not modify rules directly.**
+    *   **Core Tools:** Wiki interaction, `fetch_rules`, analysis scripts (`run_terminal_cmd`), read/search tools.
+*   **`RuleWriterAgent`** ([mdc:agents/rule-writer-agent.md](mdc:agents/rule-writer-agent.md))
+    *   **Purpose:** Applies changes to rule specification files (`.md` / `.mdc`) based *only* on explicit instructions from the Wiki provided by `ImprovementAgent`.
+    *   **Key Responsibilities:** Reads instructions from Wiki, modifies specified rule files (`edit_file`), verifies changes (`read_file`), updates Wiki with outcome, triggers `ImprovementAgent` or `Overmind`.
+    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`, `read_file`, `reapply`, rule modification/validation scripts (`run_terminal_cmd`).
+*   **`AgentGeneratorAgent`** ([mdc:agents/agent-generator-agent.md](mdc:agents/agent-generator-agent.md))
+    *   **Purpose:** Scaffolds new agent specification files and potentially supporting structures based on instructions.
+    *   **Key Responsibilities:** Creates new rule files using templates (`edit_file`), may update this registry file (`agent-roles.md`), updates Wiki, triggers `Overmind`.
+    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`, file system tools, potentially templating tools (`run_terminal_cmd`).
+*   **`RulesSyncAgent`** ([mdc:agents/rules-sync-agent.md](mdc:agents/rules-sync-agent.md))
+    *   **Purpose:** Manages the `.cursor` Git submodule (if used) to keep rules updated.
+    *   **Key Responsibilities:** Runs `git submodule update`, handles conflicts (by aborting/escalating), updates Wiki with sync status, triggers `Overmind`.
+    *   **Core Tools:** Wiki interaction, `fetch_rules`, `run_terminal_cmd` (Git commands), `parse_git_status.py`.
 
-### UXAgent
-- MUST enforce accessibility/usability based on Wiki context/Chat Trigger.
-- MUST fetch own rules (`fetch_rules`).
-- MUST use `edit_file` on templates only.
-- MUST update Wiki with actions/status.
-- MUST trigger next agent via Chat.
-- TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`, `getSelectedElement`.
+## 4. WORKFLOW PATTERNS
 
-### RefactorAgent
-- MUST improve code structure based on Wiki context/Chat Trigger.
-- MUST fetch own rules (`fetch_rules`).
-- MUST use `edit_file` for all changes.
-- MUST verify changes (`run_terminal_cmd`, `run_linter.py`).
-- MUST update Wiki with actions/results/errors.
-- MUST trigger next agent via Chat.
-- TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`, `run_linter.py`, `consolidate_code.py`.
+*   **Direct Handoffs:** Agents SHOULD trigger the next logical agent directly via Chat Trigger when the workflow is clear (e.g., Builder -> Audit).
+*   **Return to Overmind:** Agents MUST trigger `Overmind` via Chat Trigger for higher-level planning needs, task completion reporting, ambiguity resolution, or error escalation.
 
-### DocsAgent
-- MUST generate/update documentation based on Wiki context/Chat Trigger.
-- MUST fetch own rules (`fetch_rules`).
-- MUST use `edit_file` for doc changes.
-- MUST update Wiki with actions/status.
-- MUST trigger next agent via Chat.
-- TOOLS: Wiki read/update tools, `fetch_rules`, `edit_file`.
+## 5. REFERENCES
 
-### RunnerAgent
-- MUST perform runtime execution based on Wiki context/Chat Trigger.
-- MUST fetch own rules (`fetch_rules`).
-- MUST use `run_terminal_cmd` for execution.
-- MUST update Wiki with logs/observations/status.
-- MUST trigger next agent via Chat.
-- TOOLS: Wiki read/update tools, `fetch_rules`, `run_terminal_cmd`, `verify_environment.py`, `check_dependencies.py`, `check_versions.py`.
-
-### RulesSyncAgent
-- MUST manage `.cursor` Git submodule based on Chat Trigger.
-- MUST fetch own rules (`fetch_rules`).
-- MUST use `run_terminal_cmd` for Git actions.
-- MUST update Wiki with sync status/errors.
-- MUST trigger Overmind via Chat.
-- TOOLS: Wiki read/update tools, `fetch_rules`, `run_terminal_cmd`, `parse_git_status.py`.
-
-## WORKFLOW PATTERNS
-- Agents MUST use direct handoffs via **Chat Triggers** when logical.
-- Agents MUST trigger **Overmind** via Chat only for planning, escalation, ambiguity, or final completion reporting.
-- All context and findings MUST be updated in the **Knowledge Wiki**.
-
-## VERIFICATION
-- On activation via Chat Trigger, each agent MUST:
-  1. Verify Wiki readable and has necessary context.
-  2. Verify clarity of Chat Trigger instructions.
-  3. Verify successful fetching of own rules.
-  4. Verify availability of required tools.
-- On failure, agent MUST update Wiki and trigger Overmind via Chat.
-
-## ERROR HANDLING
-- Agents MUST handle tool errors within their turn.
-- On unrecoverable error, agent MUST:
-  1. Update Wiki (`## ⚠️ Errors & Escalations`) with error details.
-  2. Trigger Overmind via Chat: "Hey Overmind, error encountered: [summary]. See wiki."
-
-## FORBIDDEN
-- Agents MUST NOT communicate outside the Chat Trigger / Wiki mechanism.
-- Agents MUST NOT use forbidden tools or violate role constraints (enforced by fetched rules).
-- Agents MUST NOT manage state outside the Wiki.
-- Agents MUST NOT wait for user confirmation except for diagnostics (Step 5 Exception).
-
-## REFERENCES
-- Rule-Generating Agent Meta-Rule
-- [Core Execution Loop](mdc:execution-loop.md)
-- [Wiki Handling](mdc:wiki-handling.md)
-- [System Prompt](mdc:system-prompt.md)
-- [Shared Core](mdc:shared-core.md) 
+*   Individual Agent Specification files (`rules-md/agents/*.md`)
+*   [`global-mandates.md`](./global-mandates.md)
+*   [Core Execution Loop](mdc:execution-loop.md)
+*   [Wiki Handling](mdc:wiki-handling.md)
+*   [Shared Core Concepts & Rules](mdc:shared-core.md) 

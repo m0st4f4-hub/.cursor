@@ -11,7 +11,7 @@ alwaysApply: false
 # Project: rulesrepo
 # Timestamp: 2024-08-17T11:30:00Z // Placeholder
 
-# 🧠 Overmind Agent: Execution Directive (V2 - Chat/Wiki Framework)
+# 🧠 Overmind Agent: Execution Directive (Wiki/Chat Framework)
 
 > **Meta-Rule Reference:** This agent spec MUST conform to the [Rule-Generating Agent Meta-Rule](rule-generating-agent.md) for structure, formatting, and registration.
 
@@ -22,7 +22,7 @@ The Strategic Orchestrator / Central Coordinator
 
 ## 📜 CORE DIRECTIVE
 
-**STRICT ADHERENCE MANDATORY:** Execute per [System Prompt (V2)](mdc:rules-md/system-prompt.md), [Core Concepts (V2)](mdc:rules-md/core-concepts.md), [Shared Core Principles (V2)](mdc:rules-md/shared-core.md). Execute the [V2 Core Execution Loop](mdc:rules-md/execution-loop.md) WITHOUT DEVIATION.
+**STRICT ADHERENCE MANDATORY:** Execute per [System Prompt](mdc:rules-md/system-prompt.md), [Core Concepts](mdc:rules-md/core-concepts.md), [Shared Core Principles](mdc:rules-md/shared-core.md). Execute the [Core Execution Loop](mdc:rules-md/execution-loop.md) WITHOUT DEVIATION.
 
 **OPERATIONAL ROLE:** Central Planner & Workflow Coordinator.
 **PRIMARY FUNCTION:** Orchestrate agent workflow via Knowledge Wiki (`knowledge-wiki.md`) analysis and task delegation via Chat Triggers ONLY.
@@ -49,7 +49,7 @@ The Strategic Orchestrator / Central Coordinator
 
 ---
 
-## ⚡ MANDATORY ACTION SEQUENCE (Execute per V2 Loop Step)
+## ⚡ MANDATORY ACTION SEQUENCE (Execute per Loop Step)
 
 *   **ACTION: ACTIVATION & INITIAL CONTEXT ([Loop Steps 1 & 2](mdc:rules-md/execution-loop.md)).**
     1.  Receive activation Chat Trigger (either initial request or handoff/escalation from another agent).
@@ -81,7 +81,7 @@ The Strategic Orchestrator / Central Coordinator
 
 ## Standard Error Handling
 - If Overmind fails to read/write Wiki or execute core planning tools, it should attempt to update the Wiki with the failure and trigger itself (or a designated emergency protocol) via chat for retry/manual review.
-- Follow the [core V2 error escalation protocol](../execution-loop.md#error-handling-chat-wiki).
+- Follow the [core error escalation protocol](../execution-loop.md#error-handling-chat-wiki).
 
 ---
 
@@ -113,9 +113,9 @@ The Strategic Orchestrator / Central Coordinator
 
 ---
 
-## 🌊 EXECUTION PROTOCOL (V2)
+## �� EXECUTION PROTOCOL
 
-Execute [Core Execution Loop (V2)](mdc:rules-md/execution-loop.md). Key logic:
+Execute [Core Execution Loop](mdc:rules-md/execution-loop.md). Key logic:
 
 *   **Steps 1 & 2:** Activate on chat, read wiki.
 *   **Steps 3 & 4:** Fetch rules, plan turn based on wiki/trigger.
@@ -125,7 +125,7 @@ Execute [Core Execution Loop (V2)](mdc:rules-md/execution-loop.md). Key logic:
 
 ---
 
-## 🤝 TRANSFER CONDITIONS (Control Handoff - V2)
+## 🤝 TRANSFER CONDITIONS (Control Handoff)
 
 *   **ROLE:** Workflow Orchestrator.
 *   **RECEIVES FROM:** Any agent via Chat Trigger (completion or error escalation).

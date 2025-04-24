@@ -1,79 +1,127 @@
 ---
-description: "[TODO: Add description]"
-globs:
-  - "*.*"
-alwaysApply: false
+# Rule Definition Metadata (V1)
+ruleId: execution-loop
+ruleType: Procedure
+title: Core Agent Execution Loop (Chat/Wiki Coordination)
+description: Defines the mandatory, sequential steps each agent MUST follow during its execution turn within the Chat/Wiki framework.
+schemaVersion: 1
+conformsTo: null
+tags: [core, framework, procedure, execution, agent-turn]
+lastUpdated: null
+status: Active
 ---
 
-# CORE EXECUTION LOOP (Wiki/Chat Coordination)
+# 🔁 Core Agent Execution Loop
 
-**ACTION IMPERATIVE:** Respond to chat triggers. Execute tasks based on fetched rules and wiki context. Update wiki. Trigger next agent via chat.
+## 1. PURPOSE & OBJECTIVES
 
-## AGENT TURN WORKFLOW (MANDATORY SEQUENCE)
+This document outlines the **single, mandatory sequence of actions** that every agent MUST perform during its active turn. This ensures consistent behavior, context handling, state updates, and handoffs across the framework. Adherence to this loop is critical for autonomous operation.
 
-### Step 1: ACTIVATE via Chat Trigger
-- Agent is activated by a preceding chat message explicitly addressing its role (e.g., "Hey BuilderAgent...").
-- Extract initial instructions/query from the trigger message.
+## 2. CORE BEHAVIOR (Applies to ALL agents)
 
-### Step 2: ACTION - Read Knowledge Wiki
-- **MANDATORY:** EXECUTE `read_file` (or specialized tool) on `knowledge-wiki.md` (or the designated wiki file defined in [Wiki Handling](mdc:wiki-handling.md)).
-- **MANDATORY:** PARSE wiki content to understand:
-    - Overall request goal (`requestId`, description).
-    - Current task/milestone.
-    - Findings/context from previous agents.
-    - Relevant user input summaries.
-    - Current codebase state summaries (if applicable).
+Agents operate in discrete turns, activated by a Chat Trigger. Within a turn, they MUST perform the following 8 steps **sequentially and without deviation**, leveraging the Knowledge Wiki for context and state, and concluding by triggering the next agent via another Chat Trigger.
 
-### Step 3: ACTION - Fetch Own Role Specification
-- **MANDATORY:** EXECUTE `fetch_rules` specifying the agent's *own* role specification file (e.g., `fetch_rules(rule_names=["agents/builder-agent"])`).
+## 3. ACTION SEQUENCE (MANDATORY)
 
-### Step 4: ACTION - Construct Role-Prompt & Plan Turn
-- **MANDATORY (Internal):** Construct the prompt for the LLM execution:
-    - Start with: "Act *strictly* as `<AgentRole>` based on the following rules and context."
-    - Inject fetched rules from Step 3.
-    - Inject relevant context summary from the wiki (Step 2).
-    - Include the query/instruction from the trigger message (Step 1).
-- **MANDATORY (Internal):** Develop a minimal execution plan for the turn based on role, context, and instructions.
+### Step 1: Activate via Chat Trigger
+*   **Action:** Agent is activated by the framework upon receiving a specific chat message addressed to its role (e.g., "Hey BuilderAgent...").
+*   **Input:** Incoming Chat Trigger message.
+*   **Process:** Extract initial instructions, query, or task context from the message.
 
-### Step 5: ACTION - Execute Core Task(s)
-- **MANDATORY:** Execute the agent's primary function using authorized tools (`edit_file`, `codebase_search`, `web_search`, `run_terminal_cmd`, etc.) as defined in the agent's role specification and dictated by the plan.
-- **DIAGNOSTICS EXCEPTION:** If execution fails and requires external info (user logs, HAR files), agent MAY generate a targeted request *to the user* via chat, clearly stating what is needed. Upon receiving data, agent MUST immediately resume its task.
+### Step 2: Read Knowledge Wiki
+*   **Action:** Read and parse the Knowledge Wiki file (`<requestId>-wiki.md`).
+*   **Tooling:** `read_file` (or potentially `analyze_wiki.py` via `run_terminal_cmd`).
+*   **Input:** `requestId`.
+*   **Process:** Extract necessary context including overall goal, current task, history, findings from previous agents, user input summaries, and relevant project state. Refer to [Wiki Handling](mdc:wiki-handling.md) for structure.
+*   **Verification:** Wiki file exists, is readable, and contains expected baseline information.
 
-### Step 6: ACTION - Update Knowledge Wiki
-- **MANDATORY:** Consolidate results, findings, summaries of actions taken, or errors encountered during Step 5.
-- **MANDATORY:** EXECUTE `edit_file` (or specialized tool) to APPEND the consolidated information to the `knowledge-wiki.md` according to the structure defined in [Wiki Handling](mdc:wiki-handling.md).
-    - Include agent role and timestamp for the entry.
-    - Clearly label findings, action summaries, errors, or milestone updates.
+### Step 3: Fetch Own Role Specification
+*   **Action:** Fetch the agent's specific behavior rules.
+*   **Tooling:** `fetch_rules`.
+*   **Input:** Agent's own role name (e.g., `agents/builder-agent`).
+*   **Process:** Load the rule file content (`.mdc`).
+*   **Verification:** Rule file exists and is fetched successfully.
 
-### Step 7: ACTION - Determine Next Agent & Handoff Message
-- **MANDATORY:** Based on the outcome of Step 5/6, the agent's role specification ([Transfer Conditions](mdc:agent-roles.md)), and the overall workflow, DETERMINE the role of the next agent required (`<NextAgentRole>`).
-- **MANDATORY:** Formulate a concise handoff message summarizing the outcome of the current turn and stating the objective for the next agent.
+### Step 4: Construct Role-Prompt & Plan Turn
+*   **Action (Internal):** Prepare the operational prompt for the LLM and outline the turn's plan.
+*   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger message content (Step 1).
+*   **Process:**
+    1.  Construct prompt: "Act *strictly* as `<AgentRole>` based on the following rules..." including fetched rules, relevant Wiki context, and trigger instructions.
+    2.  Develop a minimal, actionable plan for the core task(s) of the turn based on the agent's role and current context.
 
-### Step 8: ACTION - Generate Next Chat Trigger (FINAL ACTION)
-- **MANDATORY:** Compose the **final response** for the current turn.
-- **FORMAT:** "Hey `<NextAgentRole>`, [Concise handoff message from Step 7]. See wiki for details."
-- **CRITICAL:** This message acts as the trigger for the next agent in the sequence. The turn ends immediately after sending this message.
+### Step 5: Execute Core Task(s)
+*   **Action:** Perform the agent's primary function(s) as defined by its role and the turn's plan.
+*   **Tooling:** Authorized tools per role spec (e.g., `edit_file`, `run_terminal_cmd`, `codebase_search`, `web_search`).
+*   **Input:** Plan from Step 4, Wiki context, potentially Trigger message details.
+*   **Process:** Execute tool calls to achieve the planned objective (e.g., write code, run tests, search for information).
+*   **DIAGNOSTICS EXCEPTION:** If external information (e.g., user-provided logs, HAR files) is *required* to proceed after a failure, the agent MAY generate a specific, targeted request to the user via chat. The agent MUST state exactly what is needed. Upon receiving the data, the agent MUST immediately resume this step. **This is the ONLY permissible reason to interact with the user mid-loop.**
 
-## PER-STEP VERIFICATION (MANDATORY)
-- Before each ACTION (Steps 2-8), agent MUST verify:
-  1. Required tools available & functional.
-  2. Necessary inputs (wiki content, fetched rules, trigger message) are present and valid.
-  3. Wiki file accessible and valid (esp. Steps 2, 6).
-- FAILURE -> HALT & ESCALATE via [Error Handling](#error-handling-chat-wiki).
+### Step 6: Update Knowledge Wiki
+*   **Action:** Append a record of the turn's activities and outcomes to the Wiki.
+*   **Tooling:** `edit_file`.
+*   **Input:** Results, findings, action summaries, errors from Step 5. `requestId`.
+*   **Process:** Consolidate information into a timestamped entry attributed to the agent role. Append this entry under the appropriate section(s) in the `<requestId>-wiki.md` file, following [Wiki Handling](mdc:wiki-handling.md) structure.
+*   **Verification:** Wiki file is accessible; append operation is structured correctly.
 
-## FORBIDDEN PATTERNS
-- Waiting for user confirmation (except for Step 5 Diagnostics).
-- State management outside the knowledge wiki.
-- Direct agent communication outside the defined chat trigger/wiki mechanism.
-- Failing to fetch own rules (Step 3).
-- Failing to update the wiki (Step 6).
-- Failing to generate the next chat trigger message (Step 8).
-- Deviating from the 8-step sequence.
+### Step 7: Determine Next Agent & Handoff Message
+*   **Action (Internal):** Decide which agent role should execute the next turn and prepare the handoff instructions.
+*   **Input:** Outcome of Step 5/6, agent's role specification (Transfer Conditions), overall workflow context from Wiki.
+*   **Process:**
+    1.  Identify the `<NextAgentRole>` (can be another specialized agent or `Overmind`).
+    2.  Formulate a concise handoff message summarizing the current turn's outcome and stating the clear objective for the next agent.
 
-## ERROR HANDLING (Chat/Wiki) <a name="error-handling-chat-wiki"></a>
-- On unrecoverable error or failed verification:
-  1. PREPARE minimal error details.
-  2. UPDATE wiki (Step 6) with error status, agent role, timestamp, and error details.
-  3. DETERMINE `NextAgentRole` as `Overmind` (Step 7).
-  4. FORMULATE handoff message indicating failure and need for assessment (Step 7).
-  5. EXECUTE Step 8 to trigger `Overmind` via chat: "Hey Overmind, encountered error [brief summary]. Escalating for assessment. See wiki for details."
+### Step 8: Generate Next Chat Trigger (FINAL ACTION)
+*   **Action:** Send the concluding chat message to trigger the next agent.
+*   **Tooling:** Framework's chat mechanism.
+*   **Input:** `<NextAgentRole>` and handoff message from Step 7.
+*   **Process:** Compose and send the final message for the turn in the format: "Hey `<NextAgentRole>`, [Concise handoff message from Step 7]. See wiki for details."
+*   **Outcome:** The current agent's turn ends immediately upon sending this message. The framework will activate the `<NextAgentRole>`.
+
+## 4. INPUTS & OUTPUTS
+
+*   **Input:** Chat Trigger message, Knowledge Wiki (`<requestId>-wiki.md`), Agent's own Role Specification (`.mdc`).
+*   **Output:** Updated Knowledge Wiki, Final Chat Trigger message for the next agent.
+
+## 5. TOOLS
+
+*   `read_file` / `analyze_wiki.py` (via `run_terminal_cmd`)
+*   `fetch_rules`
+*   Agent-specific authorized tools (e.g., `edit_file`, `run_terminal_cmd`, `codebase_search`, `web_search`)
+*   Framework Chat Mechanism
+
+## 6. HANDOFF CONDITIONS
+
+*   Successful completion of Step 8 is the *only* valid handoff condition.
+
+## 7. ERROR HANDLING
+
+*   **Per-Step Verification Failure:** If basic checks fail (tool unavailable, input missing, wiki inaccessible), the agent MUST immediately proceed to the HALT procedure.
+*   **Core Task Failure (Step 5):**
+    *   If recoverable *with specific external diagnostics* (see Step 5 Exception), request data from user.
+    *   If unrecoverable or verification after task fails, proceed to HALT procedure.
+*   **HALT Procedure:**
+    1.  Prepare minimal error details.
+    2.  Execute Step 6: Update Wiki (`## ⚠️ Errors & Escalations`) with error status, agent role, timestamp, and details.
+    3.  Execute Step 7: Determine `NextAgentRole` as `Overmind` and formulate handoff message indicating failure.
+    4.  Execute Step 8: Trigger `Overmind` via chat: "Hey Overmind, encountered error [brief summary]. Escalating for assessment. See wiki for details."
+
+## 8. CONSTRAINTS & FORBIDDEN PATTERNS
+
+*   MUST follow steps 1-8 sequentially.
+*   MUST NOT wait for user confirmation (except Step 5 Diagnostics Exception).
+*   MUST NOT manage state outside the Knowledge Wiki.
+*   MUST NOT communicate outside the Chat Trigger / Wiki mechanism.
+*   MUST fetch own rules (Step 3).
+*   MUST update the Wiki (Step 6).
+*   MUST generate the next Chat Trigger (Step 8).
+
+## 9. EXAMPLES
+
+*   N/A (Procedural document)
+
+## 10. REFERENCES
+
+*   [`global-mandates.md`](./global-mandates.md)
+*   [Wiki Handling](mdc:wiki-handling.md)
+*   [Agent Roles & Responsibilities](mdc:agent-roles.md)
+*   [Shared Core Concepts & Rules](mdc:shared-core.md)

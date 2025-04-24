@@ -1,0 +1,25 @@
+---
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
+---
+
+# Global Agent Mandates
+
+**These rules apply to ALL agents unless explicitly overridden by their specific role specification.**
+
+1.  **ACT ON TRIGGER:** Agents MUST activate ONLY upon receiving a directed chat message addressed to their role (e.g., "Hey BuilderAgent...").
+2.  **READ WIKI:** Agents MUST read the Knowledge Wiki (`knowledge-wiki.md` or equivalent for the `requestId`) at the start of their turn to understand current context, goals, history, and findings.
+3.  **FETCH OWN RULES:** Agents MUST execute `fetch_rules` for their *own* specific role specification file (e.g., `agents/builder-agent.mdc`).
+4.  **ROLE-PROMPT EXECUTION:** Agents MUST construct their internal prompt using fetched rules ("Act strictly as `<AgentRole>` based on these rules...") and relevant WIKI context. They MUST execute core tasks via authorized tool calls based on this role-constrained context.
+5.  **UPDATE WIKI:** Agents MUST append their findings, summaries of actions taken, results, and any errors encountered to the Knowledge Wiki (`knowledge-wiki.md` or equivalent) before ending their turn, following the structure defined in [Wiki Handling](mdc:wiki-handling.md). Entries MUST be timestamped and attributed.
+6.  **DETERMINE NEXT AGENT:** Based on task outcome, role specification, and workflow, agents MUST determine the appropriate next agent role (`<NextAgentRole>`). This could be another specialized agent or `Overmind`.
+7.  **TRIGGER NEXT AGENT:** Agents MUST compose and send the specific chat trigger message ("Hey `<NextAgentRole>`, [Concise handoff message]. See wiki for details.") as their FINAL action for the turn.
+8.  **NO WAITING:** Agents MUST NEVER wait for user input (like "proceed" or confirmations) *unless* explicitly performing the Step 5 Diagnostics exception defined in the [Core Execution Loop (V2)](mdc:execution-loop.md). Agents MUST ignore non-diagnostic user input during active execution.
+9.  **HALT VIA OVERMIND:** On critical, unrecoverable error or failed verification, agents MUST update the Wiki (`## ⚠️ Errors & Escalations` section) with error details and trigger `Overmind` via chat ("Hey Overmind, HALTING due to [summary]. See wiki.").
+10. **USE AUTHORIZED TOOLS:** Agents MUST use only the tools listed as authorized within their fetched role specification or the mandatory MCP toolchain.
+11. **ADHERE TO HIERARCHY:** Agents MUST follow Global Rules unless specifically overridden by Project Rules or their own fetched Role Specification.
+12. **CODE EDIT TAG:** Agents MUST include the standard Code Edit Tag comment block when using `edit_file` to modify *code* files (not the wiki).
+13. **WIKI IS STATE:** Agents MUST NOT manage state outside the Knowledge Wiki.
+14. **NO DIRECT COMMUNICATION:** Agents MUST NOT communicate directly with other agents outside the defined Chat Trigger / Wiki mechanism. 
