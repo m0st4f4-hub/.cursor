@@ -5,4 +5,105 @@ globs:
 alwaysApply: false
 ---
 
- 
+# 🧠 Knowledge Wiki Handling (V2 Framework)
+
+## 🎯 Core Purpose
+
+The Knowledge Wiki (`knowledge-wiki.md` or similar, TBD filename) serves as the **SINGLE SOURCE OF TRUTH** for contextual information, findings, history, goals, and errors within a specific `requestId`. It replaces the old log file for storing detailed state and inter-agent context.
+
+Agents **MUST** read from and append to this wiki according to the defined structure and protocols.
+
+## 📍 Location & Naming
+
+- **Path:** `/` (Project Root) or potentially a dedicated `/wiki/` directory (TBD).
+- **Naming:** `<requestId>-wiki.md` (e.g., `req_12345abc-wiki.md`). Using Markdown format for better readability and potential structuring.
+- Each request **MUST** have its own dedicated wiki file.
+
+## 📝 Structure & Format (Markdown)
+
+The wiki file will use Markdown headings to structure information. Agents **MUST** append information under the relevant LATEST section, typically adding timestamped entries.
+
+**Proposed Structure:**
+
+```markdown
+# Knowledge Wiki: <requestId>
+
+## 📜 Request Overview
+
+*   **Request ID:** `<requestId>`
+*   **Initial Goal:** [Description from Overmind/User]
+*   **Project Name:** `<projectName>`
+*   **Domain:** `<domain>`
+*   **Status:** [In Progress | Error | Completed]
+
+## 📌 Milestones & MCP Tasks (Optional)
+
+*   [ ] Task 1: [Title]
+*   [ ] Task 2: [Title] (Agent: BuilderAgent, Status: Done, Timestamp: ...)
+*   ...
+
+## 🗺️ Plan & Strategy (Overmind Updates)
+
+*   **[Timestamp] Overmind:** Initial plan: Research -> Build -> Audit.
+*   **[Timestamp] Overmind:** Error recovery plan: Research failed dependency -> BuilderAgent patch.
+
+## 📚 Research & Findings (Append Only)
+
+*   **[Timestamp] ResearchAgent:** Found relevant API documentation at [URL]. Key function: `xyz()`. See [Code Snippet 1].
+*   **[Timestamp] ResearchAgent:** Web search indicates common pattern for this error is [Pattern].
+*   **[Timestamp] AuditAgent:** Linting identified 3 minor issues in `file.js`.
+
+## 🛠️ Actions & Code Changes (Append Only)
+
+*   **[Timestamp] BuilderAgent:** Applied fix for bug #123 in `file.js`. See [Diff Summary 1]. Local tests passed.
+*   **[Timestamp] RefactorAgent:** Refactored `module.py` for clarity. Verification passed. See [Diff Summary 2].
+*   **[Timestamp] DocsAgent:** Updated docstrings in `utils.js`.
+
+## 🤔 Observations & Ambiguities (Append Only)
+
+*   **[Timestamp] BuilderAgent:** Encountered ambiguity in requirement specification regarding edge case X.
+*   **[Timestamp] ResearchAgent:** Could not find definitive documentation for legacy component Y.
+
+## ⚠️ Errors & Escalations (Append Only)
+
+*   **[Timestamp] BuilderAgent:** **ERROR:** Build failed due to dependency conflict [Details]. Escalating to Overmind.
+*   **[Timestamp] RefactorAgent:** **ERROR:** Test verification failed after refactoring `logic.ts`. [Details]. Escalating to Overmind.
+
+## 💡 Improvement Suggestions (Append Only)
+
+*   **[Timestamp] AuditAgent:** Suggest adding rule to enforce stricter type checking based on recurring errors.
+*   **[Timestamp] ResearchAgent:** Suggest updating project rules with link to new best practice guide for [Topic].
+
+## 👤 User Input Summary (Append Only)
+
+*   **[Timestamp] AgentX:** User provided diagnostic HAR file [Link/Reference].
+*   **[Timestamp] Overmind:** User clarified requirement for feature Y.
+
+---
+*Internal Note: Agents should use tools to parse relevant sections rather than reading the entire file if it becomes large.*
+```
+
+## 🔄 Reading the Wiki
+
+- Agents **MUST** read the wiki at the start of their turn ([Execution Loop V2 - Step 2](mdc:execution-loop.md#step-2-action---read-knowledge-wiki)).
+- Agents should parse the relevant sections needed for their current task (e.g., `Request Overview`, latest `Findings`, `Actions`, `Errors`). Tools may be developed to assist with parsing specific sections.
+
+## ✍️ Writing to the Wiki (Append Only)
+
+- Agents **MUST** append new information under the appropriate section header ([Execution Loop V2 - Step 6](mdc:execution-loop.md#step-6-action---update-knowledge-wiki)).
+- Entries **MUST** be timestamped and attributed to the agent role (e.g., `*   **[Timestamp] BuilderAgent:** ...`).
+- Use clear and concise language.
+- **NEVER** modify or delete previous entries. Append-only ensures a traceable history.
+- Use `edit_file` with an instruction targeting appending under a specific heading (e.g., "Append the following finding under the '## 📚 Research & Findings' section:"). Ensure the edit includes context (the heading) to append correctly.
+
+## 🚨 Error Handling
+
+- If an agent encounters an unrecoverable error, it **MUST**:
+    1. Append the error details under the `## ⚠️ Errors & Escalations` section of the wiki.
+    2. Trigger `Overmind` via chat, referencing the error entry in the wiki.
+
+## 🤝 Coordination
+
+- The wiki serves as the shared context.
+- Agent transitions are triggered via **Chat Messages** ([Execution Loop V2 - Step 8](mdc:execution-loop.md#step-8-action---generate-next-chat-trigger-final-action)).
+- The chat message should be brief, indicating the next agent and the general task, explicitly stating that details are in the wiki (e.g., "Hey AuditAgent, build complete. Please run checks. See wiki for details."). 
