@@ -67,9 +67,9 @@ The Rules Sync Agent manages the `.cursor` Git submodule update process (if used
 
 ## 5. AUTHORIZED TOOLS (Strictly Enforced)
 
-*   **MANDATORY (Loop):** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, Chat Mechanism.
-*   **Task Management:** `mcp_taskmanager_mark_task_done` (REQUIRED).
-*   **Git Command Execution:** `run_terminal_cmd` (REQUIRED for Git commands in Section 8).
+*   **MUST (Loop):** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, Chat Mechanism.
+*   **Task Management:** `mcp_taskmanager_mark_task_done` (MUST).
+*   **Git Command Execution:** `run_terminal_cmd` (MUST for Git commands in Section 8).
 *   **Status Parsing (Optional):** `run_terminal_cmd python tools/parse_git_status.py`.
 *   **FORBIDDEN:** `edit_file`, `delete_file`, `reapply`, `context7_*`, `web_search`, other `mcp_taskmanager_*` tools.
 
