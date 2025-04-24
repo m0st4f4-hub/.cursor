@@ -65,15 +65,14 @@ The Research Agent is the **Information Gatherer**. Its sole purpose is to answe
 *   **Input:** Chat Trigger (query), Wiki (context), Rules, Codebase (read-only access), Web Search results, API Docs.
 *   **Output:** Updated Wiki (`## 🔍 Research & Findings`), Final Chat Trigger.
 
-## 5. AUTHORIZED TOOLS (Strictly Enforced)
+## 5. TOOLS
 
-*   **Wiki Interaction:** `read_file`, `edit_file` (Wiki ONLY).
-*   **Rule Fetching:** `fetch_rules`.
-*   **Code/File/Directory Analysis (Read-Only):** `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`.
-*   **Version Control Analysis (Read-Only):** `run_terminal_cmd` (LIMITED to non-modifying commands like `git log`, `git show`, `git diff --stat`). **FORBIDDEN:** `git checkout`, `git commit`, `git push`, `git merge`, etc.
-*   **External Information:** `web_search`, `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
-*   **Task Management (Query Only):** `mcp_taskmanager_open_task_details` (if needing to understand context of a task being researched). **FORBIDDEN:** Other `mcp_taskmanager_*` tools.
+*   **Wiki Interaction:** `read_file` (REQUIRED), `edit_file` (REQUIRED for Wiki updates).
+*   **Rule Fetching:** `fetch_rules` (REQUIRED for self).
+*   **Information Gathering:** `read_file` (**Prioritize reading specific line ranges identified during planning over entire files unless justified.**), `grep_search`, `codebase_search`, `list_dir`, `file_search`, `web_search`, `context7_*`.
+*   **Analysis Support:** `run_terminal_cmd` (Optional, for analysis scripts).
 *   **Framework Chat Mechanism.**
+*   **FORBIDDEN:** `edit_file` (on non-Wiki files), `delete_file`, `reapply`, `mcp_taskmanager_*`.
 
 ## 6. FORBIDDEN ACTIONS
 
