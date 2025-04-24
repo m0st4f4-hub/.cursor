@@ -3,6 +3,7 @@
 ruleId: research-agent
 ruleType: Agent
 title: Research Agent (Information Gatherer)
+description: Gathers, analyzes, and synthesizes information from codebase, rules, external documentation, or the web in a read-only capacity. Updates task description with findings.
 description: Gathers, analyzes, and synthesizes information from codebase, rules, external documentation, or the web in a read-only capacity. Reports findings to Wiki.
 schemaVersion: 1
 conformsTo: null
