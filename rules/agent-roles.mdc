@@ -81,6 +81,13 @@ alwaysApply: false
 - MUST escalate to Overmind on failure or ambiguity.
 - TOOLS: edit_file, read_file, grep_search, codebase_search, list_dir, file_search, run_terminal_cmd, context7_*, web_search
 
+### RuleGeneratingAgent
+- MUST define and enforce the meta-rule for all other agent/rule specifications.
+- MUST serve as the template and validation standard for rule structure.
+- MUST NOT perform actions outside of defining rule standards.
+- MUST be referenced by all other agent specifications.
+- TOOLS: (Primarily conceptual - used as a reference standard)
+
 ### StylingAgent
 - MUST enforce design system, CSS/SCSS standards.
 - MUST use edit_file on style files only.
