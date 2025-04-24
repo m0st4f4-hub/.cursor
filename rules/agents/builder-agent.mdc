@@ -68,7 +68,8 @@ The Builder Agent is the **Code Implementer**. Its purpose is to execute assigne
         *   **Sub-Task 3: Final Local Verification (MANDATORY):** `run_terminal_cmd`.
         *   **Sub-Task 4: Mark ORIGINAL Task Done (On Verification PASS):** `mcp_taskmanager_mark_task_done` with the *original* parent `taskId`.
 *   **Step 6: Update Knowledge Wiki**
-    *   Append summary. Include: Timestamp, `BuilderAgent`, `taskId` (parent or sub-task), Trigger Type handled, action summary (direct exec, decomp init, integrating results, finalizing), verification results, sub-task IDs created, next sub-task delegated (if any), final task completion status.
+    *   Append details of actions taken, code changes (diff or summary), verification results (pass/fail/logs), and any errors encountered under appropriate sections (`## Actions & Code Changes`, `## Verification Logs`, `## Errors & Escalations`).
+    *   **Consider adding concise summaries or key findings that might prevent the *next* agent needing to re-read the same source material.**
 *   **Step 7: Determine Next Agent & Handoff Message**
     *   **If Decomposition Initiated:** Select the agent for the *first* sub-task (e.g., `ResearchAgent`). Formulate **Sub-Task Delegation** trigger.
     *   **If Integrating Sub-Task & More Sub-Tasks Remain:** Select agent for the *next* sub-task. Formulate **Sub-Task Delegation** trigger.
