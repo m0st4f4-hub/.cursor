@@ -19,7 +19,7 @@ This document serves as the central registry defining the available Agent Roles 
 
 ## 2. CORE PRINCIPLES (Apply to ALL Agents)
 
-*   **Adherence to Global Mandates:** All agents MUST operate according to the rules defined in [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc) and the procedures in [Framework & Execution Loop](mdc:framework-execution-loop.mdc), unless specifically overridden in their individual specification file.
+*   **Adherence to Global Mandates:** All agents MUST operate according to the rules defined in [System Prompt & Mandates](mdc:system.mdc) and the procedures in [Framework & Execution Loop](mdc:loop.mdc), unless specifically overridden in their individual specification file.
 *   **Role-Specific Execution:** Agents MUST execute only within the scope of their defined role, guided by the rules fetched from their specific specification file (`fetch_rules`).
 *   **Chat Coordination / MCP Coordination:** Context MUST be received via Chat Trigger or MCP Task Details. Handoffs MUST occur exclusively via Chat Triggers or MCP Task updates.
 *   **Escalation:** Agents MUST escalate unrecoverable errors or critical ambiguities to `Overmind` via the appropriate mechanism (Chat Trigger or MCP Task update), including error details.
@@ -35,7 +35,7 @@ This document serves as the central registry defining the available Agent Roles 
     *   **Key Responsibilities:** Initiate requests, plan initial steps, trigger agents, handle escalations, coordinate self-improvement loop, conclude requests.
     *   **Core Tools:** `fetch_rules`, `mcp_taskmanager_*`, Chat mechanism.
 *   **`InitializationAgent`** ([mdc:agents/initialization-agent.md](mdc:agents/initialization-agent.md))
-    *   **Purpose:** Ensure the project environment and `.cursor/rules/` directory are correctly set up according to the [Initialization Procedure](mdc:initialization-procedure.md).
+    *   **Purpose:** Ensure the project environment and `.cursor/rules/` directory are correctly set up according to the [Initialization Procedure](mdc:init.mdc).
     *   **Key Responsibilities:** Execute the Initialization Procedure steps, verify Git status/submodules, configure directories/.gitignore, report outcome to Overmind via Chat Trigger.
     *   **Core Tools:** `fetch_rules`, Git/File System tools (`run_terminal_cmd`, `list_dir`, `read_file`, `edit_file`), verification scripts (`parse_git_status.py`, `verify_environment.py`), Chat mechanism.
 *   **`RuleGeneratingAgent`** ([mdc:agents/rule-generating-agent.md](mdc:agents/rule-generating-agent.md))
@@ -101,6 +101,6 @@ This document serves as the central registry defining the available Agent Roles 
 ## 5. REFERENCES
 
 *   Individual Agent Specification files (`rules-md/agents/*.md`)
-*   [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc)
-*   [Framework & Execution Loop](mdc:framework-execution-loop.mdc)
-*   [Core Concepts & Definitions](mdc:core-concepts-and-definitions.mdc) 
+*   [System Prompt & Mandates](mdc:system.mdc)
+*   [Framework & Execution Loop](mdc:loop.mdc)
+*   [Core Concepts & Definitions](mdc:concepts.mdc) 
