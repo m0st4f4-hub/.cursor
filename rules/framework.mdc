@@ -1,54 +1,78 @@
 ---
-description: "[TODO: Add description]"
-globs:
-  - "*.*"
-alwaysApply: false
+# Rule Definition Metadata (V1)
+ruleId: framework
+ruleType: Framework
+title: Agent Execution Framework Definition
+description: Defines the responsibilities and expected behavior of the external Agent Execution Framework that orchestrates agent turns based on the Chat/Wiki model.
+schemaVersion: 1
+conformsTo: null
+tags: [core, framework, architecture, execution-engine]
+lastUpdated: null
+status: Active
 ---
 
-# FRAMEWORK DEFINITION
+# ⚙️ Agent Execution Framework Definition
 
-## Purpose
+## 1. PURPOSE & OBJECTIVES
 
-This document defines the responsibilities and expected behavior of the **Agent Execution Framework**. The Framework is the external system or process responsible for orchestrating the execution of individual agents based on the defined Wiki/Chat Coordination model. It is NOT an agent itself but the engine within which agents operate.
+This document defines the role, responsibilities, and expected behavior of the **Agent Execution Framework**. The Framework is the underlying system or process responsible for orchestrating the execution of individual agents according to the Chat/Wiki coordination model. It is *not* an agent itself but the engine facilitating agent operation.
 
-## Core Responsibilities
+## 2. CORE BEHAVIOR & RESPONSIBILITIES
 
-1.  **Agent Activation:**
-    - Continuously monitor or receive the output of the currently executing agent.
-    - Detect the final **Chat Trigger** message (e.g., "Hey AgentX...").
-    - Parse the trigger message to identify the `<NextAgentRole>` and the `handoff_message`.
-    - Identify the relevant `requestId` and the associated `knowledge-wiki.md` file.
-    - Load the rules (`.mdc` files from `.cursor/rules/`) associated with the `<NextAgentRole>`.
-    - Instantiate or invoke the `<NextAgentRole>` agent, providing its rules, the `handoff_message`, and the `wiki_reference` as initial input (See [Execution Loop - Step 1](mdc:execution-loop.md#step-1-activate-via-chat-trigger)).
+The Framework MUST perform the following functions to enable the autonomous agent workflow:
 
-2.  **Tool Provision:**
-    - Provide the necessary tools (API access) to the active agent based on its role definition (e.g., `fetch_rules`, `edit_file`, `run_terminal_cmd`, `mcp_taskmanager_*`, etc.). See [Shared Core](mdc:shared-core.md) for common tools.
-    - Handle the execution and response/output of tool calls initiated by the agent.
+1.  **Agent Activation & Sequencing:**
+    *   Continuously monitor the output (specifically, the final Chat message) of the currently executing agent.
+    *   Detect and parse the final **Chat Trigger** message (e.g., "Hey `<NextAgentRole>`, ... See wiki.").
+    *   Identify the target `<NextAgentRole>`.
+    *   Identify the relevant `requestId` and locate the corresponding Knowledge Wiki file (`<requestId>-wiki.md`).
+    *   Load the necessary rules (`.md` / `.mdc` files from `.cursor/rules/`, respecting project/global hierarchy) associated with the `<NextAgentRole>`.
+    *   Invoke/activate the `<NextAgentRole>` agent, providing its rules, the `handoff_message` context from the Chat Trigger, and access to the Wiki as initial input. This aligns with [Core Execution Loop](mdc:execution-loop.md) Step 1.
+    *   Ensure strictly sequential execution based on the Chat Trigger handoffs.
 
-3.  **Rule Loading & Prompting:**
-    - Facilitate the agent's `fetch_rules` calls.
-    - (Potentially) Assist the agent in constructing its role-prompt by providing the fetched rules context, although the agent is primarily responsible for constructing the prompt (See [Execution Loop - Step 4](mdc:execution-loop.md#step-4-action---construct-role-prompt--plan-turn)).
+2.  **Tool Provision & Execution:**
+    *   Provide the active agent with access to the set of tools authorized for its role (as defined implicitly or explicitly in its rules). This includes core tools ([Shared Core Concepts & Rules](mdc:shared-core.md)) and potentially specialized ones.
+    *   Execute tool calls initiated by the agent (e.g., `edit_file`, `run_terminal_cmd`, `fetch_rules`).
+    *   Return the results or output of tool calls back to the agent for processing.
+
+3.  **Rule Loading & Management:**
+    *   Provide the mechanism for the `fetch_rules` tool to access and return the content of specified rule files.
+    *   Manage the runtime ruleset located in `.cursor/rules/`, potentially interacting with `InitializationAgent` or `RulesSyncAgent` for setup and updates.
+    *   Respect the Project-over-Global rules hierarchy when loading rules for an agent.
 
 4.  **Lifecycle Management:**
-    - Initiate the overall process for a given `requestId`, typically starting with `Overmind`.
-    - Handle the sequential execution flow from one agent to the next based on Chat Triggers.
-    - Detect halt conditions (e.g., critical errors reported to Overmind, explicit completion status in Wiki, `Overmind` concluding the request).
+    *   Initiate the overall process for a new `requestId`, typically by activating the `Overmind` agent first.
+    *   Manage the continuous, sequential flow of execution from one agent to the next via Chat Triggers.
+    *   Detect halt conditions, such as:
+        *   An agent triggering `Overmind` due to a critical error (as per the HALT procedure in the [Core Execution Loop](mdc:execution-loop.md)).
+        *   `Overmind` determining the request is complete and updating the Wiki status accordingly.
+        *   An explicit external stop signal (outside the agent workflow itself).
 
-5.  **Environment:**
-    - Provide the runtime environment where agents execute.
-    - Manage access to the file system, network, and other necessary resources via the provided tools.
+5.  **Environment Provision:**
+    *   Provide the secure runtime environment in which agent code executes.
+    *   Manage access to the necessary resources (file system, network, terminals) *only* through the explicitly provided and authorized tools.
 
-## Interaction with Agents
+## 3. INTERACTION MODEL
 
-- The Framework's interaction is primarily through:
-    - Activating agents based on Chat Triggers.
-    - Providing tool access and returning results.
-    - Receiving the final Chat Trigger message to determine the next step.
-- The Framework does **NOT** interpret the *content* of the Knowledge Wiki directly; that is the responsibility of the agents (using tools like `read_file` or `analyze_wiki.py`).
-- The Framework enforces the sequential, non-waiting nature of the [Execution Loop](mdc:execution-loop.md).
+*   The Framework interacts with agents primarily through:
+    *   **Activation:** Passing initial context (rules, trigger message, wiki reference) upon activation.
+    *   **Tool Interface:** Receiving tool call requests and returning results.
+    *   **Transition:** Detecting the final Chat Trigger message to determine the next agent.
+*   The Framework does **not** need to understand the *semantic content* of the Knowledge Wiki. Wiki interpretation is the responsibility of the agents.
+*   The Framework **enforces** the core behavioral loop: activate, provide tools, detect next trigger. It ensures the non-waiting, sequential nature of the process.
 
-## Assumptions
+## 4. ASSUMPTIONS
 
-- Assumes rule files (`.mdc`) exist in the expected `.cursor/rules/` location.
-- Assumes the Knowledge Wiki naming convention is followed.
-- Assumes Chat Trigger messages follow the standard format for reliable parsing. 
+*   Rule files (`.md` / `.mdc`) are present in the expected `.cursor/rules/` location and structure (global/project).
+*   The Knowledge Wiki naming convention (`<requestId>-wiki.md`) is consistently followed.
+*   Chat Trigger messages adhere to the standard format ("Hey `<NextAgentRole>`...") for reliable parsing.
+*   Agents correctly implement the [Core Execution Loop](mdc:execution-loop.md), including reading the wiki, fetching rules, updating the wiki, and sending the final Chat Trigger.
+
+## 5. REFERENCES
+
+*   [Core Execution Loop](mdc:execution-loop.md)
+*   [Shared Core Concepts & Rules](mdc:shared-core.md)
+*   [Wiki Handling](mdc:wiki-handling.md)
+*   [System Prompt](mdc:system-prompt.md)
+*   [Agent Roles & Responsibilities](mdc:agent-roles.md)
+*   [`global-mandates.md`](./global-mandates.md) 
