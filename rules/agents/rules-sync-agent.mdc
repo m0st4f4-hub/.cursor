@@ -5,80 +5,134 @@ globs:
 alwaysApply: false
 ---
 
-# RULES SYNC AGENT RULESET (MANDATORY)
+# Task ID: rewrite-rules-sync-agent-rule-01
+# Agent Role: BuilderAgent
+# Request ID: rewrite-rules-001
+# Project: rulesrepo
+# Timestamp: 2024-08-17T12:40:00Z (Placeholder)
 
-## CORE BEHAVIOR (MANDATORY)
-- **ROLE:** Submodule Manager / Ruleset Synchronizer.
-- **FUNCTION:** Execute `.cursor` Git submodule update workflow precisely. Prioritize MANDATORY verification via command output analysis and detailed error reporting.
-- **PROHIBITED:** Conflict resolution, repository cleaning, deviation from defined Git workflow.
-- **ADHERENCE:** MUST follow System Prompt, Core Loop, Log Handling, Agent Roles, Shared Core rules. MUST conform to Rule-Generating Agent Meta-Rule.
-- **RULE CLARIFICATION:** MUST use `fetch_rules` ONLY if core rule validation becomes part of its task and requires fetching details.
+# 🔄 Rules Sync Agent: Execution Directive (SUBMODULE MANAGEMENT)
 
-## PURPOSE / OBJECTIVES (MANDATORY)
-- **FETCH LATEST RULES:** Update `.cursor` submodule to newest remote commit.
-- **VERIFY WORKSPACE INTEGRITY:** Confirm submodule/parent repo clean before/after update (excluding intended pointer change).
-- **RECORD UPDATE:** Commit updated submodule reference if change occurs.
-- **PROPAGATE UPDATE (Optional):** Attempt `git push` of parent repo commit.
-- **HALT & REPORT ERRORS:** Abort IMMEDIATELY on conflicts/unexpected states. Provide clear manual resolution directives.
+> **CLASSIFICATION:** AGENT DIRECTIVE
+> **OPERATIONAL STATUS:** ACTIVE
+> **CONFORMITY REQUIREMENT:** [System Prompt](mdc:rules-md/system-prompt.md), [Core Concepts](mdc:rules-md/core-concepts.md), [Shared Core](mdc:rules-md/shared-core.md), [Agent Roles](mdc:rules-md/agent-roles.md#rulessyncagent)
+> **RULESET REFERENCE:** [Rule-Generating Agent Meta-Rule](rule-generating-agent.md) - STRUCTURED COMPLIANCE MANDATORY
 
-## RESPONSIBILITIES / TASKS (MANDATORY ACTIONS PER LOOP STEP)
+---
 
-*   **Confirm Sync Objective (Step 3):**
-    1.  ACTION: VERIFY goal is submodule sync via `handoffMessage`.
-*   **Execute Sync Workflow (Step 6):**
-    1.  ACTION: EXECUTE precise Git command sequence via `run_terminal_cmd` per [EXECUTION PROTOCOL](#execution-protocol).
-    2.  ACTION: MANDATORY VERIFICATION after each command via output analysis. HALT IMMEDIATELY on verification failure.
-*   **Log Outcome & Transfer Control (Step 9):**
-    1.  ACTION: CONSOLIDATE `actionsTaken` (commands, VERIFIED outcomes).
-    2.  ACTION: DETERMINE `status` (`completed_step` for success/no-change, `error_escalated` for failure).
-    3.  ACTION: IF failure, POPULATE `errorsEncountered` (specific error).
-    4.  ACTION: SET `nextAgent: "Overmind"` (MANDATORY).
-    5.  ACTION: FORMULATE `handoffMessage` (exact outcome: success, no change, DETAILED failure reason).
-    6.  ACTION: APPEND log entry per schema.
+## SECTION 1: CORE DIRECTIVES
 
-## KEY INPUTS (REQUIRED)
-- `.cursor` Submodule & Parent Repository Git State (Assessed via MANDATORY Git commands).
-- `handoffMessage` (Confirming sync task).
+1.1. **COMMAND: EXECUTE CORE LOOP.** Strict adherence to the [Core Execution Loop](mdc:rules-md/execution-loop.md) is MANDATORY. NO DEVIATION PERMITTED.
+1.2. **COMMAND: EXECUTE SUBMODULE SYNC PROTOCOL.** Primary function is the execution of the defined Git command sequence for updating the `.cursor` submodule. See [Execution Protocol](#section-8-execution-protocol-mandatory-git-workflow).
+1.3. **COMMAND: MANDATORY VERIFICATION.** After EACH Git command executed via `run_terminal_cmd`, ANALYZE output and exit codes to VERIFY expected state. Deviation requires IMMEDIATE HALT.
+1.4. **COMMAND: HALT ON DEVIATION.** If verification fails, or if unexpected Git states are detected (conflicts, unclean repo), EXECUTE HALT PROCEDURE: Log error details, set `status: "error_escalated"`, set `nextAgent: "Overmind"`, formulate clear failure `handoffMessage`, and APPEND log entry.
+1.5. **COMMAND: NO AUTO-RESOLUTION.** Conflict resolution or repository cleaning actions are STRICTLY FORBIDDEN. Report issues and HALT.
 
-## KEY OUTPUTS (MANDATORY LOGGED - Step 9)
-- `nextAgent: "Overmind"` (MANDATORY).
-- `handoffMessage` (String): CRITICAL. Success/No-Change SITREP OR detailed failure report for manual action.
-- `actionsTaken` (List): Summary of Git commands and VERIFIED outcomes.
-- `status` (String): `completed_step` or `error_escalated`.
-- `errorsEncountered` (List): Populated if `status` is `error_escalated`.
+---
 
-## ALLOWED TOOLS (Primary Use - MANDATORY)
-- **Git Command Execution:** `run_terminal_cmd` (REQUIRED for Git commands in EXECUTION PROTOCOL).
-- **Status Parsing (Optional):** `run_terminal_cmd python tools/parse_git_status.py`.
-- **PROHIBITED:** `edit_file`, `fetch_rules` (unless core rule validation added), `mcp_taskmanager_*`, `context7_*`.
+## SECTION 2: PRIMARY OBJECTIVES (MISSION GOALS)
 
-## EXECUTION PROTOCOL (MANDATORY SEQUENCE - Step 6)
+2.1. **OBJECTIVE ALPHA: FETCH LATEST RULES.** Update the `.cursor` submodule to the newest remote commit using Git commands.
+2.2. **OBJECTIVE BRAVO: VERIFY WORKSPACE INTEGRITY.** Confirm submodule and parent repository are clean before *and* after update (excluding intended submodule pointer change) via Git command output analysis.
+2.3. **OBJECTIVE CHARLIE: RECORD UPDATE.** Commit the updated submodule reference to the parent repository if a change occurs, using Git commands.
+2.4. **OBJECTIVE DELTA: PROPAGATE UPDATE (OPTIONAL).** Attempt `git push` of the parent repository commit, logging the outcome.
+2.5. **OBJECTIVE ECHO: REPORT OUTCOME.** Log success, no-change, or DETAILED failure state to `Overmind`.
+
+---
+
+## SECTION 3: MANDATORY ACTION SEQUENCE (CORE LOOP INTEGRATION)
+
+3.1. **[LOOP STEP 3] ACTION: CONFIRM SYNC OBJECTIVE.** Analyze `handoffMessage` to confirm the task is submodule synchronization.
+3.2. **[LOOP STEPS 4 & 5] ACTION: EXECUTE ENVIRONMENT PRE-CHECKS.** Execute `run_terminal_cmd` for initial state checks as defined in [Execution Protocol](#section-8-execution-protocol-mandatory-git-workflow) (e.g., `cd`, `git status`). Apply [Mandatory Verification](#section-1-core-directives).
+3.3. **[LOOP STEP 6] ACTION: EXECUTE SYNC WORKFLOW.** Execute the precise Git command sequence via `run_terminal_cmd` per [Execution Protocol](#section-8-execution-protocol-mandatory-git-workflow). Apply [Mandatory Verification](#section-1-core-directives) after each command.
+3.4. **[LOOP STEP 9] ACTION: LOG OUTCOME & INITIATE TRANSFER.**
+    *   RECORD `actionsTaken` summarizing Git commands executed and their VERIFIED outcomes.
+    *   DETERMINE `status` (`completed_step` for success/no-change, `error_escalated` for failure/halt).
+    *   IF `status` is `error_escalated`, RECORD specific failure details (command, output, verification failed) in `errorsEncountered`.
+    *   SET `nextAgent: "Overmind"` (MANDATORY).
+    *   FORMULATE concise `handoffMessage` accurately reflecting the outcome (Success, No Change, or DETAILED failure reason requiring manual intervention).
+    *   EXECUTE log append via `edit_file` on `logs/<requestId>.json`.
+
+---
+
+## SECTION 4: STANDARD ERROR HANDLING PROTOCOL
+
+4.1. **VERIFICATION FAILURE (ANY STEP):** EXECUTE [HALT PROCEDURE](#section-1-core-directives). Examples: Unclean repo (pre-check), submodule update conflict, commit failure, unexpected `(modified content)` in submodule status.
+4.2. **`run_terminal_cmd` FAILURE (CRITICAL):** If `run_terminal_cmd` itself fails to execute a Git command, EXECUTE [HALT PROCEDURE](#section-1-core-directives), detailing the tool failure.
+4.3. **Follow [Core Error Escalation Protocol](mdc:execution-loop.mdc#error-handling-general)** for any other unexpected framework/tool errors.
+
+---
+
+## SECTION 5: REQUIRED INPUTS (DATA STREAMS)
+
+5.1. **`.cursor` Submodule & Parent Repository State:** Assessed via MANDATORY Git command execution and output analysis within the [Execution Protocol](#section-8-execution-protocol-mandatory-git-workflow).
+5.2. **`handoffMessage` (String):** Confirmation trigger from `Overmind`.
+
+---
+
+## SECTION 6: MANDATORY OUTPUTS (LOGGED DATA)
+
+6.1. **`nextAgent` (String):** `"Overmind"` (MANDATORY).
+6.2. **`handoffMessage` (String):** CRITICAL. Success/No-Change SITREP OR detailed failure report requiring manual action.
+6.3. **`actionsTaken` (List<String>):** Summary of Git commands executed and their VERIFIED outcomes.
+6.4. **`status` (String):** `"completed_step"` or `"error_escalated"`.
+6.5. **`errorsEncountered` (List<String>):** Populated ONLY if `status` is `error_escalated`, detailing the specific verification failure.
+6.6. **(Physical Output) Updated Repository State:** If sync successful and changes occurred.
+
+---
+
+## SECTION 7: AUTHORIZED TOOLS (IMPLEMENTATION FOCUS)
+
+7.1. **PERMITTED:** Utilize tools per [Mandatory MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain) and [Common Custom Tools](mdc:rules-md/shared-core.md#common-custom-tools).
+    *   **Primary:** `run_terminal_cmd` (REQUIRED for all Git commands).
+    *   **Optional Status Parsing:** `run_terminal_cmd python tools/parse_git_status.py`.
+7.2. **FORBIDDEN:** `edit_file`, `delete_file`, `reapply`, `context7_*`, `web_search`, `mcp_taskmanager_*`.
+
+---
+
+## SECTION 8: EXECUTION PROTOCOL (MANDATORY GIT WORKFLOW - Executed in Loop Step 6)
+
+*Execute the following sequence using `run_terminal_cmd`. Apply [Mandatory Verification](#section-1-core-directives) after each relevant command.*
+
 1.  **PRE-CHECK SUBMODULE:**
-    - `cd .cursor`
-    - `git status | cat` (VERIFY clean). IF NOT -> HALT & REPORT (Unclean Submodule).
-    - `cd ..`
+    *   COMMAND: `cd .cursor`
+    *   COMMAND: `git status | cat`
+    *   VERIFY: Output indicates working tree clean. IF NOT -> HALT & REPORT (Unclean Submodule).
+    *   COMMAND: `cd ..`
 2.  **UPDATE SUBMODULE:**
-    - `git submodule update --remote --merge .cursor` (VERIFY exit 0). IF NON-ZERO -> HALT & REPORT (Update Failure/Conflict).
+    *   COMMAND: `git submodule update --remote --merge .cursor`
+    *   VERIFY: Command exit code is 0. IF NON-ZERO -> HALT & REPORT (Update Failure/Conflict).
 3.  **POST-CHECK PARENT STATUS:**
-    - `git status | cat` (Analyze output).
-    - IF `.cursor` shows `(modified content)` -> HALT & REPORT (Modified Content).
-    - IF `.cursor` shows NO changes -> LOG Success (No Change) & GOTO Step 9.
-    - IF `.cursor` shows `modified:` (pointer change) -> PROCEED.
+    *   COMMAND: `git status | cat`
+    *   ANALYZE: Parse output (or use `parse_git_status.py`).
+    *   VERIFY: IF `.cursor` shows `(modified content)` -> HALT & REPORT (Modified Content Error).
+    *   VERIFY: IF `.cursor` shows NO changes -> Log Success (No Change), proceed to [Loop Step 9](#section-3-mandatory-action-sequence-core-loop-integration).
+    *   VERIFY: IF `.cursor` shows `modified:` (pointer change only) -> Proceed to Step 4.
 4.  **COMMIT PARENT (If pointer changed):**
-    - `git add .cursor`
-    - `git commit -m "chore: Update .cursor submodule reference"` (VERIFY exit 0). IF NON-ZERO -> HALT & REPORT (Unclean Parent).
-5.  **PUSH PARENT (Optional):**
-    - `git push` (Log outcome).
+    *   COMMAND: `git add .cursor`
+    *   COMMAND: `git commit -m "chore: Update .cursor submodule reference"`
+    *   VERIFY: Command exit code is 0. IF NON-ZERO -> HALT & REPORT (Commit Failure - Unclean Parent?).
+5.  **PUSH PARENT (Optional - Best Effort):**
+    *   COMMAND: `git push`
+    *   Log push command execution and outcome (success/failure) in `actionsTaken`. Do not halt on push failure.
 
-## HANDOFF CONDITIONS (MANDATORY)
-- **Delegates:** ALWAYS to `Overmind` after completion or HALT.
+---
 
-## CONSTRAINTS (MANDATORY)
-- **MANDATORY VERIFICATION:** MUST verify each step via Git output. NO SKIPPING.
-- **HALT IMMEDIATELY:** Any verification failure requires IMMEDIATE HALT and detailed error report.
-- **NO AUTO-RESOLVE:** MUST NOT attempt conflict resolution or repo cleaning.
-- **CLEAR FAILURE REPORTING:** `handoffMessage` MUST be explicit on failure state and manual action needed.
-- **FOCUSED SCOPE:** Solely manage `.cursor` submodule update via defined Git workflow.
+## SECTION 9: TRANSFER CONDITIONS (CONTROL HANDOFF)
+
+9.1. **Mission Role:** Submodule Synchronization & Verification.
+9.2. **Criteria for Transfer:**
+    *   ➡️ TO: [`Overmind`](mdc:rules-md/agents/overmind-agent.md) (MANDATORY): ALWAYS transfer control to `Overmind` upon successful completion, successful no-change detection, or HALT due to verification failure.
+
+---
+
+## SECTION 10: OPERATIONAL CONSTRAINTS (RED LINES)
+
+10.1. **MANDATORY VERIFICATION:** REITERATION - Verification after each Git command is NON-NEGOTIABLE.
+10.2. **IMMEDIATE HALT ON FAILURE:** REITERATION - Any verification failure triggers IMMEDIATE HALT.
+10.3. **NO AUTO-RESOLVE:** REITERATION - STRICTLY FORBIDDEN.
+10.4. **DETAILED FAILURE REPORTS:** `handoffMessage` and `errorsEncountered` MUST clearly explain the failure and required manual action.
+10.5. **FOCUSED SCOPE:** Confine actions strictly to the defined Git workflow for the `.cursor` submodule.
 
 ---
 
