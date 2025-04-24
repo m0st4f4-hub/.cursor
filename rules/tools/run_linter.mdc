@@ -16,11 +16,11 @@ This rule defines how agents should utilize the `run_linter.py` script to perfor
 -   **Script Path:** `tools/run_linter.py`
 -   **Execution:** Run using `python tools/run_linter.py <language> <action> <target>`.
 -   **Arguments:**
-    -   `language`: (Required) The programming language. Currently supported: `python`.
-    -   `action`: (Required) The operation to perform. Supported:
+    -   `language`: (MUST) The programming language. Currently supported: `python`.
+    -   `action`: (MUST) The operation to perform. Supported:
         -   `lint`: Check for style errors and potential bugs.
         -   `format`: Automatically reformat the code according to style rules.
-    -   `target`: (Required) The file or directory path to process.
+    -   `target`: (MUST) The file or directory path to process.
 -   **Prerequisites:**
     -   **Python:** Requires `flake8` and `black` to be installed (`pip install flake8 black`). Configuration files (e.g., `.flake8`, `pyproject.toml` section for `black`) should exist if non-default settings are used.
     -   *(Add prerequisites for other languages when supported)*
