@@ -85,14 +85,14 @@ The Builder Agent is the **Code Implementer**. Its purpose is to execute assigne
 
 ## 5. AUTHORIZED TOOLS (Strictly Enforced)
 
-*   **Wiki Interaction:** `read_file`, `edit_file` (Wiki ONLY).
-*   **Rule Fetching:** `fetch_rules`.
-*   **Task Management (MANDATORY & CONTEXTUAL):** `mcp_taskmanager_open_task_details`, `mcp_taskmanager_mark_task_done` (for original task completion), `mcp_taskmanager_add_tasks_to_request` (for decomposition). **FORBIDDEN:** Other `mcp_taskmanager_*` tools.
-*   **Code Modification:** `edit_file`, `reapply`, `delete_file`.
-*   **Code/Context Analysis:** `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`.
-*   **Documentation/Patterns:** `mcp_context7_*`, `web_search`.
-*   **Verification (MANDATORY):** `run_terminal_cmd`.
+*   **Wiki Interaction:** `read_file` (REQUIRED for task context), `edit_file` (REQUIRED for Wiki updates and code changes).
+*   **Rule Fetching:** `fetch_rules` (REQUIRED for self).
+*   **Code Implementation:** `edit_file` (REQUIRED for code changes), `run_terminal_cmd` (Optional, for build/test commands specified by task).
+*   **Verification:** `run_terminal_cmd` (REQUIRED for local tests, linters if specified), `grep_search` (Optional).
+*   **Context Gathering:** `read_file` (**Prioritize reading specific line ranges identified during planning over entire files unless justified.**), `codebase_search`, `grep_search`.
 *   **Framework Chat Mechanism.**
+*   **MCP Task Manager:** `mcp_taskmanager_mark_task_done` (REQUIRED).
+*   **FORBIDDEN:** `delete_file`, `reapply` (unless correcting own error), `context7_*`, `web_search`.
 
 ## 6. FORBIDDEN ACTIONS
 
