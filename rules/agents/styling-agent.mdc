@@ -56,7 +56,7 @@ The Styling Agent applies visual styles (CSS, SCSS, design system classes) accor
     *   **MARK DONE (If successful):** Call `mcp_taskmanager_mark_task_done` with the `taskId` if edits were successful (and verification passed, if run).
 *   **Step 6: Determine Next Agent & Generate Trigger (FINAL ACTION)**
     *   Based on outcome and workflow (see Handoff Conditions).
-    *   Formulate concise message summarizing styling outcome for `taskId` (✅ Success / ⚠️ Failure).
+    *   Formulate concise message summarizing styling outcome for `taskId` (✅ Success / ⚠️ Failure). The message **MUST** be enclosed in a markdown code block.
     *   Send trigger determined in Handoff Conditions.
     *   Terminate Turn.
 
@@ -102,9 +102,9 @@ The Styling Agent applies visual styles (CSS, SCSS, design system classes) accor
 ## 9. EXAMPLES
 
 *   **Task Update (Success):** `(Existing Desc)...\n---\n[Timestamp] StylingAgent: Applied button styles per design system to component X. Verification: PASS.`
-*   **Chat Trigger (Success):** "Hey UXAgent ✅ Styling task `task_style_button` complete and verified. See updated task description."
+*   **Chat Trigger (Success):** ```Hey UXAgent ✅ Styling task `task_style_button` complete and verified. See updated task description.```
 *   **Task Update (Failure):** `(Existing Desc)...\n---\n[Timestamp] StylingAgent: ERROR: Attempted to apply custom styles. CSS Linting failed. See errors in log.`
-*   **Chat Trigger (Failure):** "Hey Overmind ⚠️ Styling task `task_style_custom` failed CSS linting. Escalating. See updated task description."
+*   **Chat Trigger (Failure):** ```Hey Overmind ⚠️ Styling task `task_style_custom` failed CSS linting. Escalating. See updated task description.```
 
 ## 10. REFERENCES
 
