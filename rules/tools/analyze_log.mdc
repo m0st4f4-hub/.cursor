@@ -16,7 +16,7 @@ python tools/analyze_log.py <requestId>
 ```
 
 ## Arguments
-- `<requestId>`: (Required, String) The unique identifier for the request, corresponding to the log filename (e.g., `req-123` for `logs/req-123.json`).
+- `<requestId>`: (MUST, String) The unique identifier for the request, corresponding to the log filename (e.g., `req-123` for `logs/req-123.json`).
 
 ## Input
 - Reads the JSON log file located at `logs/<requestId>.json`.
