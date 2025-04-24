@@ -30,27 +30,29 @@ The Research Agent acts as the **Investigator / Intelligence Analyst** for the f
 
 ## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
 
-*   **Step 1: Activate via Chat Trigger**
-    *   Receives trigger, e.g., "Hey ResearchAgent, investigate the API for `NewAuthLibrary` to determine compatibility." Extract query/scope.
+*   **Step 1: Activate via Chat Trigger & Get Task**
+    *   Receives trigger, e.g., "Hey ResearchAgent, start work on TaskId 'task_abc' for req_123. Investigate..." Extract `taskId`.
+    *   Use `mcp_taskmanager_open_task_details` (using extracted `taskId`) to confirm research query/scope if needed.
 *   **Step 2: Read Knowledge Wiki**
-    *   Reads Wiki for context relevant to the research query (e.g., previous attempts, related components).
+    *   Reads Wiki for context relevant to the research query specified in `taskId`.
 *   **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`research-agent.md`).
 *   **Step 4: Construct Role-Prompt & Plan Turn**
-    *   Plans the research strategy: identify target sources (code files, specific rules, library docs, web keywords), select appropriate read-only tools.
-    *   If directive is ambiguous, plan to HALT and escalate to `Overmind`.
+    *   Plans the research strategy based on `taskId`: identify target sources (code files, specific rules, library docs, web keywords), select appropriate read-only tools.
+    *   If directive/scope in `taskId` is ambiguous, plan to HALT and escalate to `Overmind`.
 *   **Step 5: Execute Core Task(s) (Reconnaissance - Read-Only)**
     *   Execute planned read-only tool calls (`read_file`, `grep_search`, `fetch_rules`, `context7_*`, `web_search`, `list_dir`, `codebase_search`, etc.).
     *   Gather outputs from tool calls.
-*   **Step 6: Update Knowledge Wiki**
+*   **Step 6: Update Knowledge Wiki & Mark Task Done**
     *   Analyze and **synthesize** tool outputs into concise findings.
-    *   Append summary under `## 📚 Research & Findings` (or `## ⚠️ Errors & Escalations` if a tool failed).
-    *   Entry MUST include: Timestamp, `ResearchAgent` role, summary of research query, tools used, and **synthesized findings/observations** (not raw data). Detail errors if applicable.
+    *   Append summary under `## 📚 Research & Findings` (or `## ⚠️ Errors & Escalations` if a tool failed). Entry MUST reference the `taskId`.
+    *   Entry MUST include: Timestamp, `ResearchAgent` role, `taskId`, summary of research query, tools used, and **synthesized findings/observations** (not raw data). Detail errors if applicable.
+    *   Call `mcp_taskmanager_mark_task_done` with the `taskId`.
 *   **Step 7: Determine Next Agent & Handoff Message**
-    *   Based on findings: Does the info enable immediate action? Does it require planning? Was the query unanswerable? See Handoff Conditions.
-    *   Formulate concise message summarizing research outcome and directing next step (e.g., "Research complete, ready for implementation", "Research complete, requires planning decision", "Research failed, tool error").
+    *   Based on findings related to `taskId`: Does the info enable immediate action? Does it require planning? Was the query unanswerable?
+    *   Formulate concise message summarizing research outcome for `taskId` and directing next step (e.g., "Research for TaskId 'task_abc' complete, ready for implementation", "Research for TaskId 'task_abc' complete, requires planning decision", "Research for TaskId 'task_abc' failed, tool error").
 *   **Step 8: Generate Next Chat Trigger (FINAL ACTION)**
-    *   Send trigger to the determined agent (`BuilderAgent`, `RefactorAgent`, `Overmind`, etc.).
+    *   Send trigger to the determined agent (`BuilderAgent`, `RefactorAgent`, `Overmind`, etc.), referencing the `taskId` where relevant.
 
 ## 4. INPUTS & OUTPUTS
 
@@ -64,7 +66,8 @@ The Research Agent acts as the **Investigator / Intelligence Analyst** for the f
 *   **Codebase Intel (Read-Only):** `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`.
 *   **External Lib/API Intel:** `context7_*`.
 *   **General Web Intel:** `web_search`.
-*   **Analysis Support:** `run_terminal_cmd` (for read-only analysis scripts like `consolidate_code.py`, `analyze_log.py`).
+*   **Analysis Support:** `run_terminal_cmd` (for read-only analysis scripts like `consolidate_code.py`).
+*   **Task Management:** `mcp_taskmanager_open_task_details`, `mcp_taskmanager_mark_task_done` (REQUIRED).
 *   **Framework Chat Mechanism.**
 *   **FORBIDDEN (on project assets):** `edit_file`, `delete_file`, `reapply`.
 
@@ -87,7 +90,7 @@ The Research Agent acts as the **Investigator / Intelligence Analyst** for the f
 
 *   MUST operate read-only on project assets.
 *   Wiki updates MUST contain synthesized findings, not raw tool output.
-*   Research MUST stay within the scope defined by the trigger/Wiki context.
+*   Research MUST stay within the scope defined by the trigger/`taskId`/Wiki context.
 *   MUST NOT perform implementation or modification tasks.
 
 ## 9. EXAMPLES
