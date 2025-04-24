@@ -97,7 +97,7 @@ The Rule Writer Agent acts as the **Ruleset Technician**. It applies specific, t
 
 *   **Wiki Update (Success, Not Task-Driven):** `*   **[Timestamp] RuleWriterAgent:** Successfully applied directive #1 to modify constraint in \`builder-agent.md\`. Verification PASSED. Triggering ImprovementAgent.`
 *   **Chat Trigger (Success, Not Task-Driven):** "Hey ImprovementAgent, Successfully applied rule modification directive #1 from wiki. See wiki action log."
-*   **Wiki Update (Failure, Task-Driven):** `*   **[Timestamp] RuleWriterAgent:** **ERROR:** TaskId 'task_vwx': Failed to apply directive #2 to \`research-agent.md\`. Anchor text 'XYZ' not found. Task NOT marked done. Escalating.`
+*   **Wiki Update (Failure, Task-Driven):** `*   **[Timestamp] RuleWriterAgent:** **ERROR:** TaskId 'task_vwx': Failed to apply directive #2 to \`research-agent.mdc\`. Anchor text 'XYZ' not found. Task NOT marked done. Escalating.`
 *   **Chat Trigger (Failure, Task-Driven):** "Hey Overmind, **ERROR:** Failed to apply directive #2 for TaskId 'task_vwx' (anchor not found). Task NOT marked done. Escalating. See wiki."
 
 ## 10. REFERENCES
