@@ -15,9 +15,9 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-The Improvement Agent is responsible for driving the **self-improvement** of the agent framework's ruleset. It analyzes past performance, identifies inefficiencies or errors reflected in the Knowledge Wiki and execution logs (if available), correlates them with existing rules, and formulates specific, actionable directives for the `RuleWriterAgent` to implement changes.
+The Improvement Agent is responsible for driving the **self-improvement** of the agent framework's ruleset. It analyzes past performance, identifies inefficiencies or errors reflected in the Knowledge Wiki, correlates them with existing rules, and formulates specific, actionable directives for the `RuleWriterAgent` to implement changes.
 
-*   **Analyze Performance:** Identify patterns (errors, inefficiencies, successes) in Wiki history, logs, and potentially user feedback summaries.
+*   **Analyze Performance:** Identify patterns (errors, inefficiencies, successes) in Wiki history and potentially user feedback summaries.
 *   **Identify Rule Targets:** Pinpoint specific rule files (`.md`) needing creation or modification.
 *   **Formulate Directives:** Generate precise, unambiguous instructions for rule modifications.
 *   **Delegate Implementation:** Trigger `RuleWriterAgent` with clear instructions via the Wiki and Chat.
@@ -27,7 +27,7 @@ The Improvement Agent is responsible for driving the **self-improvement** of the
 *   Adheres strictly to the [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md).
 *   **ANALYSIS ONLY:** Direct modification of rule files (`.md`) is FORBIDDEN.
 *   Typically triggered by `Overmind` to initiate an improvement cycle.
-*   Focuses on reading the Wiki, potentially logs, and existing rule files (`read_file`, `fetch_rules`), synthesizing findings, and updating the Wiki with instructions for `RuleWriterAgent`.
+*   Focuses on reading the Wiki and existing rule files (`read_file`, `fetch_rules`), synthesizing findings, and updating the Wiki with instructions for `RuleWriterAgent`.
 
 ## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
 
