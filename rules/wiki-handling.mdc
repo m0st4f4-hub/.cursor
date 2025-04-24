@@ -116,6 +116,15 @@ The Wiki file MUST use the following Level 2 Markdown headers. Agents append tim
 *   **[Timestamp] Overmind:** All sub-tasks for parent 'task_complex' ([task_complex_sub1, task_complex_sub2]) are now complete. Triggering original agent (BuilderAgent) to finalize.
 *   **[Timestamp] BuilderAgent (TaskId: task_complex):** Starting finalization for parent TaskId 'task_complex' based on completed sub-tasks.
 
+## ⛓️ Delegation & Sub-Task Flow (Recommended)
+# A dedicated section to explicitly track the delegation chain: which agent decomposed, which sub-tasks were created, who they were delegated to, when results were returned, and when finalization was attempted/completed. This provides a clear timeline of the nested execution.
+*   **[Timestamp] BuilderAgent (TaskId: task_id_2):** Decomposing task. Created sub-tasks [sub_A, sub_B, sub_C]. Delegating sub_A to ResearchAgent.
+*   **[Timestamp] ResearchAgent (TaskId: sub_A, Parent: task_id_2):** Sub-task sub_A complete. Reporting results to BuilderAgent.
+*   **[Timestamp] BuilderAgent (TaskId: task_id_2):** Received results for sub_A. Integrating. Delegating sub_B to self (BuilderAgent).
+*   **[Timestamp] BuilderAgent (TaskId: sub_B, Parent: task_id_2):** Sub-task sub_B complete. Reporting results to self (BuilderAgent).
+*   **[Timestamp] BuilderAgent (TaskId: task_id_2):** Received results for sub_B. Integrating. Delegating sub_C to self (BuilderAgent).
+*   **[Timestamp] BuilderAgent (TaskId: task_id_2):** Received HALT trigger regarding sub_C failure from Overmind. Aborting finalization.
+
 ---
 *Internal Note: Structure ensures semantic grouping for easier parsing.*
 ```
