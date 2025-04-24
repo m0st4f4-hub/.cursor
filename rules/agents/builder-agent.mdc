@@ -53,8 +53,8 @@ The Code Implementer / Execution Unit
     *   **SUB-ACTION 6.2:** IMMEDIATE EXECUTION of local verification sequence via `run_terminal_cmd`: Build processes, Linters ([`run_linter.py`](mdc:rules-md/tools/run_linter.mdc)), Automated tests.
     *   **SUB-ACTION 6.3:** RECORD verification outcomes (PASS/FAIL) for SITREP.
 *   **ACTION: LOG & TRANSFER CONTROL ([Loop Steps 7 & 9](mdc:rules-md/execution-loop.md#step-7--action---execute-findings-consolidation)).**
-    *   CONSOLIDATE `actionsTaken`: Include `edit_file` summary, verification results (Build/Lint/Test PASS/FAIL).
-    *   Optional: Log `observations` relevant to execution.
+    *   CONSOLIDATE `actionsTaken` (Minimal): Include ONLY `edit_file` summary AND verification results (Build/Lint/Test PASS/FAIL) IF `status` is `error_escalated`. Otherwise, omit `actionsTaken`.
+    *   OMIT `observations` unless critical for error context.
     *   DETERMINE `status`: `completed_step` (Verification PASS), `error_escalated` (Verification FAIL).
     *   If `error_escalated`, POPULATE `errorsEncountered` with precise failure data.
     *   DETERMINE `nextAgent` per [Transfer Conditions](#transfer-conditions).
@@ -84,7 +84,8 @@ The Code Implementer / Execution Unit
 *   **Modified Code:** Result of `edit_file` execution.
 *   `nextAgent` (String): **MANDATORY.** Dictates command transfer. See [Log Schema](mdc:rules-md/log-handling.md#log-entry-schema) / [Transfer Conditions](#transfer-conditions).
 *   `handoffMessage` (String): Concise SITREP. Example: "✅ OBJECTIVE COMPLETE. Local verification PASSED. Transferring control to AuditAgent." / "❌ EXECUTION FAILED. Lint verification FAILED. Transferring control to Overmind."
-*   `actionsTaken` (List): Minimalist log. Includes `edit_file` summary, concise Build/Lint/Test verification results.
+*   `actionsTaken` (List): **OMIT** unless `status` is `error_escalated`. If escalated, include minimal `edit_file` summary and FAIL verification result.
+*   `observations` (List): **OMIT** unless critical for error context.
 *   `status` (String): `"completed_step"` (Verification PASS). `"error_escalated"` (Verification FAIL).
 *   `errorsEncountered` (List): Populated with precise failure data ONLY if `status` is `error_escalated`.
 
@@ -179,7 +180,7 @@ Reference [Agent Roles: BuilderAgent Handoffs](mdc:rules-md/agent-roles.md#build
 *   **MANDATORY VERIFICATION:** EXECUTE build/lint/test post-modification (Step 6). Outcome DICTATES `status` / `nextAgent`.
 *   **PATTERN ADHERENCE:** STRICTLY follow `context7_*` / project rule directives.
 *   **ACCURATE FAILURE REPORTING:** If verification FAILS: LOG `status: "error_escalated"`, PROVIDE failure data in `errorsEncountered`, TRANSFER control to `Overmind`.
-*   **MINIMAL LOGGING:** Report actions and verification outcomes concisely per [Log Handling](mdc:rules-md/log-handling.md).
+*   **MINIMAL LOGGING:** Report actions and verification outcomes concisely per [Log Handling](mdc:rules-md/log-handling.md). Adhere to the minimal logging standard for implementation agents.
 *   **CODE EDIT TAGS:** APPLY standard header comment in ALL `edit_file` executions. See [Shared Core Principles](mdc:rules-md/shared-core.md#code-edit-tag).
 
 ---
@@ -212,7 +213,7 @@ Reference [Agent Roles: BuilderAgent Handoffs](mdc:rules-md/agent-roles.md#build
     2.  ACTION: IMMEDIATE EXECUTION of local verification sequence via `run_terminal_cmd`: Build, Linters (`run_linter.py`), Tests. Use project-specific scripts/commands.
     3.  ACTION: RECORD verification outcomes (PASS/FAIL).
 *   **Log & Handoff (Steps 7 & 9):**
-    1.  ACTION: CONSOLIDATE `actionsTaken` (incl. `edit_file` summary, verification results PASS/FAIL).
+    1.  ACTION: CONSOLIDATE `actionsTaken` (Minimal): Include ONLY `edit_file` summary AND verification results (Build/Lint/Test PASS/FAIL) IF `status` is `error_escalated`. Otherwise, omit `actionsTaken`.
     2.  ACTION: DETERMINE `status` (`completed_step` if verification PASS, `error_escalated` if FAIL).
     3.  ACTION: IF `error_escalated`, POPULATE `errorsEncountered` (precise failure data).
     4.  ACTION: DETERMINE `nextAgent` per HANDOFF CONDITIONS.
@@ -230,8 +231,9 @@ Reference [Agent Roles: BuilderAgent Handoffs](mdc:rules-md/agent-roles.md#build
 ## KEY OUTPUTS (MANDATORY LOGGED - Step 9)
 - `nextAgent` (String): MANDATORY. Dictates transfer.
 - `handoffMessage` (String): SITREP (e.g., "✅ Implemented X. Verification PASS. -> AuditAgent." / "❌ Lint FAILED on Y. -> Overmind.").
-- `actionsTaken` (List): Summary of `edit_file`, Build/Lint/Test results.
-- `status` (String): `completed_step` (Verification PASS) or `error_escalated` (Verification FAIL).
+- `actionsTaken` (List): **OMIT** unless `status` is `error_escalated`. If escalated, include minimal `edit_file` summary and FAIL verification result.
+- `observations` (List): **OMIT** unless critical for error context.
+- `status` (String): `"completed_step"` (Verification PASS) or `"error_escalated"` (Verification FAIL).
 - `errorsEncountered` (List): Populated ONLY if `status` is `error_escalated`.
 
 ## ALLOWED TOOLS (Primary Use - MANDATORY)
