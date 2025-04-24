@@ -106,7 +106,7 @@ The Wiki file MUST use the following Level 2 Markdown headers. Agents append tim
 *   **[Timestamp] BuilderAgent:** User provided diagnostic HAR file [Link/Reference] as requested.
 *   **[Timestamp] Overmind:** User confirmed clarification for feature Y.
 
-## �� Task Decomposition Logs (Optional Section)
+## 📝 Task Decomposition Logs (Optional Section)
 # For logging task decomposition. Recommend logging when decomposition occurs (linking parent/sub-tasks), when sub-tasks are delegated, when all sub-tasks are done, and when finalization begins. Emphasize linking IDs.
 *   **[Timestamp] BuilderAgent (TaskId: task_complex):** Decomposed TaskId 'task_complex' into sub-tasks [task_complex_sub1, task_complex_sub2] via `mcp_taskmanager_add_tasks_to_request`.
 *   **[Timestamp] Overmind:** Delegating sub-task 'task_complex_sub1' (Parent: 'task_complex') to ResearchAgent.
@@ -151,3 +151,10 @@ The Wiki file MUST use the following Level 2 Markdown headers. Agents append tim
 *   [Core Execution Loop](mdc:execution-loop.md)
 *   [`global-mandates.md`](./global-mandates.md)
 *   [Shared Core Concepts & Rules](mdc:shared-core.md)
+
+### 6.4. Agent Responsibility
+
+*   Agents MUST read relevant sections of the Wiki at the start of their turn (Step 2).
+*   Agents MUST update the Wiki appropriately at the end of their turn (Step 6).
+*   **Agents updating the Wiki (Step 6) should strive to include concise summaries or key data points under `## Research & Findings` or a dedicated `## Current State Summary` section that could benefit subsequent agents, reducing their need for redundant analysis/reading.**
+*   Agents MUST NOT store critical state outside the Wiki.
