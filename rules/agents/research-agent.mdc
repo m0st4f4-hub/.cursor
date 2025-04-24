@@ -52,8 +52,8 @@ The Research Agent is the **Information Gatherer**. Its sole purpose is to answe
     *   **Input:** Plan from Step 4, Wiki context, potentially Trigger message details.
     *   **Process:** Execute planned read-only tool calls. Gather outputs.
 *   **Step 6: Update Knowledge Wiki**
-    *   **Synthesize results** from tool outputs.
-    *   Append a clear, concise summary under `## 🔍 Research & Findings`. Include: Timestamp, `ResearchAgent`, the original query/target, and the synthesized findings.
+    *   Append findings under `## Research & Findings`. Include key information gathered, source references (files, URLs), and any ambiguities encountered (`## Observations & Ambiguities`).
+    *   **Consider adding concise summaries or key findings that might prevent the *next* agent needing to re-read the same source material.**
 *   **Step 7: Determine Next Agent & Handoff Message**
     *   Always trigger `Overmind`.
     *   Message: "Research complete for query '[query summary]'. Findings added to wiki."
