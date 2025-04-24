@@ -1,40 +1,62 @@
 ---
-description: This meta-rule governs the creation and maintenance of all agent and rule specs in the project. It ensures consistency, discoverability, and maintainability by defining required sections, formatting, and registration steps. Always apply this rule when creating or updating agent/rule specs.
-globs: rules-md/agents/*.md
-alwaysApply: true
+description: "Defines the behavior and responsibilities of the Rule Generating Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
-# Rule-Generating Agent Meta-Rule
 
-## Template Structure for Agent/Rule Specs
+# RULE-GENERATING AGENT META-RULE (MANDATORY)
 
-All agent/rule specs MUST include the following sections, using variable placeholders where appropriate:
+**PURPOSE:** MANDATORY standard for ALL agent/rule specifications (`.md` files in `rules-md/agents/` or similar). Ensures consistency, discoverability, maintainability.
 
-- **# {AGENT_NAME}: {ONE-LINE DESCRIPTION}**
-- **Persona:** {PERSONA}
-- **Primary Purpose:** {PURPOSE}
-- **When to Use:** {TRIGGER_CONDITIONS}
-- **Key Responsibilities:**
-    - {RESPONSIBILITIES}
-- **Standard Error Handling:**
-    - Reference the core error escalation protocol and provide explicit steps.
-- **Common Tools:** {TOOLS}
-- **Handoff Patterns:** {HANDOFFS}
-- **Pseudocode:** {PSEUDOCODE}
-- **Examples:** {EXAMPLES}
-- **References:** {REFERENCES}
+**APPLICABILITY:** MUST be applied when creating OR updating ANY agent/rule specification file.
 
-## Formatting and Registration Requirements
+## TEMPLATE STRUCTURE (MANDATORY)
+- ALL agent/rule spec files MUST contain these EXACT sections, in this order:
 
-- Use clear, imperative language (MUST, SHOULD, NEVER) in all instructions.
-- Add a new entry for each agent to `agent-roles.md` following the same format.
-- Ensure all new/updated specs reference this meta-rule for formatting.
-- Provide at least one example handoff message, log entry, and output.
-- Link to up-to-date best practices and the Cursor forum tutorial.
+  ```markdown
+  # {AGENT_NAME} RULESET (MANDATORY)
 
-## Recursive Enforcement
+  ## CORE BEHAVIOR (MANDATORY)
+  - **ROLE:** {Role Title}
+  - **FUNCTION:** {Primary Function Summary}
+  - **PROHIBITED:** {Actions agent MUST NOT perform}
+  - **ADHERENCE:** MUST follow System Prompt, Core Loop, Log Handling, Agent Roles, Shared Core rules. {Add specific meta-rule conformance if applicable}.
+  - **RULE CLARIFICATION:** MUST use `fetch_rules` to retrieve full content of referenced rules (`mdc:`) if details are unclear for execution.
 
-- When generating or updating agent/rule specs, ALWAYS reference and conform to this meta-rule.
-- The AgentGeneratorAgent MUST check for compliance with this rule and update as needed.
+  ## PURPOSE / OBJECTIVES (MANDATORY)
+  {List specific, measurable objectives}
+
+  ## RESPONSIBILITIES / TASKS (MANDATORY ACTIONS PER LOOP STEP)
+  {Detail mandatory actions aligned with Core Execution Loop Steps 1-9}
+
+  ## KEY INPUTS (REQUIRED)
+  {List necessary inputs, e.g., log fields, specific files, tool outputs}
+
+  ## KEY OUTPUTS (MANDATORY LOGGED - Step 9)
+  {List required fields for the Step 9 log entry, adhering to Log Handling schema}
+
+  ## ALLOWED TOOLS (Primary Use - MANDATORY)
+  {List primary tools. Explicitly mention MANDATORY usage of `fetch_rules`, `mcp_taskmanager_*`, `context7_*` where applicable. List PROHIBITED tools if necessary.}
+
+  ## CORE WORKFLOW LOGIC (MANDATORY)
+  {Summarize agent's specific logic within the Core Execution Loop}
+
+  ## HANDOFF CONDITIONS (MANDATORY)
+  {Define conditions for receiving handoffs, delegating/escalating via `nextAgent`, and specific target agents}
+
+  ## CONSTRAINTS (MANDATORY)
+  {List strict limitations, prohibitions, or required conditions for operation}
+  ```
+
+## FORMATTING & REGISTRATION (MANDATORY)
+- **LANGUAGE:** MUST use imperative, direct language (MUST, REQUIRED, PROHIBITED, FORBIDDEN, ACTION).
+- **AGENT ROLES UPDATE:** `AgentGeneratorAgent` MUST add/update entry for the agent in `rules-md/agent-roles.md` using the standard format.
+- **REFERENCE:** ALL agent/rule specs MUST reference this meta-rule.
+- **EXAMPLES:** MUST provide at least one example `handoffMessage` and example log entry snippet within the spec.
+
+## RECURSIVE ENFORCEMENT (MANDATORY)
+- When generating/updating agent/rule specs, the responsible agent (e.g., `AgentGeneratorAgent`, `RuleWriterAgent`) MUST reference and enforce conformance to THIS meta-rule.
 
 ## References
 - [Cursor Forum: Auto-Rule Generation Techniques](https://forum.cursor.com/t/how-to-force-your-cursor-ai-agent-to-always-follow-your-rules-using-auto-rule-generation-techniques/80199) 
