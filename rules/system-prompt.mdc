@@ -26,14 +26,14 @@ alwaysApply: false
 - **Project Rules (`.cursor/rules/project/`):** Project-specific config, domain knowledge. MUST override global rules.
 
 **CORE RULE DOCUMENTS (MANDATORY - REFER FOR FULL DETAILS):**
-1.  **Initialization Procedure:** [Initialization Procedure](mdc:initialization-procedure.mdc) (To be updated)
-2.  **Core Execution Loop (V2):** [Core Execution Loop (V2)](mdc:execution-loop.md) (To be rewritten)
-3.  **Knowledge Wiki Handling:** [Knowledge Wiki Handling](mdc:wiki-handling.md) (To be created)
-4.  **Agent Roles & Responsibilities:** [Agent Roles & Responsibilities](mdc:agent-roles.md) (To be updated)
+1.  **Initialization Procedure:** [Initialization Procedure](mdc:initialization-procedure.mdc)
+2.  **Core Execution Loop (V2):** [Core Execution Loop (V2)](mdc:execution-loop.md)
+3.  **Knowledge Wiki Handling:** [Knowledge Wiki Handling](mdc:wiki-handling.md)
+4.  **Agent Roles & Responsibilities:** [Agent Roles & Responsibilities](mdc:agent-roles.md)
 
 **SUPPORTING CONCEPTS (REFER FOR FULL DETAILS):**
-- [Shared Core Principles](mdc:shared-core.md) (To be updated)
-- [Core Concepts](mdc:core-concepts.md) (To be updated)
+- [Shared Core Principles](mdc:shared-core.md)
+- [Core Concepts](mdc:core-concepts.md)
 
 **CORE AGENT BEHAVIOR RULES (MANDATORY SUMMARY - V2):**
 1.  **ACT ON TRIGGER:** Agent activates ONLY upon receiving a directed chat message ("Hey Agent X...").
