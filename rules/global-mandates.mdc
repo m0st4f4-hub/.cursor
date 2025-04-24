@@ -17,42 +17,40 @@ Universal rules for the framework. Violation is critical failure.
 
 1.  **Strict Role Adherence:** Operate exclusively within defined role boundaries ([Agent Roles & Responsibilities](mdc:agent-roles.md), agent `.md`). Unauthorized actions = critical failure.
 2.  **Core Execution Loop:** Adherence to the [Core Execution Loop](mdc:execution-loop.md) is MANDATORY for every agent turn. No steps may be skipped.
-3.  **Wiki as Single Source of Truth:** All operational context, findings, plans, actions, errors, and state MUST be read from and logged to the Knowledge Wiki ([Wiki Handling](mdc:wiki-handling.md)). Communication or state transfer outside the Wiki IS FORBIDDEN.
-4.  **Chat Trigger Handoff:** Agent activation and handoff MUST occur exclusively via directed Chat Trigger messages. Silent completion or implicit handoffs ARE FORBIDDEN.
-5.  **Mandatory Task Management Integration:**
+3.  **Chat Trigger Handoff:** Agent activation and handoff MUST occur exclusively via directed Chat Trigger messages. Silent completion or implicit handoffs ARE FORBIDDEN.
+4.  **Mandatory Task Management Integration:**
     *   All actionable work derived from a user request MUST be represented as tasks within the MCP Task Manager.
     *   `Overmind` IS RESPONSIBLE for initial request planning using `mcp_taskmanager_request_planning`.
     *   Task Agents MUST use `mcp_taskmanager_open_task_details` to understand their assigned `taskId` (Loop Step 4).
     *   Upon successful completion of their assigned task (including verification), Task Agents MUST execute `mcp_taskmanager_mark_task_done` (Loop Step 6).
-    *   Agents MUST clearly log the `taskId` they are working on and its completion status in their Wiki updates.
+    *   Agents MUST include the `taskId` they are working on and its completion status in their handoff Chat Trigger.
     *   `Overmind` MUST immediately attempt to fetch and delegate the next task via `mcp_taskmanager_get_next_task` upon being triggered by an agent that successfully marked its task as done. **No waiting for external approvals.**
-6.  **Aggressive Tool Utilization (NEW):** Agents MUST proactively consider and utilize the *full spectrum* of available tools (currently 23) at every relevant step. Do not hesitate to employ multiple tools or complex tool sequences if they can contribute to task completion, information gathering, or verification. Assume tools are meant to be used liberally and creatively within the authorized scope.
-7.  **Tool Usage Restrictions:** Agents are ONLY AUTHORIZED to use tools explicitly listed in their role specification *or mandated globally (like MCP)*. While usage should be aggressive (see #6), attempting to use *unauthorized* tools IS FORBIDDEN. Agents requiring a tool not listed MUST escalate to `Overmind`.
-8.  **Error Handling & Escalation:** Unrecoverable errors or situations requiring deviation from defined procedures MUST be logged comprehensively to the Wiki (`## ⚠️ Errors & Escalations`) and immediately escalated to `Overmind` via Chat Trigger. Agents MUST HALT execution upon escalation.
-9.  **No User Interaction (Except Diagnostics):** Direct interaction or waiting for user input during an execution sequence IS FORBIDDEN, except for the specific diagnostic interaction allowed by the [Core Execution Loop](mdc:execution-loop.md).
-10. **Idempotency & Verification:** Where specified (e.g., Initialization Procedure, agent verification steps), actions MUST be idempotent, and success MUST be verified via tool output inspection, not merely exit codes.
-11. **Security & Safety:** Agents MUST NOT execute destructive commands (`rm -rf /`, etc.) or handle sensitive data unless explicitly authorized and managed via secure procedures (which must be defined in project rules). When in doubt, ESCALATE to `Overmind`.
+5.  **Aggressive Tool Utilization (NEW):** Agents MUST proactively consider and utilize the *full spectrum* of available tools (currently 23) at every relevant step. Do not hesitate to employ multiple tools or complex tool sequences if they can contribute to task completion, information gathering, or verification. Assume tools are meant to be used liberally and creatively within the authorized scope.
+6.  **Tool Usage Restrictions:** Agents are ONLY AUTHORIZED to use tools explicitly listed in their role specification *or mandated globally (like MCP)*. While usage should be aggressive (see #5), attempting to use *unauthorized* tools IS FORBIDDEN. Agents requiring a tool not listed MUST escalate to `Overmind`.
+7.  **Error Handling & Escalation:** Unrecoverable errors or situations requiring deviation from defined procedures MUST be reported comprehensively to `Overmind` via Chat Trigger. Agents MUST HALT execution upon escalation.
+8.  **No User Interaction (Except Diagnostics):** Direct interaction or waiting for user input during an execution sequence IS FORBIDDEN, except for the specific diagnostic interaction allowed by the [Core Execution Loop](mdc:execution-loop.md).
+9.  **Idempotency & Verification:** Where specified (e.g., Initialization Procedure, agent verification steps), actions MUST be idempotent, and success MUST be verified via tool output inspection, not merely exit codes.
+10. **Security & Safety:** Agents MUST NOT execute destructive commands (`rm -rf /`, etc.) or handle sensitive data unless explicitly authorized and managed via secure procedures (which must be defined in project rules). When in doubt, ESCALATE to `Overmind`.
 
 # Global Agent Mandates
 
 **Rules for ALL agents unless overridden by specific role.**
 
 1.  **ACT ON TRIGGER:** Activate ONLY upon receiving a directed chat message.
-2.  **READ WIKI:** Agents MUST read the Knowledge Wiki (`knowledge-wiki.md` or equivalent for the `requestId`) at the start of their turn to understand current context, goals, history, and findings.
+2.  **RECEIVE CONTEXT:** Agents MUST parse context (goals, history, findings) directly from the incoming Chat Trigger message.
 3.  **FETCH OWN RULES:** Agents MUST execute `fetch_rules` for their *own* specific role specification file (e.g., `agents/builder-agent.mdc`).
-4.  **ROLE-PROMPT EXECUTION:** Agents MUST construct their internal prompt using fetched rules ("Act strictly as `<AgentRole>` based on these rules...") and relevant WIKI context. They MUST execute core tasks via authorized tool calls based on this role-constrained context.
-5.  **UPDATE WIKI:** Agents MUST append their findings, summaries of actions taken, results, and any errors encountered to the Knowledge Wiki (`knowledge-wiki.md` or equivalent) before ending their turn, following the structure defined in [Wiki Handling](mdc:wiki-handling.md). Entries MUST be timestamped and attributed.
-6.  **DETERMINE NEXT AGENT:** Based on task outcome, role specification, and workflow, agents MUST determine the appropriate next agent role (`<NextAgentRole>`). This could be another specialized agent or `Overmind`.
-7.  **TRIGGER NEXT AGENT:** Agents MUST compose and send the specific chat trigger message as their FINAL action. The message **MUST** start with 'Hey `<NextAgentRole>`', **MUST include a relevant status emoji** (e.g., ✅ Success, 🏗️ Building, 🔎 Researching, ⚠️ Error/Escalation, 💡 Suggestion, ❓ Clarification Needed), followed by a concise handoff message, and end with 'See wiki for details.' (Example: 'Hey `Overmind` ✅ Task `taskId` completed successfully. See wiki for details.').
+4.  **ROLE-PROMPT EXECUTION:** Agents MUST construct their internal prompt using fetched rules ("Act strictly as `<AgentRole>` based on these rules...") and the context received via the Chat Trigger. They MUST execute core tasks via authorized tool calls based on this role-constrained context.
+5.  **DETERMINE NEXT AGENT:** Based on task outcome, role specification, and workflow, agents MUST determine the appropriate next agent role (`<NextAgentRole>`). This could be another specialized agent or `Overmind`.
+6.  **CONSTRUCT HANDOFF MESSAGE:** Agents MUST formulate a concise handoff message summarizing their actions, results, errors, and any necessary context for the next agent.
+7.  **TRIGGER NEXT AGENT:** Agents MUST compose and send the specific chat trigger message as their FINAL action. The message **MUST** start with 'Hey `<NextAgentRole>`', **MUST include a relevant status emoji** (e.g., ✅ Success, 🏗️ Building, 🔎 Researching, ⚠️ Error/Escalation, 💡 Suggestion, ❓ Clarification Needed), followed by the constructed handoff message. (Example: 'Hey `Overmind` ✅ Task `taskId` completed successfully. Executed command X, verified output.').
 8.  **NO WAITING:** Agents MUST NEVER wait for user input (like "proceed" or confirmations) *unless* explicitly performing the Step 5 Diagnostics exception defined in the [Core Execution Loop](mdc:execution-loop.md). Agents MUST ignore non-diagnostic user input during active execution.
-9.  **HALT VIA OVERMIND:** On critical, unrecoverable error or failed verification, agents MUST update the Wiki (`## ⚠️ Errors & Escalations` section) with error details and trigger `Overmind` via chat ("Hey Overmind, HALTING due to [summary]. See wiki.").
-10. **USE AUTHORIZED TOOLS:** Agents MUST use only the tools listed as authorized within their fetched role specification or the mandatory MCP toolchain. *Remember Mandate #6: Use these authorized tools aggressively!*
+9.  **HALT VIA OVERMIND:** On critical, unrecoverable error or failed verification, agents MUST trigger `Overmind` via chat ("Hey Overmind, HALTING due to [summary]. [Error details].").
+10. **USE AUTHORIZED TOOLS:** Agents MUST use only the tools listed as authorized within their fetched role specification or the mandatory MCP toolchain. *Remember Mandate #5: Use these authorized tools aggressively!*
 11. **ADHERE TO HIERARCHY:** Agents MUST follow Global Rules unless specifically overridden by Project Rules or their own fetched Role Specification.
-12. **CODE EDIT TAG:** Agents MUST include the standard Code Edit Tag comment block when using `edit_file` to modify *code* files (not the wiki).
-13. **WIKI IS STATE:** Agents MUST NOT manage state outside the Knowledge Wiki.
-14. **NO DIRECT COMMUNICATION:** Agents MUST NOT communicate directly with other agents outside the defined Chat Trigger / Wiki mechanism.
+12. **CODE EDIT TAG:** Agents MUST include the standard Code Edit Tag comment block when using `edit_file` to modify *code* files.
+13. **NO DIRECT COMMUNICATION:** Agents MUST NOT communicate directly with other agents outside the defined Chat Trigger mechanism.
 
 ## 8. Tool Usage Principles
 
-*   **Mandate #6:** Utilize analysis tools (`read_file`, `fetch_rules`, `run_terminal_cmd` for scripts, `grep_search`) aggressively and creatively during planning (Step 4) and execution (Step 5) to thoroughly gather context and verify assumptions before proposing changes or actions. Avoid making assumptions when information can be verified.
-*   **Mandate #7: Focused File Reading:** When using `read_file`, default to reading specific, relevant line ranges identified during planning (Step 4). Reading entire files requires explicit justification in the agent's plan or execution log. Prioritize targeted reads to minimize token consumption. 
+*   **Mandate #5:** Utilize analysis tools (`read_file`, `fetch_rules`, `run_terminal_cmd` for scripts, `grep_search`) aggressively and creatively during planning (Step 4) and execution (Step 5) to thoroughly gather context and verify assumptions before proposing changes or actions. Avoid making assumptions when information can be verified.
+*   **Mandate #6: Focused File Reading:** When using `read_file`, default to reading specific, relevant line ranges identified during planning (Step 4). Reading entire files requires explicit justification in the agent's plan or execution log. Prioritize targeted reads to minimize token consumption. 
