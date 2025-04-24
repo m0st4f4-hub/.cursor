@@ -72,7 +72,7 @@ alwaysApply: false
 
 ## 🐍 Common Custom Tools (`tools/` directory)
 - Run via `run_terminal_cmd python tools/<script_name.py>`.
-- **`analyze_wiki.py` (NEW/TBD):** Parse wiki sections (replaces `analyze_log.py`).
+- **`analyze_wiki.py`**: Parse specific sections/entries from the Knowledge Wiki. See [analyze_wiki.md](mdc:tools/analyze_wiki.md).
 - **`verify_environment.py`**: Check dev tools.
 - **`parse_git_status.py`**: Get structured Git status.
 - **`check_dependencies.py`**: Basic dependency analysis.
