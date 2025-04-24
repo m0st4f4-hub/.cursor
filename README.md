@@ -1,6 +1,6 @@
 # Ruleset for Autonomous Agent Framework
 
-This repository contains the core rules (`.cursor/rules/`) and documentation (`rules-md/`) defining a framework for autonomous AI agent execution.
+This repository contains the core rules (`.cursor/rules/`) and documentation (`.cursor/rules/`) defining a framework for autonomous AI agent execution.
 
 ## Overview
 
