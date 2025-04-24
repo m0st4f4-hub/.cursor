@@ -125,22 +125,13 @@ status: Active
 *   **Chat Trigger (Decomposition):** "Hey ResearchAgent, Execute sub-task `task_complex_sub1` for parent `task_complex` (Caller: `BuilderAgent`). Report results by updating task description."
 *   **Task Update (Integrating Sub-Task 1):** `(Existing Desc for task_complex)...\n---\n[Timestamp] BuilderAgent (Turn Outcome): Integrated results from completed sub-task task_complex_sub1 (fetched description). Delegating next sub-task task_complex_sub2.`
 *   **Chat Trigger (Delegating Sub-Task 2):** "Hey BuilderAgent, Execute sub-task `task_complex_sub2` for parent `task_complex` (Caller: `BuilderAgent`). Report results by updating task description."
-*   **Wiki Update (Success):** `*   **[Timestamp] BuilderAgent:** Implemented login logic in \`auth.py\`. Build: PASS, Lint: PASS, Tests: PASS. Triggering AuditAgent.`
-*   **Chat Trigger (Success):** "Hey AuditAgent, Login logic implemented and passed local checks. Please audit. See wiki."
-*   **Wiki Update (Failure):** `*   **[Timestamp] BuilderAgent:** **ERROR:** Added feature Y to \`widget.js\`. Build: PASS, Lint: PASS, Tests: FAIL (2 tests failed - see log snippet). Escalating to Overmind.`
-*   **Chat Trigger (Failure):** "Hey Overmind, Local tests failed after implementing feature Y in `widget.js`. Escalating for review. See wiki for test failures."
-*   **Wiki Update (Decomposition):** `*   **[Timestamp] BuilderAgent (TaskId: task_complex):** Trigger: Standard Activation. Decided to decompose. Created sub-tasks: 'task_complex_sub1' (Research), 'task_complex_sub2' (Implement). Delegating sub-task 'task_complex_sub1' to ResearchAgent.`
-*   **Chat Trigger (Decomposition):** "Hey ResearchAgent, Execute sub-task `task_complex_sub1` for parent `task_complex` (Caller: `BuilderAgent`). Report results to `BuilderAgent`."
-*   **Wiki Update (Integrating Sub-Task 1):** `*   **[Timestamp] BuilderAgent (TaskId: task_complex):** Trigger: Sub-Task Completion (task_complex_sub1 from ResearchAgent). Integrated research findings from Wiki. Planning delegation of next sub-task 'task_complex_sub2' to self (BuilderAgent).`
-*   **Chat Trigger (Delegating Sub-Task 2):** "Hey BuilderAgent, Execute sub-task `task_complex_sub2` for parent `task_complex` (Caller: `BuilderAgent`). Report results to `BuilderAgent`."
-*   **Wiki Update (Finalization):** `*   **[Timestamp] BuilderAgent (TaskId: task_complex):** Trigger: Sub-Task Completion (task_complex_sub2 from BuilderAgent). All sub-tasks done. Synthesized results, performed final integration edit. Final verification: PASS. Marking original task 'task_complex' as done. Triggering Overmind.`
-*   **Chat Trigger (Finalization):** "Hey Overmind, Task `task_complex` complete. Status: Success. See wiki for details and sub-task logs."
+*   **Task Update (Finalization):** `(Existing Desc for task_complex)...\n---\n[Timestamp] BuilderAgent (Turn Outcome): Integrated results from final sub-task task_complex_sub2. Final verification: PASS. Marking task as done.`
+*   **Chat Trigger (Finalization):** "Hey Overmind ✅ Task `task_complex` complete. Status: Success. See updated task description for details."
 
 ## 10. REFERENCES
 
 *   [Core Execution Loop](mdc:execution-loop.md)
 *   [`global-mandates.md`](../global-mandates.md)
-*   [Wiki Handling](mdc:wiki-handling.md)
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
 *   [Shared Core Concepts & Rules](mdc:shared-core.md#code-edit-tag)
 
