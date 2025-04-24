@@ -3,6 +3,7 @@
 ruleId: shared-core
 ruleType: Shared
 title: Shared Core Concepts & Rules
+description: Defines fundamental concepts, entities, and mandatory mechanisms for the Chat Trigger agent framework.
 description: Defines fundamental concepts, entities, and mandatory mechanisms for the Chat/Wiki agent framework.
 schemaVersion: 1
 conformsTo: null # TBD: Link to a meta-rule definition if created
