@@ -33,7 +33,7 @@ status: Active
 ### Phase 1: Determine Project State
 1.  **Check Git Status:**
     *   Verify Git availability (e.g., `python tools/verify_environment.py --check git`).
-    *   Execute `python tools/parse_git_status.py` or `git rev-parse --is-inside-work-tree | cat`.
+    *   Execute `python tools/parse_git_status.py` or `git rev-parse --is-inside-work-tree`.
     *   Record result: `isGitRepo` (true/false).
 2.  **Check `.cursor` Directory Existence:**
     *   Execute `list_dir .`.
@@ -85,97 +85,4 @@ status: Active
 ➡️ **Scenario C: Non-Git, Not Empty (`isGitRepo`: false, `isNotEmpty`: true)**
 *   **WARNING:** Requires manual intervention if `.cursor` exists.
 1.  **HANDLE EXISTING `.cursor`:**
-    - IF `cursorDirExists` is true: **Log critical warning to Wiki.** HALT. Report need for manual intervention via **Chat Trigger** to `Overmind`. DO NOT DELETE.
-    - ELSE (`cursorDirExists` is false): GOTO Step C.2.
-2.  **TEMP CLONE & MOVE:**
-    *   Define temporary directory name: `temp_dir = "temp_ruleset_clone"`.
-    *   Cleanup any previous temp dir: `run_terminal_cmd rm -rf temp_dir` (or `Remove-Item`).
-    *   Clone into temp dir: `run_terminal_cmd git clone https://github.com/m0st4f4-hub/.cursor temp_dir`. **Verify** clone success (`list_dir temp_dir`).
-    *   Initialize submodules within temp dir: `run_terminal_cmd "cd temp_dir && git submodule update --init --recursive && cd .."`. **Verify** (`list_dir temp_dir/.cursor/rules`).
-    *   Move the cloned `.cursor` dir: `run_terminal_cmd mv temp_dir/.cursor .` (or `Move-Item`).
-    *   **Verify:**
-        *   `list_dir .` confirms `.cursor` exists at the root.
-        *   `list_dir .cursor/rules` confirms critical rule files exist.
-        *   If verification fails, HALT.
-    *   Cleanup temp dir: `run_terminal_cmd rm -rf temp_dir` (or `Remove-Item`). **Verify** removal.
-    *   Proceed to **Phase 3**.
-
-### Phase 3: Common Configuration Steps (MANDATORY)
-1.  **Configure Project Rules Directory:**
-    *   Execute `list_dir .cursor/rules`. Check if `project` subdirectory exists.
-    *   *If Not Exists:* Create it: `run_terminal_cmd mkdir .cursor/rules/project` (or `New-Item -ItemType Directory -Path .cursor\rules\project` on Windows).
-    *   **Verify** creation using `list_dir .cursor/rules`. If verification fails, HALT.
-2.  **Update Ruleset `.gitignore`:**
-    *   Execute `read_file .cursor/.gitignore`. Handle potential non-existence.
-    *   Check if the exact line `rules/project/` exists on its own line.
-    *   *If Missing or Incorrect:* Use `edit_file` on `.cursor/.gitignore` to add or ensure `rules/project/` exists correctly on its own line.
-    *   **Verify** the change using `read_file .cursor/.gitignore`. If verification fails, HALT.
-3.  **Update/Restore Root `.gitignore` (Scenario A Only):**
-    - IF `isGitRepo` is true:
-        - IF `rootGitignoreModified` is true:
-            - EXECUTE: `edit_file .gitignore` (Uncomment `# .cursor/` to `.cursor/`). **Log action to Wiki.**
-            - VERIFY: `read_file .gitignore`. Confirm uncommented. IF fails, HALT & Escalate.
-        - ELSE:
-            *   Execute `read_file .gitignore`. Handle non-existence.
-            *   Check for the exact line `.cursor/` (uncommented).
-            *   *If Missing:* Use `edit_file` (create `.gitignore` if needed) to add `.cursor/` on a new line.
-            *   **Verify** using `read_file .gitignore`. If verification fails, HALT.
-4.  **FINAL VERIFICATION & HANDOFF:**
-    *   EXECUTE: `list_dir .cursor/rules`. Confirm exists with `shared-core.mdc`, `project/`, `agents/`.
-    *   OPTIONAL: EXECUTE `python tools/verify_environment.py` / `python tools/check_versions.py`.
-    *   **Append success report to Wiki.**
-    *   **Generate FINAL Chat Trigger to Overmind:** "Hey Overmind, Initialization complete. See wiki for details."
-
-## SUCCESS CRITERIA (MANDATORY)
-
-Initialization succeeds **if and only if**:
-*   All required steps for the determined scenario (A, B, or C) and Phase 3 were executed without triggering a HALT.
-*   All **Verify** steps passed successfully.
-*   The `.cursor/rules/` directory exists and contains the core structure (`project/`, `agents/`, core rule files).
-*   If Scenario A, the Git submodule is correctly initialized or updated.
-*   `.gitignore` files (`.cursor/.gitignore` and potentially root `.gitignore`) are configured correctly.
-*   The final status (Success/Failure) is logged to the Knowledge Wiki and reported to `Overmind` via Chat Trigger.
-
-## INPUTS & OUTPUTS
-
-*   **Input:** Project workspace state (Git repo status, existing files/directories).
-*   **Output:** Configured `.cursor/rules/` directory, potentially modified `.gitignore` files, updated Knowledge Wiki, final Chat Trigger to `Overmind`.
-
-## TOOLS
-
-*   `list_dir`, `read_file`, `edit_file`
-*   `run_terminal_cmd` (for `git`, `rm`/`Remove-Item`, `mkdir`/`New-Item`, `mv`/`Move-Item`, `cd`)
-*   `python tools/parse_git_status.py` (Recommended for Git status check)
-*   `python tools/verify_environment.py` (Optional checks)
-*   `python tools/check_versions.py` (Optional checks)
-*   Wiki interaction tools
-*   Framework Chat Mechanism
-
-## ERROR HANDLING
-
-*   Defined inline: Any **Verify** step failure MUST lead to immediate HALT, Wiki update, and Chat Trigger to `Overmind`.
-*   Scenario C with existing `.cursor` requires explicit HALT and escalation.
-
-## CONSTRAINTS & FORBIDDEN PATTERNS
-
-*   MUST NOT skip verification steps.
-*   MUST rely on tool output inspection, not just exit codes.
-*   MUST handle potential non-existence of files (like `.gitignore`) gracefully.
-*   MUST log specific errors to Wiki and HALT on any verification failure.
-*   MUST NOT proceed past HALT state.
-
-## EXAMPLES
-
-*   N/A (Procedural document)
-
-## REFERENCES
-
-*   [`global-mandates.md`](./global-mandates.md)
-*   [Agent Roles & Responsibilities](mdc:agent-roles.md) (`InitializationAgent`)
-*   [Wiki Handling](mdc:wiki-handling.md)
-*   [Core Execution Loop](mdc:execution-loop.md) (for context on agent operation)
-
-## <a name="error-handling-initialization"></a>Error Handling (Initialization)
-- On any HALT condition (verification failure):
-  1. **Append** detailed error message to `knowledge-wiki.md` under `## ⚠️ Errors & Escalations`.
-  2. **Generate FINAL Chat Trigger** to `Overmind`: "Hey Overmind, **ERROR** during initialization: [brief summary]. Halting procedure. See wiki for details." 
+    - IF `cursorDirExists`
