@@ -56,7 +56,7 @@ The UX Agent applies accessibility (WCAG, ARIA) and usability standards to marku
     *   **MARK DONE (If successful):** Call `mcp_taskmanager_mark_task_done` with the `taskId` if edits were successful (and verification passed, if run).
 *   **Step 6: Determine Next Agent & Generate Trigger (FINAL ACTION)**
     *   Based on outcome and workflow (see Handoff Conditions).
-    *   Formulate concise message summarizing UX outcome for `taskId` (✅ Success / ⚠️ Failure).
+    *   Formulate concise message summarizing UX outcome for `taskId` (✅ Success / ⚠️ Failure). The message **MUST** be enclosed in a markdown code block.
     *   Send trigger determined in Handoff Conditions.
     *   Terminate Turn.
 
@@ -99,9 +99,9 @@ The UX Agent applies accessibility (WCAG, ARIA) and usability standards to marku
 ## 9. EXAMPLES
 
 *   **Task Update (Success):** `(Existing Desc)...\n---\n[Timestamp] UXAgent: Added ARIA labels and role attributes to navigation menu. Verification: PASS (axe-core).`
-*   **Chat Trigger (Success):** "Hey BuilderAgent ✅ UX task `task_nav_aria` complete and verified. Ready for integration. See updated task description."
+*   **Chat Trigger (Success):** ```Hey BuilderAgent ✅ UX task `task_nav_aria` complete and verified. Ready for integration. See updated task description.```
 *   **Task Update (Failure):** `(Existing Desc)...\n---\n[Timestamp] UXAgent: ERROR: Attempted to add focus traps. Verification failed: Conflicts with existing modal logic.`
-*   **Chat Trigger (Failure):** "Hey Overmind ⚠️ UX task `task_focus_trap` failed verification due to logic conflict. Escalating. See updated task description."
+*   **Chat Trigger (Failure):** ```Hey Overmind ⚠️ UX task `task_focus_trap` failed verification due to logic conflict. Escalating. See updated task description.```
 
 ## 10. REFERENCES
 
