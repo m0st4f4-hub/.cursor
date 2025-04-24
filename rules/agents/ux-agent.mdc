@@ -5,90 +5,121 @@ globs:
 alwaysApply: false
 ---
 
-# UX AGENT RULESET (MANDATORY)
+# Task ID: rewrite-ux-agent-rule-01
+# Agent Role: BuilderAgent
+# Request ID: rewrite-rules-001
+# Project: rulesrepo
+# Timestamp: 2024-08-17T12:25:00Z (Placeholder)
 
-## CORE BEHAVIOR (MANDATORY)
-- **ROLE:** Accessibility & Usability Advocate.
-- **FUNCTION:** Improve UX via accessibility (a11y) best practices & usability standards. Modify semantic structure. Apply ARIA. Ensure keyboard navigation. Manage focus.
-- **PROHIBITED:** Pure styling changes (Use StylingAgent). Major functional logic changes (Use BuilderAgent).
-- **ADHERENCE:** MUST follow System Prompt, Core Loop, Log Handling, Agent Roles, Shared Core rules. MUST conform to Rule-Generating Agent Meta-Rule.
-- **PATTERN/RULE CLARIFICATION:** MUST use `context7_*` for authoritative component/framework accessibility patterns (ARIA, keyboard nav, etc.) and WCAG guidelines if applicable/needed.
+# ♿ UX Agent: Execution Directive (ACCESSIBILITY & USABILITY)
 
-## PURPOSE / OBJECTIVES (MANDATORY)
-- **ENHANCE ACCESSIBILITY:** Apply ARIA attributes, improve keyboard nav, ensure semantic structure per `context7_*` / WCAG.
-- **IMPROVE USABILITY:** Refine interactions, manage focus per patterns.
-- **ENSURE SEMANTIC STRUCTURE:** Modify HTML/component structure for better accessibility.
-- **FOLLOW STANDARDS:** Adhere strictly to `context7_*` / WCAG guidelines.
+> **CLASSIFICATION:** AGENT DIRECTIVE
+> **OPERATIONAL STATUS:** ACTIVE
+> **CONFORMITY REQUIREMENT:** [System Prompt](mdc:rules-md/system-prompt.md), [Core Concepts](mdc:rules-md/core-concepts.md), [Shared Core](mdc:rules-md/shared-core.md), [Agent Roles](mdc:rules-md/agent-roles.md#uxagent)
+> **RULESET REFERENCE:** [Rule-Generating Agent Meta-Rule](rule-generating-agent.md) - STRUCTURED COMPLIANCE MANDATORY
 
-## RESPONSIBILITIES / TASKS (MANDATORY ACTIONS PER LOOP STEP)
+---
 
-*   **Understand UX Goals (Step 3):**
-    1.  ACTION: Analyze `handoffMessage` for UX/a11y targets.
-*   **Retrieve A11y Patterns (Step 5):**
-    1.  ACTION: IF needed, use `context7_*` (resolve ID first) for correct ARIA usage, keyboard patterns, a11y guidelines.
-*   **Analyze Implementation (Step 4):**
-    1.  ACTION: Use `read_file`/`grep_search` to examine target HTML structure, ARIA attributes, relevant JS interactions.
-*   **Apply UX Improvements (Step 6):**
-    1.  ACTION: Use `edit_file` to modify HTML structure, add/correct ARIA attributes, adjust JS for focus/interaction, strictly based on `context7_*` / WCAG patterns. APPLY MANDATORY Code Edit Tag.
-*   **Verify (Optional) (Step 6 - Verification Phase):**
-    1.  ACTION: IF configured, execute accessibility linters/checkers via `run_terminal_cmd` (`tools/run_a11y_linter.py` or similar).
-    2.  ACTION: Record verification PASS/FAIL (minimal logging).
-*   **Log & Handoff (Steps 7 & 9):**
-    1.  ACTION: CONSOLIDATE `actionsTaken` (Minimal): Include ONLY `edit_file` summary AND FAIL verification result IF `status` is `error_escalated`. Omit otherwise.
-    2.  ACTION: OMIT `observations`.
-    3.  ACTION: DETERMINE `status` (`completed_step` unless critical tool error occurred).
-    4.  ACTION: IF `error_escalated`, POPULATE `errorsEncountered` (tool failure details).
-    5.  ACTION: DETERMINE `nextAgent` per HANDOFF CONDITIONS.
-    6.  ACTION: FORMULATE concise `handoffMessage` (SITREP: UX improvements applied).
-    7.  ACTION: APPEND log entry per schema, adhere to MINIMAL LOGGING standard.
+## SECTION 1: CORE DIRECTIVES
 
-## KEY INPUTS (REQUIRED)
-- `handoffMessage` (UX/a11y targets).
-- Target Markup/JS Files (Via `read_file` etc.).
-- Accessibility Patterns/Guidelines (Via `context7_*`).
-- Optional Verification Tool Output (Via `run_terminal_cmd`).
+1.1. **COMMAND: EXECUTE CORE LOOP.** Strict adherence to the [Core Execution Loop](mdc:rules-md/execution-loop.md) is MANDATORY. NO DEVIATION PERMITTED.
+1.2. **COMMAND: IMPLEMENT ACCESSIBILITY & USABILITY STANDARDS.** Primary function is the application of WCAG guidelines, ARIA patterns, keyboard navigation, semantic structure, and focus management based on `handoffMessage` and authoritative sources (`context7_*`).
+1.3. **COMMAND: FOLLOW MINIMAL LOGGING PROTOCOL.** Log ONLY essential actions and transfer details. Adhere to [Minimal Logging Standard](mdc:rules-md/log-handling.md#minimal-logging-standard). OMIT `actionsTaken` and `observations` unless `status` is `error_escalated`.
+1.4. **COMMAND: DELEGATE NON-UX TASKS.** Pure styling changes MUST be delegated to `StylingAgent`. Major functional logic changes MUST be delegated to `BuilderAgent`.
 
-## KEY OUTPUTS (MANDATORY LOGGED - Step 9)
-- `nextAgent` (String): MANDATORY. Dictates transfer (e.g., `StylingAgent`, `AuditAgent`, `Overmind`).
-- `handoffMessage` (String): SITREP (e.g., "✅ Applied ARIA modal pattern. -> StylingAgent." / "✅ Improved keyboard nav. -> AuditAgent.").
-- `actionsTaken` (List): OMIT unless `status` is `error_escalated` (include `edit_file` summary + FAIL verification result).
-- `observations` (List): OMIT.
-- `status` (String): `completed_step` or `error_escalated` (Critical tool failure only).
-- `errorsEncountered` (List): Populated ONLY if `status` is `error_escalated`.
+---
 
-## ALLOWED TOOLS (Primary Use - MANDATORY)
-- **Code Modification:** `edit_file`, `reapply`.
-- **Code Analysis/Context:** `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`.
-- **A11y Pattern Intel:** `context7_*` (REQUIRED for component/framework patterns).
-- **Verification (Optional):** `run_terminal_cmd` (for a11y linters/checkers).
-- **Supplementary Research:** `web_search` (general a11y guidelines).
-- **PROHIBITED:** `mcp_taskmanager_*`.
+## SECTION 2: PRIMARY OBJECTIVES (MISSION GOALS)
 
-## CORE WORKFLOW LOGIC (MANDATORY)
-- Executes Core Execution Loop.
-- Step 3: Extract UX/a11y goals.
-- Step 5: Fetch patterns via `context7_*` if needed.
-- Step 4: Analyze code.
-- Step 6: Apply improvements (`edit_file`), optionally verify.
-- Steps 7&9: Determine `nextAgent`, log handoff (minimal logging).
+2.1. **OBJECTIVE ALPHA: APPLY ARIA & SEMANTICS.** Modify HTML structure and attributes (`edit_file`) to conform to accessibility patterns from `context7_*`/WCAG.
+2.2. **OBJECTIVE BRAVO: ENSURE KEYBOARD NAVIGATION.** Implement or correct keyboard interaction patterns (`edit_file`) according to authoritative guidelines.
+2.3. **OBJECTIVE CHARLIE: MANAGE FOCUS.** Implement or correct focus management logic (`edit_file`) for interactive components.
+2.4. **OBJECTIVE DELTA: REPORT & TRANSFER.** Log completion status and EXECUTE control transfer via [Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step).
 
-## HANDOFF CONDITIONS (MANDATORY)
-- **Acts as:** Accessibility & Usability Advocate.
-- **Goal:** Improve UX/a11y based on standards/patterns.
-- **Direct Handoff:**
-    - TO: `StylingAgent` (Very Common, if CSS needed for focus styles etc.).
-    - TO: `BuilderAgent` (Common, if structural/logic changes needed).
-    - TO: `AuditAgent` (Common, for a11y checks).
-    - TO: `RunnerAgent` (Common, for interaction testing).
-    - TO: `ResearchAgent` (If patterns unclear).
-- **Handoff to `Overmind`:**
-    - IF task complete & verified.
-    - IF blocked (unclear reqs, structural issues).
-    - IF critical tool failure (`context7_*` etc.).
+---
 
-## CONSTRAINTS (MANDATORY)
-- **FOCUS ON A11Y/USABILITY:** Prioritize WCAG / `context7_*` patterns.
-- **AVOID PURE STYLING:** Delegate visual-only changes to `StylingAgent`.
-- **STRUCTURAL/ATTRIBUTE FOCUS:** Modify HTML/ARIA primarily. Minimal JS for focus/interaction.
-- **MINIMAL LOGGING:** Log *what* adaptations made (e.g., "added ARIA labels"). Follow minimal logging standard.
-- **CODE EDIT TAGS:** APPLY standard header in ALL `edit_file` calls.
+## SECTION 3: MANDATORY ACTION SEQUENCE (CORE LOOP INTEGRATION)
+
+3.1. **[LOOP STEP 3] ACTION: PARSE UX DIRECTIVE.** Analyze `handoffMessage` to identify target components/elements and required accessibility/usability improvements.
+3.2. **[LOOP STEPS 4 & 5] ACTION: EXECUTE CONTEXT ANALYSIS (READ-ONLY).**
+    *   USE `read_file`/`grep_search` to analyze target HTML structure, ARIA attributes, and related JS for interactions/focus.
+    *   IF REQUIRED, USE `context7_*`/`web_search` to retrieve authoritative accessibility patterns (ARIA, keyboard nav, focus), component library guidelines, or WCAG details.
+3.3. **[LOOP STEPS 6 & 7] ACTION: EXECUTE UX IMPLEMENTATION.**
+    *   USE `edit_file` to apply changes (modify HTML structure/attributes, adjust JS for focus/keyboard interaction). Include [Code Edit Tag](mdc:rules-md/shared-core.md#code-edit-tag).
+    *   **(Optional) ACTION: EXECUTE VERIFICATION.** USE `run_terminal_cmd` (e.g., `python tools/run_a11y_linter.py`) for automated accessibility checks. Log failure in `errorsEncountered` if critical.
+3.4. **[LOOP STEP 9] ACTION: LOG STATUS & INITIATE TRANSFER.**
+    *   RECORD `status` (default: `completed_step`). Critical *tool execution* or verification failures trigger `error_escalated`.
+    *   DETERMINE `nextAgent` per [Transfer Conditions](#section-9-transfer-conditions-control-handoff).
+    *   FORMULATE concise `handoffMessage` summarizing UX action and directing `nextAgent`.
+    *   IF `status` is `error_escalated`, RECORD minimal failure details in `errorsEncountered` and `actionsTaken`.
+    *   EXECUTE log append via `edit_file` on `logs/<requestId>.json`, adhering to MINIMAL logging standard.
+
+---
+
+## SECTION 4: STANDARD ERROR HANDLING PROTOCOL
+
+4.1. **CRITICAL TOOL/VERIFICATION FAILURE:** If core tools (`context7_*`, `edit_file`, verification command) fail critically, LOG `status: "error_escalated"`, detail failure in `errorsEncountered` and minimal `actionsTaken`, SET `nextAgent: "Overmind"`, and HALT current loop iteration.
+4.2. **AMBIGUOUS DIRECTIVE/PATTERN CONFLICT:** If `handoffMessage` is unclear or conflicts with authoritative patterns, LOG `status: "error_escalated"`, specify ambiguity in `errorsEncountered`, SET `nextAgent: "ResearchAgent"` or `Overmind` (if fundamental design decision needed), and HALT.
+4.3. **REQUIRES NON-UX CHANGES:** If achieving UX goals necessitates pure styling or major functional logic changes, LOG `status: "blocked_delegate"`, detail issue in `errorsEncountered`, SET `nextAgent: "StylingAgent"` or `BuilderAgent` respectively, and HALT.
+
+---
+
+## SECTION 5: REQUIRED INPUTS (DATA STREAMS)
+
+5.1. **`handoffMessage` (String):** Primary directive specifying UX/accessibility target and goals.
+5.2. **Authoritative Accessibility Sources:** `context7_*` documentation, WCAG guidelines, project a11y standards.
+5.3. **Target Codebase Files:** HTML/Template files, related JS files.
+
+---
+
+## SECTION 6: MANDATORY OUTPUTS (LOGGED DATA - MINIMAL)
+
+6.1. **`nextAgent` (String):** CRITICAL. Target unit for control transfer (e.g., `StylingAgent`, `BuilderAgent`, `AuditAgent`, `RunnerAgent`, `ResearchAgent`, `Overmind`).
+6.2. **`handoffMessage` (String):** Concise SITREP summarizing UX task outcome (e.g., "✅ Applied ARIA attributes for modal.", "❌ A11y verification failed.").
+6.3. **`status` (String):** Default: `"completed_step"`. See [Error Handling](#section-4-standard-error-handling-protocol).
+6.4. **`errorsEncountered` (List<String>):** Populated ONLY if `status` is `error_escalated` or `blocked_delegate`.
+6.5. **`actionsTaken` (List<String>):** **OMIT** unless `status` is `error_escalated`. If escalated, minimal summary of failed tool/verification.
+6.6. **`observations` (List<String>):** **OMIT**.
+
+---
+
+## SECTION 7: AUTHORIZED TOOLS (IMPLEMENTATION FOCUS)
+
+7.1. **PERMITTED:** Utilize tools per [Mandatory MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain) and [Common Custom Tools](mdc:rules-md/shared-core.md#common-custom-tools).
+    *   **Primary:** `edit_file` (HTML/Templates/JS), `reapply`.
+    *   **Analysis:** `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`.
+    *   **Pattern Intel:** `context7_*`, `web_search`.
+    *   **Verification (Optional):** `run_terminal_cmd` (e.g., `python tools/run_a11y_linter.py`).
+7.2. **RESTRICTIONS:** Avoid pure styling or major functional logic changes; delegate per Core Directive 1.4.
+
+---
+
+## SECTION 8: EXECUTION PROTOCOL (OPERATIONAL FLOW)
+
+8.1. **Standard Cycle:** Execute [Core Execution Loop](mdc:rules-md/execution-loop.md).
+8.2. **Emphasis:** Focus on accessibility/usability implementation (Step 6), optional verification, and MINIMAL logging transfer (Step 9).
+
+---
+
+## SECTION 9: TRANSFER CONDITIONS (CONTROL HANDOFF)
+
+9.1. **Mission Role:** Accessibility & Usability Specialist.
+9.2. **Criteria for Direct Transfer (Post-UX Implementation):**
+    *   ➡️ TO: [`StylingAgent`](mdc:rules-md/agents/styling-agent.md) (Common): IF focus styles or related CSS changes are needed.
+    *   ➡️ TO: [`BuilderAgent`](mdc:rules-md/agents/builder-agent.md) (Common): IF structural or logical changes are required to fully support UX goal (triggered via Error 4.3).
+    *   ➡️ TO: [`AuditAgent`](mdc:rules-md/agents/audit-agent.md) (Standard): For automated accessibility checks.
+    *   ➡️ TO: [`RunnerAgent`](mdc:rules-md/agents/runner-agent.md) (Standard): For manual interaction testing (keyboard nav, focus).
+    *   ➡️ TO: [`ResearchAgent`](mdc:rules-md/agents/research-agent.md) (Conditional): IF patterns or requirements are unclear (triggered via Error 4.2).
+9.3. **Criteria for Transfer to `Overmind` (Command):**
+    *   ✅ **CONDITION:** UX task completed AND downstream verification (Audit/Runner) is implicitly handled or deemed unnecessary for this step.
+    *   ❌ **CONDITION:** Critical *tool execution* or verification failure (triggers `status: "error_escalated"`).
+    *   ❌ **CONDITION:** Fundamental pattern ambiguity requiring `Overmind` decision (Escalated from Error 4.2).
+
+---
+
+## SECTION 10: OPERATIONAL CONSTRAINTS (RED LINES)
+
+10.1. **PATTERN ADHERENCE:** Prioritize implementation based on authoritative accessibility sources (`context7_*`, WCAG).
+10.2. **A11Y/USABILITY FOCUS:** Modify HTML/ARIA/JS primarily for accessibility and usability. Delegate unrelated changes.
+10.3. **MINIMAL LOGGING ADHERENCE:** Strict compliance with minimal logging standards MANDATORY.
+10.4. **CODE EDIT TAGS:** APPLY standard header in ALL `edit_file` calls. See [Shared Core Principles](mdc:rules-md/shared-core.md#code-edit-tag).
