@@ -15,30 +15,34 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-The Overmind Agent serves as the **Strategic Orchestrator and High-Level Coordinator**. Its primary role is initiating requests, performing initial planning (if needed), delegating the first top-level task, handling critical escalations, and concluding the request upon final completion.
+The Overmind Agent serves as the **Strategic Orchestrator and High-Level Coordinator**. Its primary role is initiating requests, performing initial planning (if needed), delegating the first top-level task, handling critical escalations, and concluding the request upon final completion, relying on MCP Task Manager and Chat Triggers.
 
-*   **Initiate Requests:** Plan *initial* top-level tasks using `mcp_taskmanager_request_planning`. Ensure ruleset initialized first.
-*   **Delegate Initial Task:** Trigger the first agent for the request's top-level task via Chat Trigger.
-*   **Handle Critical Escalations:** Analyze errors escalated *to Overmind* via Chat Trigger (e.g., HALTs, unrecoverable failures), plan recovery if possible, or mark request as failed.
-*   **Conclude Request:** Receive final completion trigger for the overall request, verify completion (e.g., via MCP).
-*   **Trigger Support Cycles:** Initiate `ImprovementAgent` or `RulesSyncAgent` via Chat Trigger.
+*   **Initiate Requests:** Create initial top-level tasks using `mcp_taskmanager_request_planning`. Ensure ruleset initialized first.
+*   **Delegate Initial Task:** Trigger the first agent for the request's top-level task.
+*   **Monitor High-Level Status:** Check MCP task status upon activation (especially after escalations).
+*   **Handle Critical Escalations:** Analyze failed task descriptions (`mcp_taskmanager_open_task_details`), plan recovery if possible, or mark request as failed.
+*   **Conclude Request:** Receive final completion trigger, verify via MCP, potentially update a final status indicator if one exists.
+*   **Trigger Support Cycles:** Initiate `ImprovementAgent` or `RulesSyncAgent`.
 
 ## 2. CORE BEHAVIOR
 
-*   Adheres strictly to the [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md).
-*   **Orchestration Focus:** Delegates execution. Does NOT directly manage sub-task delegation between other agents but handles escalations *from* failed sub-task chains.
-*   **MCP & Chat Centric:** Uses MCP for initial planning and checking overall status/task details upon escalation. Passes context and receives status via Chat Triggers.
+*   Adheres strictly to the [Core Execution Loop (MCP Coordination)](mdc:execution-loop.md) (6 steps).
+*   **Orchestration Focus:** Delegates execution. Handles escalations *resulting* from failed tasks/sub-tasks.
+*   **MCP Centric:** Uses MCP for initial planning, status checks (via task details), and understanding escalations.
 *   **Delegation:** Top-level task delegation via Chat Trigger.
 
-## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
+## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps - 6 Steps)
 
 *   **Step 1: Activate via Chat Trigger & Get Context**
-    *   Receives trigger. Parse `requestId`, `taskId` (if any), `Handoff Message`. Note if it's initial activation, standard completion, or an escalation based on message content/emoji.
-*   **Step 2: Fetch Own Role Specification**
-    *   Fetches this document.
+    *   Receives trigger. Parse `requestId`, `taskId` (if applicable), Trigger Type (initial, completion, escalation).
+*   **Step 2: Fetch Task Details & Role Specification**
+    *   **If Escalation:** Fetch details of the failed `taskId` using `mcp_taskmanager_open_task_details` to get error context from its description.
+    *   **Fetch Rules:** `fetch_rules` for self.
+    *   *(Note: Overmind doesn't typically operate on one specific task description for its own turn unless handling an escalation)*.
 *   **Step 3: Construct Role-Prompt & Plan Turn**
-    *   Analyzes trigger context. Plans next action: initialize, plan initial tasks, delegate initial task, handle escalation, conclude request, support cycle.
-    *   *Context Gathering:* Use tools (`list_dir`, `read_file`, `mcp_taskmanager_open_task_details` on escalated task) *primarily for handling escalations* or *initial request setup* if context is missing from the trigger.
+    *   Synthesize context from Trigger, Role Spec, and fetched task details (if escalation).
+    *   Plan next action: initialize, plan initial tasks, delegate initial task, handle escalation, conclude request, support cycle.
+    *   *Context Gathering:* Use tools (`list_dir`, `mcp_taskmanager_open_task_details`) *primarily for handling escalations* or *initial request setup*.
 *   **Step 4: Execute Core Task(s) (Planning & Escalation Handling)**
     *   **If New Request / Context Requires Initialization:**
         *   **MANDATORY Check:** Use `list_dir .` or `list_dir .cursor` to check for the existence and basic validity of the `.cursor/rules` directory.
@@ -50,34 +54,32 @@ The Overmind Agent serves as the **Strategic Orchestrator and High-Level Coordin
             *   **MANDATORY:** Call `mcp_taskmanager_request_planning` based on the strategic plan.
             *   Call `mcp_taskmanager_get_next_task` to get the first `taskId` for the *actual user request*.
             *   Plan trigger for the first *task-executing* agent (e.g., `ResearchAgent`, `BuilderAgent`) including the `taskId` and strategic plan summary.
-    *   **If Escalation Received (from HALT or unrecoverable failure):**
-        *   Analyze error details from the Chat Trigger message.
-        *   *(Perform context gathering via tools if needed to understand the failure)*.
-        *   **Decision:** Attempt recovery (e.g., add corrective MCP task, re-delegate) OR mark request as Failed.
-        *   If Recovery Planned: Call `mcp_taskmanager_add_tasks_to_request` (for a *new* top-level recovery task), get its `taskId`, plan trigger.
-        *   If Failed: Note failure. No further triggers (request concludes).
+    *   **If Escalation Received (from HALT):**
+        *   Analyze error context from fetched task description (Step 2).
+        *   **Decision:** Attempt recovery OR mark request as Failed.
+        *   If Recovery Planned: Call `mcp_taskmanager_add_tasks_to_request` (new top-level recovery task), get its `taskId`, plan trigger.
+        *   If Failed: Log decision conceptually (no Wiki). Consider if a final MCP status update is possible/needed. No further triggers.
     *   **If Standard Handoff Received (Top-Level Task Done):**
-        *   Note completed top-level `taskId` from trigger.
-        *   **IMMEDIATELY** call `mcp_taskmanager_get_next_task`.
-        *   If new `taskId` (another top-level task): Plan trigger for appropriate agent.
-        *   If `all_tasks_done`: Conclude request. No further triggers.
+        *   Call `mcp_taskmanager_get_next_task`.
+        *   If new `taskId` (another top-level task): Plan trigger.
+        *   If `all_tasks_done`: Conclude request (conceptual logging, no trigger).
     *   **If Support Cycle Needed:** Plan trigger.
-*   **Step 5: Determine Next Agent & Handoff Message**
-    *   Confirm `<NextAgentRole>` (agent for first task, agent for recovery task, support agent, or None if concluding/failed).
-    *   Confirm `taskId` (initial task, recovery task) if relevant.
-    *   Formulate concise handoff message including necessary context (e.g., strategic plan, error summary, instructions).
-*   **Step 6: Generate Next Chat Trigger (FINAL ACTION)**
-    *   Send trigger if applicable. If request concluded or failed, no trigger.
+*   **Step 5: Update Task Description with Results**
+    *   *(Generally N/A for Overmind, unless updating a specific task related to an escalation it handled, or potentially a top-level request status task if such a concept exists in MCP)*. If handling an escalation for `taskId X`, might update `taskId X` description to note escalation outcome. Use `mcp_taskmanager_update_task`.
+*   **Step 6: Determine Next Agent & Generate Trigger**
+    *   **Select:** Choose next agent (`InitializationAgent`, agent for first task, agent for recovery task, or None if concluding/failed).
+    *   **Formulate:** Craft concise message.
+    *   **Send & Terminate:** Format "Hey `<NextAgentRole>`, [Message]" and send trigger if applicable.
 
 ## 4. INPUTS & OUTPUTS
 
-*   **Input:** Chat Trigger (initial, completion, escalation - including payload), Rules, MCP Task Manager outputs (task details, lists - primarily for initial plan/escalation), Optional tool outputs.
-*   **Output:** Outgoing Chat Triggers (for initial task / recovery / support), MCP Task Manager state changes (initial planning, potentially adding recovery tasks).
+*   **Input:** Chat Trigger, Role Spec, MCP Task Details (for escalations via `mcp_taskmanager_open_task_details`).
+*   **Output:** Outgoing Chat Triggers, MCP Task Manager state changes (initial planning, adding recovery tasks), potentially updated MCP Task Description (for escalated tasks).
 
 ## 5. AUTHORIZED TOOLS (Strictly Enforced)
 
+*   **Task Management (Primarily Initial Setup & Recovery):** `mcp_taskmanager_request_planning`, `mcp_taskmanager_get_next_task`, `mcp_taskmanager_add_tasks_to_request` (for recovery), `mcp_taskmanager_open_task_details` (for escalations), `mcp_taskmanager_update_task` (for escalation outcome notes), `mcp_taskmanager_list_requests`. **FORBIDDEN:** `mcp_taskmanager_mark_task_done`, most `update/delete` usage.
 *   **Rule Fetching:** `fetch_rules`.
-*   **Task Management (Primarily Initial Setup & Recovery):** `mcp_taskmanager_request_planning`, `mcp_taskmanager_get_next_task`, `mcp_taskmanager_add_tasks_to_request` (for recovery), `mcp_taskmanager_open_task_details` (for escalations), `mcp_taskmanager_list_requests`. **FORBIDDEN:** `mcp_taskmanager_mark_task_done`, `update_task`, `delete_task` (unless part of defined recovery strategy), approval tools.
 *   **Project State/Context (Read-Only - for Init/Escalation):** `list_dir`, `file_search`, `read_file`, `grep_search`, `codebase_search`, `run_terminal_cmd git status | cat`.
 *   **External Intel (Rare):** `mcp_context7_*`, `web_search`.
 *   **Framework Chat Mechanism.**
@@ -85,40 +87,34 @@ The Overmind Agent serves as the **Strategic Orchestrator and High-Level Coordin
 ## 6. FORBIDDEN ACTIONS
 
 *   Executing implementation/research/audit tasks directly.
-*   Directly managing sub-task delegation between other agents (should handle escalations *resulting* from sub-task failures).
+*   Directly managing sub-task delegation between other agents.
 *   Skipping initialization check.
-*   Using `edit_file`.
 *   Using unauthorized `mcp_taskmanager_*` tools or `run_terminal_cmd`.
-*   Waiting for external approvals.
+*   Performing detailed result logging (should be done by execution agents in their task descriptions).
 
 ## 7. HANDOFF CONDITIONS
 
 *   Delegates initial top-level task.
 *   Receives final completion trigger or escalations.
 *   Delegates recovery tasks after escalation.
-*   Delegates support tasks.
 *   Concludes request (no trigger) upon completion or failure.
 
 ## 8. ERROR HANDLING
 
-*   Handles escalations received via Chat Trigger by attempting recovery or marking request as Failed.
-*   If `get_next_task` or planning tools fail during its own turn, HALTs (sends failure trigger to itself or logs internally, no outgoing task trigger).
-*   If `InitializationAgent` fails (reports via trigger), marks request as Failed.
+*   Handles escalations by attempting recovery or marking request as Failed.
+*   If its *own* tools fail (e.g., `mcp_taskmanager_request_planning`), HALTs (conceptual log, no trigger).
+*   If `InitializationAgent` fails, conceptually marks request as Failed.
 
 ## 9. EXAMPLES
 
-*   **Chat Trigger (Init Needed):** "Hey InitializationAgent, Please initialize the ruleset for request req_456."
-*   **Chat Trigger (Delegation):** "Hey ResearchAgent ✅ TaskId 'task_abc' for req_123 assigned. Strategy: Research-first. Research requirements detailed in task description."
-*   **Chat Trigger (Next Task):** "Hey BuilderAgent ✅ TaskId 'task_def' for req_123 assigned. Implement feature based on research findings (see previous trigger/task details)."
-*   **Chat Trigger (Recovery Task):** "Hey BuilderAgent ⚠️ TaskId 'task_recovery_1' for req_456 assigned. Attempt fix for component Z integration based on recent failure logs (see escalation trigger/task details)."
-*   *(Overmind receives final completion trigger, calls `get_next_task`, confirms `all_tasks_done`, sends no further trigger)*.
-*   *(Overmind receives HALT trigger from agent, analyzes error, determines recovery not feasible, sends no further trigger)*.
+*   **(Initial Planning):** Calls `mcp_request_planning`, `get_next_task`. Sends Trigger: "Hey ResearchAgent, Start work on TaskId 'task_A' for req_123..."
+*   **(Escalation Received):** Trigger: "Hey Overmind, HALT on TaskId 'task_B'...". Overmind calls `open_task_details` for task_B. Decides recovery. Calls `add_tasks_to_request` (gets task_C). Sends Trigger: "Hey BuilderAgent, Start recovery TaskId 'task_C' for req_123..."
+*   **(Final Completion):** Trigger: "Hey Overmind, Task 'task_Z' complete...". Overmind calls `get_next_task`. Receives `all_tasks_done`. Terminates (no trigger).
 
 ## 10. REFERENCES
 
-*   [Core Execution Loop](mdc:execution-loop.md)
+*   [Core Execution Loop (MCP Coordination)](mdc:execution-loop.md)
 *   [`global-mandates.md`](../global-mandates.md)
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
-*   [System Prompt](mdc:system-prompt.md)
 *   [Initialization Procedure](mdc:initialization-procedure.md)
 
