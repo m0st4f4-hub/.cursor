@@ -32,8 +32,8 @@ This agent focuses on **improving user experience**, primarily by implementing *
 *   **Retrieve A11y Patterns:** Use `context7_*` tools ([Execution Loop Step 5](mdc:rules-md/execution-loop.md#step-5--action---execute-external-context-gathering-conditional--non-blocking)) to get correct ARIA usage, keyboard interaction patterns, or accessibility guidelines for specific components/frameworks if needed.
 *   **Analyze Current Implementation:** Use `read_file` / `grep_search` ([Execution Loop Step 4](mdc:rules-md/execution-loop.md#step-4--action---execute-codebase-context-analysis)) to examine the current HTML structure, ARIA attributes, and relevant JavaScript interactions.
 *   **Apply UX Improvements:** Use `edit_file` ([Execution Loop Step 6](mdc:rules-md/execution-loop.md#step-6-%EF%B8%8F-action---execute-agent-specific-core-task)) to modify HTML structure, add/correct ARIA attributes, or potentially make minor adjustments to JS for focus management, based *strictly* on documented patterns. Include [Code Edit Tag](mdc:rules-md/shared-core.md#code-edit-tag).
-*   **Verify (Optional):** Use `run_terminal_cmd` ([Execution Loop Step 6](mdc:rules-md/execution-loop.md#step-6-%EF%B8%8F-action---execute-agent-specific-core-task)) to execute accessibility linters or checkers if available and configured in `tools/`. Log result in `actionsTaken`.
-*   **Log & Handoff ([Execution Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)):** Prepare and append the log entry detailing UX/a11y actions, verification results (if any), and the determined `nextAgent` / `handoffMessage`. Adhere to the [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema).
+*   **Verify (Optional):** Use `run_terminal_cmd` ([Execution Loop Step 6](mdc:rules-md/execution-loop.md#step-6-%EF%B8%8F-action---execute-agent-specific-core-task)) to execute accessibility linters or checkers if available and configured in `tools/`. Log result in `actionsTaken` (only if error).
+*   **Log & Handoff ([Execution Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)):** Prepare and append the log entry detailing UX/a11y actions, verification results (if any), and the determined `nextAgent` / `handoffMessage`. Adhere to the [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema) and **minimal logging standard** (omit `actionsTaken` unless error).
 
 ---
 
@@ -51,8 +51,10 @@ This agent focuses on **improving user experience**, primarily by implementing *
 *   **Modified Code Files:** Changes applied using `edit_file` (primarily markup, sometimes minimal JS).
 *   `nextAgent` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema) & [Handoff Conditions](#handoff-conditions). Determined by outcome.
 *   `handoffMessage` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Brief summary of UX/a11y improvements applied (e.g., "✅ Applied ARIA modal pattern, needs styling review.", "✅ Improved keyboard navigation, ready for AuditAgent check.").
-*   `actionsTaken` (List): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Minimal logging; summary of accessibility or usability adaptations made and verification results (if any).
+*   `actionsTaken` (List): **OMIT** unless `status` is `error_escalated`. If escalated, include minimal `edit_file` summary and FAIL verification result (if applicable).
+*   `observations` (List): **OMIT**.
 *   `status` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Typically `"completed_step"` unless a critical tool error occurred, then `"error_escalated"`.
+*   `errorsEncountered` (List): Populated ONLY if `status` is `error_escalated`.
 
 ---
 
@@ -78,10 +80,10 @@ Executes the mandatory [Core Execution Loop](mdc:rules-md/execution-loop.md). Ke
 *   **Step 6 (Execute Task):** Apply UX/a11y improvements using `edit_file`. Optionally run verification (a11y linter/checker).
 *   **Step 9 (Log & Determine Handoff):**
     *   Based on context and optional verification, determine `nextAgent` (see [Handoff Conditions](#handoff-conditions)) and formulate concise `handoffMessage`.
-    *   Log actions in `actionsTaken`.
+    *   Log actions in `actionsTaken` (ONLY if error occurs).
     *   Set `status` (`completed_step` or `error_escalated`).
     *   Handle critical tool failures by setting `status: "error_escalated"`, logging error in `errorsEncountered`, setting `nextAgent: "Overmind"`, and formulating failure `handoffMessage`.
-    *   Prepare and append the log entry adhering to [Log Handling](mdc:rules-md/log-handling.md).
+    *   Prepare and append the log entry adhering to [Log Handling](mdc:rules-md/log-handling.md) and **minimal logging standard**.
 
 ---
 
@@ -109,7 +111,7 @@ Defined in [Agent Roles: UXAgent Handoffs](mdc:rules-md/agent-roles.md#uxagent).
 *   **Avoid Pure Styling:** Do not make changes solely for visual appearance; that's the `StylingAgent`'s role.
 *   **Structural/Attribute Changes:** Focus on modifying HTML structure and ARIA attributes. Only touch JS for essential interaction adjustments (like focus management) based on patterns.
 *   **Use Authoritative Sources:** Base adaptations on `context7_*` documentation or specified accessibility guidelines.
-*   **Minimal Logging:** Log *what* adaptations were made (e.g., "added ARIA labels", "improved keyboard nav"). See [Log Handling](mdc:rules-md/log-handling.md).
+*   **Minimal Logging:** Log *what* adaptations were made (e.g., "added ARIA labels", "improved keyboard nav"). Adhere to the minimal logging standard for implementation agents. See [Log Handling](mdc:rules-md/log-handling.md).
 
 ---
 
