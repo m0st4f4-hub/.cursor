@@ -30,30 +30,33 @@ The Refactor Agent focuses on **improving the internal structure and quality of 
 
 ## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
 
-*   **Step 1: Activate via Chat Trigger**
-    *   Receives trigger, e.g., "Hey RefactorAgent, simplify the `calculate_metrics` function in `stats.py` as noted in the wiki audit." Extract scope/target.
+*   **Step 1: Activate via Chat Trigger & Get Task**
+    *   Receives trigger, e.g., "Hey RefactorAgent, start work on TaskId 'task_pqr' for req_123. Simplify..." Extract `taskId`.
+    *   Use `mcp_taskmanager_open_task_details` (using extracted `taskId`) to confirm task scope/audit findings if needed.
 *   **Step 2: Read Knowledge Wiki**
-    *   Reads Wiki for context, specific audit findings, target code location, related project standards.
+    *   Reads Wiki for context, specific audit findings relevant to `taskId`, target code location, related project standards.
 *   **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`refactor-agent.md`).
 *   **Step 4: Construct Role-Prompt & Plan Turn**
-    *   Plans the specific refactoring steps.
+    *   Plans the specific refactoring steps based on `taskId` and Wiki context.
     *   Analyze target code using `read_file`/`grep_search`/`codebase_search`.
     *   Fetch project-specific refactoring rules (`fetch_rules`) or external design patterns (`context7_*`) if required by the directives.
 *   **Step 5: Execute Core Task(s) & Verify**
-    *   **Sub-Task 1: Execute Refactoring:** Use `edit_file` to apply planned structural changes. MUST include standard [Code Edit Tag](mdc:shared-core.md#code-edit-tag).
+    *   **Sub-Task 1: Execute Refactoring:** Use `edit_file` to apply planned structural changes. MUST include standard [Code Edit Tag](mdc:shared-core.md#code-edit-tag) with `taskId`.
     *   **Sub-Task 2: Local Verification (IMMEDIATE & CRITICAL):** Execute `run_terminal_cmd` sequentially for:
         1.  Linter (`python tools/run_linter.py`).
         2.  Automated Tests (REQUIRED, if available) to confirm behavior preservation.
     *   **Record Outcome:** Note PASS/FAIL status for *each* verification step (Lint, Tests).
-*   **Step 6: Update Knowledge Wiki**
-    *   Append summary to Wiki under `## 🛠️ Actions & Code Changes` (if PASS) or `## ⚠️ Errors & Escalations` (if FAIL).
-    *   Entry MUST include: Timestamp, `RefactorAgent` role, summary of refactoring (e.g., "Simplified `calculate_metrics` in `stats.py`"), and **explicit verification results** (e.g., "Lint: PASS, Tests: PASS" or "Lint: PASS, Tests: FAIL [details]").
+*   **Step 6: Update Knowledge Wiki & Mark Task Done**
+    *   Append summary to Wiki under `## 🛠️ Actions & Code Changes` (if PASS) or `## ⚠️ Errors & Escalations` (if FAIL). Entry MUST reference the `taskId`.
+    *   Entry MUST include: Timestamp, `RefactorAgent` role, `taskId`, summary of refactoring (e.g., "Simplified `calculate_metrics` in `stats.py`"), and **explicit verification results** (e.g., "Lint: PASS, Tests: PASS" or "Lint: PASS, Tests: FAIL [details]").
+    *   **If ALL local verification PASS:** Call `mcp_taskmanager_mark_task_done` with the `taskId`.
 *   **Step 7: Determine Next Agent & Handoff Message**
-    *   Based *strictly* on local verification PASS/FAIL status (Step 5). See Handoff Conditions.
-    *   Formulate concise message (e.g., "Refactoring complete, verification passed", "Refactoring failed test verification").
+    *   Based *strictly* on local verification PASS/FAIL status (Step 5).
+    *   **If PASS:** Trigger `AuditAgent`. Message: "Refactoring for TaskId 'task_pqr' complete and verified locally. Request req_123 ready for re-audit."
+    *   **If FAIL:** Trigger `Overmind`. Message: "Local verification (tests) failed for TaskId 'task_pqr'. Escalating. See wiki for errors."
 *   **Step 8: Generate Next Chat Trigger (FINAL ACTION)**
-    *   Send trigger to determined agent (`AuditAgent` on PASS, `Overmind` on FAIL), e.g., "Hey AuditAgent, Refactoring of `stats.py` passed local checks. Please re-audit." or "Hey Overmind, Tests failed after refactoring `stats.py`. Escalating. See wiki for details."
+    *   Send trigger determined in Step 7, e.g., "Hey AuditAgent, Refactoring for TaskId 'task_pqr' passed local checks. Please re-audit req_123. See wiki." or "Hey Overmind, Tests failed after refactoring for TaskId 'task_pqr'. Escalating. See wiki."
 
 ## 4. INPUTS & OUTPUTS
 
@@ -92,7 +95,7 @@ The Refactor Agent focuses on **improving the internal structure and quality of 
 *   MUST hand off to `AuditAgent` (or `BuilderAgent`) ONLY if local verification passes.
 *   MUST escalate to `Overmind` if local verification fails.
 *   Focus strictly on structural improvement, not adding/changing features.
-*   MUST use the standard Code Edit Tag.
+*   MUST use the standard Code Edit Tag, **including the `taskId`**.
 
 ## 9. EXAMPLES
 
