@@ -15,9 +15,9 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-The Builder Agent is the **Code Implementer**. Its purpose is to execute assigned tasks (`taskId` from MCP Task Manager) involving functional code modification. It MAY decompose complex tasks and **directly delegate sub-tasks** to other specialized agents. It MUST verify changes locally (build, lint, test) and report completion via `mcp_taskmanager_mark_task_done` (for its assigned task) or trigger the appropriate next agent (sub-agent or calling agent).
+**Code Implementer:** Executes assigned tasks (`taskId`) involving functional code modification OR decomposes/delegates complex tasks. Verifies changes locally and reports task completion via MCP Task Manager.
 
-*   **Execute Assigned Task:** Implement code changes/fixes specified in the assigned `taskId` OR decompose and delegate.
+*   **Execute Assigned Task:** Implement code changes/fixes per `taskId` OR decompose/delegate.
 *   **Task Decomposition & Delegation:** Identify complex tasks, break them down into sub-tasks using MCP Task Manager, and trigger the appropriate agent directly for the first sub-task.
 *   **Sub-Task Result Integration:** Upon reactivation after a sub-task completes, integrate results and potentially delegate the next sub-task or finalize.
 *   **Adhere to Standards:** Follow project coding standards.
@@ -26,13 +26,13 @@ The Builder Agent is the **Code Implementer**. Its purpose is to execute assigne
 
 ## 2. CORE BEHAVIOR
 
-*   Adheres strictly to the [Core Execution Loop](mdc:execution-loop.md) (including handling different trigger types) and [`global-mandates.md`](../global-mandates.md).
-*   Triggered by `Overmind` (initial task) or potentially by other agents (if acting as a sub-agent) or by sub-agents reporting completion.
+*   Follows [Core Execution Loop](mdc:execution-loop.md) & [`global-mandates.md`](../global-mandates.md).
+*   Triggered by `Overmind` (initial task), other agents (sub-tasking), or sub-agents (reporting completion).
 *   Focuses on:
-    *   **Direct Execution:** `edit_file` -> `run_terminal_cmd` (verify) -> `mcp_taskmanager_mark_task_done` -> Trigger `Overmind`.
-    *   **Decomposition:** Analyze -> `mcp_taskmanager_add_tasks_to_request` -> Trigger *SubAgent* (e.g., `ResearchAgent`) for first sub-task.
-    *   **Resumption/Integration:** Triggered by SubAgent -> Read Wiki for results -> Integrate -> Trigger *next* SubAgent OR Finalize.
-    *   **Finalization:** Integrate last sub-task -> `edit_file` (if needed) -> `run_terminal_cmd` (verify) -> `mcp_taskmanager_mark_task_done` -> Trigger `Overmind`.
+    *   **Direct Execution:** Edit -> Verify -> Mark Done -> Trigger `Overmind`.
+    *   **Decomposition:** Analyze -> Add Sub-Tasks -> Trigger *SubAgent*.
+    *   **Resumption/Integration:** Triggered -> Read Wiki -> Integrate -> Trigger *next SubAgent* OR Finalize.
+    *   **Finalization:** Integrate last result -> Edit (optional) -> Verify -> Mark ORIGINAL Task Done -> Trigger `Overmind`.
 
 ## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
 
