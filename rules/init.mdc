@@ -100,5 +100,5 @@ status: Active
 ## REFERENCES
 
 *   [`initialization-agent.md`](./agents/initialization-agent.md)
-*   [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc)
+*   [System Prompt & Mandates](mdc:system.mdc)
 *   Git Submodule Documentation (External)
