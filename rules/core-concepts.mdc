@@ -15,7 +15,8 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-This document provides definitions for fundamental concepts and terminology used within the Chat Trigger agent framework. It supplements the definitions in [Shared Core Concepts & Rules](mdc:shared-core.md) and serves as a quick reference glossary.
+// This document provides definitions for fundamental concepts and terminology used within the Chat Trigger agent framework. It supplements the definitions in [Shared Core Concepts & Rules](mdc:shared-core.md) and serves as a quick reference glossary.
+// Rely on title for purpose.
 
 ## 2. KEY CONCEPTS & DEFINITIONS
 
@@ -24,21 +25,21 @@ This document provides definitions for fundamental concepts and terminology used
 *   **Agent Roles:**
     *   See [Shared Core Concepts & Rules](mdc:shared-core.md#2-core-concepts--definitions). Also see [Agent Roles & Responsibilities](mdc:agent-roles.md) for the registry.
 *   **Chat Trigger:** REQUIRED control signal via platform chat message. Sole trigger for Agent activation and handoff. Agent MUST generate trigger message as final action. See [Execution Loop](mdc:execution-loop.md).
-*   **ACTION IMPERATIVE:** MANDATORY principle. Continuous execution triggered by chat, context passed via trigger, rules from `fetch_rules`. NO WAITING. See [Execution Loop](mdc:execution-loop.md).
-*   **Tools:** MANDATORY capabilities for environment interaction (MCP, file system, terminal, custom). See [Shared Core](mdc:shared-core.mdc).
-*   **Rules (`.cursor/rules/`, `rules-md/`):** MANDATORY `.mdc` files defining behavior, standards, workflow. See [System Prompt](mdc:system-prompt.md).
+*   **ACTION IMPERATIVE:** REQUIRED principle. Continuous execution triggered by chat, context passed via trigger, rules from `fetch_rules`. Waiting MUST NOT occur. See [Execution Loop](mdc:execution-loop.md).
+*   **Tools:** REQUIRED capabilities for environment interaction (MCP, file system, terminal, custom). See [Shared Core](mdc:shared-core.mdc).
+*   **Rules (`.cursor/rules/`, `rules-md/`):** REQUIRED `.mdc` files defining behavior, standards, workflow. See [System Prompt](mdc:system-prompt.md).
 *   **Framework:** REQUIRED External execution engine. Parses chat triggers, provides tools, facilitates agent execution based on fetched rules and context from trigger. See [System Prompt](mdc:system-prompt.md).
-*   **Autonomous Execution:** MANDATORY. Agents operate independently, activated by chat triggers, driven by rules and context passed in triggers. User interaction ONLY for requested diagnostics (Loop Step 4).
+*   **Autonomous Execution:** REQUIRED. Agents operate independently, activated by chat triggers, driven by rules and context passed in triggers. User interaction MUST occur ONLY for requested diagnostics (Loop Step 4).
 *   **Chat-Driven Coordination:**
-    *   The principle that the Chat Trigger mechanism is the sole method for passing control, context, findings, goals, and errors between agents.
+    *   The REQUIRED principle that the Chat Trigger mechanism is the sole method for passing control, context, findings, goals, and errors between agents.
 *   **Specialized Agents:**
     *   The design pattern of breaking down complex tasks into functions performed by distinct Agent Roles, each with a specific purpose and ruleset.
 *   **Sequential Activation:**
-    *   The mandatory execution flow where only one agent is active at a time for a given `requestId`, triggered sequentially by Chat messages. Parallel execution within a single request chain is forbidden.
+    *   The REQUIRED execution flow where only one agent is active at a time for a given `requestId`, triggered sequentially by Chat messages. Parallel execution within a single request chain MUST NOT occur.
 *   **Direct Peer Handoffs:**
-    *   The recommended practice for an agent to trigger another specialized agent directly via Chat Trigger when the workflow logically follows (e.g., `BuilderAgent` -> `AuditAgent`), minimizing unnecessary steps through `Overmind`. Return to `Overmind` for planning, escalation, or completion reporting.
+    *   The RECOMMENDED practice for an agent to trigger another specialized agent directly via Chat Trigger when the workflow logically follows (e.g., `BuilderAgent` -> `AuditAgent`), minimizing unnecessary steps through `Overmind`. Return to `Overmind` for planning, escalation, or completion reporting.
 *   **Self-Improvement Loop:**
-    *   The mandated secondary goal of the framework where agents (`ImprovementAgent`, `RuleWriterAgent`) collaborate via Chat Triggers to analyze past performance and automatically refine or generate rules. See [System Prompt](mdc:system-prompt.md).
+    *   The REQUIRED secondary goal of the framework where agents (`ImprovementAgent`, `RuleWriterAgent`) collaborate via Chat Triggers to analyze past performance and automatically refine or generate rules. See [System Prompt](mdc:system-prompt.md).
 *   **Global Rules (`.cursor/rules/global/`):**
     *   Foundational rules providing core behaviors and capabilities, typically shared across projects. See [System Prompt](mdc:system-prompt.md).
 *   **Project Rules (`.cursor/rules/project/`):**
@@ -46,11 +47,11 @@ This document provides definitions for fundamental concepts and terminology used
 
 ## 3. KEY RULE DIRECTORIES (RUNTIME STRUCTURE)
 
-*   **`.cursor/rules/`**: The root directory containing the active ruleset used by the AI agent framework during execution within the current project. This directory's structure and content are managed by the [Initialization Procedure](mdc:initialization-procedure.md) and potentially `RulesSyncAgent`.
+*   **`.cursor/rules/`**: The root directory containing the active ruleset used by the AI agent framework during execution within the current project. This directory's structure and content MUST be managed by the [Initialization Procedure](mdc:initialization-procedure.md) and potentially `RulesSyncAgent`.
 *   **`global/` (within `.cursor/rules/`)**: Contains the base ruleset providing foundational agent behaviors and capabilities. These rules are typically synchronized from a shared, external source (e.g., via Git submodule) and apply generally across projects unless overridden.
 *   **`project/` (within `.cursor/rules/`)**: Contains rules specific to the *current* project. These rules are created and maintained within this project (potentially by agents like `AgentGeneratorAgent` or `RuleWriterAgent`) and **MUST** override any conflicting rules found in the `global/` directory.
 
-## 4. CORE TOOL INTEGRATION RULES (MANDATORY)
+## 4. CORE TOOL INTEGRATION RULES
 
 *   **`fetch_rules`:** Agents MUST use `fetch_rules` to retrieve the full content of referenced rules (`mdc:...`) when the definition is required for detailed understanding or execution beyond the summary provided in registry files like `agent-roles.md`.
 *   **`mcp_taskmanager_*`:** Primarily used by `Overmind` for task lifecycle management. Agents completing specific sub-tasks MAY use `mark_task_done` but MUST treat it as non-blocking and proceed immediately to constructing the Chat Trigger handoff.
