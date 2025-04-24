@@ -36,6 +36,7 @@ alwaysApply: false
 | `errors`         | Array[String]     | ✅ Yes    | Non-fatal errors encountered during the step. Distinguishes recoverable issues from fatal halts.                                                                                              |
 | `nextAgent`      | String / Null     | ✅ Yes    | **CRITICAL:** Role of the agent for the NEXT step (e.g., `"BuilderAgent"`, `"Overmind"`). Must match [Agent Roles](mdc:agent-roles.mdc). `null` or `"HALT"` ONLY for completion or unrecoverable error. **SOLE TRIGGER FOR AUTOMATIC TRANSITION.** |
 | `handoffMessage` | String            | ✅ Yes    | Clear, concise instructions/summary for `nextAgent`.                                                                                                                                            |
+| `improvementSuggestions`: Array[String] | Optional  |
 
 ## READING THE LOG (MANDATORY)
 - Agents MUST read `logs/<requestId>.json` at turn start (Loop Step 1).
@@ -57,4 +58,33 @@ alwaysApply: false
   2. Set `status: "halted"`.
   3. Set `nextAgent: "Overmind"` (or `"HALT"`).
   4. Provide clear `handoffMessage` explaining halt reason.
-  5. Cease execution for `requestId`. 
+  5. Cease execution for `requestId`.
+
+### Minimal Logging Mandate (Implementation Agents)
+
+To optimize token usage, agents primarily focused on direct code or documentation modification **MUST** adhere to minimal logging standards. These agents include:
+- `BuilderAgent`
+- `StylingAgent`
+- `UXAgent`
+- `RefactorAgent`
+- `DocsAgent`
+
+For these agents, the log entry **MUST** contain:
+- `agentRole`
+- `timestamp`
+- `requestID`
+- `nextAgent` (CRITICAL for handoff)
+- `handoffMessage` (Concise summary for the next agent)
+- `status`
+
+These fields **SHOULD BE OMITTED** unless necessary for error reporting:
+- `actionsTaken` (Log only the critical action if an error occurred)
+- `observations` (Implementation agents typically don't generate observations)
+- `improvementSuggestions`
+
+If `status` is `"error_escalated"`, then `errorsEncountered` **MUST** be included with the specific error details.
+
+## Log Access & Coordination
+
+- **READ LATEST:** Agents **MUST** always read the *latest* entry in `logs/<requestId>.json` to determine the current state and required `nextAgent` action.
+- **APPEND ONLY:** Agents **MUST ONLY APPEND** new entries. Modification or deletion of past entries is **STRICTLY FORBIDDEN**. 
