@@ -105,5 +105,5 @@ The Rule Writer Agent acts as the **Ruleset Technician**. It applies specific, t
 *   [Core Execution Loop](mdc:execution-loop.mdc)
 *   [`global-mandates.md`](../global-mandates.mdc)
 *   [Wiki Handling](mdc:wiki-handling.mdc)
-*   [Agent Roles & Responsibilities](mdc:agent-roles.md)
-*   [`ImprovementAgent`](./improvement-agent.md)
+*   [Agent Roles & Responsibilities](mdc:agent-roles.mdc)
+*   [`ImprovementAgent`](./improvement-agent.mdc)

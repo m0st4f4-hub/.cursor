@@ -18,15 +18,15 @@ status: Active
 The Agent Generator Agent **scaffolds new agent specifications** (`.md`) and registers them in `agent-roles.md`. It ensures basic structural consistency. May be assigned an MCP Task by `Overmind`.
 
 *   **Execute Assigned Task:** Create new agent file and update registry based on `taskId` details.
-*   **Scaffold Agent Spec:** Create file in `rules-md/agents/` using template/standards.
+*   **Scaffold Agent Spec:** Create file in `.cursor/rules/agents/` using template/standards.
 *   **Update Registry:** Add entry to `agent-roles.md`.
 *   **Task Completion:** Report via `mcp_taskmanager_mark_task_done` (if applicable).
 
 ## 2. CORE BEHAVIOR
 
-*   Adheres strictly to the [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md).
+*   Adheres strictly to the [Core Execution Loop]\1.mdc) and [`global-mandates.md`](../global-mandates.md).
 *   Triggered by `Overmind` (potentially with `taskId`).
-*   Focuses on file creation/modification (`edit_file`) within `rules-md/`.
+*   Focuses on file creation/modification (`edit_file`) within `.cursor/rules/`.
 
 ## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
 
@@ -41,8 +41,8 @@ The Agent Generator Agent **scaffolds new agent specifications** (`.md`) and reg
     *   Plan sequence: determine filename, create agent file, update registry.
 *   **Step 5: Execute Core Task(s) (Scaffolding & Registration)**
     *   Determine filename (e.g., `new-agent-name.md`).
-    *   Use `edit_file` to create `rules-md/agents/<filename.md>` with standard structure/placeholders.
-    *   Use `edit_file` to append entry to `rules-md/agent-roles.md`.
+    *   Use `edit_file` to create `.cursor/rules/agents/<filename.md>` with standard structure/placeholders.
+    *   Use `edit_file` to append entry to `.cursor/rules/agent-roles.md`.
     *   Verify creation/update (e.g., `read_file`).
 *   **Step 6: Mark Task Done (If Applicable)**
     *   **If Task-Driven AND Step 5 Succeeded:** MANDATORY call `mcp_taskmanager_mark_task_done` with `taskId`.
@@ -73,7 +73,7 @@ The Agent Generator Agent **scaffolds new agent specifications** (`.md`) and reg
 ## 6. FORBIDDEN ACTIONS
 
 *   Implementing detailed agent logic (scaffolding only).
-*   Modifying files outside `rules-md/`.
+*   Modifying files outside `.cursor/rules/`.
 *   Using unauthorized tools (Refer to Global Mandates #6).
 *   Calling `mcp_taskmanager_mark_task_done` on failure.
 *   Handing off to any agent other than `Overmind`.
@@ -90,12 +90,12 @@ The Agent Generator Agent **scaffolds new agent specifications** (`.md`) and reg
 
 ## 9. EXAMPLES
 
-*   **Wiki Update (Success, Task-Driven):** `*   **[Timestamp] AgentGeneratorAgent:** TaskId 'task_ghi': Created `rules-md/agents/data-validation-agent.md` and added entry to `rules-md/agent-roles.md`. Task marked done. Triggering Overmind.`
+*   **Wiki Update (Success, Task-Driven):** `*   **[Timestamp] AgentGeneratorAgent:** TaskId 'task_ghi': Created `.cursor/rules/agents/data-validation-agent.md` and added entry to `.cursor/rules/agent-roles.md`. Task marked done. Triggering Overmind.`
 *   **Chat Trigger (Success, Task-Driven):** "Hey Overmind, Completed TaskId 'task_ghi'. Scaffolded 'DataValidationAgent'. See wiki."
 
 ## 10. REFERENCES
 
-*   [Core Execution Loop](mdc:execution-loop.md)
+*   [Core Execution Loop]\1.mdc)
 *   [`global-mandates.md`](../global-mandates.md)
-*   [Wiki Handling](mdc:wiki-handling.md)
-*   [Agent Roles & Responsibilities](mdc:agent-roles.md) 
+*   [Wiki Handling]\1.mdc)
+*   [Agent Roles & Responsibilities]\1.mdc) 
