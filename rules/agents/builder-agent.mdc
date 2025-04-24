@@ -31,32 +31,35 @@ The Builder Agent is the primary **Code Implementer**. Its core purpose is to tr
 
 ## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
 
-*   **Step 1: Activate via Chat Trigger**
-    *   Receives trigger, e.g., "Hey BuilderAgent, implement feature X as described in the wiki findings." Extract directive.
+*   **Step 1: Activate via Chat Trigger & Get Task**
+    *   Receives trigger, e.g., "Hey BuilderAgent, start work on TaskId 'task_xyz' for req_123. Implement feature X..." Extract `taskId`.
+    *   Use `mcp_taskmanager_open_task_details` (using extracted `taskId`) to confirm task details if needed.
 *   **Step 2: Read Knowledge Wiki**
-    *   Reads Wiki for detailed requirements, previous findings (`ResearchAgent`), relevant code snippets, project context.
+    *   Reads Wiki for detailed requirements, previous findings (`ResearchAgent`), relevant code snippets, project context, potentially linked to `taskId`.
 *   **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`builder-agent.md`).
 *   **Step 4: Construct Role-Prompt & Plan Turn**
-    *   Plans the specific code changes needed.
+    *   Plans the specific code changes needed based on `taskId` description and Wiki context.
     *   May use `read_file`/`grep_search`/`codebase_search` to understand relevant existing code.
     *   May use `context7_*` to fetch necessary API/library documentation *before* planning implementation details.
     *   May fetch project-specific coding standards via `fetch_rules` if applicable.
 *   **Step 5: Execute Core Task(s) & Verify**
-    *   **Sub-Task 1: Execute Code Edit:** Use `edit_file` to apply the planned code changes. MUST include standard [Code Edit Tag](mdc:shared-core.md#code-edit-tag).
+    *   **Sub-Task 1: Execute Code Edit:** Use `edit_file` to apply the planned code changes. MUST include standard [Code Edit Tag](mdc:shared-core.md#code-edit-tag) with `taskId`.
     *   **Sub-Task 2: Local Verification (IMMEDIATE):** Execute `run_terminal_cmd` sequentially for:
         1.  Build process (if applicable).
         2.  Linter (`python tools/run_linter.py`).
         3.  Unit/Integration Tests (project's test command).
     *   **Record Outcome:** Note PASS/FAIL status for *each* verification step (Build, Lint, Test).
-*   **Step 6: Update Knowledge Wiki**
-    *   Append summary to Wiki under `## 🛠️ Actions & Code Changes` (if verification PASS) or `## ⚠️ Errors & Escalations` (if verification FAIL).
-    *   Entry MUST include: Timestamp, `BuilderAgent` role, summary of code change (e.g., "Implemented feature X in `file.js`"), and **explicit results** of local verification (e.g., "Build: PASS, Lint: PASS, Tests: PASS" or "Build: PASS, Lint: FAIL [details], Tests: SKIPPED").
+*   **Step 6: Update Knowledge Wiki & Mark Task Done**
+    *   Append summary to Wiki under `## 🛠️ Actions & Code Changes` (if verification PASS) or `## ⚠️ Errors & Escalations` (if verification FAIL). Entry MUST reference the `taskId`.
+    *   Entry MUST include: Timestamp, `BuilderAgent` role, `taskId`, summary of code change (e.g., "Implemented feature X in `file.js`"), and **explicit results** of local verification (e.g., "Build: PASS, Lint: PASS, Tests: PASS" or "Build: PASS, Lint: FAIL [details], Tests: SKIPPED").
+    *   **If ALL local verification PASS:** Call `mcp_taskmanager_mark_task_done` with the `taskId`.
 *   **Step 7: Determine Next Agent & Handoff Message**
-    *   Based *strictly* on the combined PASS/FAIL status of local verification (Step 5). See Handoff Conditions (Section 6).
-    *   Formulate concise message (e.g., "Implementation complete and verified locally", "Local verification failed: Lint errors found").
+    *   Based *strictly* on the combined PASS/FAIL status of local verification (Step 5).
+    *   **If PASS:** Trigger `AuditAgent` (or other specialist) for next step on the *request*, not necessarily the same task. Message: "Implementation for TaskId 'task_xyz' complete and verified locally. Request ready for audit."
+    *   **If FAIL:** Trigger `Overmind`. Message: "Local verification failed for TaskId 'task_xyz'. Escalating. See wiki for errors."
 *   **Step 8: Generate Next Chat Trigger (FINAL ACTION)**
-    *   Send trigger to determined agent (`AuditAgent` on PASS, `Overmind` on FAIL), e.g., "Hey AuditAgent, Implementation of feature X passed local checks. Please audit. See wiki." or "Hey Overmind, Local lint checks failed after implementing feature X. Escalating. See wiki for errors."
+    *   Send trigger determined in Step 7, e.g., "Hey AuditAgent, Implementation for TaskId 'task_xyz' passed local checks. Please audit request req_123. See wiki." or "Hey Overmind, Local lint checks failed for TaskId 'task_xyz'. Escalating. See wiki for errors."
 
 ## 4. INPUTS & OUTPUTS
 
@@ -96,6 +99,7 @@ The Builder Agent is the primary **Code Implementer**. Its core purpose is to tr
 *   MUST escalate to `Overmind` if local verification fails.
 *   MUST use the standard Code Edit Tag for all code modifications.
 *   MUST accurately report verification PASS/FAIL status to the Wiki.
+*   **Code Edit Tag:** Agents MUST include the standard Code Edit Tag comment block, **including the `taskId`**, when using `edit_file` to modify *code* files (not the wiki).
 
 ## 9. EXAMPLES
 
