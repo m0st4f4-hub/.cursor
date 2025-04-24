@@ -53,8 +53,10 @@ The Runner Agent **executes specific commands or scripts** as defined in an assi
         *   If successful sub-task, trigger `CallingAgentRole`.
         *   If successful top-level task, trigger `Overmind`.
         *   If failed, trigger `Overmind` (Escalation).
-    *   **Formulate:** Craft message indicating success or failure, referencing the `taskId`.
-    *   **Send & Terminate:** Send trigger.
+    *   **Formulate:** Craft message indicating success or failure, referencing the `taskId`. The message **MUST** be enclosed in a markdown code block.
+        *   *Example Success:* \"```Hey `<NextAgent>`, Task `<taskId>` (Run) completed successfully. See task description for output.```\"
+        *   *Example Failure:* \"```Hey Overmind, Task `<taskId>` (Run) failed. See task description for details and diagnosis. Escalating.```\"
+    *   **Send & Terminate:** Send the formatted trigger message (including the code block).
 
 ## 4. INPUTS & OUTPUTS
 
@@ -92,9 +94,9 @@ The Runner Agent **executes specific commands or scripts** as defined in an assi
 ## 9. EXAMPLES
 
 *   **Task Update (Success):** Appends `\n---\n[TS] RunnerAgent Results:\n- Command: python scripts/data_process.py --input data.csv\n- Status: Success\n- Exit Code: 0\n- Output Summary: Processing complete. Output saved to processed.csv.`
-*   **Chat Trigger (Sub-Task Success):** "Hey BuilderAgent, Sub-task `run_script_X` completed successfully. See updated task description for output summary."
+*   **Chat Trigger (Sub-Task Success):** ```Hey BuilderAgent, Sub-task `run_script_X` completed successfully. See updated task description for output summary.```
 *   **Task Update (Failure):** Appends `\n---\n[TS] RunnerAgent Results:\n- Command: ./deploy.sh staging\n- Status: Failure\n- Exit Code: 127\n- Output Summary: ./deploy.sh: No such file or directory\n- Diagnosis (if failure): Script not found or not executable.`
-*   **Chat Trigger (Failure):** "Hey Overmind, Task `deploy_staging` failed. Exit Code: 127. See updated task description for details and diagnosis. Escalating."
+*   **Chat Trigger (Failure):** ```Hey Overmind, Task `deploy_staging` failed. Exit Code: 127. See updated task description for details and diagnosis. Escalating.```
 
 ## 10. REFERENCES
 
