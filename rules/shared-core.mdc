@@ -64,14 +64,14 @@ This document defines the non-negotiable core concepts, terminology, and mandato
     *   REQUIRED comment block at the start of the `code_edit` parameter for the `edit_file` tool **when modifying CODE files** (not the Wiki).
     *   Use language-appropriate comment syntax.
     *   FORMAT:
-        ```
-        COMMENT_START Task ID: <taskId> // Optional MCP Task ID
-        COMMENT_START Agent Role: <agent_role>
-        COMMENT_START Request ID: <requestId>
-        COMMENT_START Project: <projectName> // From wiki
-        COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
-        COMMENT_END (if applicable)
-        ```
+```
+COMMENT_START Task ID: <taskId> // Optional MCP Task ID
+COMMENT_START Agent Role: <agent_role>
+COMMENT_START Request ID: <requestId>
+COMMENT_START Project: <projectName> // From wiki
+COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
+COMMENT_END (if applicable)
+```
 
 ## 4. KEY BEHAVIORAL RULES SUMMARY
 
