@@ -2,115 +2,133 @@
 # Rule Definition Metadata (V1)
 ruleId: execution-loop
 ruleType: Procedure
-title: Core Agent Execution Loop (Chat Coordination)
-description: Defines the mandatory, sequential steps each agent MUST follow during its execution turn within the Chat Trigger framework.
+title: Core Agent Execution Loop (MCP Coordination)
+description: Defines the mandatory, sequential steps each agent MUST follow, coordinated via MCP Task Manager and minimal Chat Triggers.
 schemaVersion: 1
 conformsTo: null
-tags: [core, framework, procedure, execution, agent-turn]
+tags: [core, framework, procedure, execution, agent-turn, mcp]
 lastUpdated: null
 status: Active
 ---
 
-# 🔄 Core Execution Loop (MANDATORY - Wiki-less, MCP-based Reporting)
+# 🔁 Core Agent Execution Loop (MCP Coordination)
 
-**PURPOSE:** Defines the mandatory, sequential steps each agent MUST follow during its execution turn. Ensures consistency, traceability, and controlled handoffs using **MCP Task Manager for state/results** and Chat Triggers for communication.
+Defines the mandatory sequence ALL agents MUST follow each turn, relying on MCP Task Manager for state.
 
-**CONTEXT:** This loop is initiated when an agent is activated by a **Chat Trigger**. Assumes access to necessary tools (`fetch_rules`, Chat mechanism, MCP Task Manager tools).
+## 1. PURPOSE & OBJECTIVES
 
-**PRINCIPLES (MANDATORY):**
-- **SEQUENTIAL:** Steps MUST be executed in the specified order (1-6, previously 1-8).
-- **IDEMPOTENT (where applicable):** Strive for safe repetition.
-- **STATEFUL VIA MCP:** Task context/results are primarily maintained within MCP Task descriptions. Agents MUST fetch task details (Step 2) and MUST update the task description upon completion (New Step 5).
-- **ROLE-DRIVEN:** Behavior dictated by Role Spec.
-- **NO WAITING (Except Diagnostics):** Proceed autonomously.
-- **FINAL ACTION = TRIGGER:** Turn concludes *only* by generating a Chat Trigger (Step 6).
+Ensure consistent, predictable, and auditable agent behavior using MCP Task Manager as the central state store.
 
-## WORKFLOW (MANDATORY STEPS 1-6)
+*   **Standardization:** Enforce uniform execution flow.
+*   **Context via MCP:** Agents fetch task details directly from MCP.
+*   **Role Adherence:** Agents fetch and use their defined rules.
+*   **State via MCP:** Mandate MCP task updates for traceability.
+*   **Coordination:** Define minimal handoff via Chat Triggers.
+*   **Error Handling:** Standardize escalation via MCP/Chat.
 
-### Step 1: Activate via Chat Trigger & Get Context
-1.  **RECEIVE TRIGGER:** Agent activated by a Chat Trigger.
-2.  **PARSE TRIGGER:** Extract critical info:
-    *   `requestId`.
-    *   `taskId` (primary task or sub-task).
-    *   **Trigger Type:** (standard activation, sub-task delegation, sub-task completion).
-    *   **Calling Agent:** (if sub-task related).
-3.  **STORE CONTEXT:** Keep parsed info locally for the turn.
+## 2. CORE BEHAVIOR
 
-### Step 2: Fetch Task Details & Role Specification
-1.  **FETCH TASK DETAILS (MANDATORY):** Use `mcp_taskmanager_open_task_details` with the `taskId` received in Step 1. Extract the task description and any other relevant details. This serves as the primary context for the task.
-2.  **FETCH RULES:** Use `fetch_rules` for the agent's own role specification.
-3.  **STORE CONTEXT/RULES:** Load task details and role spec into working memory.
+*   Sequential execution of Steps 1-7 is MANDATORY.
+*   No steps skipped unless part of defined error handling (HALT).
+*   MCP Task Manager is the **sole source and sink** for task-related state and context.
 
-### Step 3: Construct Role-Prompt & Plan Turn (Previously Step 4)
-1.  **SYNTHESIZE CONTEXT:** Combine info from Trigger (Step 1), MCP Task Details (Step 2), and Role Spec (Step 2).
-2.  **ANALYZE & PLAN:** Based on context, role, and trigger type, formulate a plan for **Step 4 (Execute Core Task)**.
-    *   Plan execution, decomposition, integration of sub-task results (from completed sub-task descriptions), etc.
-    *   Identify tools, sequence actions, consider errors.
-3.  *(Self-Correction/Refinement):* Review plan.
+## 3. ACTION SEQUENCE (MANDATORY STEPS)
 
-### Step 4: Execute Core Task(s) (Previously Step 5)
-1.  **EXECUTE PLAN:** Perform actions using authorized tools.
-    *   Standard execution, creating sub-tasks (`mcp_taskmanager_add_tasks_to_request`), integrating results (by fetching completed sub-task descriptions via `mcp_taskmanager_open_task_details`).
-2.  **HANDLE TOOL OUTPUTS:** Process and store results/summaries needed for Step 5.
-3.  **DIAGNOSTICS (USER INPUT - STRICTLY LIMITED):**
-    *   *Condition:* Critical ambiguity or tool error, AND role spec permits.
-    *   *Action:* Ask specific question, state HALT.
-    *   *Constraint:* MUST NOT proceed until user responds & new turn initiated (likely via `Overmind`).
+**Step 1: Activate via Chat Trigger & Parse**
+*   **Action:** Receive directed trigger message.
+*   **Input:** Chat message (e.g., "Hey `BuilderAgent` 🏗️ Task `task_123` ready. See MCP.").
+*   **Process:** Parse target role, `requestId`, `taskId`. Note trigger emoji/status.
+*   **Output:** Internal variables (`targetRole`, `requestId`, `taskId`).
 
-### Step 5: Update Task Description with Results (New Step - Replaces Wiki Update)
-1.  **SYNTHESIZE RESULTS:** Consolidate the key outcomes, findings, actions taken, errors encountered, verification results (if any), or sub-tasks created/delegated from Step 4 into a concise summary.
-2.  **FETCH CURRENT DESCRIPTION (Optional but Recommended):** Use `mcp_taskmanager_open_task_details` for the current `taskId` to get the existing description, if planning to append.
-3.  **FORMAT UPDATE:** Prepare the new description. This might involve appending the summary to the existing description. Format clearly (e.g., using Markdown, timestamp).
-    *   *Example Appended Summary:* `\n---\n[Timestamp] AgentRole: [Summary of actions/findings/results for this turn]...`
-4.  **UPDATE TASK:** Use `mcp_taskmanager_update_task` with the current `taskId` and the new/updated `description`.
-    *   **CRITICAL:** This step applies to the task the agent *just worked on*. If delegating a *new* sub-task, the *calling* agent updates its *own* task description before delegating.
+**Step 2: Fetch Own Role Specification**
+*   **Action:** Retrieve agent's specific operational rules.
+*   **Tooling:** `fetch_rules` (target: `<AgentRole>.md`).
+*   **Input:** Agent's own role name.
+*   **Process:** Fetch rule file content.
+*   **Output:** Fetched rule text.
 
-### Step 6: Determine Next Agent & Generate Trigger (Previously Step 7 & 8)
-1.  **ASSESS OUTCOME:** Based on Step 4/5 results, role spec, and trigger type:
-    *   (Logic for selecting Next Agent: `Overmind`, `CallingAgentRole`, `SubAgentRole` remains similar to previous version based on task completion, delegation, or error).
-2.  **FORMULATE HANDOFF MESSAGE:** Craft message based on the scenario:
-    *   (Message content remains similar: Standard Completion, Sub-Task Delegation, Sub-Task Completion, Escalation). **Crucially, results are NO LONGER referenced via Wiki.** Instead, the message might implicitly rely on the receiving agent fetching the updated task description OR include only essential pointers.
-    *   *Example Sub-Task Completion Message:* "Sub-task `<sub_taskId>` (Parent: `<parent_taskId>`) completed. Updated description contains summary."
-3.  **FORMAT & SEND TRIGGER:** Construct "Hey `<NextAgentRole>`, [Handoff Message]" and send via Chat Mechanism.
-4.  **TERMINATE TURN:** Agent's turn concludes immediately. Output MUST end with the trigger.
+**Step 3: Get Task Context & Plan Turn**
+*   **Action:** Fetch task details from MCP and plan execution.
+*   **Tooling:** `mcp_taskmanager_open_task_details`, Role-specific analysis tools.
+*   **Input:** `taskId` (from Step 1), Fetched rules (Step 2).
+*   **Process:**
+    1.  **MANDATORY:** Call `mcp_taskmanager_open_task_details` using `taskId`. Extract description, status, title etc. This description IS the primary context.
+    2.  Construct internal prompt: "Act *strictly* as `<AgentRole>` based on these rules [rules text]. Task Details: [MCP task details]. Goal: [Inferred from task details]."
+    3.  Plan specific tool calls (`edit_file`, `run_terminal_cmd`, etc.) needed for Step 4, including parameters. Base plan on task details and role spec. **Plan aggressive use of authorized tools (Global Mandate #6).**
+*   **Output:** Task details, Internal prompt string, structured plan.
+
+**Step 4: Execute Core Task(s) & Verify**
+*   **Action:** Perform agent's primary function(s) using planned tool calls.
+*   **Tooling:** Role-specific authorized tools.
+*   **Input:** Plan (Step 3), Task details (Step 3).
+*   **Process:** Execute planned tool calls sequentially. Verify outputs/success where applicable. Store key results/findings/errors *internally* for Step 5.
+*   **Output:** Tool results, internal state changes, collected findings/errors.
+*   **EXCEPTION - Diagnostics:** If ambiguity requires user input:
+    1. Prepare concise question based on ambiguity.
+    2. Plan HALT procedure (escalate to `Overmind` via Step 6/7).
+
+**Step 5: Update MCP Task State**
+*   **Action:** Persist execution results/status back to the MCP Task.
+*   **Tooling:** `mcp_taskmanager_update_task`, `mcp_taskmanager_mark_task_done`, `mcp_taskmanager_add_tasks_to_request`.
+*   **Input:** `taskId`, Results/findings/errors from Step 4, Task completion status.
+*   **Process:**
+    1.  **Append Findings/Logs:** If results, findings, errors, or logs were generated, call `mcp_taskmanager_update_task` to append a concise, timestamped summary to the **existing task description**. This replaces Wiki logging. Structure entries clearly (e.g., `[Timestamp] <AgentRole> FINDING: ...`, `[Timestamp] <AgentRole> ERROR: ...`).
+    2.  **Handle Decomposition:** If decomposition occurred (Step 4), ensure `mcp_taskmanager_add_tasks_to_request` was called and parent task description notes the sub-tasks.
+    3.  **Mark Done (If Applicable):** If task execution (Step 4) was successful and complete according to role logic, call `mcp_taskmanager_mark_task_done`.
+*   **Output:** Updated MCP Task state.
+
+**Step 6: Determine Next Agent & Handoff Message**
+*   **Action (Internal):** Decide next agent based on role spec and outcome (from Step 4/5).
+*   **Input:** Role spec (Step 2), Step 4/5 outcome (Success, Failure, Decomposition, Sub-task Done).
+*   **Process:** Follow role-specific handoff logic. Determine `<NextAgentRole>`. Handoff message is **minimal**.
+*   **Output:** `<NextAgentRole>`, Status emoji.
+
+**Step 7: Generate Next Chat Trigger (FINAL ACTION)**
+*   **Action:** Initiate minimal handoff.
+*   **Tooling:** Framework Chat Mechanism.
+*   **Input:** `<NextAgentRole>`, Status emoji (Step 6), `taskId`.
+*   **Process:** Format minimal trigger: "Hey `<NextAgentRole>` [emoji] Task `taskId` ready. See MCP.". Send trigger.
+*   **Output:** Sent chat message. Turn concludes.
 
 ---
-**FAILURE CONDITION (HALT):** If critical error or diagnostic input needed:
-1.  *(Attempt Step 5 if possible):* Update task description via `mcp_taskmanager_update_task` with error details.
-2.  Determine `Overmind` as next agent (Step 6.1).
-3.  Generate trigger (Step 6.3/6.4) to `Overmind`, indicating HALT.
+**FAILURE CONDITION (HALT):**
+1.  Log error details concisely via `mcp_taskmanager_update_task` (Step 5).
+2.  Determine `Overmind` as next agent (Step 6).
+3.  Generate trigger (Step 7) to `Overmind` indicating HALT (e.g., "Hey `Overmind` ⚠️ Task `taskId` HALTED. See MCP.").
 4.  Terminate.
 
-## INPUTS & OUTPUTS
+## INPUTS & OUTPUTS (Revised)
 
-*   **Input:** Chat Trigger message, MCP Task Details (`mcp_taskmanager_open_task_details`), Role Specification.
-*   **Output:** Updated MCP Task Description (`mcp_taskmanager_update_task`), Final Chat Trigger message.
+*   **Input:** Chat Trigger, Role Specification, MCP Task Details.
+*   **Output:** Updated MCP Task State (Description, Status), Final minimal Chat Trigger.
 
-## TOOLS
+## TOOLS (Highlighting MCP)
 
-*   `mcp_taskmanager_open_task_details` (Mandatory)
-*   `mcp_taskmanager_update_task` (Mandatory for reporting)
-*   `fetch_rules` (Mandatory)
-*   Agent-specific authorized tools (MCP task creation, analysis, execution)
+*   `fetch_rules`
+*   `mcp_taskmanager_open_task_details` (MANDATORY for context)
+*   `mcp_taskmanager_update_task` (MANDATORY for logging/findings)
+*   `mcp_taskmanager_mark_task_done` (Conditional)
+*   `mcp_taskmanager_add_tasks_to_request` (Conditional)
+*   Agent-specific authorized tools (`edit_file`, `run_terminal_cmd`, etc.)
 *   Framework Chat Mechanism
 
 ## HANDOFF CONDITIONS
 
-*   Successful completion of Step 6 triggers the next agent.
+*   Completion of Step 7 triggers the next agent based on MCP state and role logic.
 
 ## ERROR HANDLING
 
-*   **MCP/Rule Fetch Failure:** HALT immediately, trigger `Overmind`.
+*   **Rule Read Failure:** HALT, trigger `Overmind`.
+*   **MCP Tool Failure:** Log error to parent task (if possible), HALT, trigger `Overmind`.
 *   **Tool Failure / Ambiguity (Step 4):** Follow Diagnostics/HALT procedure.
-*   **MCP Update Failure (Step 5):** Attempt retry if sensible. If still fails, HALT, trigger `Overmind`.
-*   **Sub-Task HALT:** Triggers `Overmind`. `Overmind` needs to fetch task details (`taskId` provided in HALT trigger) to understand context.
 
-## CONSTRAINTS & FORBIDDEN PATTERNS
+## CONSTRAINTS & FORBIDDEN PATTERNS (Revised)
 
-*   MUST follow steps 1-6 sequentially.
-*   MUST fetch task details (Step 2).
-*   MUST update task description (Step 5).
-*   MUST conclude with Step 6 Trigger.
+*   MUST follow steps 1-7 sequentially.
+*   MUST use MCP Task Manager as the sole state mechanism. Reading/writing external state files (like Wiki) is FORBIDDEN.
+*   MUST fetch context via `mcp_taskmanager_open_task_details`.
+*   MUST log findings/results/errors by appending to the MCP task description via `mcp_taskmanager_update_task`.
+*   MUST conclude with Step 7 minimal Chat Trigger.
 *   MUST handle different trigger types correctly.
 
 ## 9. EXAMPLES
@@ -119,6 +137,6 @@ status: Active
 
 ## 10. REFERENCES
 
-*   [`global-mandates.md`](./global-mandates.md)
+*   [`global-mandates.md`](./global-mandates.md) (Needs revision)
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
-*   [Shared Core Concepts & Rules](mdc:shared-core.md)
+*   MCP Task Manager Tool Specs
