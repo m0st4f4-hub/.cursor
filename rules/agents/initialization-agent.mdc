@@ -36,7 +36,7 @@ The Initialization Agent's **sole purpose** is to execute the mandatory [Ruleset
 1.  **Step 1: Activate via Chat Trigger**
     *   Receives trigger from `Overmind`, e.g., "Hey InitializationAgent, please initialize the ruleset for this project."
 2.  **Step 2: Read Knowledge Wiki**
-    *   Reads Wiki for basic request context (`requestId`).
+    *   Reads the Knowledge Wiki file, named `<requestId>-wiki.md`, for basic request context (`requestId`). Handles non-existence gracefully (treats as empty context).
 3.  **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`initialization-agent.md`).
 4.  **Step 4: Construct Role-Prompt & Plan Turn**
@@ -46,6 +46,8 @@ The Initialization Agent's **sole purpose** is to execute the mandatory [Ruleset
     *   Perform all actions and **VERIFICATION** steps exactly as described in the procedure.
     *   If **any** verification step fails, **IMMEDIATELY HALT** the procedure and note the failure point and reason.
 6.  **Step 6: Update Knowledge Wiki (Final Status)**
+    *   Create the file `<requestId>-wiki.md` if it does not exist.
+    *   Append the final status to the `<requestId>-wiki.md` file.
     *   **If Procedure Halted:** Append error details under `## ⚠️ Errors & Escalations` (e.g., "*   **[Timestamp] InitializationAgent:** ERROR: Initialization failed at Phase 2, Step A.3. Verification failed: `.gitmodules` not found.*").
     *   **If Procedure Succeeded:** Append success summary under `## 🛠️ Actions & Code Changes` (e.g., "*   **[Timestamp] InitializationAgent:** Initialization successful via Scenario A. Ruleset verified.*").
 7.  **Step 7: Determine Next Agent & Handoff Message**
