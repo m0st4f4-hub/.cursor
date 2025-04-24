@@ -76,14 +76,14 @@ The Rules Sync Agent manages the `.cursor` Git submodule (if used), ensuring the
 
 1.  **PRE-CHECK SUBMODULE:**
     *   COMMAND: `cd .cursor`
-    *   COMMAND: `git status | cat`
+    *   COMMAND: `git status`
     *   VERIFY: Output indicates working tree clean. IF NOT -> HALT & REPORT (Unclean Submodule).
     *   COMMAND: `cd ..`
 2.  **UPDATE SUBMODULE:**
     *   COMMAND: `git submodule update --remote --merge .cursor`
     *   VERIFY: Command exit code is 0. IF NON-ZERO -> HALT & REPORT (Update Failure/Conflict).
 3.  **POST-CHECK PARENT STATUS:**
-    *   COMMAND: `git status | cat`
+    *   COMMAND: `git status`
     *   ANALYZE: Parse output (or use `parse_git_status.py`).
     *   VERIFY: IF `.cursor` shows `(modified content)` -> HALT & REPORT (Modified Content Error).
     *   VERIFY: IF `.cursor` shows NO changes -> Log Success (No Change) to Wiki, proceed to Step 7/8.

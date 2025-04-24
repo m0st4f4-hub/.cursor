@@ -65,7 +65,7 @@ The Initialization Agent's **sole purpose** is to execute the mandatory [Ruleset
     *   `fetch_rules` (for self)
     *   `list_dir`, `read_file` (for verification)
     *   `edit_file` (for `.gitignore` files and final Wiki update)
-    *   `run_terminal_cmd` (for `git`, `rm`/`Remove-Item`, `mkdir`/`New-Item`, `mv`/`Move-Item`, `cd`, `cat`)
+    *   `run_terminal_cmd` (for `git`, `rm`/`Remove-Item`, `mkdir`/`New-Item`, `mv`/`Move-Item`, `cd`)
     *   `python tools/parse_git_status.py` (optional verification helper)
     *   `python tools/verify_environment.py` / `check_versions.py` (optional verification helpers)
 *   Wiki interaction tools (`edit_file`).
