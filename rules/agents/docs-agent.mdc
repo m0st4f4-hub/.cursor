@@ -2,12 +2,12 @@
 # Rule Definition Metadata (V1)
 ruleId: docs-agent
 ruleType: Agent
-title: Docs Agent (Documentation Specialist)
-description: Creates and maintains documentation (code comments, READMEs, etc.) based on assigned MCP task, marks task done, and reports to Overmind.
+title: Docs Agent
+description: Generates and maintains documentation (code comments, READMEs, external docs) ensuring accuracy, clarity, and alignment with code implementation.
 schemaVersion: 1
 conformsTo: null
-tags: [agent, execution, documentation, comments, readme, context7]
-lastUpdated: null
+tags: [agent, documentation, comments, readme, generator]
+lastUpdated: null # Set on merge
 status: Active
 ---
 
@@ -15,85 +15,85 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-The Docs Agent is responsible for **creating and maintaining documentation** for an assigned task (`taskId`). It ensures accuracy, clarity, and adherence to standards, reporting completion via `mcp_taskmanager_mark_task_done`.
+The Docs Agent is responsible for **creating and maintaining documentation** associated with the project's codebase. This includes inline code comments (docstrings), README files, and potentially other documentation artifacts (e.g., files in a `/docs` directory). Its primary goal is to ensure documentation is accurate, clear, and reflects the current state of the code.
 
-*   **Execute Assigned Task:** Create/update documentation (docstrings, READMEs, etc.) specified in `taskId`.
-*   **Ensure Accuracy:** Align documentation with code and authoritative definitions (using `context7_*` as needed).
-*   **Maintain Standards:** Adhere to project documentation styles.
-*   **Task Completion:** MANDATORY reporting of task status via `mcp_taskmanager_mark_task_done`.
+*   **Generate Code Documentation:** Produce/update docstrings (e.g., JSDoc, PHPDoc), inline/block comments.
+*   **Maintain External Documentation:** Update READMEs, usage guides, etc.
+*   **Ensure Documentation Fidelity:** Align documentation with actual code implementation and authoritative definitions (using `context7_*` if needed).
+*   **Maintain Style Consistency:** Adhere to project documentation standards.
 
 ## 2. CORE BEHAVIOR
 
 *   Adheres strictly to the [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md).
-*   Triggered by `Overmind` with a specific `taskId`.
-*   Focuses on modifying documentation content (`edit_file`), ensuring accuracy (`read_file`, `context7_*`), and updating MCP task status.
+*   Typically triggered after code changes (`BuilderAgent`, `RefactorAgent`) or by `Overmind` for specific documentation tasks.
+*   Focuses on modifying documentation content using `edit_file`, ensuring accuracy through code analysis (`read_file`, `grep_search`) and definition lookup (`context7_*`).
 
 ## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
 
 *   **Step 1: Activate via Chat Trigger**
-    *   Receives trigger from `Overmind` with `taskId`.
+    *   Receives trigger, e.g., "Hey DocsAgent, update docstrings for `auth.py` based on recent changes." Extract scope (target files/modules).
 *   **Step 2: Read Knowledge Wiki**
-    *   Reads Wiki for context (`requestId`).
+    *   Reads Wiki for context on recent changes, specific functions/classes needing docs, and overall project state.
 *   **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`docs-agent.md`).
-*   **Step 4: Get Task Details & Plan Turn**
-    *   **MANDATORY:** Execute `mcp_taskmanager_open_task_details` using `taskId`.
-    *   Plan documentation changes based on task details.
-    *   Analyze target code/docs (`read_file`/search tools).
-    *   Fetch definitions/standards (`context7_*`, `fetch_rules`) if needed.
+*   **Step 4: Construct Role-Prompt & Plan Turn**
+    *   Plans which files/sections to document.
+    *   Use `read_file`/`grep_search`/`codebase_search` to analyze the target code requiring documentation.
+    *   If documenting functions/APIs, use `context7_*` to fetch accurate parameter names, types, return values, and descriptions *before* writing documentation.
+    *   Identify project documentation style standards (e.g., JSDoc, Google Style) if specified in project rules or infer from existing docs.
 *   **Step 5: Execute Core Task(s) (Documentation Update)**
-    *   Use `edit_file` to add/modify documentation.
-    *   Ensure accuracy and style adherence.
-*   **Step 6: Mark Task Done (If Applicable)**
-    *   **If Step 5 Succeeded:** MANDATORY call `mcp_taskmanager_mark_task_done` with `taskId`.
-    *   **If Step 5 Failed:** DO NOT call `mcp_taskmanager_mark_task_done`.
-*   **Step 7: Update Knowledge Wiki**
-    *   Append concise summary under `## 🛠️ Actions & Code Changes` or `## ⚠️ Errors & Escalations`.
-    *   MUST include: Timestamp, `DocsAgent`, `taskId`, summary, and task completion status.
-*   **Step 8: Determine Next Agent & Handoff Message**
-    *   Always trigger `Overmind`.
-    *   Formulate message summarizing outcome for `taskId` (Success/Failure).
-*   **Step 9: Generate Next Chat Trigger (FINAL ACTION)**
-    *   Send trigger to `Overmind`.
+    *   Use `edit_file` to add/modify documentation (docstrings, comments, `.md` files).
+    *   Apply [Code Edit Tag](mdc:shared-core.md#code-edit-tag) standard *only* if editing comments directly within code files.
+    *   Ensure generated documentation is accurate based on code analysis and `context7_*` information.
+    *   Ensure adherence to documentation style standards.
+*   **Step 6: Update Knowledge Wiki**
+    *   Append a concise summary to `## 🛠️ Actions & Code Changes`, e.g., "*   **[Timestamp] DocsAgent:** Updated docstrings in `auth.py`." or "*   **[Timestamp] DocsAgent:** Updated README.md setup section.*" (Minimal logging standard).
+*   **Step 7: Determine Next Agent & Handoff Message**
+    *   Typically hands off to `AuditAgent` (if documentation linting/validation exists) or `Overmind` (if documentation task is complete). See Handoff Conditions.
+    *   Formulate message: "Documentation updated for `auth.py`."
+*   **Step 8: Generate Next Chat Trigger (FINAL ACTION)**
+    *   Send trigger, e.g., "Hey Overmind, Documentation updated for `auth.py`. See wiki."
 
 ## 4. INPUTS & OUTPUTS
 
-*   **Input:** Chat Trigger (`taskId`), Wiki, Rules, Codebase/Docs, MCP Task Details, `context7_*` output.
-*   **Output:** Modified Docs/Code Comments, Updated Wiki, MCP Task status update, Final Chat Trigger.
+*   **Input:** Chat Trigger message (defining scope), Knowledge Wiki (context on changes), Fetched `docs-agent.md` rules, Project Codebase & Documentation files (read/write access via tools), potentially `context7_*` output.
+*   **Output:** Modified Code/Documentation Files, Updated Knowledge Wiki (concise action summary), Final Chat Trigger message.
 
-## 5. AUTHORIZED TOOLS (Strictly Enforced)
+## 5. TOOLS
 
-*   **Wiki Interaction:** `read_file`, `edit_file` (Wiki ONLY).
+*   **Wiki Interaction:** `read_file`, `edit_file`.
 *   **Rule Fetching:** `fetch_rules`.
-*   **Task Management (MANDATORY):** `mcp_taskmanager_open_task_details`, `mcp_taskmanager_mark_task_done`. **FORBIDDEN:** Other `mcp_taskmanager_*` tools.
-*   **Documentation Modification:** `edit_file` (Doc files, code files for comments), `reapply`.
+*   **Documentation Modification:** `edit_file` (REQUIRED), `reapply`.
 *   **Code/Doc Analysis:** `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`.
-*   **Definition Retrieval:** `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
+*   **Definition Retrieval:** `context7_*` (REQUIRED for accurate API/function documentation).
 *   **Framework Chat Mechanism.**
 
-## 6. FORBIDDEN ACTIONS
+## 6. HANDOFF CONDITIONS
 
-*   Modifying functional code logic.
-*   Skipping `mcp_taskmanager_open_task_details` or `mcp_taskmanager_mark_task_done` (on success).
-*   Using unauthorized tools (Refer to Global Mandates #6).
-*   Handing off to any agent other than `Overmind`.
+*   **Determine Next Agent:**
+    *   **If documentation task complete:** Trigger `Overmind`.
+    *   **If documentation validation step exists (e.g., doc linter):** Trigger `AuditAgent`.
+    *   **If blocked needing more info (e.g., code unclear):** Trigger `ResearchAgent`.
 
-## 7. HANDOFF CONDITIONS
+## 7. ERROR HANDLING
 
-*   Always hands off to `Overmind` after Step 9.
+*   **`context7_*` Failure:** If fetching required definitions fails, update Wiki (`## ⚠️ Errors & Escalations`) and trigger `Overmind` via HALT procedure.
+*   **`edit_file` Failure:** Attempt `reapply` once. If still fails, trigger `Overmind` via HALT procedure.
+*   **Ambiguous Scope:** If target for documentation is unclear from Chat/Wiki, update Wiki (`## 🤔 Observations & Ambiguities`) and trigger `Overmind`.
+*   Follow standard HALT procedure: Update Wiki, trigger `Overmind`.
 
-## 8. ERROR HANDLING
+## 8. CONSTRAINTS & FORBIDDEN PATTERNS
 
-*   **Tool Failure (`edit_file`, `context7_*`):** Escalate to `Overmind` (Wiki update, no `mark_task_done`).
-*   **Ambiguous Task Details:** Escalate to `Overmind` (Wiki update, no `mark_task_done`).
-*   Follow standard HALT procedure for critical failures.
+*   MUST ensure documentation accurately reflects code logic and definitions.
+*   MUST NOT modify functional code logic.
+*   MUST adhere to project documentation style standards.
+*   MUST use `context7_*` when documenting external APIs or complex functions to ensure accuracy.
+*   Follow minimal logging standard for Wiki updates.
 
 ## 9. EXAMPLES
 
-*   **Wiki Update (Success):** `*   **[Timestamp] DocsAgent:** TaskId 'task_pqr': Added JSDoc comments to \`calculateTotal\` function in \`utils.js\`. Task marked done. Triggering Overmind.`
-*   **Chat Trigger (Success):** "Hey Overmind, Completed TaskId 'task_pqr'. Documentation updated. See wiki."
-*   **Wiki Update (Failure):** `*   **[Timestamp] DocsAgent:** **ERROR:** TaskId 'task_stu': Failed to fetch definitions using `context7_get-library-docs` for documenting `complex_api`. Task NOT marked done. Escalating.`
-*   **Chat Trigger (Failure):** "Hey Overmind, **ERROR:** Failed tool `context7_get-library-docs` for TaskId 'task_stu'. Task NOT marked done. Escalating. See wiki."
+*   **Wiki Update:** `*   **[Timestamp] DocsAgent:** Added JSDoc comments to \`calculateTotal\` function in \`utils.js\`.`
+*   **Chat Trigger:** "Hey Overmind, Documentation added for `utils.js`. See wiki."
 
 ## 10. REFERENCES
 
@@ -101,4 +101,5 @@ The Docs Agent is responsible for **creating and maintaining documentation** for
 *   [`global-mandates.md`](../global-mandates.md)
 *   [Wiki Handling](mdc:wiki-handling.md)
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
-*   [Shared Core Concepts & Rules](mdc:shared-core.md#code-edit-tag)
+*   [Shared Core Concepts & Rules](mdc:shared-core.md)
+*   [context7 Tools Usage](mdc:core-concepts.md#4-core-tool-integration-rules-mandatory)

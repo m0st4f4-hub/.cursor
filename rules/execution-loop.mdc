@@ -1,12 +1,12 @@
 ---
 # Rule Definition Metadata (V1)
 ruleId: execution-loop
-ruleType: Core
-title: Core Agent Execution Loop
-description: Defines the mandatory, sequential steps each agent MUST follow during its execution turn, integrating MCP Task Management.
+ruleType: Procedure
+title: Core Agent Execution Loop (Chat/Wiki Coordination)
+description: Defines the mandatory, sequential steps each agent MUST follow during its execution turn within the Chat/Wiki framework.
 schemaVersion: 1
 conformsTo: null
-tags: [core, framework, rules, mandatory, loop, agent-lifecycle, mcp-task-manager]
+tags: [core, framework, procedure, execution, agent-turn]
 lastUpdated: null
 status: Active
 ---
@@ -15,118 +15,105 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-This document outlines the **single, mandatory sequence of actions** that every agent MUST perform during its active turn. This ensures consistent behavior, context handling, state updates, and handoffs, including MANDATORY integration with the MCP Task Manager for relevant roles.
+This document outlines the **single, mandatory sequence of actions** that every agent MUST perform during its active turn. This ensures consistent behavior, context handling, state updates, and handoffs across the framework. Adherence to this loop is critical for autonomous operation.
 
 ## 2. CORE BEHAVIOR (Applies to ALL agents)
 
-Agents operate in discrete turns, activated by a Chat Trigger (often including a `taskId`). They MUST perform the following steps **sequentially and without deviation**.
+Agents operate in discrete turns, activated by a Chat Trigger. Within a turn, they MUST perform the following 8 steps **sequentially and without deviation**, leveraging the Knowledge Wiki for context and state, and concluding by triggering the next agent via another Chat Trigger.
 
 ## 3. ACTION SEQUENCE (MANDATORY)
 
 ### Step 1: Activate via Chat Trigger
-*   **Action:** Agent activated by framework receiving chat message (e.g., "Hey BuilderAgent, Start work on TaskId 'task_def'...").
+*   **Action:** Agent is activated by the framework upon receiving a specific chat message addressed to its role (e.g., "Hey BuilderAgent...").
 *   **Input:** Incoming Chat Trigger message.
-*   **Process:** Extract initial instructions and MANDATORY `taskId` if applicable to the agent's role (as defined in [Agent Roles & Responsibilities](mdc:agent-roles.md)).
+*   **Process:** Extract initial instructions, query, or task context from the message.
 
 ### Step 2: Read Knowledge Wiki
-*   **Action:** Read and parse the Knowledge Wiki (`<requestId>-wiki.md`).
-*   **Tooling:** `read_file`.
+*   **Action:** Read and parse the Knowledge Wiki file (`<requestId>-wiki.md`).
+*   **Tooling:** `read_file` (or potentially `analyze_wiki.py` via `run_terminal_cmd`).
 *   **Input:** `requestId`.
-*   **Process:** Extract overall context, history, previous findings. Refer to [Wiki Handling](mdc:wiki-handling.md).
-*   **Verification:** Wiki file exists and is readable.
+*   **Process:** Extract necessary context including overall goal, current task, history, findings from previous agents, user input summaries, and relevant project state. Refer to [Wiki Handling](mdc:wiki-handling.md) for structure.
+*   **Verification:** Wiki file exists, is readable, and contains expected baseline information.
 
 ### Step 3: Fetch Own Role Specification
 *   **Action:** Fetch the agent's specific behavior rules.
 *   **Tooling:** `fetch_rules`.
-*   **Input:** Agent's own role name.
-*   **Process:** Load the rule file content.
-*   **Verification:** Rule file exists and is fetched.
+*   **Input:** Agent's own role name (e.g., `agents/builder-agent`).
+*   **Process:** Load the rule file content (`.mdc`).
+*   **Verification:** Rule file exists and is fetched successfully.
 
-### Step 4: Get Task Details & Plan Turn
-*   **Action:** Fetch specific task details (if applicable) and prepare the turn's plan.
-*   **Tooling:** `mcp_taskmanager_open_task_details` (if `taskId` received in Step 1 and role requires it), `read_file`, `grep_search`, etc. for context.
-*   **Input:** `taskId` (from Step 1), Fetched rules (Step 3), Wiki context (Step 2).
+### Step 4: Construct Role-Prompt & Plan Turn
+*   **Action (Internal):** Prepare the operational prompt for the LLM and outline the turn's plan.
+*   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger message content (Step 1).
 *   **Process:**
-    1.  **If Task-Driven Role:** MANDATORY call `mcp_taskmanager_open_task_details` with `taskId`. Integrate task description into context.
-    2.  Construct internal prompt (LLM instructions) based on rules, Wiki, trigger, and task details.
-    3.  Develop minimal, actionable plan for the core task(s).
-*   **Verification:** Task details fetched successfully if required.
+    1.  Construct prompt: "Act *strictly* as `<AgentRole>` based on the following rules..." including fetched rules, relevant Wiki context, and trigger instructions.
+    2.  Develop a minimal, actionable plan for the core task(s) of the turn based on the agent's role and current context.
 
-### Step 5: Execute Core Task(s) & Verify
-*   **Action:** Perform the agent's primary function(s) based on plan (from Step 4).
-*   **Tooling:** Authorized tools per role spec.
-*   **Input:** Plan, Wiki context, Task details.
-*   **Process:** Execute tool calls. For roles involving modification (e.g., `BuilderAgent`), perform MANDATORY local verification (build, lint, test) immediately after modification.
-*   **Record Outcome:** Note PASS/FAIL status of execution and verification steps.
-*   **DIAGNOSTICS EXCEPTION:** Allowed as previously defined.
+### Step 5: Execute Core Task(s)
+*   **Action:** Perform the agent's primary function(s) as defined by its role and the turn's plan.
+*   **Tooling:** Authorized tools per role spec (e.g., `edit_file`, `run_terminal_cmd`, `codebase_search`, `web_search`).
+*   **Input:** Plan from Step 4, Wiki context, potentially Trigger message details.
+*   **Process:** Execute tool calls to achieve the planned objective (e.g., write code, run tests, search for information).
+*   **DIAGNOSTICS EXCEPTION:** If external information (e.g., user-provided logs, HAR files) is *required* to proceed after a failure, the agent MAY generate a specific, targeted request to the user via chat. The agent MUST state exactly what is needed. Upon receiving the data, the agent MUST immediately resume this step. **This is the ONLY permissible reason to interact with the user mid-loop.**
 
-### Step 6: Mark Task Done (If Applicable)
-*   **Action:** Report task completion status to MCP Task Manager.
-*   **Tooling:** `mcp_taskmanager_mark_task_done`.
-*   **Input:** `taskId` (from Step 1), Outcome from Step 5.
-*   **Process:**
-    1.  **If Task-Driven Role AND Step 5 Succeeded (including verification):** MANDATORY call `mcp_taskmanager_mark_task_done` with `taskId`.
-    2.  **If Task-Driven Role AND Step 5 Failed OR Not Applicable Role:** DO NOT call `mcp_taskmanager_mark_task_done`.
-*   **Verification:** Tool call succeeds if made.
-
-### Step 7: Update Knowledge Wiki
+### Step 6: Update Knowledge Wiki
 *   **Action:** Append a record of the turn's activities and outcomes to the Wiki.
 *   **Tooling:** `edit_file`.
-*   **Input:** Results, findings, action summaries, errors from Step 5; Task completion status from Step 6. `requestId`, `taskId` (if applicable).
-*   **Process:** Consolidate into a timestamped entry under the appropriate section. MUST include `taskId` if applicable and explicitly state if the task was marked done in MCP. Follow [Wiki Handling](mdc:wiki-handling.md).
-*   **Verification:** Wiki file accessible; append structured correctly.
+*   **Input:** Results, findings, action summaries, errors from Step 5. `requestId`.
+*   **Process:** Consolidate information into a timestamped entry attributed to the agent role. Append this entry under the appropriate section(s) in the `<requestId>-wiki.md` file, following [Wiki Handling](mdc:wiki-handling.md) structure.
+*   **Verification:** Wiki file is accessible; append operation is structured correctly.
 
-### Step 8: Determine Next Agent & Handoff Message
-*   **Action (Internal):** Decide which agent role should execute next (typically `Overmind` for task-driven roles) and prepare handoff.
-*   **Input:** Outcome of Step 5/6/7, agent's role spec (Handoff Conditions).
+### Step 7: Determine Next Agent & Handoff Message
+*   **Action (Internal):** Decide which agent role should execute the next turn and prepare the handoff instructions.
+*   **Input:** Outcome of Step 5/6, agent's role specification (Transfer Conditions), overall workflow context from Wiki.
 *   **Process:**
-    1.  Identify `<NextAgentRole>` (usually `Overmind` unless specified otherwise).
-    2.  Formulate concise handoff message summarizing outcome (Success/Failure) and referencing `taskId` if applicable.
+    1.  Identify the `<NextAgentRole>` (can be another specialized agent or `Overmind`).
+    2.  Formulate a concise handoff message summarizing the current turn's outcome and stating the clear objective for the next agent.
 
-### Step 9: Generate Next Chat Trigger (FINAL ACTION)
-*   **Action:** Send the concluding chat message.
+### Step 8: Generate Next Chat Trigger (FINAL ACTION)
+*   **Action:** Send the concluding chat message to trigger the next agent.
 *   **Tooling:** Framework's chat mechanism.
-*   **Input:** `<NextAgentRole>` and handoff message from Step 8.
-*   **Process:** Compose and send: "Hey `<NextAgentRole>`, [Handoff message from Step 8]. See wiki."
-*   **Outcome:** Current agent's turn ends.
+*   **Input:** `<NextAgentRole>` and handoff message from Step 7.
+*   **Process:** Compose and send the final message for the turn in the format: "Hey `<NextAgentRole>`, [Concise handoff message from Step 7]. See wiki for details."
+*   **Outcome:** The current agent's turn ends immediately upon sending this message. The framework will activate the `<NextAgentRole>`.
 
 ## 4. INPUTS & OUTPUTS
 
-*   **Input:** Chat Trigger message (`taskId`), Knowledge Wiki, Role Specification, MCP Task Details.
-*   **Output:** Updated Knowledge Wiki (`taskId` log), MCP Task status update (`mark_task_done`), Final Chat Trigger.
+*   **Input:** Chat Trigger message, Knowledge Wiki (`<requestId>-wiki.md`), Agent's own Role Specification (`.mdc`).
+*   **Output:** Updated Knowledge Wiki, Final Chat Trigger message for the next agent.
 
 ## 5. TOOLS
 
-*   `read_file`
+*   `read_file` / `analyze_wiki.py` (via `run_terminal_cmd`)
 *   `fetch_rules`
-*   `mcp_taskmanager_open_task_details` (Conditional)
-*   `mcp_taskmanager_mark_task_done` (Conditional)
-*   Agent-specific authorized tools
-*   `edit_file` (for Wiki)
+*   Agent-specific authorized tools (e.g., `edit_file`, `run_terminal_cmd`, `codebase_search`, `web_search`)
 *   Framework Chat Mechanism
 
 ## 6. HANDOFF CONDITIONS
 
-*   Successful completion of Step 9 is the only valid handoff.
+*   Successful completion of Step 8 is the *only* valid handoff condition.
 
 ## 7. ERROR HANDLING
 
-*   **Per-Step Verification Failure:** HALT procedure.
-*   **Core Task Failure (Step 5) / Verification Failure:** Proceed to Step 6 (DO NOT mark task done), Step 7 (Update Wiki with failure, including `taskId`), Step 8 (Determine `Overmind` as next), Step 9 (Trigger `Overmind` indicating failure for `taskId`).
-*   **`mark_task_done` Failure (Step 6):** If the tool call fails after Step 5 passed, treat as critical error. Update Wiki (Step 7) indicating task done locally but MCP update failed, then HALT via `Overmind` (Steps 8 & 9).
+*   **Per-Step Verification Failure:** If basic checks fail (tool unavailable, input missing, wiki inaccessible), the agent MUST immediately proceed to the HALT procedure.
+*   **Core Task Failure (Step 5):**
+    *   If recoverable *with specific external diagnostics* (see Step 5 Exception), request data from user.
+    *   If unrecoverable or verification after task fails, proceed to HALT procedure.
 *   **HALT Procedure:**
-    1.  Prepare error details (including `taskId` if relevant).
-    2.  Execute Step 7: Update Wiki (`## ⚠️ Errors & Escalations`) with error status.
-    3.  Execute Step 8: Determine `NextAgentRole` as `Overmind`.
-    4.  Execute Step 9: Trigger `Overmind` via chat indicating failure/halt.
+    1.  Prepare minimal error details.
+    2.  Execute Step 6: Update Wiki (`## ⚠️ Errors & Escalations`) with error status, agent role, timestamp, and details.
+    3.  Execute Step 7: Determine `NextAgentRole` as `Overmind` and formulate handoff message indicating failure.
+    4.  Execute Step 8: Trigger `Overmind` via chat: "Hey Overmind, encountered error [brief summary]. Escalating for assessment. See wiki for details."
 
 ## 8. CONSTRAINTS & FORBIDDEN PATTERNS
 
-*   MUST follow steps sequentially.
-*   MUST integrate MCP Task Manager steps (`open_task_details`, `mark_task_done`) if role requires.
-*   MUST NOT mark task done if verification fails.
-*   MUST update Wiki including `taskId` and task completion status.
-*   MUST trigger next agent (usually `Overmind` for task handoffs).
+*   MUST follow steps 1-8 sequentially.
+*   MUST NOT wait for user confirmation (except Step 5 Diagnostics Exception).
+*   MUST NOT manage state outside the Knowledge Wiki.
+*   MUST NOT communicate outside the Chat Trigger / Wiki mechanism.
+*   MUST fetch own rules (Step 3).
+*   MUST update the Wiki (Step 6).
+*   MUST generate the next Chat Trigger (Step 8).
 
 ## 9. EXAMPLES
 
