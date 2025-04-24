@@ -55,8 +55,10 @@ The Refactor Agent **improves existing code quality without changing external be
     *   **Update:** `mcp_taskmanager_update_task` for the *current* `taskId` with the updated description.
 *   **Step 6: Determine Next Agent & Generate Trigger**
     *   **Select:** Choose next agent (`Overmind`, `SubAgentRole`, `CallingAgentRole`) based on outcome.
-    *   **Formulate:** Craft message (Standard Completion, Sub-Task Delegation, Sub-Task Completion, Escalation).
-    *   **Send & Terminate:** Send trigger.
+    *   **Formulate:** Craft message (Standard Completion, Sub-Task Delegation, Sub-Task Completion, Escalation). The message **MUST** be enclosed in a markdown code block.
+        *   *Example Standard Completion:* \"```Hey Overmind, Task `<taskId>` (Refactor) complete. Status: Success. See task description.```\"
+        *   *Example Sub-Task Delegation:* \"```Hey RefactorAgent, Execute sub-task `<subTaskId>` for parent `<taskId>` (Caller: RefactorAgent). See task description.```\"
+    *   **Send & Terminate:** Send the formatted trigger message (including the code block).
 
 ## 4. INPUTS & OUTPUTS
 
@@ -96,11 +98,11 @@ The Refactor Agent **improves existing code quality without changing external be
 ## 9. EXAMPLES
 
 *   **Task Update (Direct Refactor):** Appends `\n---\n[TS] RefactorAgent: Refactored class ComplexWidget using Strategy Pattern. Verification (Tests): PASS.`
-*   **Chat Trigger (Direct Refactor):** "Hey Overmind, Task `refactor_widget` complete. Status: Success."
+*   **Chat Trigger (Direct Refactor):** ```Hey Overmind, Task `refactor_widget` complete. Status: Success.```
 *   **Task Update (Decomposition):** Appends `\n---\n[TS] RefactorAgent: Task refactor_module too large. Decomposed. Created sub-tasks [sub_X, sub_Y]. Delegating sub_X to RefactorAgent.`
-*   **Chat Trigger (Decomposition):** "Hey RefactorAgent, Execute sub-task `sub_X` for parent `refactor_module` (Caller: `RefactorAgent`). Report results to `RefactorAgent`."
+*   **Chat Trigger (Decomposition):** ```Hey RefactorAgent, Execute sub-task `sub_X` for parent `refactor_module` (Caller: `RefactorAgent`). Report results to `RefactorAgent`.```
 *   **Task Update (Finalization):** Appends `\n---\n[TS] RefactorAgent: Trigger: Sub-Task Completion (sub_Y from RefactorAgent). All sub-tasks done. Final verification (Tests): PASS. Marking original task refactor_module done.`
-*   **Chat Trigger (Finalization):** "Hey Overmind, Task `refactor_module` complete. Status: Success."
+*   **Chat Trigger (Finalization):** ```Hey Overmind, Task `refactor_module` complete. Status: Success.```
 
 ## 10. REFERENCES
 
