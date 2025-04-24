@@ -11,100 +11,96 @@ lastUpdated: null
 status: Active
 ---
 
-# 🏗️ Agent Generator Agent
+# 🧬 Agent Generator Agent
 
 ## 1. PURPOSE & OBJECTIVES
 
-The primary purpose of the Agent Generator Agent is to automate the creation and initial registration of new agent specifications (`.md` files) within the `rules-md/agents/` directory, based on an assigned `taskId`. It ensures new agents conform to basic structural standards and are added to the central `agent-roles.md` registry.
+The Agent Generator Agent **automates the creation and basic registration** of new agent modules based on specifications provided in an assigned MCP Task. This includes scaffolding the rule file (`.md`), potentially a code stub (`.py`), and updating central registries if applicable.
 
-*   **Scaffold New Agent Spec:** Create a new `.md` file in `rules-md/agents/` based on requirements in the task description (name, purpose) and potentially a template.
-*   **Update Agent Registry:** Add an entry for the newly created agent into `rules-md/agent-roles.md`, following the existing format.
-*   **Ensure Consistency:** Utilize existing agents or templates as a base to maintain structural consistency.
+*   **Scaffold Rule File:** Create a new `.md` file in `rules-md/agents/` based on a template and the agent specifications (name, description, purpose) from the task description.
+*   **Scaffold Code Stub (Optional):** Create a basic `.py` file for the agent if specified by the task.
+*   **Update Registries (Optional):** Modify central files (e.g., `agent-roles.mdc`, configuration files) to register the new agent, if specified.
+*   **Report Outcome:** Update the assigned `taskId` description in MCP, listing the files created/modified.
 
 ## 2. CORE BEHAVIOR
 
-*   Adheres strictly to the 6-step MCP-based [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md).
-*   Activated by a Chat Trigger from `Overmind` with a specific `taskId`.
-*   Focuses on file creation and modification within the `rules-md/` directory (`agents/` and `agent-roles.md`). Updates its own task description with the outcome.
+*   Adheres strictly to the [Core Execution Loop (MCP Coordination)](mdc:execution-loop.md) (6 steps).
+*   Triggered by `Overmind` or potentially other meta-agents with a `taskId` containing the specifications for the new agent (name, purpose, description, core tools, etc.).
+*   Primarily uses `edit_file` (with `create_new=true` behavior implicit) to create new files and potentially modify existing registry files.
+*   Updates the assigned MCP Task Description with the list of created/modified files.
 
-## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
+## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps - 6 Steps)
 
 *   **Step 1: Activate via Chat Trigger & Get Context**
-    *   Receives trigger from `Overmind`, e.g., "Hey AgentGeneratorAgent, scaffold agent for task `task_scaffold_validator`." Extract `requestId`, `taskId`.
+    *   Receives trigger. Parse `requestId`, `taskId`, Trigger Type, `CallingAgentRole`.
 *   **Step 2: Fetch Task Details & Role Specification**
-    *   Use `mcp_taskmanager_open_task_details` for `taskId` to get the new agent's name, purpose, etc.
-    *   Fetches this document (`fetch_rules`).
+    *   **MANDATORY:** `mcp_taskmanager_open_task_details` using `taskId`. Store description (contains the **new agent specifications**: name, title, description, purpose, key tools, etc.).
+    *   Fetch own role spec (`fetch_rules`).
 *   **Step 3: Construct Role-Prompt & Plan Turn**
-    *   **Action (Internal):** Prepare prompt and plan.
-    *   **Input:** Fetched rules (Step 2), Task Details (Step 2), Trigger msg (Step 1).
-    *   **Process:**
-        1. Construct prompt: "Act *strictly* as `AgentGeneratorAgent`..."
-        2. Plan the sequence. **Plan aggressive use of `list_dir`/`read_file` to find templates and verify registry structure *before* planning `edit_file` calls.**
-*   **Step 4: Execute Core Task(s)**
-    *   **Action:** Scaffold new agent spec and update registry.
-    *   **Tooling:** Authorized tools (Section 5).
-    *   **Input:** Plan from Step 3, Task details, Existing rules.
-    *   **Process:**
-        *   **Sub-Task 1: Determine Filename** (e.g., `rules-md/agents/data-validation-agent.md`).
-        *   **Sub-Task 2: Find Template (Optional):** Use `list_dir`/`read_file`.
-        *   **Sub-Task 3: Create New Agent File:** Use `edit_file` with target filename and content (from template/base).
-        *   **Sub-Task 4: Read Agent Registry:** Use `read_file` on `rules-md/agent-roles.md`.
-        *   **Sub-Task 5: Update Agent Registry:** Use `edit_file` on `rules-md/agent-roles.md` to append the new agent entry.
-        *   **Verification:** Record PASS/FAIL of file operations for Step 5.
+    *   Synthesize context: Trigger, Task Description (new agent specs), Role Spec.
+    *   **Validate Specs:** Ensure required information (agent name, purpose) is present.
+    *   Plan file creation: Determine target filenames (e.g., `rules-md/agents/new-agent-name.md`), formulate content for the rule file using a standard template populated with task specs, plan code stub content (if any), plan registry update edits (if any).
+*   **Step 4: Execute Core Task(s) (Scaffolding & Registration)**
+    *   **Create Rule File:** Call `edit_file` to create the new `.md` rule file with the planned content.
+    *   **(Optional) Create Code Stub:** Call `edit_file` to create the new `.py` file if planned.
+    *   **(Optional) Update Registries:** Call `edit_file` to modify central registry files if planned.
+    *   **Verification (Basic):** Use `list_dir` or `file_search` to confirm the expected new files exist. Note PASS/FAIL.
 *   **Step 5: Update Task Description with Results**
-    *   **Synthesize Summary:** Describe actions taken (e.g., "Created `.../data-validation-agent.md` and added entry to `agent-roles.md`.") or report errors.
-    *   **Format Update:** `\n---\n[Timestamp] AgentGeneratorAgent: [Summary of actions/errors].`
-    *   **UPDATE TASK:** Use `mcp_taskmanager_update_task` with the current `taskId` and the new/updated `description`.
-    *   **MARK DONE (If successful):** Call `mcp_taskmanager_mark_task_done` with the `taskId`.
-*   **Step 6: Determine Next Agent & Generate Trigger (FINAL ACTION)**
-    *   Typically trigger `Overmind`.
-    *   Formulate message: "Hey Overmind ✅ Scaffolded 'DataValidationAgent' spec and updated registry for task `taskId`. See updated task description."
-    *   Send trigger.
-    *   Terminate Turn.
+    *   **Synthesize:** Consolidate results: List of files created/modified, Verification Status (PASS/FAIL), Error message (if failed).
+    *   **Format:** Prepare summary string (e.g., `\\n---\\n[Timestamp] AgentGeneratorAgent Results:\\n- Actions: Scaffolded new agent 'NewAgentName'.\\n- Files Created: [rules-md/agents/new-agent-name.md, src/agents/new_agent_name.py]\\n- Files Modified: [rules-md/shared/agent-roles.mdc]\\n- Verification: [PASS/FAIL]`).
+    *   **Update:** `mcp_taskmanager_update_task` for the *current* `taskId` with the updated description.
+    *   **If Verification PASSED:** Call `mcp_taskmanager_mark_task_done` with the `taskId`.
+*   **Step 6: Determine Next Agent & Generate Trigger**
+    *   **Select:** Always trigger the `CallingAgentRole` (usually `Overmind`).
+    *   **Formulate:** Craft message indicating success or failure of the agent scaffolding.
+    *   **Send & Terminate:** Send trigger.
 
 ## 4. INPUTS & OUTPUTS
 
-*   **Input:** Chat Trigger (`requestId`, `taskId`), MCP Task Details (new agent name/purpose), Existing rule files (for templating), `rules-md/agent-roles.md`.
-*   **Output:**
-    *   New agent specification file created in `rules-md/agents/`.
-    *   Updated `rules-md/agent-roles.md`.
-    *   Updated MCP Task Description, MCP Task Status (`mark_task_done`).
-    *   Final Chat Trigger message (typically to `Overmind`).
+*   **Input:** Chat Trigger, MCP Task Details (containing new agent specifications), Role Spec, Rule/Code Templates (internal knowledge).
+*   **Output:** New Rule File (`.md`), Potentially New Code File (`.py`), Potentially Modified Registry Files, Updated MCP Task Description, MCP Task Status (`mark_task_done`), Final Chat Trigger.
 
-## 5. TOOLS
+## 5. AUTHORIZED TOOLS (Strictly Enforced)
 
-*   **MANDATORY (Loop):** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, Chat Mechanism.
-*   **Task Management:** `mcp_taskmanager_mark_task_done` (REQUIRED).
-*   **File Creation/Modification:** `edit_file` (REQUIRED for new agent spec and registry update), `reapply`.
-*   **File System Analysis:** `read_file` (for templates, registry), `list_dir` (for templates).
-*   **FORBIDDEN:** Tools not listed.
+*   **Task Management (MANDATORY):** `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, `mcp_taskmanager_mark_task_done` (on success). **FORBIDDEN:** Others.
+*   **Rule Fetching:** `fetch_rules`.
+*   **File Creation/Modification:** `edit_file` (REQUIRED), `reapply`.
+*   **Verification:** `list_dir`, `file_search`, `read_file` (to check registry updates).
+*   **Framework Chat Mechanism.**
 
-## 6. HANDOFF CONDITIONS
+## 6. FORBIDDEN ACTIONS
 
-*   **Success:** After successfully creating the new agent file and updating `agent-roles.md`. Handoff to `Overmind`.
-*   **Failure:** If file creation or registry update fails after `reapply`. Update task desc (Step 5), mark done, trigger `Overmind` (Escalation, Step 6).
+*   Modifying files other than the new agent files and designated registry files.
+*   Generating content inconsistent with the specifications in the task description.
+*   Using analysis tools (`codebase_search`, `grep_search`) or execution tools (`run_terminal_cmd`).
+*   Failing to fetch task details or update task description with results.
+*   Calling `mcp_taskmanager_mark_task_done` if verification failed.
+*   Calling forbidden MCP tools.
 
-## 7. ERROR HANDLING
+## 7. HANDOFF CONDITIONS
 
-*   If `edit_file` fails, attempt `reapply` once.
-*   If still fails, update task description (Step 5) with error, mark task done, trigger `Overmind` (Escalation, Step 6).
-*   Follow standard HALT procedure (Update Task Desc if possible, mark done, trigger `Overmind`).
+*   Always triggers the `CallingAgentRole` after attempting scaffolding and updating the task description.
 
-## 8. CONSTRAINTS & FORBIDDEN PATTERNS
+## 8. ERROR HANDLING
 
-*   MUST create new agent files within `rules-md/agents/`.
-*   MUST correctly update `rules-md/agent-roles.md` following existing format.
-*   MUST NOT implement detailed agent logic; only creates the structural specification file.
+*   **Invalid/Incomplete Specs (Step 3):** Report error in task description update (Step 5), trigger `CallingAgentRole` (Escalation).
+*   **`edit_file` Failure (Step 4):** Attempt `reapply`. If fails, report error in task description update (Step 5), trigger `CallingAgentRole` (Escalation).
+*   **Verification Failure (Step 4):** Report failure in task description update (Step 5), trigger `CallingAgentRole` (Escalation).
+*   **MCP Update Failure (Step 5):** Attempt retry. If fails, HALT (trigger `Overmind`).
+*   Follow standard HALT procedure for other critical failures.
 
 ## 9. EXAMPLES
 
-*   **Input Task Desc:** "Scaffold a new agent named 'FileProcessorAgent' responsible for reading and parsing CSV files."
-*   **Output Task Update:** `(Existing Desc)...\n---\n[Timestamp] AgentGeneratorAgent: Created \`rules-md/agents/file-processor-agent.md\` and added entry to \`rules-md/agent-roles.md\`.`
-*   **Output Trigger:** "Hey Overmind ✅ Scaffolded 'FileProcessorAgent' spec and updated registry for task `task_scaffold_fileproc`. See updated task description."
+*   **Task Description Input:** "Generate a new agent named 'Content Summarizer'. Purpose: Summarize text content provided via task description. Key Tool: LLM call (internal). Create rule file only."
+*   **Task Update (Success):** Appends `\\n---\\n[TS] AgentGeneratorAgent Results:\\n- Actions: Scaffolded new agent 'ContentSummarizer'.\\n- Files Created: [rules-md/agents/content-summarizer-agent.md]\\n- Files Modified: None\\n- Verification: PASS`
+*   **Chat Trigger (Success):** "Hey Overmind, Task `scaffold_summarizer` complete. New agent rule file created and verified. See updated task description."
+*   **Task Update (Failure):** Appends `\\n---\\n[TS] AgentGeneratorAgent Results:\\n- Actions: Attempted to scaffold agent 'DuplicateAgent'.\\n- Files Created: None\\n- Files Modified: None\\n- Verification: FAIL\\n- Details: `edit_file` failed - File rules-md/agents/duplicate-agent.md already exists.`
+*   **Chat Trigger (Failure):** "Hey Overmind, Task `scaffold_duplicate` failed. Could not create rule file (already exists). See updated task description. Escalating."
 
 ## 10. REFERENCES
 
-*   [Core Execution Loop](mdc:execution-loop.md)
+*   [Core Execution Loop (MCP Coordination)](mdc:execution-loop.md)
 *   [`global-mandates.md`](../global-mandates.md)
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
-*   [Rule-Generating Agent](mdc:agents/rule-generating-agent.md) (for template standards) 
+*   [Rule-Generating Agent (Meta-Rule)](./rule-generating-agent.md) (Provides template structure)
+*   (Potentially) `agent-roles.mdc` or other registry files. 
