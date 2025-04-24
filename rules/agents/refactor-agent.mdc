@@ -42,15 +42,15 @@ alwaysApply: false
     *   IMMEDIATELY execute ALL relevant local verification steps via `run_terminal_cmd`:
         *   Execute linters ([`run_linter.py`](mdc:rules-md/tools/run_linter.mdc)).
         *   **CRITICAL:** Execute automated tests (if available) to verify behavior preservation.
-    *   RECORD verification outcomes (PASS/FAIL) for SITREP.
+    *   **Record:** Note the pass/fail outcome of all verification steps.
 *   **ACTION: LOG & TRANSFER CONTROL ([Loop Steps 7 & 9](mdc:rules-md/execution-loop.md#step-7--action---execute-findings-consolidation)).**
-    *   CONSOLIDATE `actionsTaken`: Include summary of refactoring operations.
-    *   Optional: Log key `observations` regarding refactoring process or results.
-    *   DETERMINE `status`: `completed_step` (Verification PASS), `error_escalated` (Verification FAIL).
-    *   If `error_escalated`, POPULATE `errorsEncountered` with precise failure data.
-    *   DETERMINE `nextAgent` based on outcome (e.g., `AuditAgent`, `Overmind`). Refer to [Transfer Conditions](#transfer-conditions).
-    *   FORMULATE concise `handoffMessage` indicating refactoring performed and verification status.
-    *   APPEND log entry per [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema).
+    *   Consolidate `actionsTaken` (Minimal): Include ONLY `edit_file` summary AND FAIL verification results IF `status` is `error_escalated`. Otherwise, omit `actionsTaken`.
+    *   OMIT `observations` unless critical for error context.
+    *   **(Self-Improvement Data):** OMIT `improvementSuggestions` unless critical for error context.
+    *   Determine `status` (`completed_step` or `error_escalated` if verification fails).
+    *   Determine `nextAgent` based on the refactoring outcome and desired next step (e.g., `AuditAgent`, `Overmind`).
+    *   Formulate a concise `handoffMessage` indicating the refactoring performed and the recommended next action.
+    *   Append the complete log entry adhering strictly to the [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema) and **minimal logging standard**.
 
 ---
 
@@ -64,11 +64,12 @@ alwaysApply: false
 
 ## 📤 MANDATORY OUTPUTS (Logged via [Loop Step 9](mdc:rules-md/execution-loop.md#step-9--action---execute-logging-to-request-file-critical-trigger-step))
 
-*   `nextAgent` (String): **MANDATORY.** Dictates command transfer. See [Log Schema](mdc:rules-md/log-handling.md#log-entry-schema) / [Transfer Conditions](#transfer-conditions).
-*   `handoffMessage` (String): Concise SITREP. Example: "✅ Refactoring of module X complete. Lint/Tests PASSED. Transferring control to AuditAgent." / "❌ Refactoring failed test verification. Transferring control to Overmind."
-*   `actionsTaken` (List): Minimal log. Includes `edit_file` summary, concise Lint/Test verification results.
-*   `status` (String): `"completed_step"` **ONLY IF** all local verifications (lint, tests) PASS. `"error_escalated"` if ANY local verification FAILS.
-*   `errorsEncountered` (List): Populated with precise failure data (test failure, lint error) ONLY if `status` is `error_escalated`.
+*   `nextAgent` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema) & [Handoff Conditions](#handoff-conditions). **Mandatory.**
+*   `handoffMessage` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Brief, actionable summary of refactoring outcome and verification status (e.g., "✅ Refactored X, tests passed. Handing off to AuditAgent.", "❌ Refactoring failed test verification. Handing off to Overmind.").
+*   `actionsTaken` (List): **OMIT** unless `status` is `error_escalated`. If escalated, include minimal `edit_file` summary and FAIL verification result.
+*   `observations` (List): **OMIT** unless critical for error context.
+*   `status` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). `"completed_step"` **only if** all local verifications (lint, tests) pass. `"error_escalated"` if *any* local verification fails.
+*   `errorsEncountered` (List): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Populated with concise verification failure details (e.g., specific test failure, lint error summary) if `status` is `error_escalated`.
 
 ---
 
@@ -88,7 +89,7 @@ Execute [Core Execution Loop](mdc:rules-md/execution-loop.md). Specific logic:
 
 *   **Steps 3 & 4:** Define scope/objectives, analyze target code.
 *   **Step 6:** **EXECUTE** refactoring (`edit_file`) -> **IMMEDIATELY VERIFY** (`run_terminal_cmd`: lint/tests). Record PASS/FAIL.
-*   **Steps 7 & 9:** Consolidate SITREP, Determine `status` from verification, Determine `nextAgent`, FORMULATE `handoffMessage`, POPULATE `errorsEncountered` if FAIL, LOG entry.
+*   **Steps 7 & 9:** Consolidate results, determine `status` based on verification pass/fail, determine `nextAgent` based on status, write `handoffMessage`, populate `errorsEncountered` if needed, and log the entry adhering to the **minimal logging standard**.
 
 ---
 
@@ -110,10 +111,10 @@ Reference [Agent Roles: RefactorAgent Handoffs](mdc:rules-md/agent-roles.md#refa
 
 *   **BEHAVIOR PRESERVATION PARAMOUNT:** REITERATION - External functionality MUST remain unchanged. Test verification is CRITICAL.
 *   **MANDATORY VERIFICATION:** EXECUTE lint/test post-modification (Step 6). Outcome DICTATES `status` / `nextAgent`.
-*   **TARGETED SCOPE:** Execute ONLY refactoring objectives from `handoffMessage`. Avoid scope creep.
-*   **ACCURATE FAILURE REPORTING:** If verification FAILS: LOG `status: "error_escalated"`, PROVIDE failure data in `errorsEncountered`, TRANSFER control to `Overmind`.
-*   **CLEAR LOGGING:** Report *what* was refactored and verification outcomes concisely per [Log Handling](mdc:rules-md/log-handling.md).
-*   **CODE EDIT TAGS:** APPLY standard header comment in ALL `edit_file` executions.
+*   **TARGETED SCOPE:** Focus strictly on the refactoring goals from `handoffMessage`.
+*   **ACCURATE FAILURE REPORTING:** If verification fails, **MUST** log `status: "error_escalated"`, provide failure details in `errorsEncountered`, and hand off to `Overmind`.
+*   **CLEAR LOGGING:** Log *what* was refactored and the *outcome* of each verification step. Follow [Log Handling](mdc:rules-md/log-handling.md) guidelines and the **minimal logging standard**.
+*   **CODE EDIT TAGS:** **MUST** include the standard header comment in `edit_file` calls.
 
 ---
 
