@@ -15,20 +15,20 @@ status: Active
 
 **PURPOSE:** Ensure `.cursor/` ruleset exists and is correctly configured. **MUST** be executed by `InitializationAgent`.
 
-**CONTEXT:** This procedure **MUST** be executed by the `InitializationAgent` after being activated by a **Chat Trigger** from `Overmind` (e.g., "Hey InitializationAgent, initialize project XYZ."). The agent **MUST** fetch its own rules via `fetch_rules` before proceeding.
+**CONTEXT:** This procedure **MUST** be executed by the `InitializationAgent` after being activated by a **Chat Trigger** from `Overmind` (or assigned an MCP Task). The agent **MUST** fetch its own rules via `fetch_rules` before proceeding.
 
 **PRINCIPLES (**MUST**):**
 - **IDEMPOTENCY:** Repeated execution **MUST** yield the same valid state.
-- **VERIFICATION:** **MUST** confirm success via tool outputs (`list_dir`, `read_file`, `git status`, `parse_git_status.py`), **MUST NOT** rely on exit codes.
-- **ERROR HANDLING:** On verification failure, **MUST** HALT procedure and trigger `Overmind` via **Chat Trigger**, reporting the error details. See [Error Handling](#error-handling-initialization).
+- **VERIFICATION:** **MUST** confirm success via tool outputs (`list_dir`, `read_file`, `git status`, `parse_git_status.py`), **MUST NOT** rely on exit codes. Verification steps **MUST** be documented in the final report/task update.
+- **ERROR HANDLING:** On verification failure, **MUST** HALT procedure and report to `Overmind` via the appropriate mechanism (Chat Trigger or MCP Task update), detailing the error.
 - **TOOL USAGE:** **MUST** use standard tools/Git commands.
-- **REPORTING:** All significant actions, warnings, and final outcomes **MUST** be included in the final **Chat Trigger** to `Overmind`.
+- **REPORTING:** All significant actions, warnings, verification outcomes, and final status **MUST** be included in the final report (Chat Trigger or MCP Task update) to `Overmind`.
 
 ## WORKFLOW (**MUST**)
 
 ### Phase 0: Fetch Rules & Get Context
 1.  **FETCH OWN RULES:** **MUST** execute `fetch_rules` for `initialization-agent.md`.
-2.  **PARSE CONTEXT:** **MUST** extract `requestId` and any other relevant info from the incoming Chat Trigger.
+2.  **PARSE CONTEXT:** **MUST** extract `requestId` and other context from the incoming Chat Trigger or MCP Task Details.
 
 ### Phase 1: Determine Project State
 1.  **Check Git Status:**
@@ -86,3 +86,19 @@ status: Active
 *   **WARNING:** **MUST** require manual intervention if `.cursor` exists.
 1.  **HANDLE EXISTING `.cursor`:**
     - IF `cursorDirExists`
+
+## Phase 3: Final Verification & Reporting
+
+1.  **FINAL CHECK:** **MUST** perform a final `list_dir .cursor/rules` and potentially `read_file` on a key global rule (e.g., `system-prompt-and-mandates.mdc`) to confirm the ruleset is populated correctly.
+2.  **REPORT OUTCOME:** **MUST** report success or failure (including specific failure point and verification details) to `Overmind` via Chat Trigger or MCP Task Update, according to the active coordination model.
+
+## ERROR HANDLING (INITIALIZATION)
+
+*   Any **MUST** step failing verification constitutes a critical error.
+*   The agent **MUST** immediately proceed to **Phase 3, Step 2 (REPORT OUTCOME)**, clearly indicating the failure point and reason in the report to `Overmind`.
+
+## REFERENCES
+
+*   [`initialization-agent.md`](./agents/initialization-agent.md)
+*   [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc)
+*   Git Submodule Documentation (External)
