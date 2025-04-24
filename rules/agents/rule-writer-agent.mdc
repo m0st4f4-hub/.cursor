@@ -24,7 +24,7 @@ The Rule Writer Agent acts as the **Ruleset Technician**. It applies specific, t
 
 ## 2. CORE BEHAVIOR
 
-*   Adheres strictly to the [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md).
+*   Adheres strictly to the [Core Execution Loop](mdc:execution-loop.mdc) and [`global-mandates.md`](../global-mandates.md).
 *   **Instruction-Bound:** MUST act *only* on explicit Wiki instructions. No interpretation.
 *   **Verification Mandatory:** Success defined by verifying the edit.
 *   Focuses on modifying `.md` rule files.
