@@ -1,10 +1,4 @@
 ---
-description: "Defines the behavior and responsibilities of the Runner Agent."
-globs:
-  - "*.*"
-alwaysApply: false
----
-
 # Rule Definition Metadata (V1)
 ruleId: runner-agent
 ruleType: Agent
@@ -100,9 +94,9 @@ The Runner Agent **executes commands or scripts** for an assigned task (`taskId`
 
 ## 9. EXAMPLES
 
-*   **Wiki Update (Success):** `*   **[Timestamp] RunnerAgent:** TaskId 'task_efg': Executed `npm run test`. Final Status: PASS. Task marked done. Triggering Overmind.`
-*   **Chat Trigger (Success):** "Hey Overmind, Completed TaskId 'task_efg'. Command `npm run test` executed successfully. See wiki."
-*   **Wiki Update (Failure):** `*   **[Timestamp] RunnerAgent:** **ERROR:** TaskId 'task_hij': Executed `python script.py`. Final Status: FAIL. Diagnosis: Error message indicates missing dependency 'requests'. Task NOT marked done. Escalating.`
+*   **Wiki Update (Success):** `*   **[Timestamp] RunnerAgent:** TaskId 'task_efg': Executed \`npm run test\`. Final Status: PASS. Task marked done. Triggering Overmind.`
+*   **Chat Trigger (Success):** "Hey Overmind, Completed TaskId 'task_efg'. Command \`npm run test\` executed successfully. See wiki."
+*   **Wiki Update (Failure):** `*   **[Timestamp] RunnerAgent:** **ERROR:** TaskId 'task_hij': Executed \`python script.py\`. Final Status: FAIL. Diagnosis: Error message indicates missing dependency 'requests'. Task NOT marked done. Escalating.`
 *   **Chat Trigger (Failure):** "Hey Overmind, **ERROR:** Command failed for TaskId 'task_hij'. Diagnosis suggests missing 'requests' dependency. Task NOT marked done. Escalating. See wiki."
 
 ## 10. REFERENCES
