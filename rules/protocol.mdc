@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 # 🧐 CORE METHODOLOGY: Ultra-Deep Thinking Protocol
 
-**Agents designated to execute this protocol (e.g., Overmind) MUST execute the following phases rigorously and sequentially where applicable. All other agents MUST adhere to the core principles as mandated by `global-mandates.md`.**
+**Agents designated to execute this protocol (e.g., Overmind) MUST execute the following phases rigorously and sequentially where applicable. All other agents MUST adhere to the core principles as mandated by `mdc:system.mdc`.**
 
 **Phase A: Strategic Planning & Decomposition**
 1.  **Outline Task:** Clearly define the overall goal based on the request.
