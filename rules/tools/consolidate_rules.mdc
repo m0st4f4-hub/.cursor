@@ -15,7 +15,7 @@ python rules/tools/consolidate_rules.py --output_file <path_to_output.md> [--rul
 ```
 
 **Arguments:**
-*   `--output_file` (Required): The path where the consolidated Markdown file will be saved.
+*   `--output_file` (MUST): The path where the consolidated Markdown file will be saved.
 *   `--rules_dir` (Optional): The directory to scan for `.mdc` files. Defaults to `.cursor/rules`.
 *   `--exclude_patterns` (Optional): A comma-separated list of glob patterns (relative to `rules_dir`) for files or directories to exclude. Example: `project/*,temp/**`.
 *   `--include_header` (Optional): Whether to include a `## Source: <relative_path>` header before the content of each file. Defaults to `true`.
