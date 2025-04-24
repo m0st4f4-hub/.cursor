@@ -95,7 +95,7 @@ Ensure consistent, predictable, and auditable agent behavior using MCP Task Mana
 *   **Input (MCP Mode):** `taskId` (from Step 1).
 *   **Process (MCP Mode):** Retrieve task title, description. Description contains necessary context, findings from previous steps, errors, etc.
 *   **Process (Chat Mode):** Context is already parsed from trigger payload in Step 1.
-*   **Process (Both):** Critically evaluate context. Identify assumptions and verify clarity/feasibility of the task as per [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc).
+*   **Process (Both):** Critically evaluate context. Identify assumptions and verify clarity/feasibility of the task as per [System Prompt & Mandates](mdc:system.mdc).
 *   **Output:** Internal context representation (potentially updated with validation notes).
 
 **Step 3: Fetch Own Role Specification**
@@ -110,7 +110,7 @@ Ensure consistent, predictable, and auditable agent behavior using MCP Task Mana
 *   **Input:** Fetched rules (Step 3), Task Context (Step 2).
 *   **Process:**
     1.  Construct prompt reflecting role, rules, context, and goal.
-    2.  Plan specific tool calls needed for **Step 5**, including **mandatory verification steps** and addressing identified **assumptions** as required by [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc).
+    2.  Plan specific tool calls needed for **Step 5**, including **mandatory verification steps** and addressing identified **assumptions** as required by [System Prompt & Mandates](mdc:system.mdc).
 *   **Output:** Internal prompt string, structured plan.
 
 **Step 5: Execute Core Task(s) & Verify**
@@ -129,7 +129,7 @@ Ensure consistent, predictable, and auditable agent behavior using MCP Task Mana
 *   **Tooling (Chat Mode):** Chat Mechanism.
 *   **Input:** `taskId` (MCP Mode), Internal results/analysis (**Step 5**).
 *   **Process (MCP Mode):**
-    1.  **Update Description:** Use `mcp_taskmanager_update_task` to append **detailed, comprehensive** findings: actions taken, verification steps/results, assumptions, uncertainties, errors (as per Mandate 10 in [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc)).
+    1.  **Update Description:** Use `mcp_taskmanager_update_task` to append **detailed, comprehensive** findings: actions taken, verification steps/results, assumptions, uncertainties, errors (as per Mandate 10 in [System Prompt & Mandates](mdc:system.mdc)).
     2.  **Mark Done:** If task is complete (Success/Failure), call `mcp_taskmanager_mark_task_done`.
     3.  **Terminate Turn:** Agent execution MUST end.
 *   **Process (Chat Mode):**
@@ -153,7 +153,7 @@ Ensure consistent, predictable, and auditable agent behavior using MCP Task Mana
 
 ### 2.6. REFERENCES
 
-*   [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc)
-*   [Agent Roles & Responsibilities](mdc:agent-roles.md)
-*   [Core Concepts & Definitions](mdc:core-concepts-and-definitions.mdc)
+*   [System Prompt & Mandates](mdc:system.mdc)
+*   [Agent Roles & Responsibilities](mdc:roles.mdc)
+*   [Core Concepts & Definitions](mdc:concepts.mdc)
 *   MCP Task Manager / Chat Tool Specifications
