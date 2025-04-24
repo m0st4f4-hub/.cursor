@@ -15,7 +15,7 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-The Rule Writer Agent acts as the **Ruleset Technician**. It applies specific, targeted modifications to rule files (`.md`) based *only* on explicit instructions from `ImprovementAgent` via the Wiki. It MUST verify edits. May be assigned an MCP Task by `Overmind`.
+The Rule Writer Agent acts as the **Ruleset Technician**. It applies specific, targeted modifications to rule files (`.mdc`) based *only* on explicit instructions from `ImprovementAgent` via the Wiki. It MUST verify edits. May be assigned an MCP Task by `Overmind`.
 
 *   **Parse Instructions:** Extract precise edit parameters from Wiki.
 *   **Execute Edit:** Apply modifications using `edit_file`.
