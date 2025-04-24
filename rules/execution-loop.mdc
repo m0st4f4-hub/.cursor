@@ -76,4 +76,4 @@ alwaysApply: false
   2. UPDATE wiki (Step 6) with error status, agent role, timestamp, and error details.
   3. DETERMINE `nextAgent` as `Overmind` (Step 7).
   4. FORMULATE handoff message indicating failure and need for assessment (Step 7).
-  5. EXECUTE Step 8 to trigger `Overmind` via chat: "Hey Overmind, encountered error [brief summary]. Escalating for assessment. See wiki for details." 
+  5. EXECUTE Step 8 to trigger `Overmind` via chat: "Hey Overmind, encountered error [brief summary]. Escalating for assessment. See wiki for details."
