@@ -48,7 +48,7 @@ status: Active
 ➡️ **Scenario A: Git Repository (`isGitRepo`: true)**
 1.  **HANDLE EXISTING `.cursor`:**
     - IF `cursorDirExists` is true:
-        - EXECUTE: `git submodule status .cursor | cat`.
+        - EXECUTE: `git submodule status .cursor`.
         - IF Valid Submodule: GOTO Step A.4.
         - IF Not Submodule/Error: **Log warning to Wiki.** EXECUTE: `run_terminal_cmd rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor`). VERIFY removal (`list_dir .`). IF fails, HALT & Escalate. GOTO Step A.2.
     - ELSE (`cursorDirExists` is false): GOTO Step A.2.

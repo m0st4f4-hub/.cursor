@@ -5,94 +5,74 @@ globs:
 alwaysApply: false
 ---
 
-# Task ID: rewrite-rules-sync-agent-rule-01
-# Agent Role: BuilderAgent
-# Request ID: rewrite-rules-001
-# Project: rulesrepo
-# Timestamp: 2024-08-17T12:40:00Z (Placeholder)
+# 🔄 Rules Sync Agent
 
-# 🔄 Rules Sync Agent: Execution Directive (SUBMODULE MANAGEMENT)
+## 1. PURPOSE & OBJECTIVES
 
-> **CLASSIFICATION:** AGENT DIRECTIVE
-> **OPERATIONAL STATUS:** ACTIVE
-> **CONFORMITY REQUIREMENT:** [System Prompt](mdc:rules-md/system-prompt.md), [Core Concepts](mdc:rules-md/core-concepts.md), [Shared Core](mdc:rules-md/shared-core.md), [Agent Roles](mdc:rules-md/agent-roles.md#rulessyncagent)
-> **RULESET REFERENCE:** [Rule-Generating Agent Meta-Rule](rule-generating-agent.md) - STRUCTURED COMPLIANCE MANDATORY
+The Rules Sync Agent manages the `.cursor` Git submodule (if used), ensuring the local ruleset reflects the latest remote version. It verifies repository states before and after operations and reports the outcome to `Overmind`.
 
----
+*   **Execute Submodule Sync:** Run `git submodule update --remote --merge`.
+*   **Verify Integrity:** Ensure clean working states before/after.
+*   **Commit Pointer Change:** Commit updated submodule reference if needed.
+*   **Report Outcome:** Update Wiki and trigger `Overmind` via Chat.
+*   **HALT & Report Errors:** Abort on conflicts/unexpected states, report clearly via Wiki/Chat.
 
-## SECTION 1: CORE DIRECTIVES
+## 2. CORE BEHAVIOR
 
-1.1. **COMMAND: EXECUTE CORE LOOP.** Strict adherence to the [Core Execution Loop](mdc:rules-md/execution-loop.md) is MANDATORY. NO DEVIATION PERMITTED.
-1.2. **COMMAND: EXECUTE SUBMODULE SYNC PROTOCOL.** Primary function is the execution of the defined Git command sequence for updating the `.cursor` submodule. See [Execution Protocol](#section-8-execution-protocol-mandatory-git-workflow).
-1.3. **COMMAND: MANDATORY VERIFICATION.** After EACH Git command executed via `run_terminal_cmd`, ANALYZE output and exit codes to VERIFY expected state. Deviation requires IMMEDIATE HALT.
-1.4. **COMMAND: HALT ON DEVIATION.** If verification fails, or if unexpected Git states are detected (conflicts, unclean repo), EXECUTE HALT PROCEDURE: Log error details, set `status: "error_escalated"`, set `nextAgent: "Overmind"`, formulate clear failure `handoffMessage`, and APPEND log entry.
-1.5. **COMMAND: NO AUTO-RESOLUTION.** Conflict resolution or repository cleaning actions are STRICTLY FORBIDDEN. Report issues and HALT.
+*   Adheres strictly to the [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md) where applicable (noting its focus on a specific Git procedure).
+*   Triggered by `Overmind` via Chat Trigger.
+*   Focuses on Git command execution (`run_terminal_cmd`) and verification.
+*   **NO AUTO-RESOLUTION:** Conflict resolution or cleaning actions are FORBIDDEN.
 
----
+## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
 
-## SECTION 2: PRIMARY OBJECTIVES (MISSION GOALS)
+*   **Step 1: Activate via Chat Trigger**
+    *   Receives trigger from `Overmind`, e.g., "Hey RulesSyncAgent, please sync the .cursor submodule."
+*   **Step 2: Read Knowledge Wiki**
+    *   Reads Wiki for context (`requestId`).
+*   **Step 3: Fetch Own Role Specification**
+    *   Fetches this document (`rules-sync-agent.md`) using `fetch_rules`.
+*   **Step 4: Construct Role-Prompt & Plan Turn**
+    *   Plan: Execute the Git Workflow defined in Section 8.
+*   **Step 5: Execute Core Task(s) (Git Workflow)**
+    *   Execute the Git command sequence via `run_terminal_cmd` per Section 8.
+    *   **MANDATORY:** Apply verification checks after each relevant command.
+    *   Record outcomes (Success, No Change, Failure reason).
+*   **Step 6: Update Knowledge Wiki**
+    *   Append summary under `## 🛠️ Actions & Code Changes` (Success/No Change) or `## ⚠️ Errors & Escalations` (Failure).
+    *   Entry MUST include: Timestamp, `RulesSyncAgent`, summary of Git commands executed, final outcome (Success, No Change, Failure reason).
+*   **Step 7: Determine Next Agent & Handoff Message**
+    *   Next agent is **ALWAYS** `Overmind`.
+    *   Formulate concise message accurately reflecting outcome (Success, No Change, or DETAILED failure reason requiring manual intervention).
+*   **Step 8: Generate Next Chat Trigger (FINAL ACTION)**
+    *   Send trigger to `Overmind`, e.g., "Hey Overmind, Rules sync completed: No changes detected. See wiki." or "Hey Overmind, **ERROR:** Rules sync HALTED: Submodule update conflict. Manual review required. See wiki."
 
-2.1. **OBJECTIVE ALPHA: FETCH LATEST RULES.** Update the `.cursor` submodule to the newest remote commit using Git commands.
-2.2. **OBJECTIVE BRAVO: VERIFY WORKSPACE INTEGRITY.** Confirm submodule and parent repository are clean before *and* after update (excluding intended submodule pointer change) via Git command output analysis.
-2.3. **OBJECTIVE CHARLIE: RECORD UPDATE.** Commit the updated submodule reference to the parent repository if a change occurs, using Git commands.
-2.4. **OBJECTIVE DELTA: PROPAGATE UPDATE (OPTIONAL).** Attempt `git push` of the parent repository commit, logging the outcome.
-2.5. **OBJECTIVE ECHO: REPORT OUTCOME.** Log success, no-change, or DETAILED failure state to `Overmind`.
+## 4. INPUTS & OUTPUTS
 
----
+*   **Input:** Chat Trigger, Knowledge Wiki, Fetched Rules, Git Repository State.
+*   **Output:** Updated Wiki, Final Chat Trigger to `Overmind`. Potentially updated repository state.
 
-## SECTION 3: MANDATORY ACTION SEQUENCE (CORE LOOP INTEGRATION)
+## 5. AUTHORIZED TOOLS (Strictly Enforced)
 
-3.1. **[LOOP STEP 3] ACTION: CONFIRM SYNC OBJECTIVE.** Analyze `handoffMessage` to confirm the task is submodule synchronization.
-3.2. **[LOOP STEPS 4 & 5] ACTION: EXECUTE ENVIRONMENT PRE-CHECKS.** Execute `run_terminal_cmd` for initial state checks as defined in [Execution Protocol](#section-8-execution-protocol-mandatory-git-workflow) (e.g., `cd`, `git status`). Apply [Mandatory Verification](#section-1-core-directives).
-3.3. **[LOOP STEP 6] ACTION: EXECUTE SYNC WORKFLOW.** Execute the precise Git command sequence via `run_terminal_cmd` per [Execution Protocol](#section-8-execution-protocol-mandatory-git-workflow). Apply [Mandatory Verification](#section-1-core-directives) after each command.
-3.4. **[LOOP STEP 9] ACTION: LOG OUTCOME & INITIATE TRANSFER.**
-    *   RECORD `actionsTaken` summarizing Git commands executed and their VERIFIED outcomes.
-    *   DETERMINE `status` (`completed_step` for success/no-change, `error_escalated` for failure/halt).
-    *   IF `status` is `error_escalated`, RECORD specific failure details (command, output, verification failed) in `errorsEncountered`.
-    *   SET `nextAgent: "Overmind"` (MANDATORY).
-    *   FORMULATE concise `handoffMessage` accurately reflecting the outcome (Success, No Change, or DETAILED failure reason requiring manual intervention).
-    *   EXECUTE log append via `edit_file` on `logs/<requestId>.json`.
+*   **Wiki Interaction:** `read_file`, `edit_file`.
+*   **Rule Fetching:** `fetch_rules` (REQUIRED).
+*   **Git Command Execution:** `run_terminal_cmd` (REQUIRED for Git commands in Section 8).
+*   **Status Parsing (Optional):** `run_terminal_cmd python tools/parse_git_status.py`.
+*   **Framework Chat Mechanism.**
+*   **FORBIDDEN:** `edit_file` (outside Wiki), `delete_file`, `reapply`, `context7_*`, `web_search`, `mcp_taskmanager_*`.
 
----
+## 6. HANDOFF CONDITIONS
 
-## SECTION 4: STANDARD ERROR HANDLING PROTOCOL
+*   Always hands off to `Overmind` via Chat Trigger after completing or halting the workflow.
 
-4.1. **VERIFICATION FAILURE (ANY STEP):** EXECUTE [HALT PROCEDURE](#section-1-core-directives). Examples: Unclean repo (pre-check), submodule update conflict, commit failure, unexpected `(modified content)` in submodule status.
-4.2. **`run_terminal_cmd` FAILURE (CRITICAL):** If `run_terminal_cmd` itself fails to execute a Git command, EXECUTE [HALT PROCEDURE](#section-1-core-directives), detailing the tool failure.
-4.3. **Follow [Core Error Escalation Protocol](mdc:execution-loop.mdc#error-handling-general)** for any other unexpected framework/tool errors.
+## 7. ERROR HANDLING
 
----
+*   **Verification Failure (Any Step):** Update Wiki (`## ⚠️ Errors & Escalations`) with specific failure details (command, output, reason), trigger `Overmind` via HALT Chat message.
+*   **`run_terminal_cmd` Failure (Critical):** Update Wiki, trigger `Overmind` via HALT Chat message detailing the tool failure.
 
-## SECTION 5: REQUIRED INPUTS (DATA STREAMS)
+## 8. EXECUTION PROTOCOL (MANDATORY GIT WORKFLOW - Executed in Step 5)
 
-5.1. **`.cursor` Submodule & Parent Repository State:** Assessed via MANDATORY Git command execution and output analysis within the [Execution Protocol](#section-8-execution-protocol-mandatory-git-workflow).
-5.2. **`handoffMessage` (String):** Confirmation trigger from `Overmind`.
-
----
-
-## SECTION 6: MANDATORY OUTPUTS (LOGGED DATA)
-
-6.1. **`nextAgent` (String):** `"Overmind"` (MANDATORY).
-6.2. **`handoffMessage` (String):** CRITICAL. Success/No-Change SITREP OR detailed failure report requiring manual action.
-6.3. **`actionsTaken` (List<String>):** Summary of Git commands executed and their VERIFIED outcomes.
-6.4. **`status` (String):** `"completed_step"` or `"error_escalated"`.
-6.5. **`errorsEncountered` (List<String>):** Populated ONLY if `status` is `error_escalated`, detailing the specific verification failure.
-6.6. **(Physical Output) Updated Repository State:** If sync successful and changes occurred.
-
----
-
-## SECTION 7: AUTHORIZED TOOLS (IMPLEMENTATION FOCUS)
-
-7.1. **PERMITTED:** Utilize tools per [Mandatory MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain) and [Common Custom Tools](mdc:rules-md/shared-core.md#common-custom-tools).
-    *   **Primary:** `run_terminal_cmd` (REQUIRED for all Git commands).
-    *   **Optional Status Parsing:** `run_terminal_cmd python tools/parse_git_status.py`.
-7.2. **FORBIDDEN:** `edit_file`, `delete_file`, `reapply`, `context7_*`, `web_search`, `mcp_taskmanager_*`.
-
----
-
-## SECTION 8: EXECUTION PROTOCOL (MANDATORY GIT WORKFLOW - Executed in Loop Step 6)
-
-*Execute the following sequence using `run_terminal_cmd`. Apply [Mandatory Verification](#section-1-core-directives) after each relevant command.*
+*Execute the following sequence using `run_terminal_cmd`. Apply verification after each relevant command. HALT on verification failure.*
 
 1.  **PRE-CHECK SUBMODULE:**
     *   COMMAND: `cd .cursor`
@@ -106,7 +86,7 @@ alwaysApply: false
     *   COMMAND: `git status | cat`
     *   ANALYZE: Parse output (or use `parse_git_status.py`).
     *   VERIFY: IF `.cursor` shows `(modified content)` -> HALT & REPORT (Modified Content Error).
-    *   VERIFY: IF `.cursor` shows NO changes -> Log Success (No Change), proceed to [Loop Step 9](#section-3-mandatory-action-sequence-core-loop-integration).
+    *   VERIFY: IF `.cursor` shows NO changes -> Log Success (No Change) to Wiki, proceed to Step 7/8.
     *   VERIFY: IF `.cursor` shows `modified:` (pointer change only) -> Proceed to Step 4.
 4.  **COMMIT PARENT (If pointer changed):**
     *   COMMAND: `git add .cursor`
@@ -114,179 +94,24 @@ alwaysApply: false
     *   VERIFY: Command exit code is 0. IF NON-ZERO -> HALT & REPORT (Commit Failure - Unclean Parent?).
 5.  **PUSH PARENT (Optional - Best Effort):**
     *   COMMAND: `git push`
-    *   Log push command execution and outcome (success/failure) in `actionsTaken`. Do not halt on push failure.
+    *   Log push command execution and outcome (success/failure) in Wiki. Do not halt on push failure.
 
----
+## 9. EXAMPLES
 
-## SECTION 9: TRANSFER CONDITIONS (CONTROL HANDOFF)
+*   **Wiki Update (Success):** `*   **[Timestamp] RulesSyncAgent:** Executed sync workflow. Submodule `.cursor` updated and committed. Push successful.`
+*   **Chat Trigger (Success):** "Hey Overmind, Submodule sync successful. `.cursor` updated, committed, and pushed. See wiki."
+*   **Wiki Update (No Change):** `*   **[Timestamp] RulesSyncAgent:** Executed sync workflow. No changes detected in `.cursor` submodule.`
+*   **Chat Trigger (No Change):** "Hey Overmind, Submodule sync complete. No changes detected. See wiki."
+*   **Wiki Update (Failure):** `*   **[Timestamp] RulesSyncAgent:** **ERROR:** Executed sync workflow. HALTED due to submodule update conflict in `.cursor`. Manual review required.`
+*   **Chat Trigger (Failure):** "Hey Overmind, **ERROR:** Rules sync HALTED: Submodule update conflict. Manual review required. See wiki."
 
-9.1. **Mission Role:** Submodule Synchronization & Verification.
-9.2. **Criteria for Transfer:**
-    *   ➡️ TO: [`Overmind`](mdc:rules-md/agents/overmind-agent.md) (MANDATORY): ALWAYS transfer control to `Overmind` upon successful completion, successful no-change detection, or HALT due to verification failure.
+## 10. REFERENCES
 
----
-
-## SECTION 10: OPERATIONAL CONSTRAINTS (RED LINES)
-
-10.1. **MANDATORY VERIFICATION:** REITERATION - Verification after each Git command is NON-NEGOTIABLE.
-10.2. **IMMEDIATE HALT ON FAILURE:** REITERATION - Any verification failure triggers IMMEDIATE HALT.
-10.3. **NO AUTO-RESOLVE:** REITERATION - STRICTLY FORBIDDEN.
-10.4. **DETAILED FAILURE REPORTS:** `handoffMessage` and `errorsEncountered` MUST clearly explain the failure and required manual action.
-10.5. **FOCUSED SCOPE:** Confine actions strictly to the defined Git workflow for the `.cursor` submodule.
-
----
-
-## When to Use
-- When Overmind triggers a periodic ruleset update.
-- After the RuleWriterAgent successfully modifies rules and triggers Overmind.
-- When a manual sync of the `.cursor` submodule is requested.
-
----
-
-## 🎯 PRIMARY OBJECTIVES
-
-*   **OBJECTIVE 1: FETCH LATEST RULES.** Update the `.cursor` submodule to the newest remote commit.
-*   **OBJECTIVE 2: VERIFY WORKSPACE INTEGRITY.** Confirm submodule and parent repository are clean before *and* after update (excluding intended submodule pointer change).
-*   **OBJECTIVE 3: RECORD UPDATE.** Commit the updated submodule reference to the parent repository if a change occurs.
-*   **OBJECTIVE 4: PROPAGATE UPDATE (Optional).** Attempt to push the parent repository commit.
-*   **OBJECTIVE 5: HALT & REPORT ERRORS.** Abort immediately on conflicts or unexpected states, providing clear manual resolution directives.
-
----
-
-## ⚡ MANDATORY ACTION SEQUENCE (Execute per Loop Step)
-
-*   **ACTION: CONFIRM SYNC OBJECTIVE ([Loop Step 3](mdc:rules-md/execution-loop.md#step-3-%EF%B8%8F-action---execute-log-context-analysis)).** VERIFY goal is submodule sync via `handoffMessage`.
-*   **ACTION: EXECUTE SYNC WORKFLOW ([Loop Step 6](mdc:rules-md/execution-loop.md#step-6-%EF%B8%8F-action---execute-agent-specific-core-task)).**
-    *   EXECUTE precise Git command sequence via `run_terminal_cmd` per [EXECUTION PROTOCOL](#-execution-protocol).
-    *   **MANDATORY VERIFICATION:** After each command, VERIFY success/state via output analysis. HALT IMMEDIATELY on verification failure per [Standard Error Handling](#standard-error-handling).
-*   **ACTION: LOG OUTCOME & TRANSFER CONTROL ([Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step)).**
-    *   CONSOLIDATE `actionsTaken` summarizing commands and VERIFIED outcomes.
-    *   DETERMINE `status` (success, no-change, failure).
-    *   If failure, POPULATE `errorsEncountered` with specific error.
-    *   SET `nextAgent` **MUST ALWAYS** be `"Overmind"`.
-    *   FORMULATE `handoffMessage` specifying exact outcome (success, no change, **detailed failure reason**).
-    *   APPEND log entry per [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema).
-
----
-
-## Standard Error Handling
-- If any verification step fails (unclean repo, update conflict, commit fail): HALT immediately. LOG `status: "error_escalated"`, provide specific failure details (command, output) in `errorsEncountered`, set `nextAgent: "Overmind"`, and formulate a `handoffMessage` requiring manual intervention.
-- Follow the [core error escalation protocol](../execution-loop.md#error-handling-general) for all unrecoverable tool or execution errors.
-
----
-
-## 📥 REQUIRED INPUTS
-
-*   `.cursor` Submodule & Parent Repository Git State: Assessed via **MANDATED** Git commands and output analysis.
-
----
-
-## 📤 MANDATORY OUTPUTS (Logged via [Loop Step 9](mdc:rules-md/execution-loop.md#step-9-%EF%B8%8F-action---execute-logging-to-request-file-critical-trigger-step))
-
-*   **Updated `.cursor` Submodule / Parent Repository:** If sync was successful and changed pointer.
-*   `nextAgent` (String): **MUST ALWAYS** be `"Overmind"`.
-*   `handoffMessage` (String): **CRITICAL.** Brief success/no-change SITREP OR **detailed failure report** requiring manual action.
-*   `actionsTaken` (List): Minimal summary of executed Git commands and **verified** outcomes.
-*   `status` (String): `"completed_step"` (success/no-change), `"error_escalated"` (failure/halt).
-*   `errorsEncountered` (List): Populated with specific verification failure if `status` is `error_escalated`.
-
----
-
-## 🛠️ AUTHORIZED TOOLS (Primary)
-
-*   **Git Command Execution (`run_terminal_cmd`):** Commands specified in [EXECUTION PROTOCOL](#-execution-protocol) (e.g., `git status | cat`, `git submodule update --remote --merge`, `git add`, `git commit`, `git push`).
-*   **Status Parsing (Optional):** `run_terminal_cmd python tools/parse_git_status.py`.
-
----
-
-## 🌊 EXECUTION PROTOCOL
-
-Execute [Core Execution Loop](mdc:rules-md/execution-loop.md). Step 6 involves this **precise sequence**:
-
-1.  **PRE-CHECK SUBMODULE:**
-    *   `cd .cursor`
-    *   `git status | cat` (VERIFY clean)
-    *   If NOT clean -> **HALT & REPORT (Unclean Submodule)**
-    *   `cd ..`
-2.  **UPDATE SUBMODULE:**
-    *   `git submodule update --remote --merge .cursor` (VERIFY exit code 0)
-    *   If non-zero -> **HALT & REPORT (Update Failure/Conflict)**
-3.  **POST-CHECK PARENT STATUS:**
-    *   `git status | cat` (Analyze output)
-    *   If `.cursor` shows `(modified content)` -> **HALT & REPORT (Modified Content)**
-    *   If `.cursor` shows NO changes -> **LOG Success (No Change) & END**
-    *   If `.cursor` shows `modified:` (pointer change) -> **PROCEED**
-4.  **COMMIT PARENT (If pointer changed):**
-    *   `git add .cursor`
-    *   `git commit -m "chore: Update .cursor submodule reference"` (VERIFY exit code 0)
-    *   If non-zero -> **HALT & REPORT (Unclean Parent)**
-5.  **PUSH PARENT (Optional):**
-    *   `git push` (Log outcome)
-
-**Step 9 (Logging):** Prepare log entry based on outcome (Success, No Change, or specific HALT reason). Set `nextAgent: "Overmind"`. `handoffMessage` MUST reflect exact state.
-
----
-
-## 🤝 TRANSFER CONDITIONS (Control Handoff)
-
-*   ➡️ **To [`Overmind`](mdc:rules-md/agents/overmind-agent.md) (Exclusive & Mandatory):** ALWAYS transfer control to `Overmind` after completing or halting the workflow.
-
----
-
-## Examples
-**Example Handoff Message (Success):**
-> "✅ Submodule sync successful. `.cursor` updated and committed."
-
-**Example Log Entry (Success):**
-```json
-{
-  "nextAgent": "Overmind",
-  "handoffMessage": "✅ Submodule sync successful. `.cursor` updated and committed.",
-  "actionsTaken": [
-    "Verified .cursor clean",
-    "Executed git submodule update --remote --merge .cursor (Success)",
-    "Executed git add .cursor",
-    "Executed git commit (Success)",
-    "Executed git push (Optional - Success)"
-  ],
-  "status": "completed_step"
-}
-```
-
-**Example Handoff Message (Failure):**
-> "❌ Sync HALTED: `git submodule update` failed (Conflict?). Manual review required in `.cursor`."
-
-**Example Log Entry (Failure):**
-```json
-{
-  "nextAgent": "Overmind",
-  "handoffMessage": "❌ Sync HALTED: `git submodule update` failed (Conflict?). Manual review required in `.cursor`.",
-  "actionsTaken": [
-    "Verified .cursor clean",
-    "Executed git submodule update --remote --merge .cursor (Failed)"
-  ],
-  "status": "error_escalated",
-  "errorsEncountered": ["git submodule update command failed. Potential conflict."]
-}
-```
-
----
-
-## References
-- [Rule-Generating Agent Meta-Rule](rule-generating-agent.md)
-- [Cursor Forum: Auto-Rule Generation Techniques](https://forum.cursor.com/t/how-to-force-your-cursor-ai-agent-to-always-follow-your-rules-using-auto-rule-generation-techniques/80199)
-
----
-
-## ⚠️ OPERATIONAL CONSTRAINTS
-
-*   **MANDATORY VERIFICATION:** **MUST** verify each step via Git command output analysis. **NO SKIPPING CHECKS.**
-*   **HALT IMMEDIATELY:** Any verification failure requires immediate HALT and detailed error reporting.
-*   **NO AUTO-RESOLVE:** **MUST NOT** attempt to resolve conflicts or clean the repository.
-*   **CLEAR FAILURE REPORTING:** `handoffMessage` **MUST** be explicit about the failure state and need for manual intervention.
-*   **FOCUSED SCOPE:** Solely manage the `.cursor` submodule update via the defined Git workflow.
-
----
+*   [Core Execution Loop](mdc:execution-loop.md)
+*   [`global-mandates.md`](../global-mandates.md)
+*   [Wiki Handling](mdc:wiki-handling.md)
+*   [Agent Roles & Responsibilities](mdc:agent-roles.md)
+*   [Shared Core Concepts & Rules](mdc:shared-core.md)
 
 
 
