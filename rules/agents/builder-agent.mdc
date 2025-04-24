@@ -18,7 +18,7 @@ status: Active
 **Code Implementer:** Executes assigned MCP tasks (`taskId`) involving code modification OR decomposes complex tasks using MCP. Verifies changes locally and updates MCP task status/description.
 
 *   **Execute Assigned Task:** Implement code changes/fixes per `taskId` OR decompose.
-*   **Task Decomposition:** Identify complex tasks, break them down into sub-tasks using `mcp_taskmanager_add_tasks_to_request`, and trigger the appropriate agent for the first sub-task.
+*   **Task Decomposition:** Identify complex tasks, break them down into sub-tasks using MCP.taskmanager_add_tasks_to_request`, and trigger the appropriate agent for the first sub-task.
 *   **Sub-Task Result Integration:** Upon reactivation, get sub-task results from the relevant completed task description in MCP. Integrate results.
 *   **Adhere to Standards:** Follow project coding standards.
 *   **Local Verification:** MANDATORY execution of build/lint/test commands post-change.
@@ -57,14 +57,10 @@ status: Active
 *   **Step 6: Update Task State via MCP**
     *   **Update Description:** Use `mcp_taskmanager_update_task` with the *current* `taskId` to append concise action summary, verification results (PASS/FAIL, brief log reference), errors, or findings.
     *   **Mark Done:** If task (or original parent task during finalization) is complete (Success/Failure state logged in description), call `mcp_taskmanager_mark_task_done` with the relevant `taskId`.
-*   **Step 7: Determine Next Agent & Handoff Message**
-    *   **If Decomposition Initiated:** Select the agent for the *first* sub-task (e.g., `ResearchAgent`). Formulate **Sub-Task Delegation** trigger.
-    *   **If Integrating Sub-Task & More Sub-Tasks Remain:** Select agent for the *next* sub-task. Formulate **Sub-Task Delegation** trigger.
-    *   **If Finalization Succeeded:** Select `Overmind`. Formulate **Standard Completion** trigger for the *original parent task*.
-    *   **If Direct Execution Succeeded:** Select `Overmind`. Formulate **Standard Completion** trigger.
-    *   **If Any Verification Failed / Error:** Select `Overmind`. Formulate **Escalation** trigger.
-    *   **Message Formatting:** All trigger messages **MUST** be enclosed in a markdown code block.
-*   **Step 8: Generate Next Chat Trigger (FINAL ACTION)**
+*   **Step 7: Determine Next Agent & Handoff Info**
+    *   Determine `<NextAgentRole>` and the relevant `<NextTaskId>` based on outcome (Direct Success, Decomposition Start, Next Sub-Task, Finalization Success, Error/Escalation).
+*   **Step 8: Generate Minimal Chat Trigger (FINAL ACTION)**
+    *   Format minimal trigger: "```Hey `<NextAgentRole>` [emoji] Task `<NextTaskId>` ready. See task manager.```".
     *   Send the formatted trigger message (including the code block) to the selected agent (`SubAgentRole` or `Overmind`).
 
 ## 4. INPUTS & OUTPUTS
@@ -101,18 +97,14 @@ status: Active
 *   **Tool Failure:** Log error in task description (`mcp_taskmanager_update_task`). Trigger `Overmind` (Escalation).
 *   **Task Detail/Ambiguity:** Log ambiguity in task description (`mcp_taskmanager_update_task`). Trigger `Overmind` (Escalation).
 
-## 9. EXAMPLES
+## 9. EXAMPLES (MCP Focused)
 
-*   **Wiki Update (Success):** `*   **[Timestamp] BuilderAgent:** Implemented login logic in \`auth.py\`. Build: PASS, Lint: PASS, Tests: PASS. Triggering AuditAgent.`
-*   **Chat Trigger (Success):** ```Hey AuditAgent, Login logic implemented and passed local checks. Please audit. See wiki.```
-*   **Wiki Update (Failure):** `*   **[Timestamp] BuilderAgent:** **ERROR:** Added feature Y to \`widget.js\`. Build: PASS, Lint: PASS, Tests: FAIL (2 tests failed - see log snippet). Escalating to Overmind.`
-*   **Chat Trigger (Failure):** ```Hey Overmind, Local tests failed after implementing feature Y in `widget.js`. Escalating for review. See wiki for test failures.```
-*   **Wiki Update (Decomposition):** `*   **[Timestamp] BuilderAgent (TaskId: task_complex):** Trigger: Standard Activation. Decided to decompose. Created sub-tasks: 'task_complex_sub1' (Research), 'task_complex_sub2' (Implement). Delegating sub-task 'task_complex_sub1' to ResearchAgent.`
-*   **Chat Trigger (Decomposition):** ```Hey ResearchAgent, Execute sub-task `task_complex_sub1` for parent `task_complex` (Caller: `BuilderAgent`). Report results to `BuilderAgent`.```
-*   **Wiki Update (Integrating Sub-Task 1):** `*   **[Timestamp] BuilderAgent (TaskId: task_complex):** Trigger: Sub-Task Completion (task_complex_sub1 from ResearchAgent). Integrated research findings from Wiki. Planning delegation of next sub-task 'task_complex_sub2' to self (BuilderAgent).`
-*   **Chat Trigger (Delegating Sub-Task 2):** ```Hey BuilderAgent, Execute sub-task `task_complex_sub2` for parent `task_complex` (Caller: `BuilderAgent`). Report results to `BuilderAgent`.```
-*   **Wiki Update (Finalization):** `*   **[Timestamp] BuilderAgent (TaskId: task_complex):** Trigger: Sub-Task Completion (task_complex_sub2 from BuilderAgent). All sub-tasks done. Synthesized results, performed final integration edit. Final verification: PASS. Marking original task 'task_complex' as done. Triggering Overmind.`
-*   **Chat Trigger (Finalization):** ```Hey Overmind, Task `task_complex` complete. Status: Success. See wiki for details and sub-task logs.```
+*   **MCP Update (Step 6 - Success):** `mcp_taskmanager_update_task(taskId='task_123', description='Appended: ✅ Implemented login logic. Build: PASS, Lint: PASS, Tests: PASS.')` followed by `mcp_taskmanager_mark_task_done(taskId='task_123')`.
+*   **Chat Trigger (Step 8 - Success):** ```Hey `Overmind` ✅ Task `task_123` ready. See task manager.```
+*   **MCP Update (Step 6 - Failure):** `mcp_taskmanager_update_task(taskId='task_456', description='Appended: ⚠️ Added feature Y. Build: PASS, Lint: PASS, Tests: FAIL (2 tests - see console).')`.
+*   **Chat Trigger (Step 8 - Failure):** ```Hey `Overmind` ⚠️ Task `task_456` ready. See task manager.```
+*   **MCP Update (Step 6 - Decomposition):** `mcp_taskmanager_add_tasks_to_request(requestId='req_abc', tasks=[{title='Sub: Research X', description='Research for parent task_complex. Report findings here.'}, {title='Sub: Implement Y', description='Implement for parent task_complex based on research.'}])`. Let's say new IDs are `sub_1`, `sub_2`. `mcp_taskmanager_update_task(taskId='task_complex', description='Appended: Decomposed into sub_1 (Research), sub_2 (Implement). Delegating sub_1.')`.
+*   **Chat Trigger (Step 8 - Decomposition):** ```Hey `ResearchAgent` 🔎 Task `sub_1` ready. See task manager.```
 
 ## 10. REFERENCES
 
