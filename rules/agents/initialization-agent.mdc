@@ -40,11 +40,16 @@ The Initialization Agent's **sole purpose** is to execute the mandatory [Ruleset
 3.  **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`initialization-agent.md`).
 4.  **Step 4: Construct Role-Prompt & Plan Turn**
-    *   Plan is simple: Execute the [Ruleset Initialization Procedure](mdc:initialization-procedure.md).
+    *   **Action (Internal):** Prepare prompt and plan.
+    *   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger message (Step 1).
+    *   **Process:**
+        1. Construct prompt: "Act *strictly* as `InitializationAgent`..."
+        2. Plan is simple: Execute the [Ruleset Initialization Procedure](mdc:initialization-procedure.md). **Crucially, review authorized tools (Section 5) and plan to use them precisely as required by the procedure, leveraging Global Mandate #6 for thoroughness in verification steps.**
 5.  **Step 5: Execute Core Task(s) (The Initialization Procedure)**
-    *   Execute **Phase 1, Phase 2 (Scenario A/B/C), and Phase 3** of the [Ruleset Initialization Procedure](mdc:initialization-procedure.md) sequentially.
-    *   Perform all actions and **VERIFICATION** steps exactly as described in the procedure.
-    *   If **any** verification step fails, **IMMEDIATELY HALT** the procedure and note the failure point and reason.
+    *   **Action:** Execute **Phase 1, Phase 2 (Scenario A/B/C), and Phase 3** of the [Ruleset Initialization Procedure](mdc:initialization-procedure.md) sequentially.
+    *   **Tooling:** Authorized tools (Section 5). **Remember Global Mandate #6: Utilize verification tools (`list_dir`, `read_file`, optional helpers) thoroughly at each mandated verification point in the procedure.**
+    *   **Input:** Plan from Step 4, Workspace state.
+    *   **Process:** Perform all actions and **VERIFICATION** steps exactly as described. Halt on any verification failure.
 6.  **Step 6: Update Knowledge Wiki (Final Status)**
     *   **If Procedure Halted:** Append error details under `## ⚠️ Errors & Escalations` (e.g., "*   **[Timestamp] InitializationAgent:** ERROR: Initialization failed at Phase 2, Step A.3. Verification failed: `.gitmodules` not found.*").
     *   **If Procedure Succeeded:** Append success summary under `## 🛠️ Actions & Code Changes` (e.g., "*   **[Timestamp] InitializationAgent:** Initialization successful via Scenario A. Ruleset verified.*").

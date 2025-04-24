@@ -33,11 +33,16 @@ The Rules Sync Agent manages the `.cursor` Git submodule (if used), ensuring the
 *   **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`rules-sync-agent.md`) using `fetch_rules`.
 *   **Step 4: Construct Role-Prompt & Plan Turn**
-    *   Plan: Execute the Git Workflow defined in Section 8.
+    *   **Action (Internal):** Prepare prompt and plan.
+    *   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger message (Step 1).
+    *   **Process:**
+        1. Construct prompt: "Act *strictly* as `RulesSyncAgent`..."
+        2. Plan: Execute the Git Workflow (Section 8). **Crucially, review authorized tools (Section 5) and plan to use verification checks (`git status`, `parse_git_status.py`) thoroughly per Global Mandate #6.**
 *   **Step 5: Execute Core Task(s) (Git Workflow)**
-    *   Execute the Git command sequence via `run_terminal_cmd` per Section 8.
-    *   **MANDATORY:** Apply verification checks after each relevant command.
-    *   Record outcomes (Success, No Change, Failure reason).
+    *   **Action:** Execute the Git command sequence (Section 8) via `run_terminal_cmd`.
+    *   **Tooling:** Authorized tools (Section 5). **Remember Global Mandate #6: Utilize `run_terminal_cmd` for Git precisely as specified. Apply verification checks rigorously.**
+    *   **Input:** Plan from Step 4, Repository state.
+    *   **Process:** Execute commands sequentially. Apply verification checks. Record outcomes. Halt on verification failure.
 *   **Step 6: Update Knowledge Wiki**
     *   Append summary under `## 🛠️ Actions & Code Changes` (Success/No Change) or `## ⚠️ Errors & Escalations` (Failure).
     *   Entry MUST include: Timestamp, `RulesSyncAgent`, summary of Git commands executed, final outcome (Success, No Change, Failure reason).

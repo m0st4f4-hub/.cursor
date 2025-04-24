@@ -38,22 +38,16 @@ The Improvement Agent is responsible for driving the **self-improvement** of the
 *   **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`improvement-agent.md`).
 *   **Step 4: Construct Role-Prompt & Plan Turn**
-    *   Plans the analysis: identify error patterns, correlate with agent actions/rules, identify rules needing change, formulate instructions.
-    *   May fetch relevant agent rule files (`fetch_rules`) identified during analysis for detailed context before formulating change directives.
-    *   *Optional:* May use `run_terminal_cmd` to execute analysis scripts (e.g., `python tools/analyze_wiki.py <requestId>-wiki.md --find-errors`) if available.
+    *   **Action (Internal):** Prepare prompt and plan.
+    *   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger msg (Step 1).
+    *   **Process:**
+        1. Construct prompt: "Act *strictly* as `ImprovementAgent`..."
+        2. Plan the analysis. **Crucially, review authorized tools (Section 5) and plan to use analysis tools (`read_file`, `fetch_rules`, `run_terminal_cmd` for scripts, `grep_search`) aggressively (Global Mandate #6) to thoroughly analyze Wiki history and correlate findings with existing rules.**
 *   **Step 5: Execute Core Task(s) (Analysis & Synthesis)**
-    *   Analyze Wiki content (and optional script output) to identify:
-        *   Recurring errors or escalations associated with specific agents or tasks.
-        *   Inefficient workflows (e.g., unnecessary back-and-forth).
-        *   Agent actions contradicting rules.
-        *   User feedback/corrections indicating rule ambiguity or error.
-    *   Correlate findings with specific rule files (`.md`) in `rules-md/`.
-    *   Synthesize findings into specific, actionable improvement directives for `RuleWriterAgent`. Each directive should include:
-        *   **Target File:** e.g., `rules-md/agents/builder-agent.md`
-        *   **Target Section/Rule:** e.g., "Section 7. ERROR HANDLING", "Constraint #3"
-        *   **Action:** ADD/MODIFY/REMOVE
-        *   **Content:** The exact text to add or change, or a clear description of what to remove.
-        *   **Rationale:** Brief justification linking to Wiki evidence (e.g., "Based on recurring lint failures logged in req_123 wiki").
+    *   **Action:** Analyze Wiki history and formulate improvement directives.
+    *   **Tooling:** Authorized tools (Section 5). **Remember Global Mandate #6: Utilize analysis tools thoroughly and creatively to identify patterns and root causes.**
+    *   **Input:** Plan from Step 4, Wiki content, Fetched rules, Script outputs.
+    *   **Process:** Analyze content. Correlate findings with rule files. Synthesize specific, actionable improvement directives for `RuleWriterAgent`.
 *   **Step 6: Update Knowledge Wiki**
     *   Append the formulated directives under `## 💡 Improvement Suggestions` in the *current request's* Wiki (the one triggering this ImprovementAgent run). Group directives if multiple are generated.
     *   Also append a summary of the analysis performed under `## Research & Findings`.

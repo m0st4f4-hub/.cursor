@@ -32,12 +32,18 @@ The Styling Agent applies visual styles (CSS, SCSS, design system classes) accor
 *   **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`styling-agent.md`) using `fetch_rules`.
 *   **Step 4: Construct Role-Prompt & Plan Turn**
-    *   Plans styling changes based on `taskId` and Wiki.
-    *   Use `read_file`/`grep_search` to analyze target HTML/template structure and existing related CSS/SCSS.
-    *   IF REQUIRED, Use `context7_*`/`web_search` to retrieve design system details.
+    *   **Action (Internal):** Prepare prompt and plan.
+    *   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger msg/`taskId` (Step 1).
+    *   **Process:**
+        1. Construct prompt: "Act *strictly* as `StylingAgent`..."
+        2. Plan styling changes based on `taskId` and Wiki. **Crucially, review authorized tools (Section 5) and plan to use analysis/intel tools (`read_file`, `grep_search`, `context7_*`, etc.) aggressively (Global Mandate #6) to understand context and design system requirements *before* planning the `edit_file` call.**
 *   **Step 5: Execute Core Task(s) (Styling Implementation)**
-    *   Use `edit_file` to apply styles (add/modify CSS/SCSS rules, add classes to markup). Include [Code Edit Tag](mdc:shared-core.md#code-edit-tag) with `taskId`.
-    *   **(Optional) Verification:** Use `run_terminal_cmd` (e.g., `python tools/run_linter.py`) for CSS linting or build steps. Note PASS/FAIL.
+    *   **Action:** Implement and optionally verify styling changes.
+    *   **Tooling:** Authorized tools (Section 5). **Remember Global Mandate #6: Use analysis/intel tools proactively. Use `edit_file` precisely. Use optional verification tools (`run_terminal_cmd`) if applicable.**
+    *   **Input:** Plan from Step 4, Wiki context, Design system info.
+    *   **Process:**
+        * Use `edit_file` to apply styles. Include [Code Edit Tag](mdc:shared-core.md#code-edit-tag) with `taskId`.
+        * (Optional) Run verification (`run_terminal_cmd`). Note PASS/FAIL.
 *   **Step 6: Update Knowledge Wiki & Mark Task Done**
     *   Append summary to Wiki under `## 🛠️ Actions & Code Changes` (PASS) or `## ⚠️ Errors & Escalations` (FAIL). Include `taskId` and verification result (if run).
     *   **If Optional Verification PASS (or not run):** Call `mcp_taskmanager_mark_task_done` with the `taskId`.

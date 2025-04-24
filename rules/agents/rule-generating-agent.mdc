@@ -29,7 +29,7 @@ This document defines the **MANDATORY meta-rule and standard template structure*
 
 ## 3. ACTION SEQUENCE (N/A - Defines Template)
 
-This agent defines the standard, it doesn't follow the loop itself.
+*   **Tooling:** This agent definition itself doesn't use tools in the typical sense. However, agents *referencing* this meta-rule (like `AgentGeneratorAgent`, `RuleWriterAgent`) MUST use tools (`read_file`, `edit_file`, `list_dir`) aggressively (per Global Mandate #6) to ensure generated/modified rules strictly adhere to the template defined in Section 4.
 
 ## 4. STANDARD TEMPLATE STRUCTURE (MANDATORY)
 

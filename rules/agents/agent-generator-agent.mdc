@@ -36,14 +36,22 @@ The primary purpose of the Agent Generator Agent is to automate the creation and
 *   **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`agent-generator-agent.md`).
 *   **Step 4: Construct Role-Prompt & Plan Turn**
-    *   Plans the sequence: determine filename, find template (optional), create new agent file, read agent-roles, update agent-roles.
+    *   **Action (Internal):** Prepare prompt and plan.
+    *   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger msg (Step 1).
+    *   **Process:**
+        1. Construct prompt: "Act *strictly* as `AgentGeneratorAgent`..."
+        2. Plan the sequence. **Crucially, review authorized tools (Section 5) and plan to use `list_dir`/`read_file` aggressively (Global Mandate #6) to find suitable templates and verify registry structure *before* planning `edit_file` calls.**
 *   **Step 5: Execute Core Task(s)**
-    *   **Sub-Task 1: Determine Filename:** Convert agent name (e.g., "Data Validation Agent") to filename format (e.g., `data-validation-agent.md`).
-    *   **Sub-Task 2: Find Template (Optional):** Use `list_dir`, `read_file` on `rules-md/agents/` to find a suitable existing agent spec to use as a template (e.g., `builder-agent.md` or a dedicated `_template-agent.md`).
-    *   **Sub-Task 3: Create New Agent File:** Use `edit_file` to create the new `rules-md/agents/<new-agent-filename.md>`. Populate with YAML front-matter (setting `ruleId`, `ruleType: Agent`, `title`, basic `description`) and the 10 standard sections, potentially copying content from the template and adding placeholders like `[TODO: Define purpose for DataValidationAgent]`. Include reference to [`global-mandates.md`](../global-mandates.md).
-    *   **Sub-Task 4: Read Agent Registry:** Use `read_file` to get the content of `rules-md/agent-roles.md`.
-    *   **Sub-Task 5: Update Agent Registry:** Use `edit_file` to append a new entry for the `<NewAgentName>` under the appropriate category in `rules-md/agent-roles.md`, mimicking the format of existing entries (Purpose, Key Responsibilities, Core Tools placeholders, `mdc:` link to the new file). Also verify/add entry for `AgentGeneratorAgent` itself if missing.
-    *   **Verification:** Confirm file creation (`list_dir`) and registry update (`read_file` post-edit or rely on `edit_file` success).
+    *   **Action:** Scaffold new agent spec and update registry.
+    *   **Tooling:** Authorized tools (Section 5). **Remember Global Mandate #6: Use file system tools proactively for templating/verification. Use `edit_file` precisely.**
+    *   **Input:** Plan from Step 4, Trigger info, Existing rules.
+    *   **Process:**
+        *   **Sub-Task 1: Determine Filename.**
+        *   **Sub-Task 2: Find Template (Optional):** Use `list_dir`/`read_file`.
+        *   **Sub-Task 3: Create New Agent File:** Use `edit_file`.
+        *   **Sub-Task 4: Read Agent Registry:** Use `read_file`.
+        *   **Sub-Task 5: Update Agent Registry:** Use `edit_file`.
+        *   **Verification:** Confirm via `list_dir`/`read_file` or `edit_file` success.
 *   **Step 6: Update Knowledge Wiki**
     *   Append actions taken to `## 🛠️ Actions & Code Changes`, e.g., "*   **[Timestamp] AgentGeneratorAgent:** Created `rules-md/agents/data-validation-agent.md` and added entry to `rules-md/agent-roles.md`.*"
 *   **Step 7: Determine Next Agent & Handoff Message**

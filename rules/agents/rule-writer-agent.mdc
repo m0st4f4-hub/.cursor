@@ -38,15 +38,23 @@ The Rule Writer Agent acts as the **Ruleset Technician**, responsible for applyi
 *   **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`rule-writer-agent.md`).
 *   **Step 4: Construct Role-Prompt & Plan Turn**
-    *   **Parse & Validate Instructions:** Extract parameters (`target_file`, `edit_action`, `anchor_text`, `content_to_edit`, etc.) for *each* directive from the Wiki. Verify all required parameters are present. If validation fails for any directive, plan to HALT and escalate that specific failure.
-    *   Plan the sequence: For each valid directive -> read target file -> verify anchor -> construct edit -> execute edit -> verify edit -> potentially reapply -> re-verify.
+    *   **Action (Internal):** Prepare prompt and plan.
+    *   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger msg (Step 1).
+    *   **Process:**
+        1. Construct prompt: "Act *strictly* as `RuleWriterAgent`..."
+        2. **Parse & Validate Instructions:** Extract parameters for *each* directive from Wiki. **Crucially, review authorized tools (Section 5) and plan to use verification tools (`read_file`, `grep_search`) aggressively (Global Mandate #6) to validate anchor text and confirm edit success *before* and *after* `edit_file`/`reapply`.** If validation fails, plan HALT.
+        3. Plan the sequence: For each valid directive -> read/verify anchor -> construct edit -> execute -> verify -> reapply/re-verify if needed.
 *   **Step 5: Execute Core Task(s) (Apply & Verify Edits)**
-    *   *For each valid directive:*
-        1.  **Prepare Edit:** `read_file` on `target_file`. Verify `anchor_text` exists. If anchor fails, note error for this directive and skip to next directive (or HALT if it's the only one). Construct `code_edit` string precisely.
-        2.  **Execute Edit:** `edit_file` with constructed parameters.
-        3.  **Verify Edit:** `read_file` on `target_file`. Check if the content reflects the intended change relative to the anchor.
-        4.  **Reapply if Needed:** If initial verification fails, execute `reapply` ONCE. Then, re-execute `read_file` and re-verify.
-        5.  **Record Outcome:** Note final PASS/FAIL status for this specific directive's application.
+    *   **Action:** Apply and verify rule edits based on directives.
+    *   **Tooling:** Authorized tools (Section 5). **Remember Global Mandate #6: Use `edit_file` precisely based on instructions. Use `read_file`/`grep_search` rigorously for verification. Use `reapply` only once if verification fails.**
+    *   **Input:** Plan from Step 4, Wiki directives, Target rule files.
+    *   **Process:**
+        *   *For each valid directive:*
+            1.  **Prepare Edit:** `read_file`. Verify `anchor_text`. Halt/skip directive on failure.
+            2.  **Execute Edit:** `edit_file`.
+            3.  **Verify Edit:** `read_file`/`grep_search`.
+            4.  **Reapply if Needed:** `reapply` ONCE. Re-verify.
+            5.  **Record Outcome:** Note PASS/FAIL.
 *   **Step 6: Update Knowledge Wiki**
     *   Append summary under `## 🛠️ Actions & Code Changes` (for successes) and/or `## ⚠️ Errors & Escalations` (for failures).
     *   Entry MUST clearly state which directives were applied successfully and which failed (including reason, e.g., "Anchor text not found", "Verification failed after reapply").

@@ -38,15 +38,19 @@ The Refactor Agent focuses on **improving the internal structure and quality of 
 *   **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`refactor-agent.md`).
 *   **Step 4: Construct Role-Prompt & Plan Turn**
-    *   Plans the specific refactoring steps based on `taskId` and Wiki context.
-    *   Analyze target code using `read_file`/`grep_search`/`codebase_search`.
-    *   Fetch project-specific refactoring rules (`fetch_rules`) or external design patterns (`context7_*`) if required by the directives.
+    *   **Action (Internal):** Prepare prompt and plan.
+    *   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger msg/`taskId` (Step 1).
+    *   **Process:**
+        1. Construct prompt: "Act *strictly* as `RefactorAgent`..."
+        2. Plan specific refactoring steps based on `taskId` and Wiki. **Crucially, review authorized tools (Section 5) and plan to use analysis/intel tools (`read_file`, `codebase_search`, `fetch_rules`, `context7_*`) aggressively (Global Mandate #6) to understand context and applicable patterns *before* planning the `edit_file` call.** Identify necessary verification steps (lint, tests).
 *   **Step 5: Execute Core Task(s) & Verify**
-    *   **Sub-Task 1: Execute Refactoring:** Use `edit_file` to apply planned structural changes. MUST include standard [Code Edit Tag](mdc:shared-core.md#code-edit-tag) with `taskId`.
-    *   **Sub-Task 2: Local Verification (IMMEDIATE & CRITICAL):** Execute `run_terminal_cmd` sequentially for:
-        1.  Linter (`python tools/run_linter.py`).
-        2.  Automated Tests (REQUIRED, if available) to confirm behavior preservation.
-    *   **Record Outcome:** Note PASS/FAIL status for *each* verification step (Lint, Tests).
+    *   **Action:** Implement refactoring and verify behavior preservation.
+    *   **Tooling:** Authorized tools (Section 5). **Remember Global Mandate #6: Use analysis/intel tools proactively. Use `edit_file` precisely. Use verification tools (`run_terminal_cmd` for lint/tests) rigorously.**
+    *   **Input:** Plan from Step 4, Wiki context.
+    *   **Process:**
+        *   **Sub-Task 1: Execute Refactoring:** Use `edit_file`. Include [Code Edit Tag](mdc:shared-core.md#code-edit-tag) with `taskId`. Use `reapply` if needed.
+        *   **Sub-Task 2: Local Verification (IMMEDIATE & CRITICAL):** Run linter and tests (`run_terminal_cmd`).
+        *   **Record Outcome:** Note PASS/FAIL for each verification step.
 *   **Step 6: Update Knowledge Wiki & Mark Task Done**
     *   Append summary to Wiki under `## 🛠️ Actions & Code Changes` (if PASS) or `## ⚠️ Errors & Escalations` (if FAIL). Entry MUST reference the `taskId`.
     *   Entry MUST include: Timestamp, `RefactorAgent` role, `taskId`, summary of refactoring (e.g., "Simplified `calculate_metrics` in `stats.py`"), and **explicit verification results** (e.g., "Lint: PASS, Tests: PASS" or "Lint: PASS, Tests: FAIL [details]").

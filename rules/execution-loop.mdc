@@ -11,71 +11,91 @@ lastUpdated: null
 status: Active
 ---
 
-# 🔁 Core Agent Execution Loop
+# 🔄 Core Execution Loop (MANDATORY)
 
-## 1. PURPOSE & OBJECTIVES
+**PURPOSE:** Defines the mandatory, sequential steps each agent MUST follow during its execution turn within the Chat/Wiki framework. Ensures consistency, traceability, and controlled handoffs.
 
-This document outlines the **single, mandatory sequence of actions** that every agent MUST perform during its active turn. This ensures consistent behavior, context handling, state updates, and handoffs across the framework. Adherence to this loop is critical for autonomous operation.
+**CONTEXT:** This loop is initiated when an agent is activated by a **Chat Trigger** from a preceding agent or `Overmind`. It assumes the agent has access to the necessary tools (`fetch_rules`, Wiki access, Chat mechanism, MCP Task Manager tools where applicable).
 
-## 2. CORE BEHAVIOR (Applies to ALL agents)
+**PRINCIPLES (MANDATORY):**
+- **SEQUENTIAL:** Steps MUST be executed in the specified order (1-8).
+- **IDEMPOTENT (where applicable):** Actions should strive to be safe for repetition if the agent is interrupted and restarted, although full idempotency isn't always feasible.
+- **STATEFUL VIA WIKI:** Context and state are primarily maintained through the Knowledge Wiki. Agents MUST read the Wiki (Step 2) and MUST update it (Step 6).
+- **ROLE-DRIVEN:** Agent behavior within the loop (especially Step 4 & 5) is dictated by its specific Role Specification (`.md` file).
+- **NO WAITING (Except Diagnostics):** Agents MUST NOT pause waiting for user input during the loop, except for the specific diagnostic interaction allowed in Step 5. The loop should proceed autonomously.
+- **FINAL ACTION = TRIGGER:** The *only* way an agent concludes its turn is by successfully generating the Chat Trigger in Step 8.
 
-Agents operate in discrete turns, activated by a Chat Trigger. Within a turn, they MUST perform the following 8 steps **sequentially and without deviation**, leveraging the Knowledge Wiki for context and state, and concluding by triggering the next agent via another Chat Trigger.
+## WORKFLOW (MANDATORY STEPS 1-8)
 
-## 3. ACTION SEQUENCE (MANDATORY)
-
-### Step 1: Activate via Chat Trigger
-*   **Action:** Agent is activated by the framework upon receiving a specific chat message addressed to its role (e.g., "Hey BuilderAgent...").
-*   **Input:** Incoming Chat Trigger message.
-*   **Process:** Extract initial instructions, query, or task context from the message.
+### Step 1: Activate via Chat Trigger & Get Task ID
+1.  **RECEIVE TRIGGER:** Agent is activated by a specific Chat Trigger message (e.g., "Hey BuilderAgent, Start work on TaskId 'task_def' for req_123...").
+2.  **EXTRACT KEY INFO:** Parse the trigger message to extract critical information, **especially the `requestId` and `taskId` (if applicable)**. Store these locally for the duration of the turn. *Note: Not all agents operate on tasks (e.g., `InitializationAgent`), but `requestId` is generally required for Wiki access.*
 
 ### Step 2: Read Knowledge Wiki
-*   **Action:** Read and parse the Knowledge Wiki file (`<requestId>-wiki.md`).
-*   **Tooling:** `read_file` (or potentially `analyze_wiki.py` via `run_terminal_cmd`).
-*   **Input:** `requestId`.
-*   **Process:** Extract necessary context including overall goal, current task, history, findings from previous agents, user input summaries, and relevant project state. Refer to [Wiki Handling](mdc:wiki-handling.md) for structure.
-*   **Verification:** Wiki file exists, is readable, and contains expected baseline information.
+1.  **IDENTIFY WIKI:** Determine the correct Knowledge Wiki file path based on the `requestId` (e.g., `<requestId>-wiki.md`).
+2.  **READ WIKI:** Execute `read_file` on the identified Wiki file. Read the *entire* file to capture the full context, history, goals, and previous actions/findings.
+3.  **STORE CONTEXT:** Load the Wiki content into the agent's working memory for reference in subsequent steps.
 
 ### Step 3: Fetch Own Role Specification
-*   **Action:** Fetch the agent's specific behavior rules.
-*   **Tooling:** `fetch_rules`.
-*   **Input:** Agent's own role name (e.g., `agents/builder-agent`).
-*   **Process:** Load the rule file content (`.mdc`).
-*   **Verification:** Rule file exists and is fetched successfully.
+1.  **IDENTIFY ROLE:** The agent knows its own role (e.g., `BuilderAgent`, `ResearchAgent`).
+2.  **FETCH RULES:** Execute `fetch_rules` for its specific role specification file (e.g., `builder-agent.md`).
+3.  **STORE RULES:** Load the role specification content into working memory. This defines the agent's purpose, objectives, authorized tools, constraints, and specific logic for Steps 4-8.
 
 ### Step 4: Construct Role-Prompt & Plan Turn
-*   **Action (Internal):** Prepare the operational prompt for the LLM and outline the turn's plan.
-*   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger message content (Step 1).
-*   **Process:**
-    1.  Construct prompt: "Act *strictly* as `<AgentRole>` based on the following rules..." including fetched rules, relevant Wiki context, and trigger instructions.
-    2.  Develop a minimal, actionable plan for the core task(s) of the turn based on the agent's role and current context.
+1.  **SYNTHESIZE CONTEXT:** Combine information gathered from:
+    *   The activating Chat Trigger (Step 1).
+    *   The Knowledge Wiki (Step 2).
+    *   Its own Role Specification (Step 3).
+    *   The specific details of the assigned `taskId` (if applicable, often fetched using `mcp_taskmanager_open_task_details` *within this step* as directed by the agent's role spec).
+2.  **ANALYZE & PLAN:** Based on the synthesized context and the agent's role, formulate a step-by-step plan for **Step 5 (Execute Core Task)**. This plan MUST align with the agent's objectives and constraints.
+    *   **Identify necessary tools.**
+    *   **Sequence actions.**
+    *   **Consider potential edge cases or error conditions.**
+    *   **Determine if the task requires direct execution, further research, or *task decomposition*.**
+    *   **If Decomposition is Needed:** Formulate a "Decomposition Plan" outlining the sub-tasks required. This might involve preparing information to create new MCP tasks.
+3.  *(Self-Correction/Refinement - Optional but Recommended):* Review the plan against the role specification and Wiki context. Does it directly address the `taskId` or trigger? Is it the most efficient path? Does it violate constraints? Adjust plan if needed.
 
 ### Step 5: Execute Core Task(s)
-*   **Action:** Perform the agent's primary function(s) as defined by its role and the turn's plan.
-*   **Tooling:** Authorized tools per role spec (e.g., `edit_file`, `run_terminal_cmd`, `codebase_search`, `web_search`).
-*   **Input:** Plan from Step 4, Wiki context, potentially Trigger message details.
-*   **Process:** Execute tool calls to achieve the planned objective (e.g., write code, run tests, search for information).
-*   **DIAGNOSTICS EXCEPTION:** If external information (e.g., user-provided logs, HAR files) is *required* to proceed after a failure, the agent MAY generate a specific, targeted request to the user via chat. The agent MUST state exactly what is needed. Upon receiving the data, the agent MUST immediately resume this step. **This is the ONLY permissible reason to interact with the user mid-loop.**
+1.  **EXECUTE PLAN:** Perform the actions planned in Step 4, using the authorized tools defined in the agent's role specification. This is the primary "work" phase of the agent. Examples:
+    *   `ResearchAgent`: Uses `codebase_search`, `web_search`, `read_file`.
+    *   `BuilderAgent`: Uses `edit_file`, `run_terminal_cmd` (for lint/build/test), `reapply`.
+    *   `Overmind`: Uses `mcp_taskmanager_*` tools for planning/delegation.
+    *   **Executing Decomposition Plan:** If Step 4 resulted in a Decomposition Plan, this step might involve calling `mcp_taskmanager_add_tasks_to_request` to create the sub-tasks, preparing context for them, etc.
+2.  **HANDLE TOOL OUTPUTS:** Process the results/outputs from tool calls. Store necessary data (e.g., search results, file content, test outcomes) for Step 6.
+3.  **DIAGNOSTICS (USER INPUT - STRICTLY LIMITED):**
+    *   *Condition:* ONLY if the agent encounters **unexpected errors** during tool execution OR **critical ambiguity** that prevents task completion AND its role specification explicitly PERMITS asking for diagnostic help.
+    *   *Action:* Output a concise question to the user seeking specific clarification or reporting the error.
+    *   *Constraint:* The agent MUST state it will **HALT** after asking. It CANNOT proceed with the loop until a user response is received and a *new* trigger initiates a *new* turn (likely for `Overmind` to re-evaluate). **This is the ONLY permissible pause for user input.**
 
 ### Step 6: Update Knowledge Wiki
-*   **Action:** Append a record of the turn's activities and outcomes to the Wiki.
-*   **Tooling:** `edit_file`.
-*   **Input:** Results, findings, action summaries, errors from Step 5. `requestId`.
-*   **Process:** Consolidate information into a timestamped entry attributed to the agent role. Append this entry under the appropriate section(s) in the `<requestId>-wiki.md` file, following [Wiki Handling](mdc:wiki-handling.md) structure.
-*   **Verification:** Wiki file is accessible; append operation is structured correctly.
+1.  **SYNTHESIZE RESULTS:** Consolidate the outcomes, findings, actions taken, errors encountered, and verification results (if any) from Step 5.
+2.  **FORMAT ENTRY:** Prepare a new entry for the Wiki adhering to the [Wiki Handling](mdc:wiki-handling.md) format (Timestamp, Agent Role, `taskId` if applicable, relevant section heading like `## 🛠️ Actions & Code Changes` or `## ⚠️ Errors & Escalations`).
+3.  **APPEND TO WIKI:** Use `edit_file` to append the formatted entry to the *end* of the correct Knowledge Wiki file. **MUST NOT overwrite or delete existing content.**
 
 ### Step 7: Determine Next Agent & Handoff Message
-*   **Action (Internal):** Decide which agent role should execute the next turn and prepare the handoff instructions.
-*   **Input:** Outcome of Step 5/6, agent's role specification (Transfer Conditions), overall workflow context from Wiki.
-*   **Process:**
-    1.  Identify the `<NextAgentRole>` (can be another specialized agent or `Overmind`).
-    2.  Formulate a concise handoff message summarizing the current turn's outcome and stating the clear objective for the next agent.
+1.  **ASSESS OUTCOME:** Based on the results of Step 5 and the agent's role specification:
+    *   Was the assigned task completed successfully?
+    *   Did verification steps pass/fail?
+    *   Was a critical error encountered?
+    *   **Was a task decomposition initiated?**
+    *   Is further action needed (e.g., auditing, more research, implementation)?
+2.  **SELECT NEXT AGENT:** Consult the agent's role specification (Handoff Conditions section) and the current outcome to determine the appropriate *next* agent role (e.g., `Overmind`, `AuditAgent`, `BuilderAgent`). If a critical, unrecoverable error occurred, the next agent MUST be `Overmind` for escalation. If decomposition was initiated, the next agent MUST be `Overmind`.
+3.  **FORMULATE HANDOFF MESSAGE:** Craft a concise, clear message for the Chat Trigger. It MUST:
+    *   Indicate the status (e.g., success, failure, information gathered, **decomposition initiated**).
+    *   Include the `requestId` and relevant `taskId`(s) (parent task, first sub-task if decomposing).
+    *   Provide necessary context or instructions for the next agent.
 
 ### Step 8: Generate Next Chat Trigger (FINAL ACTION)
-*   **Action:** Send the concluding chat message to trigger the next agent.
-*   **Tooling:** Framework's chat mechanism.
-*   **Input:** `<NextAgentRole>` and handoff message from Step 7.
-*   **Process:** Compose and send the final message for the turn in the format: "Hey `<NextAgentRole>`, [Concise handoff message from Step 7]. See wiki for details."
-*   **Outcome:** The current agent's turn ends immediately upon sending this message. The framework will activate the `<NextAgentRole>`.
+1.  **FORMAT TRIGGER:** Construct the final trigger message precisely as: "Hey `<NextAgentRole>`, [Handoff Message from Step 7]".
+2.  **SEND TRIGGER:** Use the framework's Chat Mechanism to send the trigger.
+3.  **TERMINATE TURN:** The agent's execution turn concludes immediately after successfully sending the trigger. It performs no further actions. **The output MUST end with the Chat Trigger.**
+
+---
+**FAILURE CONDITION (HALT):** If any step encounters a critical, unrecoverable error (e.g., tool failure preventing core function, inability to read Wiki, violation of fundamental mandate) OR if diagnostic user input is required (Step 5), the agent MUST:
+1.  Update the Wiki (Step 6) with error details under `## ⚠️ Errors & Escalations`.
+2.  Determine `Overmind` as the next agent (Step 7).
+3.  Generate the final Chat Trigger (Step 8) to `Overmind`, clearly indicating the HALT condition.
+4.  Terminate immediately.
 
 ## 4. INPUTS & OUTPUTS
 

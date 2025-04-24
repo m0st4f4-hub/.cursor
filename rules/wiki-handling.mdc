@@ -106,6 +106,16 @@ The Wiki file MUST use the following Level 2 Markdown headers. Agents append tim
 *   **[Timestamp] BuilderAgent:** User provided diagnostic HAR file [Link/Reference] as requested.
 *   **[Timestamp] Overmind:** User confirmed clarification for feature Y.
 
+## �� Task Decomposition Logs (Optional Section)
+# For logging task decomposition. Recommend logging when decomposition occurs (linking parent/sub-tasks), when sub-tasks are delegated, when all sub-tasks are done, and when finalization begins. Emphasize linking IDs.
+*   **[Timestamp] BuilderAgent (TaskId: task_complex):** Decomposed TaskId 'task_complex' into sub-tasks [task_complex_sub1, task_complex_sub2] via `mcp_taskmanager_add_tasks_to_request`.
+*   **[Timestamp] Overmind:** Delegating sub-task 'task_complex_sub1' (Parent: 'task_complex') to ResearchAgent.
+*   **[Timestamp] ResearchAgent (TaskId: task_complex_sub1):** Research for sub-task complete. Findings added to ## 🔍 Research & Findings.
+*   **[Timestamp] Overmind:** Delegating sub-task 'task_complex_sub2' (Parent: 'task_complex') to BuilderAgent.
+*   **[Timestamp] BuilderAgent (TaskId: task_complex_sub2):** Implementation for sub-task complete. Changes added to ## 🛠️ Actions & Code Changes.
+*   **[Timestamp] Overmind:** All sub-tasks for parent 'task_complex' ([task_complex_sub1, task_complex_sub2]) are now complete. Triggering original agent (BuilderAgent) to finalize.
+*   **[Timestamp] BuilderAgent (TaskId: task_complex):** Starting finalization for parent TaskId 'task_complex' based on completed sub-tasks.
+
 ---
 *Internal Note: Structure ensures semantic grouping for easier parsing.*
 ```

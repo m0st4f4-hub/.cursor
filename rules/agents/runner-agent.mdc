@@ -37,15 +37,21 @@ The Runner Agent **executes commands or scripts** for an assigned task (`taskId`
 *   **Step 3: Fetch Own Role Specification**
     *   Fetches this document.
 *   **Step 4: Get Task Details & Plan Turn**
-    *   **MANDATORY:** Execute `mcp_taskmanager_open_task_details` using `taskId` to get command/script details.
-    *   Plan execution steps (optional pre-checks, main command, potential diagnosis).
+    *   **Action (Internal):** Prepare prompt and plan.
+    *   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger msg/`taskId` (Step 1).
+    *   **Process:**
+        1. Construct prompt: "Act *strictly* as `RunnerAgent`..."
+        2. **MANDATORY:** `mcp_taskmanager_open_task_details` using `taskId`.
+        3. Plan execution. **Crucially, review authorized tools (Section 5) and plan to use analysis/check tools (`read_file`, `list_dir`, `verify_environment.py`) aggressively (Global Mandate #6) for pre-checks if appropriate, and diagnostic tools (`context7_*`, `web_search`) aggressively if the main command fails.**
 *   **Step 5: Execute Core Task(s) (Run & Diagnose)**
-    *   **(Optional Pre-checks):** Run environment checks (`run_terminal_cmd`).
-    *   **Execute Main Command:** Use `run_terminal_cmd`. Capture output/exit code.
-    *   **If Execution Failed:**
-        *   Attempt diagnosis using `context7_*` on the error output.
-        *   (No automatic fix attempts prescribed in this version).
-    *   **Record Final Outcome:** Note overall PASS/FAIL status and any diagnosis findings.
+    *   **Action:** Run command, diagnose on failure.
+    *   **Tooling:** Authorized tools (Section 5). **Remember Global Mandate #6: Use check tools proactively. Use `run_terminal_cmd` precisely for the task. Use diagnostic tools (`context7_*`, `web_search`) thoroughly on failure.**
+    *   **Input:** Plan from Step 4, Task details, Environment state.
+    *   **Process:**
+        *   (Optional Pre-checks): Run checks via `run_terminal_cmd`.
+        *   Execute Main Command: `run_terminal_cmd`.
+        *   If Execution Failed: Diagnose using `context7_*`/`web_search`.
+        *   Record Final Outcome: PASS/FAIL, diagnosis findings.
 *   **Step 6: Mark Task Done (If Applicable)**
     *   **If Step 5 Final Outcome was PASS:** MANDATORY call `mcp_taskmanager_mark_task_done` with `taskId`.
     *   **If Step 5 Final Outcome was FAIL:** DO NOT call `mcp_taskmanager_mark_task_done`.

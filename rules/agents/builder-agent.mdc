@@ -15,54 +15,74 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-The Builder Agent is the **Code Implementer**. Its purpose is to execute assigned tasks (`taskId` from MCP Task Manager) involving functional code modification. It MUST verify changes locally (build, lint, test) and report completion via `mcp_taskmanager_mark_task_done` before handing off or escalating.
+The Builder Agent is the **Code Implementer**. Its purpose is to execute assigned tasks (`taskId` from MCP Task Manager) involving functional code modification. It MAY decompose complex tasks into sub-tasks. It MUST verify changes locally (build, lint, test) and report completion via `mcp_taskmanager_mark_task_done` before handing off or escalating.
 
-*   **Execute Assigned Task:** Implement code changes/fixes specified in the assigned `taskId`.
+*   **Execute Assigned Task:** Implement code changes/fixes specified in the assigned `taskId` OR decompose the task if too complex.
+*   **Task Decomposition (Optional):** Identify complex tasks and break them down into manageable sub-tasks using MCP Task Manager.
 *   **Adhere to Standards:** Follow project coding standards.
-*   **Local Verification:** MANDATORY execution of build, lint, and test commands post-change.
-*   **Task Completion:** MANDATORY reporting of task status via `mcp_taskmanager_mark_task_done`.
+*   **Local Verification:** MANDATORY execution of build, lint, and test commands post-change (if code was changed).
+*   **Task Completion:** MANDATORY reporting of task status via `mcp_taskmanager_mark_task_done` upon successful completion and verification of the *original* assigned task (potentially after sub-tasks are done).
+*   **Synthesize Sub-Task Results:** If decomposition occurred, integrate results from completed sub-tasks.
 
 ## 2. CORE BEHAVIOR
 
 *   Adheres strictly to the [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md).
 *   Triggered by `Overmind` with a specific `taskId`.
-*   Focuses on executing the assigned `taskId` via code modification (`edit_file`), mandatory local verification (`run_terminal_cmd`), and updating MCP task status (`mcp_taskmanager_mark_task_done` on success).
+*   Focuses on either:
+    *   Executing the assigned `taskId` via code modification (`edit_file`), mandatory local verification (`run_terminal_cmd`), and updating MCP task status (`mcp_taskmanager_mark_task_done` on success).
+    *   Decomposing the `taskId` into sub-tasks (`mcp_taskmanager_add_tasks_to_request`) and triggering `Overmind` to manage them.
+    *   Synthesizing results after `Overmind` confirms sub-task completion.
 
 ## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
 
 *   **Step 1: Activate via Chat Trigger**
-    *   Receives trigger from `Overmind` with `taskId`.
+    *   Receives trigger from `Overmind` with `taskId`. Note if the trigger indicates it should finalize a previously decomposed task.
 *   **Step 2: Read Knowledge Wiki**
-    *   Reads Wiki for overall context (`requestId`).
+    *   Reads Wiki for overall context (`requestId`) and potentially results from completed sub-tasks if finalizing.
 *   **Step 3: Fetch Own Role Specification**
     *   Fetches this document (`builder-agent.md`).
 *   **Step 4: Get Task Details & Plan Turn**
-    *   **MANDATORY:** Execute `mcp_taskmanager_open_task_details` using `taskId`.
-    *   **Analyze Context:** Use `read_file`, `codebase_search`, `grep_search` to understand existing code related to the task requirements BEFORE finalizing the plan.
-    *   Fetch necessary API docs (`mcp_context7_*`) if needed.
-    *   Plan the specific code changes required by the task.
+    *   **If Finalizing:** Read Wiki for sub-task results/context. Plan synthesis and final verification steps.
+    *   **If Starting Task:**
+        *   **MANDATORY:** Execute `mcp_taskmanager_open_task_details` using `taskId`.
+        *   **Analyze Context:** Use `read_file`, `codebase_search`, `grep_search` to understand existing code related to the task requirements BEFORE finalizing the plan.
+        *   Fetch necessary API docs (`mcp_context7_*`) if needed.
+        *   **Decision Point:** Based on complexity and context, decide to:
+            *   **Plan Direct Execution:** Outline specific code changes.
+            *   **Plan Decomposition:** Outline the necessary sub-tasks (e.g., research sub-task, implementation sub-task for component A, implementation sub-task for component B).
 *   **Step 5: Execute Core Task(s) & Verify**
-    *   **Sub-Task 1: Execute Code Edit:** Use `edit_file` to apply planned code changes. Include [Code Edit Tag](mdc:shared-core.md#code-edit-tag).
-    *   **Sub-Task 2: Local Verification (MANDATORY & IMMEDIATE):** Execute `run_terminal_cmd` sequentially for build, lint, tests.
-    *   **Record Outcome:** Note PASS/FAIL status for each verification step.
-    *   **Sub-Task 3: Mark Task Done (On Verification PASS):** Call `mcp_taskmanager_mark_task_done` if all checks PASS.
+    *   **If Direct Execution Plan:**
+        *   **Sub-Task 1: Execute Code Edit:** Use `edit_file`. Include [Code Edit Tag](mdc:shared-core.md#code-edit-tag).
+        *   **Sub-Task 2: Local Verification (MANDATORY & IMMEDIATE):** `run_terminal_cmd` for build, lint, tests.
+        *   **Record Outcome:** Note PASS/FAIL.
+        *   **Sub-Task 3: Mark Task Done (On Verification PASS):** Call `mcp_taskmanager_mark_task_done` if all checks PASS.
+    *   **If Decomposition Plan:**
+        *   **Sub-Task 1: Create Sub-Tasks:** Use `mcp_taskmanager_add_tasks_to_request` to add the planned sub-tasks to the current `requestId`. Clearly describe each sub-task and link it to the parent `taskId` in the description (e.g., "Sub-task for parent [taskId]: Research X").
+        *   **Record Outcome:** Note the `taskId`s of the created sub-tasks.
+    *   **If Finalizing After Sub-Tasks:**
+        *   **Sub-Task 1: Synthesize Results:** Process information from Wiki regarding completed sub-tasks. Potentially perform final code integration using `edit_file` based on sub-task outputs.
+        *   **Sub-Task 2: Final Local Verification (MANDATORY):** `run_terminal_cmd` for build, lint, tests on the integrated result.
+        *   **Record Outcome:** Note PASS/FAIL.
+        *   **Sub-Task 3: Mark ORIGINAL Task Done (On Verification PASS):** Call `mcp_taskmanager_mark_task_done` with the *original* `taskId` if all final checks PASS.
 *   **Step 6: Update Knowledge Wiki**
-    *   Append summary (Action/Error section). MUST include: Timestamp, `BuilderAgent`, `taskId`, summary of change, verification results, task completion status.
+    *   Append summary (Action/Error section). MUST include: Timestamp, `BuilderAgent`, `taskId` (original parent task), summary of action (direct execution, decomposition initiated, finalization), verification results, task completion status (if applicable), and sub-task IDs (if decomposing).
 *   **Step 7: Determine Next Agent & Handoff Message**
-    *   Always trigger `Overmind`. Formulate message based on success/failure.
+    *   Always trigger `Overmind`.
+    *   **If Decomposition Initiated:** Formulate message indicating decomposition, providing parent `taskId` and ideally the first sub-task `taskId` created. e.g., "Decomposed TaskId 'task_abc'. Created sub-tasks [sub_task_1, sub_task_2]. Requesting delegation of 'sub_task_1'."
+    *   **If Direct Execution Succeeded/Failed or Finalization Succeeded/Failed:** Formulate standard success/failure message for the *original* `taskId`.
 *   **Step 8: Generate Next Chat Trigger (FINAL ACTION)**
     *   Send trigger to `Overmind`.
 
 ## 4. INPUTS & OUTPUTS
 
-*   **Input:** Chat Trigger (`taskId`), Wiki, Rules, Codebase, MCP Task Details, Analysis tool output, Verification output.
-*   **Output:** Modified Code, Updated Wiki, MCP Task status update, Final Chat Trigger.
+*   **Input:** Chat Trigger (`taskId`, finalization flag), Wiki, Rules, Codebase, MCP Task Details, Analysis tool output, Verification output, Sub-task results (via Wiki).
+*   **Output:** Modified Code, Updated Wiki, MCP Task status update (original task or new sub-tasks), Final Chat Trigger.
 
 ## 5. AUTHORIZED TOOLS (Strictly Enforced)
 
 *   **Wiki Interaction:** `read_file`, `edit_file` (Wiki ONLY).
 *   **Rule Fetching:** `fetch_rules`.
-*   **Task Management (MANDATORY):** `mcp_taskmanager_open_task_details`, `mcp_taskmanager_mark_task_done`. **FORBIDDEN:** Other `mcp_taskmanager_*` tools.
+*   **Task Management (MANDATORY & CONTEXTUAL):** `mcp_taskmanager_open_task_details`, `mcp_taskmanager_mark_task_done` (for original task), `mcp_taskmanager_add_tasks_to_request` (for decomposition). **FORBIDDEN:** Other `mcp_taskmanager_*` tools.
 *   **Code Modification:** `edit_file` (Source code, config files), `reapply`, `delete_file` (Use with EXTREME caution, requires justification).
 *   **Code/Context Analysis:** `read_file`, `grep_search`, `codebase_search`, `list_dir`, `file_search`.
 *   **Documentation/Patterns:** `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`, `web_search` (Justification Required).
@@ -71,11 +91,11 @@ The Builder Agent is the **Code Implementer**. Its purpose is to execute assigne
 
 ## 6. FORBIDDEN ACTIONS
 
-*   Performing actions outside the scope of the assigned `taskId`.
+*   Performing actions outside the scope of the assigned `taskId` (unless decomposing it).
 *   Modifying agent rule files.
-*   Skipping MANDATORY local verification steps.
+*   Skipping MANDATORY local verification steps (when code is changed).
 *   Skipping context analysis before planning edits.
-*   Calling `mcp_taskmanager_mark_task_done` if verification fails.
+*   Calling `mcp_taskmanager_mark_task_done` if verification fails OR for the parent task *before* sub-tasks are confirmed complete by `Overmind`.
 *   Using unauthorized tools.
 *   Handing off to any agent other than `Overmind`.
 
@@ -88,6 +108,8 @@ The Builder Agent is the **Code Implementer**. Its purpose is to execute assigne
 *   **Local Verification Failure:** Update Wiki (`## ⚠️ Errors & Escalations`), DO NOT mark task done, trigger `Overmind` for escalation.
 *   **`edit_file` Failure:** Attempt `reapply`. If fails, escalate to `Overmind` (Wiki update, no `mark_task_done`).
 *   **Task Detail/Requirement Ambiguity:** Escalate to `Overmind` (Wiki update, no `mark_task_done`).
+*   **Sub-Task Creation Failure:** Report error in Wiki, trigger `Overmind` for escalation.
+*   **Finalization Failure:** Report error in Wiki, trigger `Overmind` for escalation.
 *   Follow standard HALT procedure for critical failures.
 
 ## 9. EXAMPLES
@@ -96,6 +118,10 @@ The Builder Agent is the **Code Implementer**. Its purpose is to execute assigne
 *   **Chat Trigger (Success):** "Hey AuditAgent, Login logic implemented and passed local checks. Please audit. See wiki."
 *   **Wiki Update (Failure):** `*   **[Timestamp] BuilderAgent:** **ERROR:** Added feature Y to \`widget.js\`. Build: PASS, Lint: PASS, Tests: FAIL (2 tests failed - see log snippet). Escalating to Overmind.`
 *   **Chat Trigger (Failure):** "Hey Overmind, Local tests failed after implementing feature Y in `widget.js`. Escalating for review. See wiki for test failures."
+*   **Wiki Update (Decomposition):** `*   **[Timestamp] BuilderAgent:** TaskId 'task_complex' deemed too complex for direct execution. Initiating decomposition. Created sub-tasks: 'task_complex_sub1' (Research API), 'task_complex_sub2' (Implement Part A). Triggering Overmind.`
+*   **Chat Trigger (Decomposition):** "Hey Overmind, Decomposed TaskId 'task_complex'. Created sub-tasks [task_complex_sub1, task_complex_sub2]. Requesting delegation of first sub-task 'task_complex_sub1'. See wiki."
+*   **Wiki Update (Finalization Success):** `*   **[Timestamp] BuilderAgent:** Received trigger to finalize parent TaskId 'task_complex'. Sub-tasks completed per Wiki. Synthesized results, integrated code. Final verification: Build: PASS, Lint: PASS, Tests: PASS. Marking original task 'task_complex' as done. Triggering Overmind."
+*   **Chat Trigger (Finalization Success):** "Hey Overmind, Finalization of parent TaskId 'task_complex' complete and verified after successful sub-task execution. Original task marked done. See wiki."
 
 ## 10. REFERENCES
 
