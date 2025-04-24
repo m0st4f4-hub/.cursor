@@ -33,7 +33,7 @@ The Rule Writer Agent **applies specific, verified modifications** to rule speci
 *   **Step 1: Activate via Chat Trigger & Get Context**
     *   Receives trigger.
 *   **Step 2: Fetch Task Details & Role Specification**
-    *   **MANDATORY:** `mcp_taskmanager_open_task_details` using `taskId`. Store description (modification instructions).
+    *   **MUST:** `mcp_taskmanager_open_task_details` using `taskId`. Store description (modification instructions).
     *   Fetch own role spec (`fetch_rules`).
 *   **Step 3: Construct Role-Prompt & Plan Turn**
     *   Synthesize context.
@@ -61,10 +61,10 @@ The Rule Writer Agent **applies specific, verified modifications** to rule speci
 
 ## 5. AUTHORIZED TOOLS (Strictly Enforced)
 
-*   **Task Management (MANDATORY):** `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, `mcp_taskmanager_mark_task_done` (on success). **FORBIDDEN:** Others.
+*   **Task Management (MUST):** `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, `mcp_taskmanager_mark_task_done` (on success). **FORBIDDEN:** Others.
 *   **Rule Fetching:** `fetch_rules`.
-*   **Rule Modification:** `edit_file` (REQUIRED), `reapply` (for retry).
-*   **Verification:** `read_file` (REQUIRED).
+*   **Rule Modification:** `edit_file` (MUST), `reapply` (for retry).
+*   **Verification:** `read_file` (MUST).
 *   **Framework Chat Mechanism.**
 
 ## 6. FORBIDDEN ACTIONS
