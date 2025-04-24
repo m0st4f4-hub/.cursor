@@ -1,9 +1,36 @@
 ---
-description: "[TODO: Add description]"
-globs:
-  - "*.*"
-alwaysApply: false
+# Rule Definition Metadata (V1)
+ruleId: global-mandates
+ruleType: Core
+title: Global Mandates & Core Operational Rules
+description: Non-negotiable operational rules and constraints applicable to ALL agents unless explicitly overridden by project-specific rules.
+schemaVersion: 1
+conformsTo: null
+tags: [core, framework, rules, mandatory, constraints]
+lastUpdated: null
+status: Active
 ---
+
+# 📜 Global Mandates (NON-NEGOTIABLE)
+
+These rules apply universally across the framework. Violation constitutes critical failure.
+
+1.  **Strict Role Adherence:** Agents MUST operate exclusively within the boundaries defined by their specific role specification ([Agent Roles & Responsibilities](mdc:agent-roles.md) and individual agent `.md` files). Performing actions or using tools outside the explicitly authorized scope IS FORBIDDEN and constitutes a critical failure.
+2.  **Core Execution Loop:** Adherence to the [Core Execution Loop](mdc:execution-loop.md) is MANDATORY for every agent turn. No steps may be skipped.
+3.  **Wiki as Single Source of Truth:** All operational context, findings, plans, actions, errors, and state MUST be read from and logged to the Knowledge Wiki ([Wiki Handling](mdc:wiki-handling.md)). Communication or state transfer outside the Wiki IS FORBIDDEN.
+4.  **Chat Trigger Handoff:** Agent activation and handoff MUST occur exclusively via directed Chat Trigger messages. Silent completion or implicit handoffs ARE FORBIDDEN.
+5.  **Mandatory Task Management Integration:**
+    *   All actionable work derived from a user request MUST be represented as tasks within the MCP Task Manager.
+    *   `Overmind` IS RESPONSIBLE for initial request planning using `mcp_taskmanager_request_planning`.
+    *   Task Agents MUST use `mcp_taskmanager_open_task_details` to understand their assigned `taskId` (Loop Step 4).
+    *   Upon successful completion of their assigned task (including verification), Task Agents MUST execute `mcp_taskmanager_mark_task_done` (Loop Step 6).
+    *   Agents MUST clearly log the `taskId` they are working on and its completion status in their Wiki updates.
+    *   `Overmind` MUST immediately attempt to fetch and delegate the next task via `mcp_taskmanager_get_next_task` upon being triggered by an agent that successfully marked its task as done. **No waiting for external approvals.**
+6.  **Tool Usage Restrictions:** Agents are ONLY AUTHORIZED to use tools explicitly listed in their role specification. Attempting to use unauthorized tools IS FORBIDDEN. Agents requiring a tool not listed MUST escalate to `Overmind`.
+7.  **Error Handling & Escalation:** Unrecoverable errors or situations requiring deviation from defined procedures MUST be logged comprehensively to the Wiki (`## ⚠️ Errors & Escalations`) and immediately escalated to `Overmind` via Chat Trigger. Agents MUST HALT execution upon escalation.
+8.  **No User Interaction (Except Diagnostics):** Direct interaction or waiting for user input during an execution sequence IS FORBIDDEN, except for the specific diagnostic interaction allowed by the [Core Execution Loop](mdc:execution-loop.md).
+9.  **Idempotency & Verification:** Where specified (e.g., Initialization Procedure, agent verification steps), actions MUST be idempotent, and success MUST be verified via tool output inspection, not merely exit codes.
+10. **Security & Safety:** Agents MUST NOT execute destructive commands (`rm -rf /`, etc.) or handle sensitive data unless explicitly authorized and managed via secure procedures (which must be defined in project rules). When in doubt, ESCALATE to `Overmind`.
 
 # Global Agent Mandates
 
