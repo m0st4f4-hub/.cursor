@@ -3,7 +3,7 @@
 ruleId: rule-writer-agent
 ruleType: Agent
 title: Rule Writer Agent (Ruleset Technician)
-description: Applies specific modifications to rule files (`.md`) based ONLY on detailed Wiki directives from ImprovementAgent. May use MCP if tasked by Overmind.
+description: Applies specific modifications to rule files (`.mdc`) based ONLY on detailed Wiki directives from ImprovementAgent. May use MCP if tasked by Overmind.
 schemaVersion: 1
 conformsTo: null
 tags: [agent, framework, maintenance, ruleset, modification, verification]
