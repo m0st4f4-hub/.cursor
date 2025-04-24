@@ -1,12 +1,12 @@
 ---
 # Rule Definition Metadata (V1)
 ruleId: wiki-handling
-ruleType: Core
+ruleType: Procedure
 title: Knowledge Wiki Handling Protocol
-description: Defines the structure, content, and interaction protocols for the Knowledge Wiki, the central state and context store, including taskId logging.
+description: Defines the structure, content, and interaction protocols for the Knowledge Wiki, the central state and context store for each request.
 schemaVersion: 1
 conformsTo: null
-tags: [core, framework, rules, mandatory, wiki, state, context, mcp-task-manager]
+tags: [core, framework, procedure, state, context, wiki]
 lastUpdated: null
 status: Active
 ---
@@ -15,76 +15,90 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-This document specifies the mandatory procedures for interacting with the Knowledge Wiki file (`<requestId>-wiki.md`). The Wiki serves as the **single source of truth** for context, goals, history, findings, actions, and errors within a specific `requestId`. Correct handling, including logging `taskId` from MCP Task Manager, is essential.
+This document specifies the mandatory procedures for interacting with the Knowledge Wiki file (`<requestId>-wiki.md`). The Wiki serves as the **single source of truth** for context, goals, history, findings, actions, and errors within a specific `requestId`. Correct handling is essential for maintaining state and enabling effective agent coordination.
 
 ## 2. CORE BEHAVIOR
 
 *   **Centrality:** The Wiki is the *only* approved mechanism for persisting state and detailed context between agent turns.
-*   **Append-Only:** Agents MUST only append information. Modifying or deleting existing entries is FORBIDDEN.
+*   **Append-Only:** Agents MUST only append information. Modifying or deleting existing entries is FORBIDDEN to preserve history.
 *   **Mandatory Interaction:** Agents MUST read the Wiki at the start of their turn and MUST append relevant updates before concluding their turn (as defined in the [Core Execution Loop](mdc:execution-loop.md)).
 
 ## 3. ACTION SEQUENCE / PROCEDURES
 
-### 3.1. Initialization (Responsibility: Overmind)
+### 3.1. Initialization (Responsibility: Overmind or Initial Trigger)
 *   A new Wiki file MUST be created at the start of a request.
-*   Initial content MUST include `## 📜 Request Overview` populated with `requestId`, initial goal, etc. `Overmind` SHOULD also add the planned MCP task structure under `## 📌 Milestones & MCP Tasks` after calling `mcp_taskmanager_request_planning`.
+*   Initial content MUST include the `## 📜 Request Overview` section populated with `requestId`, initial goal, project details, and status.
 
 ### 3.2. Reading the Wiki (Agent Turn: Step 2)
 *   **Action:** Read and parse the Wiki file.
-*   **Tooling:** `read_file`.
-*   **Process:** Prioritize relevant sections. Note the overall plan and context.
+*   **Tooling:** `read_file` (potentially `analyze_wiki.py` via `run_terminal_cmd` for large files).
+*   **Process:** Agents should prioritize parsing sections relevant to their current task (e.g., `Request Overview`, latest entries in `Findings`, `Actions`, `Errors`, `Plan & Strategy`). Avoid reading the entire file unnecessarily if it becomes very large.
 
-### 3.3. Appending to the Wiki (Agent Turn: Step 7)
-*   **Action:** Append consolidated findings, action summaries, results, or errors.
+### 3.3. Appending to the Wiki (Agent Turn: Step 6)
+*   **Action:** Append consolidated findings, action summaries, results, or errors from the agent's turn.
 *   **Tooling:** `edit_file`.
 *   **Process:**
     1.  Format the information as a Markdown list item.
-    2.  Prefix the item with `*   **[Timestamp] <AgentRole>:** `.
-    3.  **MANDATORY (If Task-Driven):** Include the `taskId` associated with the turn's work. Example: `TaskId 'task_abc': ...`
-    4.  **MANDATORY (If Task-Driven):** Explicitly state the MCP task completion status. Example: `... Task marked done.` or `... Task NOT marked done due to verification failure.`
-    5.  Use `edit_file` to append the formatted list item under the *most appropriate* section header.
-    6.  Ensure `edit_file` instruction provides sufficient context (target section header).
-*   **Verification:** Ensure entry is correctly formatted, includes `taskId` and MCP status (if applicable), and is appended under the intended section.
+    2.  Prefix the item with `*   **[Timestamp] <AgentRole>:** ` (Use ISO 8601 Z for timestamp).
+    3.  Use `edit_file` with specific instructions to append the formatted list item under the *most appropriate* section header (e.g., `## 📚 Research & Findings`, `## 🛠️ Actions & Code Changes`, `## ⚠️ Errors & Escalations`).
+    4.  **CRITICAL:** The `edit_file` call MUST include sufficient context (e.g., the target section heading) to ensure the append operation occurs correctly. Example instruction: "Append the following list item under the '## 📚 Research & Findings' heading: *   **[2023-10-27T10:00:00Z] ResearchAgent:** Found relevant API doc at [URL]."
+*   **Verification:** Ensure the entry is correctly formatted and appended under the intended section.
 
 ## 4. WIKI STRUCTURE & SECTIONS (MANDATORY HEADERS)
 
-The Wiki file MUST use the following Level 2 Markdown headers. Agents append timestamped list items, including `taskId` and MCP status where applicable.
+The Wiki file MUST use the following Level 2 Markdown headers. Agents append timestamped list items under the relevant section.
 
 ```markdown
 # Knowledge Wiki: <requestId>
 
 ## 📜 Request Overview
+# REQUIRED: Initial setup by Overmind. Contains fundamental request details.
+# Static info, typically not appended to after creation.
 *   **Request ID:** `<requestId>`
-*   **Initial Goal:** [Description]
+*   **Initial Goal:** [Description from Overmind/User]
 *   **Project Name:** `<projectName>`
-*   **Status:** [Planning | In Progress | Awaiting Approval | Error | Completed] # Updated by Overmind
+*   **Domain:** `<domain>`
+*   **Status:** [In Progress | Error | Completed] # Updated by Overmind as needed
 
-## 📌 Milestones & MCP Tasks
-# Initial structure planned by Overmind. Status MAY be updated manually or reflect MCP state.
-*   **TaskId 'task_abc':** Research requirements (Agent: ResearchAgent, Status: Done)
-*   **TaskId 'task_def':** Implement feature X (Agent: BuilderAgent, Status: In Progress)
-*   **TaskId 'task_ghi':** Audit feature X (Agent: AuditAgent, Status: Pending)
+## 📌 Milestones & MCP Tasks (Optional)
+# For tracking major steps or associated MCP tasks. Updated as needed.
+*   [ ] Task 1: [Title]
+*   [X] Task 2: [Title] (Agent: BuilderAgent, Status: Done, Timestamp: ...)
 
 ## 🗺️ Plan & Strategy (Append Only)
-*   **[Timestamp] Overmind:** Initial plan created in MCP. Delegating TaskId 'task_abc' to ResearchAgent.
+# Primarily for Overmind to log high-level plans, adjustments, or strategic decisions.
+*   **[Timestamp] Overmind:** Initial plan: Research -> Build -> Audit.
+*   **[Timestamp] Overmind:** Adjusted plan: Add Refactor step after Audit findings.
 
 ## 📚 Research & Findings (Append Only)
-*   **[Timestamp] ResearchAgent:** TaskId 'task_abc': Found API documentation at [URL]. Task marked done.
+# For ResearchAgent, AuditAgent, or any agent discovering information relevant to the task.
+*   **[Timestamp] ResearchAgent:** Found API documentation at [URL]. Key function: `xyz()`.
+*   **[Timestamp] AuditAgent:** Linting identified 3 minor issues in `file.js`.
 
 ## 🛠️ Actions & Code Changes (Append Only)
-*   **[Timestamp] BuilderAgent:** TaskId 'task_def': Implemented feature X in `file.js`. Build: PASS, Lint: PASS, Tests: PASS. Task marked done.
+# For BuilderAgent, RefactorAgent, DocsAgent, etc., logging concrete actions taken, especially code modifications. Include diff summaries or references if possible.
+*   **[Timestamp] BuilderAgent:** Applied fix for bug #123 in `file.js`. Local tests passed.
+*   **[Timestamp] StylingAgent:** Updated CSS variables in `styles.css`.
 
 ## 🤔 Observations & Ambiguities (Append Only)
-*   **[Timestamp] BuilderAgent:** TaskId 'task_def': Ambiguity in requirement spec regarding edge case Y. Task NOT marked done. Escalating.
+# For any agent to note uncertainties, potential issues, or points needing clarification discovered during execution.
+*   **[Timestamp] BuilderAgent:** Ambiguity in requirement spec regarding edge case X. Needs clarification.
+*   **[Timestamp] ResearchAgent:** Could not find docs for legacy component Y. Proceeding with best guess.
 
 ## ⚠️ Errors & Escalations (Append Only)
-*   **[Timestamp] BuilderAgent:** **ERROR:** TaskId 'task_xyz': Build failed due to dependency conflict [Details]. Task NOT marked done. Escalating.
+# For logging tool failures, verification failures, or any unrecoverable error state encountered by an agent. Triggers escalation to Overmind.
+*   **[Timestamp] BuilderAgent:** **ERROR:** Build failed due to dependency conflict [Details]. Escalating.
+*   **[Timestamp] RunnerAgent:** **ERROR:** Application failed to start. See logs [ref]. Escalating.
 
 ## 💡 Improvement Suggestions (Append Only)
-*   **[Timestamp] AuditAgent:** TaskId 'task_ghi': Suggest adding lint rule for checking X.
+# Primarily for ImprovementAgent, but any agent can log suggestions for process or rule improvements based on observations.
+*   **[Timestamp] AuditAgent:** Suggest adding lint rule for checking X based on recurring pattern.
+*   **[Timestamp] ImprovementAgent:** Propose clarifying `BuilderAgent` rule regarding test verification.
 
 ## 👤 User Input Summary (Append Only)
-*   **[Timestamp] BuilderAgent:** TaskId 'task_def': User provided HAR file as requested.
+# For logging summaries of information received from the user, especially diagnostic data requested via the Step 5 Exception.
+*   **[Timestamp] BuilderAgent:** User provided diagnostic HAR file [Link/Reference] as requested.
+*   **[Timestamp] Overmind:** User confirmed clarification for feature Y.
 
 ---
 *Internal Note: Structure ensures semantic grouping for easier parsing.*
@@ -92,23 +106,23 @@ The Wiki file MUST use the following Level 2 Markdown headers. Agents append tim
 
 ## 5. LOCATION & NAMING CONVENTION
 
-*   **Path:** Project Root (`/`).
-*   **Naming:** MUST follow `<requestId>-wiki.md`.
+*   **Path:** Project Root (`/`) unless specified otherwise by project rules.
+*   **Naming:** MUST follow the pattern `<requestId>-wiki.md`.
 
 ## 6. ERROR HANDLING (Related to Wiki Interaction)
 
-*   **Read Failure (Step 2):** HALT procedure.
-*   **Append Failure (Step 7):** Attempt `reapply` once. If still fails, trigger HALT procedure.
+*   **Read Failure:** If the Wiki file cannot be read at the start of a turn (Step 2), the agent MUST immediately trigger the HALT procedure defined in the [Core Execution Loop](mdc:execution-loop.md).
+*   **Append Failure:** If `edit_file` fails to append to the Wiki (Step 6), the agent should attempt `reapply` once. If it still fails, the agent MUST trigger the HALT procedure.
 
 ## 7. CONSTRAINTS
 
-*   MUST use specified structure and headers.
-*   MUST use append-only approach.
-*   MUST correctly timestamp, attribute, and include `taskId`/MCP status where applicable.
-*   MUST handle read/write errors via escalation.
+*   MUST use the specified Markdown structure and headers.
+*   MUST use the append-only approach.
+*   MUST correctly timestamp and attribute entries.
+*   MUST handle read/write errors gracefully via escalation.
 
 ## 8. REFERENCES
 
 *   [Core Execution Loop](mdc:execution-loop.md)
 *   [`global-mandates.md`](./global-mandates.md)
-*   [Agent Roles & Responsibilities](mdc:agent-roles.md)
+*   [Shared Core Concepts & Rules](mdc:shared-core.md)

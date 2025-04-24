@@ -15,21 +15,21 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-This document provides definitions for fundamental concepts and terminology used within the Chat/Wiki agent framework. It supplements the definitions in [Shared Core Concepts & Rules]\1.mdc) and serves as a quick reference glossary.
+This document provides definitions for fundamental concepts and terminology used within the Chat/Wiki agent framework. It supplements the definitions in [Shared Core Concepts & Rules](mdc:shared-core.md) and serves as a quick reference glossary.
 
 ## 2. KEY CONCEPTS & DEFINITIONS
 
 *   **`requestId`:**
     *   See [Shared Core Concepts & Rules](mdc:shared-core.md#2-core-concepts--definitions).
 *   **Agent Roles:**
-    *   See [Shared Core Concepts & Rules](mdc:shared-core.md#2-core-concepts--definitions). Also see [Agent Roles & Responsibilities]\1.mdc) for the registry.
+    *   See [Shared Core Concepts & Rules](mdc:shared-core.md#2-core-concepts--definitions). Also see [Agent Roles & Responsibilities](mdc:agent-roles.md) for the registry.
 *   **Knowledge Wiki (`<requestId>-wiki.md`):**
-    *   See [Shared Core Concepts & Rules](mdc:shared-core.md#2-core-concepts--definitions). Also see [Wiki Handling]\1.mdc) for protocol details.
-*   **Chat Trigger:** REQUIRED control signal via platform chat message. Sole trigger for Agent activation and handoff. Agent MUST generate trigger message as final action. See [Execution Loop]\1.mdc).
-*   **ACTION IMPERATIVE:** MANDATORY principle. Continuous execution triggered by chat, context from wiki, rules from `fetch_rules`. NO WAITING. See [Execution Loop]\1.mdc).
+    *   See [Shared Core Concepts & Rules](mdc:shared-core.md#2-core-concepts--definitions). Also see [Wiki Handling](mdc:wiki-handling.md) for protocol details.
+*   **Chat Trigger:** REQUIRED control signal via platform chat message. Sole trigger for Agent activation and handoff. Agent MUST generate trigger message as final action. See [Execution Loop](mdc:execution-loop.md).
+*   **ACTION IMPERATIVE:** MANDATORY principle. Continuous execution triggered by chat, context from wiki, rules from `fetch_rules`. NO WAITING. See [Execution Loop](mdc:execution-loop.md).
 *   **Tools:** MANDATORY capabilities for environment interaction (MCP, file system, terminal, custom). See [Shared Core](mdc:shared-core.mdc).
-*   **Rules (`.cursor/rules/`, `.cursor/rules/`):** MANDATORY `.mdc` files defining behavior, standards, workflow. See [System Prompt]\1.mdc).
-*   **Framework:** REQUIRED External execution engine. Parses chat triggers, provides tools, facilitates agent execution based on fetched rules and wiki context. See [System Prompt]\1.mdc).
+*   **Rules (`.cursor/rules/`, `rules-md/`):** MANDATORY `.mdc` files defining behavior, standards, workflow. See [System Prompt](mdc:system-prompt.md).
+*   **Framework:** REQUIRED External execution engine. Parses chat triggers, provides tools, facilitates agent execution based on fetched rules and wiki context. See [System Prompt](mdc:system-prompt.md).
 *   **Autonomous Execution:** MANDATORY. Agents operate independently, activated by chat triggers, driven by wiki state. User interaction ONLY for requested diagnostics (Loop Step 5).
 *   **Wiki-Driven Coordination:**
     *   The principle that the Knowledge Wiki is the sole mechanism for sharing detailed context, findings, goals, and errors between agents.
@@ -40,15 +40,15 @@ This document provides definitions for fundamental concepts and terminology used
 *   **Direct Peer Handoffs:**
     *   The recommended practice for an agent to trigger another specialized agent directly via Chat Trigger when the workflow logically follows (e.g., `BuilderAgent` -> `AuditAgent`), minimizing unnecessary steps through `Overmind`. Return to `Overmind` for planning, escalation, or completion reporting.
 *   **Self-Improvement Loop:**
-    *   The mandated secondary goal of the framework where agents (`ImprovementAgent`, `RuleWriterAgent`) collaborate via the Wiki and Chat Triggers to analyze past performance and automatically refine or generate rules. See [System Prompt]\1.mdc).
+    *   The mandated secondary goal of the framework where agents (`ImprovementAgent`, `RuleWriterAgent`) collaborate via the Wiki and Chat Triggers to analyze past performance and automatically refine or generate rules. See [System Prompt](mdc:system-prompt.md).
 *   **Global Rules (`.cursor/rules/global/`):**
-    *   Foundational rules providing core behaviors and capabilities, typically shared across projects. See [System Prompt]\1.mdc).
+    *   Foundational rules providing core behaviors and capabilities, typically shared across projects. See [System Prompt](mdc:system-prompt.md).
 *   **Project Rules (`.cursor/rules/project/`):**
-    *   Project-specific rules that MUST override conflicting Global Rules, enabling customization. See [System Prompt]\1.mdc).
+    *   Project-specific rules that MUST override conflicting Global Rules, enabling customization. See [System Prompt](mdc:system-prompt.md).
 
 ## 3. KEY RULE DIRECTORIES (RUNTIME STRUCTURE)
 
-*   **`.cursor/rules/`**: The root directory containing the active ruleset used by the AI agent framework during execution within the current project. This directory's structure and content are managed by the [Initialization Procedure]\1.mdc) and potentially `RulesSyncAgent`.
+*   **`.cursor/rules/`**: The root directory containing the active ruleset used by the AI agent framework during execution within the current project. This directory's structure and content are managed by the [Initialization Procedure](mdc:initialization-procedure.md) and potentially `RulesSyncAgent`.
 *   **`global/` (within `.cursor/rules/`)**: Contains the base ruleset providing foundational agent behaviors and capabilities. These rules are typically synchronized from a shared, external source (e.g., via Git submodule) and apply generally across projects unless overridden.
 *   **`project/` (within `.cursor/rules/`)**: Contains rules specific to the *current* project. These rules are created and maintained within this project (potentially by agents like `AgentGeneratorAgent` or `RuleWriterAgent`) and **MUST** override any conflicting rules found in the `global/` directory.
 
@@ -60,10 +60,10 @@ This document provides definitions for fundamental concepts and terminology used
 
 ## 5. REFERENCES
 
-*   [Shared Core Concepts & Rules]\1.mdc)
-*   [System Prompt]\1.mdc)
-*   [Agent Roles & Responsibilities]\1.mdc)
-*   [Wiki Handling]\1.mdc)
-*   [Execution Loop]\1.mdc)
-*   [Initialization Procedure]\1.mdc)
-*   [Framework Definition]\1.mdc) 
+*   [Shared Core Concepts & Rules](mdc:shared-core.md)
+*   [System Prompt](mdc:system-prompt.md)
+*   [Agent Roles & Responsibilities](mdc:agent-roles.md)
+*   [Wiki Handling](mdc:wiki-handling.md)
+*   [Execution Loop](mdc:execution-loop.md)
+*   [Initialization Procedure](mdc:initialization-procedure.md)
+*   [Framework Definition](mdc:framework.md) 
