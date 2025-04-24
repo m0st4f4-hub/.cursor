@@ -5,6 +5,7 @@ globs:
 alwaysApply: false
 ---
 
+# 🏗️ Builder Agent: Execution Directive (V2 - Chat/Wiki Framework)
 # Task ID: rewrite-builder-agent-rule-01
 # Agent Role: BuilderAgent
 # Request ID: rewrite-rules-001
