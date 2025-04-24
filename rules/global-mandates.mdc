@@ -44,9 +44,9 @@ Universal rules for the MCP-centric framework. Violation is critical failure.
 4.  **ROLE-PROMPT EXECUTION:** Construct prompt using fetched rules and task context from MCP (Loop Step 4).
 5.  **UPDATE TASK STATE:** Agents MUST update the relevant `taskId` description with findings/results/errors using `mcp_taskmanager_update_task` and mark task done using `mcp_taskmanager_mark_task_done` as appropriate before ending their turn (Loop Step 6).
 6.  **DETERMINE NEXT AGENT & TASK:** Determine `<NextAgentRole>` and the relevant `taskId` for handoff (Loop Step 7).
-7.  **TRIGGER NEXT AGENT (Minimal):** Compose and send the minimal chat trigger: "Hey `<NextAgentRole>` [emoji] Task `<taskId>` ready (Status: [brief status]). See task manager." (Loop Step 8).
+7.  **TRIGGER NEXT AGENT (Minimal):** Compose and send the minimal chat trigger: "[emoji] Task `<taskId>` ready (Status: [brief status]). See task manager." (Loop Step 8).
 8.  **NO WAITING:** As before.
-9.  **HALT VIA OVERMIND:** On critical error, update task description via `mcp_taskmanager_update_task` (if possible) and trigger `Overmind`: "Hey `Overmind` ⚠️ HALTING Task `<taskId>` due to [summary]. See task manager.".
+9.  **HALT VIA OVERMIND:** On critical error, update task description via `mcp_taskmanager_update_task` (if possible) and trigger `Overmind`: "⚠️ HALTING Task `<taskId>` due to [summary]. See task manager.".
 10. **USE AUTHORIZED TOOLS:** As before.
 11. **ADHERE TO HIERARCHY:** As before.
 12. **CODE EDIT TAG:** As before.
