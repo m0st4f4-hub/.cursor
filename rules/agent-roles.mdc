@@ -19,10 +19,10 @@ This document serves as the central registry defining the available Agent Roles 
 
 ## 2. CORE PRINCIPLES (Apply to ALL Agents)
 
-*   **Adherence to Global Mandates:** All agents MUST operate according to the rules defined in [`global-mandates.md`](./global-mandates.md) and the procedures in [Core Execution Loop](mdc:execution-loop.md), unless specifically overridden in their individual specification file.
+*   **Adherence to Global Mandates:** All agents MUST operate according to the rules defined in [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc) and the procedures in [Framework & Execution Loop](mdc:framework-execution-loop.mdc), unless specifically overridden in their individual specification file.
 *   **Role-Specific Execution:** Agents MUST execute only within the scope of their defined role, guided by the rules fetched from their specific specification file (`fetch_rules`).
-*   **Chat Coordination:** All context MUST be received via Chat Trigger. Handoffs MUST occur exclusively via Chat Triggers, including necessary context payload.
-*   **Escalation:** Agents MUST escalate unrecoverable errors or critical ambiguities to `Overmind` via a Chat Trigger, including error details.
+*   **Chat Coordination / MCP Coordination:** Context MUST be received via Chat Trigger or MCP Task Details. Handoffs MUST occur exclusively via Chat Triggers or MCP Task updates.
+*   **Escalation:** Agents MUST escalate unrecoverable errors or critical ambiguities to `Overmind` via the appropriate mechanism (Chat Trigger or MCP Task update), including error details.
 
 ## 3. AGENT ROLE SUMMARIES
 
@@ -90,17 +90,17 @@ This document serves as the central registry defining the available Agent Roles 
     *   **Core Tools:** `fetch_rules`, `edit_file`, file system tools, potentially templating tools (`run_terminal_cmd`), Chat mechanism.
 *   **`RulesSyncAgent`** ([mdc:agents/rules-sync-agent.md](mdc:agents/rules-sync-agent.md))
     *   **Purpose:** Manage the `.cursor` Git submodule (if used) to keep rules updated.
-    *   **Key Responsibilities:** Run `git submodule update`, handle conflicts (by aborting/escalating), report sync status via Chat Trigger to `Overmind`.
-    *   **Core Tools:** `fetch_rules`, `run_terminal_cmd` (Git commands), `parse_git_status.py`, Chat mechanism.
+    *   **Key Responsibilities:** Run `git submodule update`, handle conflicts (by aborting/escalating), report sync status via Chat Trigger or MCP Task to `Overmind`.
+    *   **Core Tools:** `fetch_rules`, `run_terminal_cmd` (Git commands), `parse_git_status.py`, Chat mechanism/MCP tools.
 
 ## 4. WORKFLOW PATTERNS
 
-*   **Direct Handoffs:** Agents SHOULD trigger the next logical agent directly via Chat Trigger when the workflow is clear (e.g., Builder -> Audit).
-*   **Return to Overmind:** Agents MUST trigger `Overmind` via Chat Trigger for higher-level planning needs, task completion reporting, ambiguity resolution, or error escalation.
+*   **Direct Handoffs (Chat Mode):** Agents SHOULD trigger the next logical agent directly via Chat Trigger when the workflow is clear (e.g., Builder -> Audit).
+*   **Return to Overmind (MCP Mode / Escalation):** Agents MUST trigger `Overmind` (or allow Overmind to poll MCP state) for higher-level planning needs, task completion reporting, ambiguity resolution, or error escalation.
 
 ## 5. REFERENCES
 
 *   Individual Agent Specification files (`rules-md/agents/*.md`)
-*   [`global-mandates.md`](./global-mandates.md)
-*   [Core Execution Loop](mdc:execution-loop.md)
-*   [Shared Core Concepts & Rules](mdc:shared-core.md) 
+*   [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc)
+*   [Framework & Execution Loop](mdc:framework-execution-loop.mdc)
+*   [Core Concepts & Definitions](mdc:core-concepts-and-definitions.mdc) 
