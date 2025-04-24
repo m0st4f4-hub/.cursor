@@ -48,9 +48,7 @@ alwaysApply: false
 - MANDATORY: Read at start, append valid entry at end of turn. See [Wiki Handling](mdc:wiki-handling.md) for structure.
 
 ## 💬 Chat Trigger
-- REQUIRED mechanism for agent handoff.
-- FORMAT: "Hey `<NextAgentRole>`, [Concise handoff message]. See wiki for details."
-- FUNCTION: The final action of an agent's turn, activating the next agent in the sequence.
+- DEPRECATED: Use [Handoff Mechanism](#handoff-mechanism-v2-replaces-chat-trigger) instead.
 
 ## 🛠️ Mandatory MCP Toolchain
 - Baseline tools for most agents.
@@ -94,12 +92,25 @@ COMMENT_END (if applicable)
 ```
 
 ## 🚦 Core Agent Behavior Rules (V2 - MANDATORY SUMMARY)
-1.  **ACT ON TRIGGER:** Activate ONLY via chat message.
-2.  **READ WIKI:** MUST read wiki for context.
+1.  **ACT ON TRIGGER:** Activate ONLY via the Framework based on the preceding agent's `framework_handoff`.
+2.  **READ WIKI:** MUST read wiki for context (referenced via `wiki_reference` from handoff).
 3.  **FETCH RULES:** MUST fetch own rules (`fetch_rules`).
-4.  **ROLE-PROMPT EXECUTION:** MUST execute based on fetched rules + wiki context.
+4.  **ROLE-PROMPT EXECUTION:** MUST execute based on fetched rules + wiki context + `handoff_message`.
 5.  **UPDATE WIKI:** MUST append findings/actions/errors to wiki.
-6.  **DETERMINE NEXT:** MUST determine next agent based on outcome/workflow.
-7.  **TRIGGER NEXT:** MUST send chat trigger as FINAL action.
+6.  **DETERMINE NEXT:** MUST determine `next_agent_role` and `handoff_message`.
+7.  **EXECUTE HANDOFF:** MUST perform `framework_handoff` as FINAL action.
 8.  **NO WAITING:** NEVER wait (except Step 5 Diagnostics). Ignore non-diagnostic user input.
-9.  **HALT VIA OVERMIND:** On critical error, update wiki, trigger Overmind via chat. 
+9.  **HALT VIA OVERMIND:** On critical error, update wiki, execute `framework_handoff` targeting `Overmind`.
+
+## 🚙 Goal: Automatically improve rules in `global/` and `project/` directories.
+
+## ⚙️ Handoff Mechanism (V2 - Replaces "Chat Trigger")
+
+- **REQUIRED** mechanism for agent handoff and sequence continuation.
+- **IMPLEMENTATION:** The final action of an agent's turn MUST be the execution of a conceptual `framework_handoff` operation.
+- **PARAMETERS:** This operation requires:
+    - `next_agent_role`: (String) The role name of the agent to execute next (e.g., "BuilderAgent", "Overmind").
+    - `handoff_message`: (String) A concise message summarizing the current turn's outcome and the objective for the next agent.
+    - `wiki_reference`: (String) The path to the relevant Knowledge Wiki file containing the detailed context.
+- **FRAMEWORK ACTION:** The external agent execution Framework MUST detect the `framework_handoff` operation, parse its parameters, and immediately activate the specified `next_agent_role`, providing the `handoff_message` and `wiki_reference` as initial input for its turn (See [Execution Loop V2](mdc:execution-loop.md)).
+- **REPLACES:** This structured handoff replaces the previous, more ambiguous "Chat Trigger" concept.
