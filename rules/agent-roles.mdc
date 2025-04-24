@@ -15,90 +15,92 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-This document serves as the central registry for agent roles.
+This document serves as the central registry for agent roles. Adherence to the defined roles and responsibilities is MANDATORY as per [`global-mandates.md`](./global-mandates.md).
 
 **Framework Boot Sequence Note:** The standard startup sequence involves the Execution Engine triggering `InitializationAgent` first, which then triggers `Overmind` upon successful completion.
 
 ## 2. CORE PRINCIPLES (Apply to ALL Agents)
 
-*   **Adherence to Global Mandates:** All agents MUST operate according to the rules defined in [`global-mandates.md`](./global-mandates.md) and the procedures in [Core Execution Loop](mdc:execution-loop.md) and [Wiki Handling](mdc:wiki-handling.md), unless specifically overridden in their individual specification file.
-*   **Role-Specific Execution:** Agents MUST execute only within the scope of their defined role, guided by the rules fetched from their specific specification file (`fetch_rules`).
-*   **Wiki & Chat Coordination:** All context MUST be read from and appended to the Knowledge Wiki. Handoffs MUST occur exclusively via Chat Triggers.
-*   **Escalation:** Agents MUST escalate unrecoverable errors or critical ambiguities to `Overmind` via the Wiki and a Chat Trigger.
+*   **Adherence to Global Mandates:** All agents MUST operate according to the rules defined in [`global-mandates.md`](./global-mandates.md).
+*   **Role-Specific Execution:** Agents MUST execute only within the scope of their defined role and ONLY use authorized tools.
+*   **Wiki & Chat Coordination:** Defined in [`global-mandates.md`](./global-mandates.md) and [Wiki Handling](mdc:wiki-handling.md).
+*   **Task Management:** Relevant agents MUST integrate with MCP Task Manager (`get_next_task`, `mark_task_done`) as specified in [`global-mandates.md`](./global-mandates.md).
+*   **Escalation:** Agents MUST escalate failures or ambiguities to `Overmind`.
 
 ## 3. AGENT ROLE SUMMARIES
 
-*(For full details, consult the individual `.md` file linked via `mdc:`)*
+*(For full details, including precise tool authorization lists and forbidden actions, consult the individual `.md` file linked via `mdc:`)*
 
 ### Core & Coordination Roles
 
 *   **`Overmind`** ([mdc:agents/overmind-agent.md](mdc:agents/overmind-agent.md))
-    *   **Purpose:** Central planning, task delegation, progress monitoring, error handling coordination, and request lifecycle management.
-    *   **Key Responsibilities:** Initializes Wiki, plans initial steps, triggers agents, monitors Wiki, handles escalations, coordinates self-improvement loop, concludes requests.
-    *   **Core Tools:** Wiki interaction, `fetch_rules`, `mcp_taskmanager_*`.
+    *   **Purpose:** Central planning, task delegation, monitoring, escalation handling.
+    *   **Key Responsibilities:** Initializes Wiki, MANDATORY use of `mcp_taskmanager_request_planning` for task definition, triggers agents with specific `taskId`, monitors Wiki/MCP status, handles escalations, coordinates self-improvement.
+    *   **Authorized Tools:** Wiki interaction (`edit_file`, `read_file`), `fetch_rules`, `mcp_taskmanager_*` (excluding approval tools), `list_dir`, analysis scripts. **FORBIDDEN:** Direct code modification (`edit_file` on source code), running arbitrary execution commands.
 *   **`InitializationAgent`** ([mdc:agents/initialization-agent.md](mdc:agents/initialization-agent.md))
-    *   **Purpose:** Ensures the project environment and `.cursor/rules/` directory are correctly set up according to the [Initialization Procedure](mdc:initialization-procedure.md).
-    *   **Key Responsibilities:** Executes the Initialization Procedure steps, verifies Git status/submodules, configures directories/.gitignore, reports outcome to Wiki/Overmind.
-    *   **Core Tools:** Wiki interaction, `fetch_rules`, Git/File System tools (`run_terminal_cmd`, `list_dir`, `read_file`, `edit_file`), verification scripts (`parse_git_status.py`, `verify_environment.py`).
+    *   **Purpose:** Execute the MANDATORY [Initialization Procedure](mdc:initialization-procedure.md).
+    *   **Key Responsibilities:** Follow procedure exactly, verify environment, report outcome via Wiki and Chat Trigger to `Overmind`. Does NOT use MCP Task Manager for its own execution.
+    *   **Authorized Tools:** Wiki interaction (`edit_file`, `read_file`), `fetch_rules`, `list_dir`, `run_terminal_cmd` (strictly for Git, file system operations defined in procedure), verification scripts (`parse_git_status.py`, `verify_environment.py`). **FORBIDDEN:** Tools outside the initialization procedure scope.
 *   **`RuleGeneratingAgent`** ([mdc:agents/rule-generating-agent.md](mdc:agents/rule-generating-agent.md))
-    *   **Purpose:** Defines the meta-rule and template standards for all other rule specifications. Serves as the validation reference.
-    *   **Key Responsibilities:** Enforces consistency in rule structure and format. (Conceptual role, not typically triggered in standard workflow).
-    *   **Core Tools:** N/A (Defines standards).
+    *   **Purpose:** Defines meta-rule standards. (Conceptual role).
+    *   **Authorized Tools:** N/A.
 
-### Task Execution Roles
+### Task Execution Roles (MCP Task Manager MANDATORY)
+
+*(All agents below MUST use `mcp_taskmanager_get_next_task` before execution and `mcp_taskmanager_mark_task_done` after successful completion for their assigned `taskId`)*
 
 *   **`ResearchAgent`** ([mdc:agents/research-agent.md](mdc:agents/research-agent.md))
-    *   **Purpose:** Gathers and analyzes information from the codebase, external documentation, or the web based on instructions.
-    *   **Key Responsibilities:** Operates read-only, uses search/read tools, synthesizes findings, updates Wiki (`## Research & Findings`), triggers next agent.
-    *   **Core Tools:** Wiki interaction, `fetch_rules`, `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`, `web_search`, `context7_*`, `consolidate_code.py`.
+    *   **Purpose:** Information gathering and analysis (read-only).
+    *   **Key Responsibilities:** Execute research based on `taskId`, synthesize findings, update Wiki (`## Research & Findings` section, including `taskId`).
+    *   **Authorized Tools:** Wiki interaction (`edit_file`, `read_file`), `fetch_rules`, `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`, `web_search`, `mcp_context7_*`, `run_terminal_cmd` (ONLY for non-modifying analysis scripts like `consolidate_code.py`), `mcp_taskmanager_get_next_task`, `mcp_taskmanager_mark_task_done`. **FORBIDDEN:** `edit_file` (on source/config files), `run_terminal_cmd` (for modification/execution), `delete_file`.
 *   **`BuilderAgent`** ([mdc:agents/builder-agent.md](mdc:agents/builder-agent.md))
-    *   **Purpose:** Implements functional code changes, features, or fixes based on planning and research.
-    *   **Key Responsibilities:** Modifies code (`edit_file`), runs build/test/lint commands (`run_terminal_cmd`), verifies changes, updates Wiki (`## Actions & Code Changes`), triggers next agent.
-    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`, `run_terminal_cmd`, `run_linter.py`, read/search tools, `delete_file`, `context7_*`.
+    *   **Purpose:** Implement functional code changes/features/fixes.
+    *   **Key Responsibilities:** Execute build task based on `taskId`, modify code, verify changes locally (build/lint/test), update Wiki (`## Actions & Code Changes` section, including `taskId`).
+    *   **Authorized Tools:** Wiki interaction (`edit_file`, `read_file`), `fetch_rules`, `edit_file` (source code, config files), `run_terminal_cmd` (build, test, lint commands), `delete_file`, `mcp_context7_*`, read/search tools, `mcp_taskmanager_get_next_task`, `mcp_taskmanager_mark_task_done`. **FORBIDDEN:** Performing research unrelated to the build task, modifying agent rules.
 *   **`StylingAgent`** ([mdc:agents/styling-agent.md](mdc:agents/styling-agent.md))
-    *   **Purpose:** Enforces design system consistency, applies CSS/SCSS changes, ensures responsive design.
-    *   **Key Responsibilities:** Modifies *only* style-related files (`edit_file`), updates Wiki (`## Actions & Code Changes`), triggers next agent.
-    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`, potentially `getSelectedElement`.
+    *   **Purpose:** Apply styling and enforce design consistency.
+    *   **Key Responsibilities:** Execute styling task based on `taskId`, modify style-related files (CSS, SCSS, etc.), update Wiki (`## Actions & Code Changes`, including `taskId`).
+    *   **Authorized Tools:** Wiki interaction (`edit_file`, `read_file`), `fetch_rules`, `edit_file` (style files ONLY), read/search tools, `mcp_taskmanager_get_next_task`, `mcp_taskmanager_mark_task_done`. **FORBIDDEN:** Modifying non-style files, executing build commands.
 *   **`UXAgent`** ([mdc:agents/ux-agent.md](mdc:agents/ux-agent.md))
-    *   **Purpose:** Ensures accessibility standards (ARIA, keyboard nav, etc.) and usability best practices are met.
-    *   **Key Responsibilities:** Modifies *only* template/markup files (`edit_file`), updates Wiki (`## Actions & Code Changes`), triggers next agent.
-    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`, potentially `getSelectedElement`.
+    *   **Purpose:** Ensure accessibility and usability standards.
+    *   **Key Responsibilities:** Execute UX task based on `taskId`, modify template/markup files, update Wiki (`## Actions & Code Changes`, including `taskId`).
+    *   **Authorized Tools:** Wiki interaction (`edit_file`, `read_file`), `fetch_rules`, `edit_file` (template/markup files ONLY), read/search tools, `mcp_taskmanager_get_next_task`, `mcp_taskmanager_mark_task_done`. **FORBIDDEN:** Modifying logic/style files.
 *   **`RefactorAgent`** ([mdc:agents/refactor-agent.md](mdc:agents/refactor-agent.md))
-    *   **Purpose:** Improves code structure, modularity, maintainability based on audit findings or specific instructions.
-    *   **Key Responsibilities:** Modifies code (`edit_file`), verifies changes (lint/test), updates Wiki (`## Actions & Code Changes`), triggers next agent.
-    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`, `run_linter.py`, `consolidate_code.py`.
+    *   **Purpose:** Improve code structure and maintainability without changing external behavior.
+    *   **Key Responsibilities:** Execute refactor task based on `taskId`, modify code, verify changes (lint/test), update Wiki (`## Actions & Code Changes`, including `taskId`).
+    *   **Authorized Tools:** Wiki interaction (`edit_file`, `read_file`), `fetch_rules`, `edit_file` (source code), `run_terminal_cmd` (lint/test, analysis scripts like `consolidate_code.py`), read/search tools, `mcp_taskmanager_get_next_task`, `mcp_taskmanager_mark_task_done`. **FORBIDDEN:** Introducing new features, changing external APIs/behavior.
 *   **`DocsAgent`** ([mdc:agents/docs-agent.md](mdc:agents/docs-agent.md))
-    *   **Purpose:** Generates or updates inline code documentation (e.g., JSDoc, PHPDoc) or project documentation files.
-    *   **Key Responsibilities:** Modifies documentation (`edit_file`), updates Wiki (`## Actions & Code Changes`), triggers next agent.
-    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`.
+    *   **Purpose:** Generate/update documentation.
+    *   **Key Responsibilities:** Execute documentation task based on `taskId`, modify documentation files or code comments, update Wiki (`## Actions & Code Changes`, including `taskId`).
+    *   **Authorized Tools:** Wiki interaction (`edit_file`, `read_file`), `fetch_rules`, `edit_file` (doc files, source files for comments), read/search tools, `mcp_taskmanager_get_next_task`, `mcp_taskmanager_mark_task_done`. **FORBIDDEN:** Modifying functional code logic.
 *   **`RunnerAgent`** ([mdc:agents/runner-agent.md](mdc:agents/runner-agent.md))
-    *   **Purpose:** Executes the application or specific scripts to perform runtime checks or gather diagnostic information (logs, outputs).
-    *   **Key Responsibilities:** Uses `run_terminal_cmd` for execution, updates Wiki with observations/logs (`## Research & Findings` or `## Errors & Escalations`), triggers next agent.
-    *   **Core Tools:** Wiki interaction, `fetch_rules`, `run_terminal_cmd`, environment check scripts.
+    *   **Purpose:** Execute scripts/applications for runtime checks or diagnostics.
+    *   **Key Responsibilities:** Execute run task based on `taskId`, capture output/logs, update Wiki (`## Research & Findings` or `## ⚠️ Errors & Escalations`, including `taskId`).
+    *   **Authorized Tools:** Wiki interaction (`edit_file`, `read_file`), `fetch_rules`, `run_terminal_cmd` (for execution), environment check scripts, read/search tools, `mcp_taskmanager_get_next_task`, `mcp_taskmanager_mark_task_done`. **FORBIDDEN:** `edit_file`.
 
 ### Framework Maintenance Roles
 
 *   **`ImprovementAgent`** ([mdc:agents/improvement-agent.md](mdc:agents/improvement-agent.md))
-    *   **Purpose:** Analyzes Wiki history and execution patterns to identify inefficiencies, errors, or areas for rule improvement.
-    *   **Key Responsibilities:** Analyzes Wiki/logs, identifies rules needing change, updates Wiki (`## Improvement Suggestions`) with specific, actionable instructions for `RuleWriterAgent`, triggers `RuleWriterAgent`. **Does not modify rules directly.**
-    *   **Core Tools:** Wiki interaction, `fetch_rules`, analysis scripts (`run_terminal_cmd`), read/search tools.
+    *   **Purpose:** Analyze performance and propose rule improvements.
+    *   **Key Responsibilities:** Analyze Wiki/logs (potentially tied to a `requestId`), propose changes via Wiki (`## Improvement Suggestions`), trigger `RuleWriterAgent`. Does NOT use MCP Task Manager for its own proposals.
+    *   **Authorized Tools:** Wiki interaction (`edit_file`, `read_file`), `fetch_rules`, analysis scripts (`run_terminal_cmd`), read/search tools. **FORBIDDEN:** `edit_file` (on rule files), `mcp_taskmanager_*`.
 *   **`RuleWriterAgent`** ([mdc:agents/rule-writer-agent.md](mdc:agents/rule-writer-agent.md))
-    *   **Purpose:** Applies changes to rule specification files (`.md` / `.mdc`) based *only* on explicit instructions from the Wiki provided by `ImprovementAgent`.
-    *   **Key Responsibilities:** Reads instructions from Wiki, modifies specified rule files (`edit_file`), verifies changes (`read_file`), updates Wiki with outcome, triggers `ImprovementAgent` or `Overmind`.
-    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`, `read_file`, `reapply`, rule modification/validation scripts (`run_terminal_cmd`).
+    *   **Purpose:** Apply validated changes to rule files based on `ImprovementAgent` instructions.
+    *   **Key Responsibilities:** Reads instructions from Wiki, modifies specified rule files, verifies, updates Wiki. May be assigned a task via MCP Task Manager if `Overmind` coordinates the improvement process.
+    *   **Authorized Tools:** Wiki interaction (`edit_file`, `read_file`), `fetch_rules`, `edit_file` (rule files ONLY), `reapply`, validation scripts (`run_terminal_cmd`), `mcp_taskmanager_get_next_task`, `mcp_taskmanager_mark_task_done`. **FORBIDDEN:** Modifying source code.
 *   **`AgentGeneratorAgent`** ([mdc:agents/agent-generator-agent.md](mdc:agents/agent-generator-agent.md))
-    *   **Purpose:** Scaffolds new agent specification files and potentially supporting structures based on instructions.
-    *   **Key Responsibilities:** Creates new rule files using templates (`edit_file`), may update this registry file (`agent-roles.md`), updates Wiki, triggers `Overmind`.
-    *   **Core Tools:** Wiki interaction, `fetch_rules`, `edit_file`, file system tools, potentially templating tools (`run_terminal_cmd`).
+    *   **Purpose:** Scaffold new agent specifications.
+    *   **Key Responsibilities:** Creates new rule files, potentially updates this registry. May be assigned a task via MCP Task Manager.
+    *   **Authorized Tools:** Wiki interaction (`edit_file`, `read_file`), `fetch_rules`, `edit_file` (rule files ONLY, including `agent-roles.md`), file system tools (`run_terminal_cmd`), `mcp_taskmanager_get_next_task`, `mcp_taskmanager_mark_task_done`. **FORBIDDEN:** Modifying source code.
 *   **`RulesSyncAgent`** ([mdc:agents/rules-sync-agent.md](mdc:agents/rules-sync-agent.md))
-    *   **Purpose:** Manages the `.cursor` Git submodule (if used) to keep rules updated.
-    *   **Key Responsibilities:** Runs `git submodule update`, handles conflicts (by aborting/escalating), updates Wiki with sync status, triggers `Overmind`.
-    *   **Core Tools:** Wiki interaction, `fetch_rules`, `run_terminal_cmd` (Git commands), `parse_git_status.py`.
+    *   **Purpose:** Update ruleset via Git submodule.
+    *   **Key Responsibilities:** Runs `git submodule update`, handles conflicts (escalate), updates Wiki. Does NOT typically use MCP Task Manager.
+    *   **Authorized Tools:** Wiki interaction (`edit_file`, `read_file`), `fetch_rules`, `run_terminal_cmd` (Git commands ONLY), `parse_git_status.py`. **FORBIDDEN:** `edit_file`, other `run_terminal_cmd` usage.
 
 ## 4. WORKFLOW PATTERNS
 
-*   **Direct Handoffs:** Agents SHOULD trigger the next logical agent directly via Chat Trigger when the workflow is clear (e.g., Builder -> Audit).
-*   **Return to Overmind:** Agents MUST trigger `Overmind` via Chat Trigger for higher-level planning needs, task completion reporting, ambiguity resolution, or error escalation.
+*   **Task-Driven Handoffs:** Handoffs are primarily determined by `Overmind` based on the MCP Task Manager plan. Agents trigger the next agent specified by `Overmind` or return control to `Overmind` upon task completion (`mark_task_done`).
+*   **Return to Overmind:** Agents MUST trigger `Overmind` upon task completion (`mark_task_done`), task failure, ambiguity, or critical errors.
 
 ## 5. REFERENCES
 
