@@ -1,62 +1,124 @@
 ---
-description: "Defines the behavior and responsibilities of the Rule Generating Agent."
-globs:
-  - "*.*"
-alwaysApply: false
+# Rule Definition Metadata (V1)
+ruleId: rule-generating-agent
+ruleType: Agent # Technically defines the standard, but acts like an Agent spec template
+title: Rule Generating Agent (Meta-Rule)
+description: Defines the MANDATORY meta-rule and template structure for all other agent and procedure specification files within the framework. Ensures consistency.
+schemaVersion: 1
+conformsTo: null # This IS the meta-rule
+tags: [agent, meta, generator, standard, template]
+lastUpdated: null
+status: Active
 ---
 
-# RULE-GENERATING AGENT META-RULE (MANDATORY)
+# 📜 Rule Generating Agent (Meta-Rule)
 
-**PURPOSE:** MANDATORY standard for ALL agent/rule specifications (`.md` files in `rules-md/agents/` or similar). Ensures consistency, discoverability, maintainability.
+## 1. PURPOSE & OBJECTIVES
 
-**APPLICABILITY:** MUST be applied when creating OR updating ANY agent/rule specification file.
+This document defines the **MANDATORY meta-rule and standard template structure** for all agent (`ruleType: Agent`) and procedure (`ruleType: Procedure`) specification files (`.md`) within the `rules-md/` directory. Its purpose is to ensure consistency, discoverability, maintainability, and enforceability across all rule definitions used by the framework.
 
-## TEMPLATE STRUCTURE (MANDATORY)
-- ALL agent/rule spec files MUST contain these EXACT sections, in this order:
+*   **Define Standard Template:** Specify the required sections and their order for agent/procedure specs.
+*   **Enforce Consistency:** Mandate standard formatting, terminology, and content requirements.
+*   **Enable Automation:** Facilitate automated validation and parsing of rule files (e.g., via conformance checker script).
 
-  ```markdown
-  # {AGENT_NAME} RULESET (MANDATORY)
+## 2. CORE BEHAVIOR
 
-  ## CORE BEHAVIOR (MANDATORY)
-  - **ROLE:** {Role Title}
-  - **FUNCTION:** {Primary Function Summary}
-  - **PROHIBITED:** {Actions agent MUST NOT perform}
-  - **ADHERENCE:** MUST follow System Prompt, Core Loop, Log Handling, Agent Roles, Shared Core rules. {Add specific meta-rule conformance if applicable}.
-  - **RULE CLARIFICATION:** MUST use `fetch_rules` to retrieve full content of referenced rules (`mdc:`) if details are unclear for execution.
+*   This agent does not typically execute tasks in the standard workflow. Its specification *is* the standard.
+*   Agents responsible for creating or modifying other rule files (e.g., `AgentGeneratorAgent`, `RuleWriterAgent`) MUST consult and adhere to the template defined herein.
+*   All agent/procedure specifications MUST reference this meta-rule in their front-matter (`conformsTo: rule-generating-agent`) once finalized.
 
-  ## PURPOSE / OBJECTIVES (MANDATORY)
-  {List specific, measurable objectives}
+## 3. ACTION SEQUENCE (N/A - Defines Template)
 
-  ## RESPONSIBILITIES / TASKS (MANDATORY ACTIONS PER LOOP STEP)
-  {Detail mandatory actions aligned with Core Execution Loop Steps 1-9}
+This agent defines the standard, it doesn't follow the loop itself.
 
-  ## KEY INPUTS (REQUIRED)
-  {List necessary inputs, e.g., log fields, specific files, tool outputs}
+## 4. STANDARD TEMPLATE STRUCTURE (MANDATORY)
 
-  ## KEY OUTPUTS (MANDATORY LOGGED - Step 9)
-  {List required fields for the Step 9 log entry, adhering to Log Handling schema}
+All Agent and Procedure specification files (`.md`) MUST contain the following sections, in this exact order, following the YAML front-matter:
 
-  ## ALLOWED TOOLS (Primary Use - MANDATORY)
-  {List primary tools. Explicitly mention MANDATORY usage of `fetch_rules`, `mcp_taskmanager_*`, `context7_*` where applicable. List PROHIBITED tools if necessary.}
+```markdown
+---
+# Rule Definition Metadata (V1)
+ruleId: {unique-id-lowercase-hyphenated}
+ruleType: {Agent | Procedure | Concept | Shared | Framework | Tool}
+title: {Human Readable Title}
+description: {Brief description}
+schemaVersion: 1
+conformsTo: rule-generating-agent # Or null if this file
+tags: [list, of, relevant, tags]
+lastUpdated: {YYYY-MM-DD} # Optional
+status: {Active | Draft | Deprecated | Experimental} # Default: Active
+---
 
-  ## CORE WORKFLOW LOGIC (MANDATORY)
-  {Summarize agent's specific logic within the Core Execution Loop}
+# {Emoji} {Human Readable Title} ({Optional: Alias/Short Name})
 
-  ## HANDOFF CONDITIONS (MANDATORY)
-  {Define conditions for receiving handoffs, delegating/escalating via `nextAgent`, and specific target agents}
+## 1. PURPOSE & OBJECTIVES
+# What is the primary goal and reason for existence of this agent/procedure?
+# List specific, measurable objectives if applicable.
 
-  ## CONSTRAINTS (MANDATORY)
-  {List strict limitations, prohibitions, or required conditions for operation}
-  ```
+## 2. CORE BEHAVIOR
+# High-level summary of how this agent/procedure operates.
+# Key principles, constraints, or operational modes (e.g., read-only).
+# Reference core framework docs ([Core Execution Loop], [global-mandates.md]).
 
-## FORMATTING & REGISTRATION (MANDATORY)
-- **LANGUAGE:** MUST use imperative, direct language (MUST, REQUIRED, PROHIBITED, FORBIDDEN, ACTION).
-- **AGENT ROLES UPDATE:** `AgentGeneratorAgent` MUST add/update entry for the agent in `rules-md/agent-roles.md` using the standard format.
-- **REFERENCE:** ALL agent/rule specs MUST reference this meta-rule.
-- **EXAMPLES:** MUST provide at least one example `handoffMessage` and example log entry snippet within the spec.
+## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps / Procedure Steps)
+# Detail the specific actions taken within each step of the Core Execution Loop (for Agents)
+# OR list the sequential steps of the Procedure.
+# Be specific about tool usage and decision logic for each step.
+# Use sub-headings like "Step X: Action Name" or "Phase Y: Step Z".
 
-## RECURSIVE ENFORCEMENT (MANDATORY)
-- When generating/updating agent/rule specs, the responsible agent (e.g., `AgentGeneratorAgent`, `RuleWriterAgent`) MUST reference and enforce conformance to THIS meta-rule.
+## 4. INPUTS & OUTPUTS
+# List required inputs (e.g., Chat Trigger content, Wiki sections, specific tool outputs, fetched rules).
+# List primary outputs (e.g., Updated Wiki sections, specific file modifications, final Chat Trigger).
+
+## 5. TOOLS
+# List the authorized tools for this agent/procedure.
+# Specify REQUIRED usage where applicable (e.g., `fetch_rules`, `edit_file` for Wiki).
+# Explicitly list FORBIDDEN tools if critical (especially for read-only agents).
+
+## 6. HANDOFF CONDITIONS (For Agents) / SUCCESS CRITERIA (For Procedures)
+# Agents: Define conditions for determining the `nextAgent` based on outcomes. List target agents.
+# Procedures: Define the explicit conditions that MUST be met for the procedure to be considered successful.
+
+## 7. ERROR HANDLING
+# Describe specific error conditions relevant to this agent/procedure.
+# Detail how errors are detected (e.g., tool failure, verification failure).
+# Specify the escalation path (usually HALT -> Update Wiki -> Trigger Overmind).
+
+## 8. CONSTRAINTS & FORBIDDEN PATTERNS
+# List strict limitations, mandatory conditions, or things explicitly disallowed.
+# Reinforce critical constraints (e.g., read-only, data privacy).
+
+## 9. EXAMPLES
+# Provide concrete examples of:
+# - Input (e.g., example Chat Trigger message)
+# - Output (e.g., example Wiki update snippet, example final Chat Trigger message)
+# - Usage scenarios (optional).
+
+## 10. REFERENCES
+# List links to other relevant rule documents (using `mdc:` syntax or relative links).
+# Include links to core framework docs ([Core Execution Loop], [global-mandates.md], etc.).
+# Link to specific tool specs if important.
+```
+
+## 5. MANDATORY FORMATTING & CONTENT
+
+*   **YAML Front-Matter:** All rule files MUST start with the specified YAML front-matter block. All fields marked REQUIRED in the template comments must be present.
+*   **Sections:** All 10 numbered sections MUST be present in the specified order, using Level 2 Markdown headers (`##`).
+*   **Language:** MUST use clear, imperative language (MUST, REQUIRED, FORBIDDEN, SHOULD, MAY). Define terms clearly.
+*   **Tooling:** Be explicit about required tool usage (`fetch_rules`, `context7_*`, verification tools).
+*   **References:** Use `mdc:` links for cross-referencing other rule documents where appropriate. Use relative links (e.g., `../global-mandates.md`) for files expected to be in the same local ruleset structure.
+*   **Agent Roles Registry:** The `AgentGeneratorAgent` or `RuleWriterAgent` MUST ensure a corresponding entry exists and is up-to-date in `rules-md/agent-roles.md` when creating/modifying an Agent spec.
+
+## 6. ENFORCEMENT
+
+*   Agents responsible for writing/modifying rules (`AgentGeneratorAgent`, `RuleWriterAgent`) MUST validate the output against this meta-rule.
+*   A conformance checking script SHOULD be used (as per the overall plan) to automatically validate structure and potentially key content requirements before rules are considered active.
+
+## 7. REFERENCES
+
+*   [AgentGeneratorAgent](./agent-generator-agent.md) (Uses this template)
+*   [RuleWriterAgent](./rule-writer-agent.md) (Uses this template)
+*   All other Agent/Procedure specifications (MUST conform to this template)
 
 ## References
 - [Cursor Forum: Auto-Rule Generation Techniques](https://forum.cursor.com/t/how-to-force-your-cursor-ai-agent-to-always-follow-your-rules-using-auto-rule-generation-techniques/80199) 
