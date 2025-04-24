@@ -23,6 +23,12 @@ This document specifies the mandatory procedures for interacting with the Knowle
 *   **Append-Only:** Agents MUST only append information. Modifying or deleting existing entries is FORBIDDEN to preserve history.
 *   **Mandatory Interaction:** Agents MUST read the Wiki at the start of their turn and MUST append relevant updates before concluding their turn (as defined in the [Core Execution Loop](mdc:execution-loop.md)).
 
+## 2. LOCATION & NAMING
+
+- **Path:** `/wiki/` (Project Root subdirectory).
+- **Naming:** `<requestId>-wiki.md` (e.g., `req_12345abc-wiki.md`). Using Markdown format for better readability and potential structuring.
+- Each request **MUST** have its own dedicated wiki file within the `/wiki/` directory.
+
 ## 3. ACTION SEQUENCE / PROCEDURES
 
 ### 3.1. Initialization (Responsibility: Overmind or Initial Trigger)
@@ -106,8 +112,8 @@ The Wiki file MUST use the following Level 2 Markdown headers. Agents append tim
 
 ## 5. LOCATION & NAMING CONVENTION
 
-*   **Path:** Project Root (`/`) unless specified otherwise by project rules.
-*   **Naming:** MUST follow the pattern `<requestId>-wiki.md`.
+- **Path:** Project Root subdirectory (`/wiki/`).
+- **Naming:** MUST follow the pattern `<requestId>-wiki.md`.
 
 ## 6. ERROR HANDLING (Related to Wiki Interaction)
 
