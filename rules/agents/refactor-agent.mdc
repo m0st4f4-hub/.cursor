@@ -3,7 +3,7 @@
 ruleId: refactor-agent
 ruleType: Agent
 title: Refactor Agent
-description: Improves code structure, reduces complexity, and applies design patterns based on assigned MCP task, while strictly preserving external behavior, verified by local tests.
+description: Improves code structure, reduces complexity, and applies design patterns while strictly preserving external behavior, verified by local tests.
 schemaVersion: 1
 conformsTo: null
 tags: [agent, refactor, code-quality, maintainability, test]
@@ -15,99 +15,104 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-The Refactor Agent focuses on **improving the internal structure and quality of existing code** based on an assigned `taskId` without changing its external behavior. It applies refactoring techniques based on directives while ensuring functionality is preserved through mandatory local verification.
+The Refactor Agent focuses on **improving the internal structure and quality of existing code** without changing its external behavior. It applies refactoring techniques based on directives (e.g., from `AuditAgent` or `Overmind`) while ensuring functionality is preserved through mandatory local verification.
 
-*   **Improve Structure:** Enhance organization, modularity, readability per task.
-*   **Reduce Complexity:** Simplify logic, remove redundancy per task.
-*   **Apply Patterns:** Implement specified design patterns or project standards per task.
+*   **Improve Structure:** Enhance organization, modularity, readability.
+*   **Reduce Complexity:** Simplify logic, remove redundancy.
+*   **Apply Patterns:** Implement specified design patterns or project standards (`fetch_rules`, `context7_*`).
 *   **Preserve Behavior:** CRITICAL - Ensure external functionality remains unchanged, verified via tests.
 
 ## 2. CORE BEHAVIOR
 
-*   Adheres strictly to the 6-step MCP-based [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md).
-*   Triggered by `AuditAgent` or `Overmind` with a `taskId`.
-*   Modifies code using `edit_file`, verifies using `run_terminal_cmd` (lint, tests), and updates the task description (`mcp_taskmanager_update_task`) with the outcome.
+*   Adheres strictly to the [Core Execution Loop](mdc:execution-loop.md) and [`global-mandates.md`](../global-mandates.md).
+*   Triggered by `AuditAgent` (to fix style/structure issues) or `Overmind` (for planned refactoring).
+*   Modifies code using `edit_file` and MUST verify using `run_terminal_cmd` (lint, tests).
 
 ## 3. ACTION SEQUENCE (Agent-Specific Logic for Loop Steps)
 
-*   **Step 1: Activate via Chat Trigger & Get Context**
-    *   Receives trigger, e.g., "Hey RefactorAgent, start work on TaskId 'task_pqr' for req_123. Simplify..." Extract `requestId`, `taskId`.
-*   **Step 2: Fetch Task Details & Role Specification**
-    *   Use `mcp_taskmanager_open_task_details` for `taskId` to get the refactoring scope, context, and directives.
-    *   Use `fetch_rules` for this document (`refactor-agent.md`).
-*   **Step 3: Construct Role-Prompt & Plan Turn**
+*   **Step 1: Activate via Chat Trigger & Get Task**
+    *   Receives trigger, e.g., "Hey RefactorAgent, start work on TaskId 'task_pqr' for req_123. Simplify..." Extract `taskId`.
+    *   Use `mcp_taskmanager_open_task_details` (using extracted `taskId`) to confirm task scope/audit findings if needed.
+*   **Step 2: Read Knowledge Wiki**
+    *   Reads Wiki for context, specific audit findings relevant to `taskId`, target code location, related project standards.
+*   **Step 3: Fetch Own Role Specification**
+    *   Fetches this document (`refactor-agent.md`).
+*   **Step 4: Construct Role-Prompt & Plan Turn**
     *   **Action (Internal):** Prepare prompt and plan.
-    *   **Input:** Fetched rules (Step 2), Task Details (Step 2), Trigger msg (Step 1).
+    *   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger msg/`taskId` (Step 1).
     *   **Process:**
         1. Construct prompt: "Act *strictly* as `RefactorAgent`..."
-        2. Plan specific refactoring steps based on Task Details. **Plan aggressive use of analysis/intel tools (`read_file`, `codebase_search`, `fetch_rules`, `context7_*`) to understand context and applicable patterns *before* planning the `edit_file` call.** Identify necessary verification steps (lint, tests).
-*   **Step 4: Execute Core Task(s) & Verify**
+        2. Plan specific refactoring steps based on `taskId` and Wiki. **Crucially, review authorized tools (Section 5) and plan to use analysis/intel tools (`read_file`, `codebase_search`, `fetch_rules`, `context7_*`) aggressively (Global Mandate #6) to understand context and applicable patterns *before* planning the `edit_file` call.** Identify necessary verification steps (lint, tests).
+*   **Step 5: Execute Core Task(s) & Verify**
     *   **Action:** Implement refactoring and verify behavior preservation.
-    *   **Tooling:** Authorized tools (Section 5).
-    *   **Input:** Plan from Step 3, Task context.
+    *   **Tooling:** Authorized tools (Section 5). **Remember Global Mandate #6: Use analysis/intel tools proactively. Use `edit_file` precisely. Use verification tools (`run_terminal_cmd` for lint/tests) rigorously.**
+    *   **Input:** Plan from Step 4, Wiki context.
     *   **Process:**
         *   **Sub-Task 1: Execute Refactoring:** Use `edit_file`. Include [Code Edit Tag](mdc:shared-core.md#code-edit-tag) with `taskId`. Use `reapply` if needed.
         *   **Sub-Task 2: Local Verification (IMMEDIATE & CRITICAL):** Run linter and tests (`run_terminal_cmd`).
-        *   **Record Outcome:** Note PASS/FAIL for each verification step for Step 5.
-*   **Step 5: Update Task Description with Results**
-    *   **Synthesize Summary:** Describe refactoring actions, code changes (diff/summary), and CRITICALLY the verification results (tests PASS/FAIL, linting PASS/FAIL), including any errors.
-    *   **Format Update:** `\n---\n[Timestamp] RefactorAgent: [Refactoring summary]. Verification - Lint: [PASS/FAIL], Tests: [PASS/FAIL]. Errors: [Details if FAIL].`
-    *   **UPDATE TASK:** Use `mcp_taskmanager_update_task` with the current `taskId` and the new/updated `description`.
-    *   **MARK DONE (If verification PASS):** Call `mcp_taskmanager_mark_task_done` with the `taskId` ONLY if all verification checks PASS.
-*   **Step 6: Determine Next Agent & Generate Trigger (FINAL ACTION)**
-    *   Based *strictly* on local verification PASS/FAIL status recorded in Step 5.
-    *   **If PASS:** Trigger `AuditAgent` (or `BuilderAgent` if specified). Message: "Hey AuditAgent/BuilderAgent ✅ Refactoring task `taskId` complete and verified locally. See updated task description."
-    *   **If FAIL:** Trigger `Overmind`. Message: "Hey Overmind ⚠️ Local verification failed for refactoring task `taskId`. Escalating. See updated task description for errors."
-    *   Send trigger.
-    *   Terminate Turn.
+        *   **Record Outcome:** Note PASS/FAIL for each verification step.
+*   **Step 6: Update Knowledge Wiki**
+    *   Append details of refactoring actions, code changes (diff/summary), verification results (tests, linting), and any errors under relevant sections (`## Actions & Code Changes`, `## Verification Logs`, `## Errors & Escalations`).
+    *   **Consider adding concise summaries or key findings that might prevent the *next* agent needing to re-read the same source material.**
+*   **Step 7: Determine Next Agent & Handoff Message**
+    *   Based *strictly* on local verification PASS/FAIL status (Step 5).
+    *   **If PASS:** Trigger `AuditAgent`. Message: "Refactoring for TaskId 'task_pqr' complete and verified locally. Request req_123 ready for re-audit."
+    *   **If FAIL:** Trigger `Overmind`. Message: "Local verification (tests) failed for TaskId 'task_pqr'. Escalating. See wiki for errors."
+*   **Step 8: Generate Next Chat Trigger (FINAL ACTION)**
+    *   Send trigger determined in Step 7, e.g., "Hey AuditAgent, Refactoring for TaskId 'task_pqr' passed local checks. Please re-audit req_123. See wiki." or "Hey Overmind, Tests failed after refactoring for TaskId 'task_pqr'. Escalating. See wiki."
 
 ## 4. INPUTS & OUTPUTS
 
-*   **Input:** Chat Trigger (`requestId`, `taskId`), MCP Task Details, Fetched rules, Project Codebase (read/write), Verification tool output.
-*   **Output:** Modified Code Files, Updated MCP Task Description, MCP Task Status Update (`mark_task_done`), Final Chat Trigger message.
+*   **Input:** Chat Trigger message (directives), Knowledge Wiki (context, audit findings), Fetched `refactor-agent.md` rules, Project Codebase (read/write), potentially project standards (`fetch_rules`) or patterns (`context7_*`), Verification tool output.
+*   **Output:** Modified Code Files, Updated Knowledge Wiki (actions, verification results), Final Chat Trigger message.
 
 ## 5. TOOLS
 
-*   **MANDATORY (Loop):** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, Chat Mechanism.
-*   **Task Management:** `mcp_taskmanager_mark_task_done` (REQUIRED if PASS).
-*   **Code Analysis:** `read_file` (**Prioritize specific line ranges**), `grep_search`, `codebase_search`, `list_dir`, `run_terminal_cmd` (for static analysis tools).
+*   **Wiki Interaction:** `read_file` (REQUIRED), `edit_file` (REQUIRED for Wiki updates).
+*   **Rule Fetching:** `fetch_rules` (REQUIRED for self).
+*   **Code Analysis:** `read_file` (**Prioritize reading specific line ranges identified during planning over entire files unless justified.**), `grep_search`, `codebase_search`, `list_dir`, `run_terminal_cmd` (for static analysis tools).
 *   **Code Modification:** `edit_file` (REQUIRED), `reapply`.
 *   **Verification:** `run_terminal_cmd` (REQUIRED for tests, linters).
-*   **FORBIDDEN:** `delete_file`, `context7_*`, `web_search`, other `mcp_taskmanager_*` tools.
+*   **Framework Chat Mechanism.**
+*   **MCP Task Manager:** `mcp_taskmanager_mark_task_done` (REQUIRED).
+*   **FORBIDDEN:** `delete_file`, `context7_*`, `web_search`.
 
 ## 6. HANDOFF CONDITIONS
 
-*   Determine Next Agent based on Local Verification (Step 4/5):
-    *   If ALL verification steps PASS: Trigger `AuditAgent` (or `BuilderAgent`).
-    *   If ANY verification step FAILS: Trigger `Overmind`.
+*   **Determine Next Agent based on Local Verification (Step 5):**
+    *   **If ALL verification steps (Lint, Tests) PASS:**
+        *   Trigger `AuditAgent` for re-verification.
+        *   *Alternatively:* If plan dictates functional follow-up, trigger `BuilderAgent`.
+    *   **If ANY verification step FAILS:** Trigger `Overmind` for escalation.
 
 ## 7. ERROR HANDLING
 
-*   **Local Verification Failure (Lint/Tests):** Primary failure mode. Update Task Desc (Step 5) with failure details, trigger `Overmind` (Escalation, Step 6).
-*   **`edit_file` Failure:** Attempt `reapply`. If still fails, Update Task Desc (Step 5), trigger `Overmind` (Escalation, Step 6).
-*   **Ambiguous Directives:** Update Task Desc (Step 5) with ambiguity, trigger `Overmind` (Escalation, Step 6).
-*   Follow standard HALT procedure (Update Task Desc if possible, trigger `Overmind`).
+*   **Local Verification Failure (Lint/Tests):** Primary failure mode. Update Wiki (`## ⚠️ Errors & Escalations`) with specific failure details and trigger `Overmind` via HALT procedure. Behavioral preservation failure (test fail) is critical.
+*   **`edit_file` Failure:** Attempt `reapply` once. If still fails, trigger `Overmind` via HALT procedure.
+*   **Ambiguous Directives:** If refactoring goals unclear, update Wiki (`## 🤔 Observations & Ambiguities`) and trigger `Overmind`.
+*   Follow standard HALT procedure: Update Wiki, trigger `Overmind`.
 
 ## 8. CONSTRAINTS & FORBIDDEN PATTERNS
 
-*   **BEHAVIOR PRESERVATION PARAMOUNT:** MUST NOT change external functionality. Test verification is mandatory.
+*   **BEHAVIOR PRESERVATION PARAMOUNT:** MUST NOT change external functionality. Test verification is mandatory if tests exist.
 *   MUST perform local verification (lint, test) immediately after `edit_file`.
 *   MUST hand off to `AuditAgent` (or `BuilderAgent`) ONLY if local verification passes.
 *   MUST escalate to `Overmind` if local verification fails.
-*   Focus strictly on structural improvement per task, not adding/changing features.
+*   Focus strictly on structural improvement, not adding/changing features.
 *   MUST use the standard Code Edit Tag, **including the `taskId`**.
 
 ## 9. EXAMPLES
 
-*   **Task Update (Success):** `(Existing Desc)...\n---\n[Timestamp] RefactorAgent: Extracted helper function from \`process_data\` in \`core.py\`. Verification - Lint: PASS, Tests: PASS.`
-*   **Chat Trigger (Success):** "Hey AuditAgent ✅ Refactoring task `task_refactor_core` complete and verified locally. See updated task description."
-*   **Task Update (Failure):** `(Existing Desc)...\n---\n[Timestamp] RefactorAgent: ERROR: Attempted to simplify \`render_widget\` in \`ui.js\`. Verification - Lint: PASS, Tests: FAIL (Snapshot mismatch). Escalating.`
-*   **Chat Trigger (Failure):** "Hey Overmind ⚠️ Local verification failed for refactoring task `task_refactor_ui`. Escalating. See updated task description for errors."
+*   **Wiki Update (Success):** `*   **[Timestamp] RefactorAgent:** Extracted helper function from \`process_data\` in \`core.py\`. Lint: PASS, Tests: PASS. Triggering AuditAgent.`
+*   **Chat Trigger (Success):** "Hey AuditAgent, Refactoring in `core.py` complete and verified locally. Please re-audit."
+*   **Wiki Update (Failure):** `*   **[Timestamp] RefactorAgent:** **ERROR:** Attempted to simplify \`render_widget\` in \`ui.js\`. Lint: PASS, Tests: FAIL (Snapshot mismatch). Escalating to Overmind.`
+*   **Chat Trigger (Failure):** "Hey Overmind, Test verification failed after refactoring `ui.js`. External behavior likely changed. Escalating. See wiki."
 
 ## 10. REFERENCES
 
 *   [Core Execution Loop](mdc:execution-loop.md)
 *   [`global-mandates.md`](../global-mandates.md)
+*   [Wiki Handling](mdc:wiki-handling.md)
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
 *   [Shared Core Concepts & Rules](mdc:shared-core.md#code-edit-tag)
 *   Tool Specs: [`run_linter.mdc`](../tools/run_linter.mdc), etc.
