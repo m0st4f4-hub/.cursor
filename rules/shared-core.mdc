@@ -68,10 +68,10 @@ This document defines the non-negotiable core concepts, terminology, and mandato
 COMMENT_START Task ID: <taskId> // Optional MCP Task ID
 COMMENT_START Agent Role: <agent_role>
 COMMENT_START Request ID: <requestId>
-COMMENT_START Project: <projectName> // From wiki
+        COMMENT_START Project: <projectName> // From wiki
 COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
-COMMENT_END (if applicable)
-```
+        COMMENT_END (if applicable)
+        ```
 
 ## 4. KEY BEHAVIORAL RULES SUMMARY
 
