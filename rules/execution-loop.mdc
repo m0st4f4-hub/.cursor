@@ -11,19 +11,87 @@ lastUpdated: null
 status: Active
 ---
 
-# 🔄 Core Execution Loop (MANDATORY)
+# 🔁 Core Agent Execution Loop
 
-**PURPOSE:** Defines the mandatory, sequential steps each agent MUST follow during its execution turn within the Chat Trigger framework. Ensures consistency, traceability, and controlled handoffs, including direct agent-to-agent sub-task delegation.
+Defines the mandatory sequence ALL agents MUST follow each turn.
 
-**CONTEXT:** This loop is initiated when an agent is activated by a **Chat Trigger**. This trigger could originate from `Overmind` (initial task, escalation), or *directly from another agent* (for sub-task delegation or completion). It assumes access to necessary tools.
+## 1. PURPOSE & OBJECTIVES
 
-**PRINCIPLES (MANDATORY):**
-- **SEQUENTIAL:** Steps MUST be executed in the specified order (1-7).
-- **IDEMPOTENT (where applicable):** Strive for safe repetition.
-- **STATEFUL VIA CHAT:** Context is passed via Chat Trigger messages.
-- **ROLE-DRIVEN:** Behavior dictated by Role Spec.
-- **NO WAITING (Except Diagnostics):** Proceed autonomously, only pause for diagnostics (Step 4 HALT).
-- **FINAL ACTION = TRIGGER:** Turn concludes *only* by generating a Chat Trigger (standard handoff, escalation, sub-task delegation, or sub-task completion) in Step 7.
+Ensure consistent, predictable, and auditable agent behavior across the framework.
+
+*   **Standardization:** Enforce uniform execution flow.
+*   **Context Awareness:** Ensure agents read state (Wiki) before acting.
+*   **Role Adherence:** Ensure agents fetch and use their defined rules.
+*   **State Management:** Mandate Wiki updates for traceability.
+*   **Coordination:** Define clear handoff via Chat Triggers.
+*   **Error Handling:** Standardize escalation.
+
+## 2. CORE BEHAVIOR
+
+*   Sequential execution of Steps 1-8 is MANDATORY.
+*   No steps skipped unless part of defined error handling (HALT).
+*   Interaction points (Wiki, Tools, Chat) are defined per step.
+
+## 3. ACTION SEQUENCE (MANDATORY STEPS)
+
+**Step 1: Activate via Chat Trigger & Parse**
+*   **Action:** Receive directed trigger message.
+*   **Input:** Chat message (e.g., "Hey `BuilderAgent`, implement feature X. See wiki `req_123`.").
+*   **Process:** Parse sender, target role, `requestId`, core instruction/`taskId`.
+*   **Output:** Internal variables (`sender`, `targetRole`, `requestId`, `instruction`).
+
+**Step 2: Read Knowledge Wiki**
+*   **Action:** Fetch and parse current request state.
+*   **Tooling:** `read_file` (target: `<requestId>-wiki.md`).
+*   **Input:** `requestId`.
+*   **Process:** Read relevant Wiki sections (Overview, Plan, Findings, Errors).
+*   **Output:** Internal context representation.
+
+**Step 3: Fetch Own Role Specification**
+*   **Action:** Retrieve agent's specific operational rules.
+*   **Tooling:** `fetch_rules` (target: `<AgentRole>.md`).
+*   **Input:** Agent's own role name.
+*   **Process:** Fetch rule file content.
+*   **Output:** Fetched rule text.
+
+**Step 4: Construct Role-Prompt & Plan Turn**
+*   **Action (Internal):** Prepare LLM prompt and detailed action plan.
+*   **Input:** Fetched rules (Step 3), Wiki context (Step 2), Trigger msg (Step 1).
+*   **Process:**
+    1.  Construct prompt: "Act *strictly* as `<AgentRole>` based on these rules [rules text] and this context [Wiki summary]. Goal: [instruction]."
+    2.  Plan specific tool calls (`edit_file`, `run_terminal_cmd`, etc.) needed for Step 5, including parameters. **Crucially, plan to use authorized tools aggressively (Global Mandate #6) based on role and context.**
+*   **Output:** Internal prompt string, structured plan.
+
+**Step 5: Execute Core Task(s) & Verify**
+*   **Action:** Perform agent's primary function(s) using planned tool calls.
+*   **Tooling:** Role-specific authorized tools.
+*   **Input:** Plan from Step 4, Wiki context, Trigger message.
+*   **Process:** Execute planned tool calls sequentially. Verify outputs/success where applicable (e.g., `run_terminal_cmd` exit codes, `edit_file` confirmation).
+*   **Output:** Tool results, internal state changes.
+*   **EXCEPTION - Diagnostics:** If encountering ambiguity resolvable *only* by user input (e.g., missing critical credential, file path confirmation), agent MAY:
+    1. Update Wiki (`## 🤔 Observations & Ambiguities`).
+    2. Output diagnostic question clearly formatted to chat.
+    3. HALT execution (do not proceed to Step 6) and await external framework intervention/user response relayed via a *new* trigger.
+
+**Step 6: Update Knowledge Wiki**
+*   **Action:** Persist execution results and state changes.
+*   **Tooling:** `edit_file` (target: `<requestId>-wiki.md`).
+*   **Input:** Results from Step 5, final status.
+*   **Process:** Format results/summary/errors as timestamped list items. Append under appropriate Wiki sections (`## Actions`, `## Findings`, `## Errors`).
+*   **Output:** Updated Wiki file.
+
+**Step 7: Determine Next Agent & Handoff Message**
+*   **Action (Internal):** Decide next agent based on role spec and outcome.
+*   **Input:** Role spec (Step 3), Step 5 outcome.
+*   **Process:** Follow role-specific handoff logic. Determine `<NextAgentRole>` and concise handoff message.
+*   **Output:** `<NextAgentRole>`, handoff message string.
+
+**Step 8: Generate Next Chat Trigger (FINAL ACTION)**
+*   **Action:** Initiate handoff to the next agent.
+*   **Tooling:** Framework Chat Mechanism.
+*   **Input:** `<NextAgentRole>`, handoff message (Step 7).
+*   **Process:** Format trigger: "Hey `<NextAgentRole>` [emoji] [handoff message]. See wiki for details.". Send trigger.
+*   **Output:** Sent chat message.
 
 ## WORKFLOW (MANDATORY STEPS 1-7)
 
