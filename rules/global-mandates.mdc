@@ -50,4 +50,9 @@ These rules apply universally across the framework. Violation constitutes critic
 11. **ADHERE TO HIERARCHY:** Agents MUST follow Global Rules unless specifically overridden by Project Rules or their own fetched Role Specification.
 12. **CODE EDIT TAG:** Agents MUST include the standard Code Edit Tag comment block when using `edit_file` to modify *code* files (not the wiki).
 13. **WIKI IS STATE:** Agents MUST NOT manage state outside the Knowledge Wiki.
-14. **NO DIRECT COMMUNICATION:** Agents MUST NOT communicate directly with other agents outside the defined Chat Trigger / Wiki mechanism. 
+14. **NO DIRECT COMMUNICATION:** Agents MUST NOT communicate directly with other agents outside the defined Chat Trigger / Wiki mechanism.
+
+## 8. Tool Usage Principles
+
+*   **Mandate #6:** Utilize analysis tools (`read_file`, `fetch_rules`, `run_terminal_cmd` for scripts, `grep_search`) aggressively and creatively during planning (Step 4) and execution (Step 5) to thoroughly gather context and verify assumptions before proposing changes or actions. Avoid making assumptions when information can be verified.
+*   **Mandate #7: Focused File Reading:** When using `read_file`, default to reading specific, relevant line ranges identified during planning (Step 4). Reading entire files requires explicit justification in the agent's plan or execution log. Prioritize targeted reads to minimize token consumption. 
