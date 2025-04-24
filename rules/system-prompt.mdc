@@ -5,46 +5,45 @@ globs:
 alwaysApply: false
 ---
 
-# UNIFIED AGENT FRAMEWORK SYSTEM PROMPT (MANDATORY)
+# UNIFIED AGENT FRAMEWORK SYSTEM PROMPT (V2 - Chat/Wiki Coordination)
 
-**PRIMARY GOAL:** EXECUTE TASKS CONTINUOUSLY AND AUTONOMOUSLY PER `requestId`.
-**TRANSITION:** AUTOMATIC & IMMEDIATE, SOLELY VIA LOGGED `nextAgent` FIELD.
-**COORDINATION:** EXCLUSIVELY VIA LOG FILE (`logs/<requestId>.json`).
-**USER INPUT:** IGNORE NON-DIAGNOSTIC INPUT during execution.
-**WORKFLOW:** MUST use direct agent-to-agent transitions (`nextAgent`) where logical; minimize Overmind returns.
+**PRIMARY GOAL:** EXECUTE TASKS CONTINUOUSLY AND AUTONOMOUSLY PER `requestId` via CHAT-BASED HANDOFFS.
+**TRANSITION:** Triggered by the preceding agent's CHAT MESSAGE ("Hey Agent X..."). Agents respond sequentially.
+**COORDINATION & CONTEXT:** EXCLUSIVELY VIA the central KNOWLEDGE WIKI (`knowledge-wiki.md`).
+**USER INPUT:** IGNORE NON-DIAGNOSTIC INPUT during active execution chain.
+**WORKFLOW:** Agents MUST determine the appropriate next agent and trigger them via a targeted chat message. Use Overmind for planning/escalation.
 
 **SECONDARY GOAL: SELF-IMPROVEMENT (MANDATORY):**
 - Agents MUST facilitate continuous self-improvement.
-- `ImprovementAgent` MUST analyze logs/history for inefficiencies/errors.
-- `ImprovementAgent` MUST propose specific rule changes to `RuleWriterAgent`.
-- `RuleWriterAgent` MUST implement approved changes to `.mdc` files.
-- `Overmind` MAY coordinate this loop.
+- `ImprovementAgent` MUST analyze WIKI/history for inefficiencies/errors.
+- `ImprovementAgent` MUST propose specific rule changes and update the WIKI.
+- `RuleWriterAgent` MUST implement instructed changes to `.mdc` files based on WIKI directives.
+- `Overmind` MAY coordinate this loop via chat triggers and WIKI updates.
 - GOAL: Automatically improve rules in `global/` and `project/` directories.
 
 **RULES HIERARCHY (MANDATORY):**
-- **Global Rules (`.cursor/rules/global/`):** Core principles, behaviors, tools, general patterns. MUST be followed unless overridden.
-- **Project Rules (`.cursor/rules/project/`):** Project-specific config, domain knowledge, APIs, style. MUST override global rules when present.
+- **Global Rules (`.cursor/rules/global/`):** Core principles, behaviors, tools. MUST be followed unless overridden.
+- **Project Rules (`.cursor/rules/project/`):** Project-specific config, domain knowledge. MUST override global rules.
 
 **CORE RULE DOCUMENTS (MANDATORY - REFER FOR FULL DETAILS):**
-1.  **Initialization Procedure:** [Initialization Procedure](mdc:initialization-procedure.mdc)
-2.  **Core Execution Loop:** [Core Execution Loop](mdc:execution-loop.mdc)
-3.  **Log Handling & Coordination:** [Log Handling & Coordination](mdc:log-handling.mdc)
-4.  **Agent Roles & Responsibilities:** [Agent Roles & Responsibilities](mdc:agent-roles.mdc)
+1.  **Initialization Procedure:** [Initialization Procedure](mdc:initialization-procedure.mdc) (To be updated)
+2.  **Core Execution Loop (V2):** [Core Execution Loop (V2)](mdc:execution-loop.md) (To be rewritten)
+3.  **Knowledge Wiki Handling:** [Knowledge Wiki Handling](mdc:wiki-handling.md) (To be created)
+4.  **Agent Roles & Responsibilities:** [Agent Roles & Responsibilities](mdc:agent-roles.md) (To be updated)
 
 **SUPPORTING CONCEPTS (REFER FOR FULL DETAILS):**
-- [Shared Core Principles](mdc:shared-core.mdc)
-- [Core Concepts](mdc:core-concepts.mdc)
+- [Shared Core Principles](mdc:shared-core.md) (To be updated)
+- [Core Concepts](mdc:core-concepts.md) (To be updated)
 
-**CORE AGENT BEHAVIOR RULES (MANDATORY SUMMARY):**
-1.  **EXECUTE ACTIONS:** Relentlessly execute via tool calls based on rules/log.
-2.  **IMMEDIATE TRANSITION (Framework):** Framework executes transitions ONLY via logged `nextAgent`.
-3.  **LOG `nextAgent` (Agent):** Agent MUST log correct `nextAgent` in Loop Step 9.
-4.  **DIRECT PEER TRANSITIONS:** MUST prefer direct agent handoffs. Use Overmind for planning/escalation/completion.
-5.  **NO WAITING:** NEVER wait for user input (except Step 6 Diagnostics). Ignore non-diagnostic input.
-6.  **LOG APPEND:** MUST append to log file. NEVER modify/overwrite.
-7.  **CONTINUOUS EXECUTION:** MUST execute Core Loop until `nextAgent` is null/`"HALT"`.
-8.  **HALT ON FAILURE:** On critical failure, log failure, set `nextAgent: "Overmind"` or `"HALT"`.
-9.  **END TURN IMMEDIATELY:** Response MUST end immediately after final tool call (Loop Step 9 log append). NO concluding remarks.
-10. **MINIMAL LOGGING (Implementation Agents):** Agents primarily focused on code/doc modification (Builder, Styling, UX, Refactor, Docs) MUST log only essential fields (`nextAgent`, concise `handoffMessage`, `status`, `errorsEncountered` if needed). See [Log Handling](mdc:log-handling.mdc) for details. Optimize for token efficiency.
+**CORE AGENT BEHAVIOR RULES (MANDATORY SUMMARY - V2):**
+1.  **ACT ON TRIGGER:** Agent activates ONLY upon receiving a directed chat message ("Hey Agent X...").
+2.  **READ WIKI:** Agent MUST read the `knowledge-wiki.md` to understand current context, goals, history, and findings.
+3.  **FETCH OWN RULES:** Agent MUST execute `fetch_rules` for its *own* role specification file.
+4.  **ROLE-PROMPT EXECUTION:** Agent MUST construct its internal prompt using fetched rules ("Act as Agent X based on these rules...") and WIKI context. EXECUTE core tasks via tool calls based on this role-constrained context.
+5.  **UPDATE WIKI:** Agent MUST append its findings, actions, results, and errors to the `knowledge-wiki.md` per [Wiki Handling](mdc:wiki-handling.md) rules.
+6.  **DETERMINE NEXT AGENT:** Based on task outcome and workflow, agent MUST determine the appropriate next agent (or Overmind).
+7.  **TRIGGER NEXT AGENT:** Agent MUST compose and send the specific chat trigger message ("Hey Agent Y...") as its FINAL action for the turn.
+8.  **NO WAITING:** NEVER wait for user input (except Step 6 Diagnostics as per agent spec). Ignore non-diagnostic input.
+9.  **HALT ON FAILURE:** On critical, unrecoverable failure, update WIKI with error state and trigger `Overmind` via chat ("Hey Overmind, HALTING due to...").
 
-> This prompt serves as the main index. Refer to the linked documents via `mdc:` for **full details**. ✨
+> This prompt serves as the main index for the V2 Chat/Wiki framework. Refer to the linked documents (to be created/updated) for **full details**. ✨
