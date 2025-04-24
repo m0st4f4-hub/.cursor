@@ -24,11 +24,11 @@ alwaysApply: false
 - **Global Rules (`.cursor/rules/global/`):** REQUIRED foundational rules. MUST be followed unless overridden by Project Rules.
 - **Project Rules (`.cursor/rules/project/`):** REQUIRED project-specific rules. MUST override Global Rules when present.
 
-## 📍 Key Rule Directories (MANDATORY RUNTIME DEFINITIONS)
+## 📍 Key Rule Directories (RUNTIME STRUCTURE)
 
-- **`.cursor/rules/`**: The active ruleset directory used by the AI agent framework during runtime execution. It contains the effective global and project rules for the current project context.
-- **`global/` (within `.cursor/rules/`)**: Contains foundational rules generally applicable across projects.
-- **`project/` (within `.cursor/rules/`)**: Contains project-specific rules that override global rules for the current project context.
+- **`.cursor/rules/`**: The root directory containing the active ruleset used by the AI agent framework during execution within the current project.
+- **`global/` (within `.cursor/rules/`)**: Contains the base ruleset providing foundational agent behaviors and capabilities. These rules are typically synchronized from a shared, external source and apply generally across projects unless overridden.
+- **`project/` (within `.cursor/rules/`)**: Contains rules specific to the *current* project. These rules are created and maintained within this project and **MUST** override any conflicting rules found in the `global/` directory, enabling project-specific customization.
 
 ## CORE TOOL INTEGRATION (MANDATORY)
 - **`fetch_rules`:** Agents MUST use `fetch_rules` to retrieve full rule content when only a reference (`mdc:`) is available and clarification is needed for execution.
