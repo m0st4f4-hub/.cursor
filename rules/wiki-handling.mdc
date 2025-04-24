@@ -5,7 +5,7 @@ globs:
 alwaysApply: false
 ---
 
-# 🧠 Knowledge Wiki Handling (V2 Framework)
+# 🧠 Knowledge Wiki Handling
 
 ## 🎯 Core Purpose
 
@@ -100,10 +100,10 @@ The wiki file will use Markdown headings to structure information. Agents **MUST
 
 - If an agent encounters an unrecoverable error, it **MUST**:
     1. Append the error details under the `## ⚠️ Errors & Escalations` section of the wiki.
-    2. Trigger `Overmind` via chat, referencing the error entry in the wiki.
+    2. Trigger `Overmind` via Chat Trigger, referencing the error entry in the wiki (e.g., "Hey Overmind, error encountered. See wiki `## ⚠️ Errors & Escalations` section.").
 
 ## 🤝 Coordination
 
 - The wiki serves as the shared context.
-- Agent transitions are triggered via the **`framework_handoff` mechanism** ([Shared Core](mdc:shared-core.md#handoff-mechanism-v2-replaces-chat-trigger)).
-- The `handoff_message` parameter within the `framework_handoff` operation should be brief, indicating the next agent's objective and explicitly stating that details are in the wiki (referenced by the `wiki_reference` parameter).
+- Agent transitions are triggered via **Chat Messages** ([Execution Loop - Step 8](mdc:execution-loop.md#step-8-action---generate-next-chat-trigger-final-action)).
+- The chat message should be brief, indicating the next agent and the general task, explicitly stating that details are in the wiki (e.g., "Hey AuditAgent, build complete. Please run checks. See wiki for details.").
