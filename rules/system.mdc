@@ -17,7 +17,7 @@ This document serves as the **primary entry point and consolidated directive** f
 *   **COORDINATION & CONTEXT (MCP Preferred):** Primarily via MCP Task Manager. `Overmind` polls task status (`get_next_task`). Agents fetch context (`open_task_details`) and report results/status (`update_task`, `mark_task_done`).
 *   **COORDINATION & CONTEXT (Chat - Legacy/Fallback):** Alternatively via Chat Triggers. Trigger payload passes context. Handoff via final Chat message.
 *   **TRANSITION & ACTIVATION:** Agent turns are initiated by the Framework based on MCP state changes (polled by `Overmind`) or directly via Chat Triggers in chat-driven mode.
-*   **EXECUTION:** Agents MUST follow the strict [Framework & Execution Loop](mdc:framework-execution-loop.mdc), parsing the trigger/fetching task details, fetching their own rules, executing tasks based on their role and context **with mandatory verification and scrutiny (see Part 2)**, constructing the handoff message (Chat Mode) or updating MCP state (MCP Mode), and finally triggering the next agent (Chat Mode) or marking task done (MCP Mode).
+*   **EXECUTION:** Agents MUST follow the strict [Framework & Execution Loop](mdc:loop.mdc), parsing the trigger/fetching task details, fetching their own rules, executing tasks based on their role and context **with mandatory verification and scrutiny (see Part 2)**, constructing the handoff message (Chat Mode) or updating MCP state (MCP Mode), and finally triggering the next agent (Chat Mode) or marking task done (MCP Mode).
 *   **USER INPUT:** During active execution, agents MUST IGNORE non-diagnostic user input.
 *   **WORKFLOW:** `Overmind` (MCP Mode) or individual agents (Chat Mode) MUST determine the appropriate next agent/step.
 
@@ -39,12 +39,12 @@ This document serves as the **primary entry point and consolidated directive** f
 
 ### 1.5. CORE FRAMEWORK DOCUMENTS (MANDATORY REFERENCES)
 
-*   **This Document:** (`system-prompt-and-mandates.mdc`) Contains overview and non-negotiable rules.
-*   **Framework & Loop:** [Framework & Execution Loop](mdc:framework-execution-loop.mdc) (External engine definition & mandatory agent turn steps)
-*   **Concepts & Definitions:** [Core Concepts & Definitions](mdc:core-concepts-and-definitions.mdc) (Glossary, core entities)
-*   **Agent Roles:** [Agent Roles & Responsibilities](mdc:agent-roles.md) (Registry and summaries of agent roles)
-*   **Initialization:** [Initialization Procedure](mdc:initialization-procedure.md) (Procedure for setting up the ruleset)
-*   **(Reference Only)** [Ultra-Deep Thinking Protocol](./core-protocols/ultra-deep-thinking-protocol.mdc) (Detailed protocol executed fully by `Overmind`)
+*   **This Document:** (`system.mdc`) Contains overview and non-negotiable rules.
+*   **Framework & Loop:** [Framework & Execution Loop](mdc:loop.mdc) (External engine definition & mandatory agent turn steps)
+*   **Concepts & Definitions:** [Core Concepts & Definitions](mdc:concepts.mdc) (Glossary, core entities)
+*   **Agent Roles:** [Agent Roles & Responsibilities](mdc:roles.mdc) (Registry and summaries of agent roles)
+*   **Initialization:** [Initialization Procedure](mdc:init.mdc) (Procedure for setting up the ruleset)
+*   **(Reference Only)** [Ultra-Deep Thinking Protocol](mdc:protocol.mdc) (Detailed protocol executed fully by `Overmind`)
 
 ### 1.6. CORE BEHAVIOR SUMMARY (Refer to Part 2 for Full Detail)
 
@@ -64,10 +64,10 @@ This document serves as the **primary entry point and consolidated directive** f
 Universal rules applicable to all agents and workflows. Violation is critical failure.
 
 **Mandate 1: Strict Role Adherence**
-*   Operate exclusively within defined role boundaries ([Agent Roles & Responsibilities](mdc:agent-roles.md), agent `.md`). Unauthorized actions = critical failure.
+*   Operate exclusively within defined role boundaries ([Agent Roles & Responsibilities](mdc:roles.mdc), agent `.md`). Unauthorized actions = critical failure.
 
 **Mandate 2: Core Execution Loop Adherence**
-*   Adherence to the agent turn sequence defined in [Framework & Execution Loop](mdc:framework-execution-loop.mdc) is MANDATORY.
+*   Adherence to the agent turn sequence defined in [Framework & Execution Loop](mdc:loop.mdc) is MANDATORY.
 
 **Mandate 3: Single Source of Truth (MCP Preferred)**
 *   When using MCP Coordination, all operational task context (details, findings, status, errors) MUST be read from and persisted to the assigned `taskId` in MCP Task Manager using authorized tools (`mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, `mcp_taskmanager_mark_task_done`).
@@ -75,7 +75,7 @@ Universal rules applicable to all agents and workflows. Violation is critical fa
 
 **Mandate 4: Task Management Integration (MCP Mode)**
 *   All actionable work MUST be represented as MCP tasks.
-*   `Overmind` IS RESPONSIBLE for initial request planning (`mcp_taskmanager_request_planning`) according to the [Ultra-Deep Thinking Protocol](./core-protocols/ultra-deep-thinking-protocol.mdc).
+*   `Overmind` IS RESPONSIBLE for initial request planning (`mcp_taskmanager_request_planning`) according to the [Ultra-Deep Thinking Protocol](mdc:protocol.mdc).
 *   Agents MUST use `mcp_taskmanager_open_task_details` to get context (Loop Step 2).
 *   Agents MUST update task descriptions (`mcp_taskmanager_update_task`) with findings/results/errors **and details on verification performed and assumptions made** before marking done (Loop Step 6).
 *   Agents MUST mark tasks done (`mcp_taskmanager_mark_task_done`) upon **verified** completion (Loop Step 6).
@@ -110,4 +110,4 @@ Universal rules applicable to all agents and workflows. Violation is critical fa
 **Mandate 11: Minimal Chat Trigger Handoff (Chat Mode)**
 *   When using Chat Coordination, agent activation/handoff MUST occur via directed, minimal Chat Triggers primarily indicating the `taskId` or passing necessary context concisely.
 
-> **Note:** The goal is always robust, verified execution. Consult referenced documents for specific procedures. `Overmind` executes the full [Ultra-Deep Thinking Protocol](./core-protocols/ultra-deep-thinking-protocol.mdc); all other agents apply these core principles rigorously. ✨
+> **Note:** The goal is always robust, verified execution. Consult referenced documents for specific procedures. `Overmind` executes the full [Ultra-Deep Thinking Protocol](mdc:protocol.mdc); all other agents apply these core principles rigorously. ✨
