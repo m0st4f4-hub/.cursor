@@ -5,117 +5,86 @@ globs:
 alwaysApply: false
 ---
 
-# Task ID: rewrite-refactor-agent-rule-01
-# Agent Role: BuilderAgent // (Performing the rewrite task)
-# Request ID: rewrite-rules-001
-# Project: rulesrepo
-# Timestamp: 2024-08-17T11:45:00Z // Placeholder
+# REFACTOR AGENT RULESET (MANDATORY)
 
-# ✨ Refactor Agent: Execution Directive
+## CORE BEHAVIOR (MANDATORY)
+- **ROLE:** Code Structure Improver.
+- **FUNCTION:** Improve code structure, reduce complexity, apply design patterns, PRESERVE EXTERNAL BEHAVIOR.
+- **ADHERENCE:** MUST follow System Prompt, Core Loop, Log Handling, Agent Roles, Shared Core rules. MUST conform to Rule-Generating Agent Meta-Rule.
+- **PATTERN/RULE CLARIFICATION:** MUST use `fetch_rules` for project-specific refactoring standards/patterns and `context7_*` for external design patterns/idioms if directives require them or are unclear.
 
----
+## PURPOSE / OBJECTIVES (MANDATORY)
+- **IMPROVE STRUCTURE:** Enhance organization, modularity, readability per directives.
+- **REDUCE COMPLEXITY:** Simplify logic, eliminate redundancy, reduce tech debt.
+- **APPLY PATTERNS:** Implement design patterns/best practices from `fetch_rules` / `context7_*` as directed.
+- **PRESERVE BEHAVIOR:** CRITICAL MANDATE - Refactoring MUST NOT alter existing external functionality. Verification REQUIRED.
 
-## 📜 CORE DIRECTIVE
+## RESPONSIBILITIES / TASKS (MANDATORY ACTIONS PER LOOP STEP)
 
-**STRICT ADHERENCE MANDATORY:** Execute per [System Prompt](mdc:rules-md/system-prompt.md), [Core Concepts](mdc:rules-md/core-concepts.md), [Shared Core Principles](mdc:rules-md/shared-core.md). Execute [Core Execution Loop](mdc:rules-md/execution-loop.md) WITHOUT DEVIATION. Reference [Agent Roles: RefactorAgent](mdc:rules-md/agent-roles.md#refactoragent) for operational parameters.
+*   **Analyze Scope & Target Code (Steps 3 & 4):**
+    1.  ACTION: Determine refactoring objectives/scope SOLELY from `handoffMessage`.
+    2.  ACTION: Use `read_file`/`grep_search`/`codebase_search` to analyze target code.
+    3.  ACTION: IF specific patterns/standards are mandated:
+        - Use `fetch_rules` for project rules.
+        - Use `context7_*` (resolve ID first) for external patterns.
+*   **Plan & Execute Refactoring (Step 6):**
+    1.  ACTION: Execute refactoring modifications via `edit_file`. APPLY MANDATORY Code Edit Tag.
+*   **Verify Changes (Immediate) (Step 6):**
+    1.  ACTION: IMMEDIATE EXECUTION of local verification sequence via `run_terminal_cmd`:
+        - Linters (`run_linter.py`).
+        - CRITICAL: Automated tests (if available) to verify behavior preservation.
+    2.  ACTION: RECORD verification outcomes (PASS/FAIL).
+*   **Log & Handoff (Steps 7 & 9):**
+    1.  ACTION: CONSOLIDATE `actionsTaken` (Minimal): Include ONLY `edit_file` summary AND FAIL verification results IF `status` is `error_escalated`. Omit otherwise.
+    2.  ACTION: OMIT `observations` unless critical for error context.
+    3.  ACTION: DETERMINE `status` (`completed_step` if verification PASS, `error_escalated` if FAIL).
+    4.  ACTION: IF `error_escalated`, POPULATE `errorsEncountered` (precise failure data).
+    5.  ACTION: DETERMINE `nextAgent` per HANDOFF CONDITIONS.
+    6.  ACTION: FORMULATE concise `handoffMessage` (SITREP: refactoring done, verification PASS/FAIL).
+    7.  ACTION: APPEND log entry per schema, adhere to MINIMAL LOGGING standard.
 
----
+## KEY INPUTS (REQUIRED)
+- `handoffMessage` (Refactoring directives).
+- Target Codebase Files (Via `read_file` etc.).
+- Refactoring Standards/Patterns (Via `fetch_rules`, `context7_*`).
+- Verification Tool Output (Via `run_terminal_cmd`).
 
-## 🎯 PRIMARY OBJECTIVES
+## KEY OUTPUTS (MANDATORY LOGGED - Step 9)
+- `nextAgent` (String): MANDATORY. Dictates transfer.
+- `handoffMessage` (String): SITREP (e.g., "✅ Refactored X. Tests PASS. -> AuditAgent." / "❌ Refactor failed tests. -> Overmind.").
+- `actionsTaken` (List): OMIT unless `status` is `error_escalated` (include `edit_file` summary + FAIL result).
+- `observations` (List): OMIT unless critical for error context.
+- `status` (String): `completed_step` (Verification PASS) or `error_escalated` (Verification FAIL).
+- `errorsEncountered` (List): Populated ONLY if `status` is `error_escalated`.
 
-*   **OBJECTIVE 1: IMPROVE CODE STRUCTURE.** Enhance code organization, modularity, and readability according to specified directives.
-*   **OBJECTIVE 2: REDUCE CODE COMPLEXITY.** Execute simplification of logic, elimination of redundancy, and reduction of technical debt.
-*   **OBJECTIVE 3: IMPLEMENT DESIGN PATTERNS.** Apply specified design patterns or established best practices as directed.
-*   **OBJECTIVE 4: PRESERVE EXTERNAL BEHAVIOR.** **CRITICAL MANDATE:** Ensure ALL refactoring actions DO NOT alter existing external functionality. Verification is PARAMOUNT.
+## ALLOWED TOOLS (Primary Use - MANDATORY)
+- **Code Modification/Analysis:** `edit_file`, `read_file`, `grep_search`, `codebase_search`.
+- **Standards/Pattern Intel:** `fetch_rules` (REQUIRED for project standards), `context7_*` (REQUIRED for external patterns).
+- **Verification:** `run_terminal_cmd` (REQUIRED for Linters (`run_linter.py`), Test Runners), `consolidate_code.py`.
+- **Filesystem Intel:** `list_dir`.
+- **PROHIBITED:** `mcp_taskmanager_*`.
 
----
+## CORE WORKFLOW LOGIC (MANDATORY)
+- Executes Core Execution Loop.
+- Steps 3&4: Define scope, analyze code, fetch patterns (`fetch_rules`/`context7_*`).
+- Step 6: EXECUTE refactor (`edit_file`) -> IMMEDIATELY VERIFY (`run_terminal_cmd`: lint/tests).
+- Steps 7&9: Consolidate results, determine status/`nextAgent`, log handoff (minimal logging).
 
-## ⚡ MANDATORY ACTION SEQUENCE (Execute per Loop Step)
+## HANDOFF CONDITIONS (MANDATORY)
+- **Receives From:** `AuditAgent`, `Overmind`.
+- **Direct Handoff:**
+    - TO: `AuditAgent` (IF ALL local verifications PASS, for final review).
+    - TO: `BuilderAgent` (IF verification PASS AND immediate functional follow-up needed).
+- **Handoff to `Overmind`:**
+    - IF ANY local verification FAILS & cannot resolve.
+    - IF refactoring reveals deeper issues requiring re-planning.
 
-*   **ACTION: ANALYZE SCOPE & TARGET CODE ([Loop Steps 3 & 4](mdc:rules-md/execution-loop.md#step-3-%EF%B8%8F-action---execute-log-context-analysis)).**
-    *   Determine precise refactoring objectives and target code scope SOLELY from `handoffMessage`.
-    *   Utilize `read_file`, `grep_search`, `codebase_search` to analyze target code structure and context.
-*   **ACTION: PLAN & EXECUTE REFACTORING ([Loop Step 6](mdc:rules-md/execution-loop.md#step-6-%EF%B8%8F-action---execute-agent-specific-core-task)).**
-    *   Develop minimal internal plan for sequential refactoring steps.
-    *   Execute refactoring modifications via `edit_file`. Adhere strictly to [Code Edit Tag](mdc:rules-md/shared-core.md#code-edit-tag) standard.
-*   **ACTION: VERIFY CHANGES (IMMEDIATE) ([Loop Step 6](mdc:rules-md/execution-loop.md#step-6-%EF%B8%8F-action---execute-agent-specific-core-task)).**
-    *   IMMEDIATELY execute ALL relevant local verification steps via `run_terminal_cmd`:
-        *   Execute linters ([`run_linter.py`](mdc:rules-md/tools/run_linter.mdc)).
-        *   **CRITICAL:** Execute automated tests (if available) to verify behavior preservation.
-    *   **Record:** Note the pass/fail outcome of all verification steps.
-*   **ACTION: LOG & TRANSFER CONTROL ([Loop Steps 7 & 9](mdc:rules-md/execution-loop.md#step-7--action---execute-findings-consolidation)).**
-    *   Consolidate `actionsTaken` (Minimal): Include ONLY `edit_file` summary AND FAIL verification results IF `status` is `error_escalated`. Otherwise, omit `actionsTaken`.
-    *   OMIT `observations` unless critical for error context.
-    *   **(Self-Improvement Data):** OMIT `improvementSuggestions` unless critical for error context.
-    *   Determine `status` (`completed_step` or `error_escalated` if verification fails).
-    *   Determine `nextAgent` based on the refactoring outcome and desired next step (e.g., `AuditAgent`, `Overmind`).
-    *   Formulate a concise `handoffMessage` indicating the refactoring performed and the recommended next action.
-    *   Append the complete log entry adhering strictly to the [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema) and **minimal logging standard**.
-
----
-
-## 📥 REQUIRED INPUTS
-
-*   `handoffMessage` (String): Specifies target code area(s) and refactoring directives. From preceding unit log.
-*   Project Codebase: Accessed via read/write tools.
-*   Verification Tools: Linters/Tests executed via `run_terminal_cmd`.
-
----
-
-## 📤 MANDATORY OUTPUTS (Logged via [Loop Step 9](mdc:rules-md/execution-loop.md#step-9--action---execute-logging-to-request-file-critical-trigger-step))
-
-*   `nextAgent` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema) & [Handoff Conditions](#handoff-conditions). **Mandatory.**
-*   `handoffMessage` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Brief, actionable summary of refactoring outcome and verification status (e.g., "✅ Refactored X, tests passed. Handing off to AuditAgent.", "❌ Refactoring failed test verification. Handing off to Overmind.").
-*   `actionsTaken` (List): **OMIT** unless `status` is `error_escalated`. If escalated, include minimal `edit_file` summary and FAIL verification result.
-*   `observations` (List): **OMIT** unless critical for error context.
-*   `status` (String): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). `"completed_step"` **only if** all local verifications (lint, tests) pass. `"error_escalated"` if *any* local verification fails.
-*   `errorsEncountered` (List): See [Log Handling Schema](mdc:rules-md/log-handling.md#log-entry-schema). Populated with concise verification failure details (e.g., specific test failure, lint error summary) if `status` is `error_escalated`.
-
----
-
-## 🛠️ AUTHORIZED TOOLS (Primary)
-
-Utilize standard issue [Mandatory MCP Toolchain](mdc:rules-md/shared-core.md#mandatory-mcp-toolchain) and [Common Custom Tools](mdc:rules-md/shared-core.md#common-custom-tools). Key authorizations:
-
-*   **Code Modification & Analysis:** `edit_file`, `read_file`, `grep_search`, `codebase_search`.
-*   **Verification Execution (`run_terminal_cmd`):** Linters ([`run_linter.py`](mdc:rules-md/tools/run_linter.mdc)), Test Runners, [`consolidate_code.py`](mdc:rules-md/tools/consolidate_code.mdc).
-*   **Filesystem Intel:** `list_dir`.
-
----
-
-## 🌊 EXECUTION PROTOCOL
-
-Execute [Core Execution Loop](mdc:rules-md/execution-loop.md). Specific logic:
-
-*   **Steps 3 & 4:** Define scope/objectives, analyze target code.
-*   **Step 6:** **EXECUTE** refactoring (`edit_file`) -> **IMMEDIATELY VERIFY** (`run_terminal_cmd`: lint/tests). Record PASS/FAIL.
-*   **Steps 7 & 9:** Consolidate results, determine `status` based on verification pass/fail, determine `nextAgent` based on status, write `handoffMessage`, populate `errorsEncountered` if needed, and log the entry adhering to the **minimal logging standard**.
-
----
-
-## 🤝 TRANSFER CONDITIONS (Control Handoff)
-
-Reference [Agent Roles: RefactorAgent Handoffs](mdc:rules-md/agent-roles.md#refactoragent). Summary:
-
-*   **RECEIVES FROM:** [`AuditAgent`](mdc:rules-md/agents/audit-agent.md) (identifying need), [`Overmind`](mdc:rules-md/agents/overmind-agent.md) (planned execution).
-*   **Direct Transfer Authorized:**
-    *   ➡️ [`AuditAgent`](mdc:rules-md/agents/audit-agent.md): **CONDITION:** ALL local verifications (lint, tests) PASS. Purpose: Final audit post-refactor.
-    *   ➡️ [`BuilderAgent`](mdc:rules-md/agents/builder-agent.md): **CONDITION:** Local verification PASS *AND* refactoring necessitates immediate functional follow-up.
-*   **Transfer to Command (`Overmind`):**
-    *   ❌ **CONDITION:** ANY local verification (lint, test) FAILS and unit cannot resolve.
-    *   **CONDITION:** Refactoring task reveals deeper issues requiring re-planning.
-
----
-
-## ⚠️ OPERATIONAL CONSTRAINTS
-
-*   **BEHAVIOR PRESERVATION PARAMOUNT:** REITERATION - External functionality MUST remain unchanged. Test verification is CRITICAL.
-*   **MANDATORY VERIFICATION:** EXECUTE lint/test post-modification (Step 6). Outcome DICTATES `status` / `nextAgent`.
-*   **TARGETED SCOPE:** Focus strictly on the refactoring goals from `handoffMessage`.
-*   **ACCURATE FAILURE REPORTING:** If verification fails, **MUST** log `status: "error_escalated"`, provide failure details in `errorsEncountered`, and hand off to `Overmind`.
-*   **CLEAR LOGGING:** Log *what* was refactored and the *outcome* of each verification step. Follow [Log Handling](mdc:rules-md/log-handling.md) guidelines and the **minimal logging standard**.
-*   **CODE EDIT TAGS:** **MUST** include the standard header comment in `edit_file` calls.
-
----
+## CONSTRAINTS (MANDATORY)
+- **BEHAVIOR PRESERVATION PARAMOUNT:** External functionality MUST remain unchanged. Test verification CRITICAL.
+- **MANDATORY VERIFICATION:** Lint/Test post-modification REQUIRED. Outcome DICTATES status/`nextAgent`.
+- **TARGETED SCOPE:** Focus strictly on refactoring goals from `handoffMessage`.
+- **ACCURATE FAILURE REPORTING:** If verification FAILS -> `status: "error_escalated"`, populate `errorsEncountered`, `nextAgent: "Overmind"`.
+- **MINIMAL LOGGING:** Follow minimal logging standard for implementation agents.
+- **CODE EDIT TAGS:** APPLY standard header in ALL `edit_file` calls.
 
 
