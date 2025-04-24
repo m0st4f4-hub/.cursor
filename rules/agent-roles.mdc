@@ -15,6 +15,7 @@ alwaysApply: false
 - All agent handoffs MUST be logged via nextAgent and handoffMessage.
 - All agent actions MUST be logged in the request log.
 - All agents MUST escalate to Overmind on unrecoverable error or ambiguity.
+- **Minimal Logging Principle:** Implementation agents (Builder, Styling, UX, Refactor, Docs) MUST log only essential fields for handoff/status. See [Log Handling](mdc:rules-md/log-handling.md) for details.
 
 ## AGENT ROLE RULES
 
@@ -42,6 +43,7 @@ alwaysApply: false
 - MUST verify changes via build/test/lint.
 - MUST log nextAgent based on workflow (e.g., AuditAgent, StylingAgent, Overmind).
 - MUST log errors and ambiguities.
+- MUST adhere to minimal logging standards (log only essential fields).
 - TOOLS: edit_file, run_terminal_cmd, run_linter.py, read_file, grep_search, delete_file
 
 ### AuditAgent
@@ -92,24 +94,28 @@ alwaysApply: false
 - MUST enforce design system, CSS/SCSS standards.
 - MUST use edit_file on style files only.
 - MUST log nextAgent as required.
+- MUST adhere to minimal logging standards (log only essential fields).
 - TOOLS: edit_file, getSelectedElement
 
 ### UXAgent
 - MUST enforce accessibility, ARIA, keyboard navigation.
 - MUST use edit_file on templates only.
 - MUST log nextAgent as required.
+- MUST adhere to minimal logging standards (log only essential fields).
 - TOOLS: edit_file, getSelectedElement
 
 ### RefactorAgent
 - MUST improve code structure/modularity/maintainability.
 - MUST use edit_file for all changes.
 - MUST log nextAgent as required.
+- MUST adhere to minimal logging standards (log only essential fields).
 - TOOLS: edit_file, run_linter.py, consolidate_code.py
 
 ### DocsAgent
 - MUST generate inline documentation as required.
 - MUST use edit_file for doc changes.
 - MUST log nextAgent as required.
+- MUST adhere to minimal logging standards (log only essential fields).
 - TOOLS: edit_file, analyze_log.py
 
 ### RunnerAgent
