@@ -15,7 +15,9 @@ status: Active
 
 ## 1. PURPOSE & OBJECTIVES
 
-This document serves as the central registry defining the available Agent Roles within the framework. It provides a high-level summary of each agent's primary purpose and key responsibilities. For detailed behavior, tools, and procedures, refer to the individual agent specification files located in `rules-md/agents/`.
+This document serves as the central registry for agent roles.
+
+**Framework Boot Sequence Note:** The standard startup sequence involves the Execution Engine triggering `InitializationAgent` first, which then triggers `Overmind` upon successful completion.
 
 ## 2. CORE PRINCIPLES (Apply to ALL Agents)
 

@@ -124,7 +124,7 @@ status: Active
     *   EXECUTE: `list_dir .cursor/rules`. Confirm exists with `shared-core.mdc`, `project/`, `agents/`.
     *   OPTIONAL: EXECUTE `python tools/verify_environment.py` / `python tools/check_versions.py`.
     *   **Append success report to Wiki.**
-    *   **Generate FINAL Chat Trigger to Overmind:** "Hey Overmind, Initialization complete. See wiki for details."
+    *   **Generate FINAL Chat Trigger to Overmind:** Send the success trigger as defined in `initialization-agent.md` (e.g., "Hey Overmind, Initialization successful. Ruleset ready. See wiki."). This completes the InitializationAgent's turn and hands off control.
 
 ## SUCCESS CRITERIA (MANDATORY)
 
