@@ -19,8 +19,8 @@ python tools/analyze_css_php_classes.py --php-dir <path_to_php_dir> --css-dir <p
 
 ## Arguments
 
--   `--php-dir` (Required): Path to the directory containing PHP files to scan.
--   `--css-dir` (Required): Path to the directory containing CSS files to scan. The script will follow `@import` statements relative to this directory, but only if the imported file resides within this directory tree.
+-   `--php-dir` (MUST): Path to the directory containing PHP files to scan.
+-   `--css-dir` (MUST): Path to the directory containing CSS files to scan. The script will follow `@import` statements relative to this directory, but only if the imported file resides within this directory tree.
 -   `--output-php` (Optional): Path to the output file for dumping the list of unique potential CSS classes found in PHP files. (Default: `php_classes_used.txt`)
 -   `--output-css` (Optional): Path to the output file for dumping the list of unique CSS class definitions found in CSS files. (Default: `css_classes_defined.txt`)
 -   `--exclude-dirs` (Optional, accepts multiple values): A list of directory names to exclude during scanning. (Default: `node_modules`, `.git`, `.svn`, `.vscode`, `.cursor`)
