@@ -1,8 +1,16 @@
 ---
-description:
-globs:
-alwaysApply: false
+# Rule Definition Metadata (V1)
+ruleId: core-concepts-and-definitions
+ruleType: Shared
+title: Core Framework Concepts, Definitions & Glossary
+description: Defines fundamental concepts, terminology, entities, and mandatory mechanisms for the agent framework. Serves as a consolidated reference glossary.
+schemaVersion: 1
+conformsTo: null
+tags: [core, framework, concepts, glossary, definitions, shared]
+lastUpdated: null
+status: Active
 ---
+
 # 📖 Core Framework Concepts, Definitions & Glossary
 
 ## 1. PURPOSE & OBJECTIVES
@@ -20,17 +28,17 @@ This document defines the non-negotiable core concepts, terminology, entities, a
     *   DEFINITION: Specialized functional units within the framework (e.g., BuilderAgent, AuditAgent). Each role has specific responsibilities, allowed tools, and behaviors defined in its own rule specification file.
     *   REFERENCE: See [Agent Roles & Responsibilities](mdc:agent-roles.md) for the registry.
 *   **Chat Trigger:**
-    *   (Legacy/Alternative Coordination) MUST be the control signal via platform chat message when MCP Task Manager is not the primary coordinator. Sole trigger for Agent activation and handoff in chat-driven mode. Agent MUST generate trigger message as final action. See [Framework & Execution Loop](mdc:framework-execution-loop.mdc).
+    *   (Legacy/Alternative Coordination) MUST be the control signal via platform chat message when MCP Task Manager is not the primary coordinator. Sole trigger for Agent activation and handoff in chat-driven mode. Agent MUST generate trigger message as final action. See [Framework & Execution Loop](mdc:framework-execution-loop.md).
 *   **Framework:**
     *   DEFINITION: The underlying execution engine that manages the agent lifecycle based on rules and coordination mechanism (Chat or MCP).
     *   RESPONSIBILITIES: Parsing triggers/MCP state, activating agents, providing tools, facilitating execution.
-    *   REFERENCE: See [Framework & Execution Loop](mdc:framework-execution-loop.mdc).
+    *   REFERENCE: See [Framework & Execution Loop](mdc:framework-execution-loop.md).
 *   **Rules (`.cursor/rules/`, `rules-md/`):**
-    *   MUST be the `.md` / `.mdc` files defining behavior, standards, workflow. Processed by the Framework and Agents. See [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc).
+    *   MUST be the `.md` / `.mdc` files defining behavior, standards, workflow. Processed by the Framework and Agents. See [System Prompt & Mandates](mdc:system-prompt-and-mandates.md).
 *   **Tools:**
     *   MUST be the capabilities provided by the Framework for environment interaction (MCP, file system, terminal, custom APIs). Availability defined per-agent role.
 *   **Autonomous Execution:**
-    *   MUST ensure agents operate independently, activated by the framework based on triggers or MCP state, driven by rules and context. User interaction MUST occur ONLY for requested diagnostics ([Framework & Execution Loop](mdc:framework-execution-loop.mdc) Part 2, Step 4).
+    *   MUST ensure agents operate independently, activated by the framework based on triggers or MCP state, driven by rules and context. User interaction MUST occur ONLY for requested diagnostics ([Framework & Execution Loop](mdc:framework-execution-loop.md) Part 2, Step 4).
 *   **Coordination Mechanisms:**
     *   **Chat-Driven Coordination:** Control passed via Chat Trigger messages. Context included in trigger payload.
     *   **MCP Task Manager Coordination:** Control flow managed by `Overmind` polling MCP Task Manager (`get_next_task`). Context and state persisted in MCP task descriptions. This is the PREFERRED model.
@@ -41,16 +49,16 @@ This document defines the non-negotiable core concepts, terminology, entities, a
 *   **Direct Peer Handoffs (Chat-Driven Mode):**
     *   The RECOMMENDED practice for an agent to trigger another specialized agent directly via Chat Trigger when the workflow logically follows, minimizing unnecessary steps through `Overmind`. Return to `Overmind` for planning, escalation, or completion reporting. (Less relevant in pure MCP model).
 *   **Self-Improvement Loop:**
-    *   MUST be the secondary goal of the framework where agents (`ImprovementAgent`, `RuleWriterAgent`) collaborate via MCP tasks or Chat Triggers to analyze past performance and automatically refine or generate rules. See [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc).
+    *   MUST be the secondary goal of the framework where agents (`ImprovementAgent`, `RuleWriterAgent`) collaborate via MCP tasks or Chat Triggers to analyze past performance and automatically refine or generate rules. See [System Prompt & Mandates](mdc:system-prompt-and-mandates.md).
 *   **Global Rules (`.cursor/rules/global/`):**
-    *   Foundational rules providing core behaviors and capabilities, typically shared across projects. See [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc).
+    *   Foundational rules providing core behaviors and capabilities, typically shared across projects. See [System Prompt & Mandates](mdc:system-prompt-and-mandates.md).
 *   **Project Rules (`.cursor/rules/project/`):**
-    *   Project-specific rules that MUST override conflicting Global Rules, enabling customization. See [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc).
+    *   Project-specific rules that MUST override conflicting Global Rules, enabling customization. See [System Prompt & Mandates](mdc:system-prompt-and-mandates.md).
 
 ## 3. MANDATORY MECHANISMS & TOOLING
 
 *   **Global Mandates:**
-    *   All agents MUST adhere to the rules defined in [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc) unless explicitly overridden by their specific role specification or project-level rules.
+    *   All agents MUST adhere to the rules defined in [System Prompt & Mandates](mdc:system-prompt-and-mandates.md) unless explicitly overridden by their specific role specification or project-level rules.
 *   **Mandatory Toolchain:**
     *   A baseline set of tools available to most agents. Individual agent roles may have access to additional specialized tools.
     *   Key tools include:
@@ -82,7 +90,7 @@ COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
 
 ## 4. KEY BEHAVIORAL RULES SUMMARY
 
-*(Refer to [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc) for the complete list and detailed descriptions)*
+*(Refer to [System Prompt & Mandates](mdc:system-prompt-and-mandates.md) for the complete list and detailed descriptions)*
 
 1.  MUST Activate via Framework (Trigger/MCP State).
 2.  MUST Get Context (Trigger Payload/MCP Task Details).
@@ -103,12 +111,12 @@ COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
 ## 6. CORE TOOL INTEGRATION RULES
 
 *   **`fetch_rules`:** Agents MUST use `fetch_rules` to retrieve the full content of referenced rules (`mdc:...`) when the definition is required for detailed understanding or execution beyond the summary provided in registry files like `agent-roles.md`.
-*   **`mcp_taskmanager_*`:** Core tools for state management in the MCP Coordination model. MUST be used according to the [Core Execution Loop](mdc:framework-execution-loop.mdc) and [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc).
+*   **`mcp_taskmanager_*`:** Core tools for state management in the MCP Coordination model. MUST be used according to the [Core Execution Loop](mdc:framework-execution-loop.md) and [System Prompt & Mandates](mdc:system-prompt-and-mandates.md).
 *   **`context7_*`:** Agents involved in implementation or detailed analysis requiring external library/framework knowledge (e.g., `BuilderAgent`, `ResearchAgent`) MUST use `mcp_context7_resolve-library-id` followed by `mcp_context7_get-library-docs` *before* attempting implementation or analysis relying on that external documentation.
 
 ## 7. REFERENCES
 
-*   [System Prompt & Mandates](mdc:system-prompt-and-mandates.mdc)
+*   [System Prompt & Mandates](mdc:system-prompt-and-mandates.md)
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
-*   [Framework & Execution Loop](mdc:framework-execution-loop.mdc)
+*   [Framework & Execution Loop](mdc:framework-execution-loop.md)
 *   [Initialization Procedure](mdc:initialization-procedure.md)
