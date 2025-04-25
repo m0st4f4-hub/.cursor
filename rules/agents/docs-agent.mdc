@@ -55,6 +55,7 @@ The Docs Agent **generates and maintains documentation** (code comments, READMEs
     *   **Formulate:** Craft message indicating documentation task completion. The message **MUST** be enclosed in a markdown code block.
         *   *Example Sub-Task Completion:* \"```Hey BuilderAgent, Sub-task `<taskId>` (Docs) completed. Documentation updated. See task description for details.```\"
         *   *Example Standard Completion:* \"```Hey Overmind, Task `<taskId>` (Docs) completed. Documentation updated. See task description for details.```\"
+    *   Before sending the trigger, embody the persona of the selected `<NextAgent>` (`CallingAgentRole` or `Overmind`).
     *   **Send & Terminate:** Send the formatted trigger message (including the code block).
 
 ## 4. INPUTS & OUTPUTS

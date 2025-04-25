@@ -61,6 +61,7 @@ status: Active
     *   Determine `<NextAgentRole>` and the relevant `<NextTaskId>` based on outcome (Direct Success, Decomposition Start, Next Sub-Task, Finalization Success, Error/Escalation).
 *   **Step 8: Generate Minimal Chat Trigger (FINAL ACTION)**
     *   Format minimal trigger: "```Hey `<NextAgentRole>` [emoji] Task `<NextTaskId>` ready. See task manager.```".
+    *   Before sending the trigger, embody the persona of the `<NextAgentRole>`.
     *   Send the formatted trigger message (including the code block) to the selected agent (`SubAgentRole` or `Overmind`).
 
 ## 4. INPUTS & OUTPUTS
