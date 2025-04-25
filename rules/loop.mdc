@@ -1,159 +1,99 @@
 ---
-description:
-globs:
-alwaysApply: false
+# Rule Definition Metadata (V1)
+ruleId: framework-and-loop
+ruleType: Framework
+title: Framework Definition & Core Agent Execution Loop
+description: Defines external Agent Execution Framework and the MANDATORY internal Core Agent Execution Loop.
+schemaVersion: 1
+conformsTo: null
+tags: [core, framework, loop, agent-execution, mcp]
+lastUpdated: null
+status: Active
 ---
-# ⚙️ Framework Definition & Core Agent Execution Loop
 
-This document defines both the external **Agent Execution Framework** responsible for orchestrating agents (Part 1) and the mandatory **Core Execution Loop** agents MUST follow internally each turn (Part 2).
+# ⚙️ Framework & Core Agent Execution Loop
 
-## PART 1: AGENT EXECUTION FRAMEWORK DEFINITION
+**Defines:**
+1.  **External Agent Execution Framework:** Orchestrates agents (Part 1).
+2.  **Mandatory Core Agent Execution Loop:** Internal steps per turn (Part 2).
 
-### 1.1. PURPOSE & OBJECTIVES
+## PART 1: AGENT EXECUTION FRAMEWORK (External Orchestrator)
 
-The Framework is the underlying system or process responsible for orchestrating the execution of individual agents according to the defined coordination model (MCP Task Manager preferred, Chat Triggers secondary). It is *not* an agent itself but the engine facilitating agent operation.
+**Purpose:** System/process orchestrating agent execution (MCP preferred). **Not an agent.**
 
-### 1.2. CORE BEHAVIOR & RESPONSIBILITIES
+**Responsibilities (MUST):**
+1.  **Activation & Sequencing:**
+    *   Activate agents based on MCP tasks (via `Overmind` polling) or Chat Triggers.
+    *   Load agent rules (respecting hierarchy).
+    *   Invoke agent, providing context (`taskId` / trigger payload) per **Part 2, Step 1**.
+    *   Ensure sequential execution per `requestId`.
+2.  **Tool Provision:** Provide authorized tools; execute calls; return results.
+3.  **Rule Management:** Provide `fetch_rules`; manage `.cursor/rules/`; respect hierarchy.
+4.  **Lifecycle:** Initiate (`Overmind`); manage flow; detect halt conditions.
+5.  **Environment:** Provide runtime; manage resource access via tools only.
 
-The Framework MUST perform the following functions:
-
-1.  **Agent Activation & Sequencing:**
-    *   **(MCP Mode):** Activate agents based on task assignments in MCP, typically orchestrated by `Overmind` polling `get_next_task`.
-    *   **(Chat Mode):** Monitor agent output for the final Chat Trigger message, parse it, identify the target agent and context.
-    *   Load necessary rules (`.md` / `.mdc` files from `.cursor/rules/`, respecting project/global hierarchy) for the target agent.
-    *   Invoke/activate the target agent, providing its rules and the initial context (assigned `taskId` in MCP Mode, trigger payload in Chat Mode). This MUST align with **Part 2, Step 1** of this document.
-    *   Ensure strictly sequential execution for a given `requestId`.
-
-2.  **Tool Provision & Execution:**
-    *   Provide the active agent with access to the set of tools authorized for its role.
-    *   Execute tool calls initiated by the agent (`edit_file`, `run_terminal_cmd`, `fetch_rules`, `mcp_taskmanager_*`, etc.).
-    *   Return tool results/output back to the agent.
-
-3.  **Rule Loading & Management:**
-    *   Provide the mechanism for the `fetch_rules` tool.
-    *   Manage the runtime ruleset located in `.cursor/rules/`, potentially interacting with `InitializationAgent` or `RulesSyncAgent`.
-    *   Respect the Project-over-Global rules hierarchy.
-
-4.  **Lifecycle Management:**
-    *   Initiate the overall process for a new `requestId` (typically activating `Overmind`).
-    *   Manage the continuous, sequential flow of execution.
-    *   Detect halt conditions (agent errors, `Overmind` completion signals, external stops).
-
-5.  **Environment Provision:**
-    *   Provide the secure runtime environment.
-    *   Manage resource access *only* through authorized tools.
-
-### 1.3. INTERACTION MODEL
-
-*   Framework interacts with agents via Activation, Tool Interface, and Transition detection (Chat Mode) or by providing MCP tool access (MCP Mode).
-*   Framework MUST NOT need to understand semantic content of Chat Triggers or MCP task descriptions.
-*   Framework MUST enforce the core behavioral loop (**Part 2**) and sequential execution.
-
-### 1.4. ASSUMPTIONS
-
-*   Rules exist in the expected location and structure.
-*   (Chat Mode) Chat Triggers follow the standard format.
-*   Agents correctly implement the Core Execution Loop (**Part 2**).
-*   (MCP Mode) `Overmind` correctly orchestrates using MCP tools.
+**Interaction:** Activation, Tool Interface, Transition detection (Chat) / MCP tools (MCP). **MUST NOT** require semantic understanding of tasks/triggers. **MUST** enforce **Part 2** loop.
 
 ---
 
-## PART 2: CORE AGENT EXECUTION LOOP (MCP COORDINATION FOCUS)
+## PART 2: CORE AGENT EXECUTION LOOP (Mandatory, MCP Focus)
 
-This procedure defines the mandatory sequence ALL agents MUST follow each turn, primarily assuming the **MCP Task Manager Coordination** model. Adaptations for Chat-Mode are noted.
+**Purpose:** Ensure consistent, predictable, auditable behavior using MCP Task Manager (or Chat) as Single Source of Truth.
 
-### 2.1. PURPOSE & OBJECTIVES
+**Rules (MUST):**
+*   **MUST** follow Steps 1-6 sequentially. No skipping (except HALT).
+*   Coordination mechanism (MCP Task / Chat Payload) **MUST** be Single Source of Truth.
+*   **MUST** get context before acting (Step 2).
+*   **MUST** fetch & use own rules (Step 3).
+*   **MUST** update coordination mechanism with **verification & assumption details** (Step 6).
 
-Ensure consistent, predictable, and auditable agent behavior using MCP Task Manager (or Chat Triggers secondarily) for state and coordination.
+**Action Sequence (Mandatory Steps):**
 
-*   **Standardization:** Enforce uniform execution flow.
-*   **Context Awareness:** Ensure agents MUST get state from MCP Task Manager / Trigger before acting.
-*   **Role Adherence:** Ensure agents MUST fetch and use their defined rules.
-*   **State Management:** Mandate updates to the coordination mechanism (MCP Task / Chat Handoff) for traceability, including verification & assumption details.
-*   **Coordination:** Define activation based on Framework action (driven by MCP state or Chat Trigger).
-*   **Error Handling:** Standardize escalation via MCP Task status updates or Chat Trigger to `Overmind`.
+**Step 1: Activate & Get Initial Context**
+*   **Activation:** By Framework.
+*   **Input:** `taskId` (MCP) / Trigger Payload (Chat).
+*   **Action:** Store `taskId` / Parse payload.
 
-### 2.2. CORE BEHAVIOR
-
-*   Sequential execution of **Steps 1-6** MUST be followed.
-*   Steps MUST NOT be skipped unless part of defined error handling (HALT).
-*   Interaction points (MCP Task Manager, Tools, Chat) MUST be defined per step.
-*   The coordination mechanism (MCP Task / Chat Payload) MUST be the **single source of truth** for task details, status, and operational context.
-
-### 2.3. ACTION SEQUENCE (MANDATORY STEPS)
-
-**Step 1: Activate & Get Context**
-*   **Action:** Agent is activated by the Framework.
-*   **Input (MCP Mode):** Assigned `taskId`.
-*   **Input (Chat Mode):** Incoming Chat Trigger message payload.
-*   **Process:** Store the `taskId` or parse the trigger payload.
-*   **Output:** Internal variable (`taskId`) or internal context representation.
-
-**Step 2: Get Task/Operational Context**
-*   **Action:** Fetch detailed task instructions and operational context.
-*   **Tooling (MCP Mode):** `mcp_taskmanager_open_task_details`.
-*   **Input (MCP Mode):** `taskId` (from Step 1).
-*   **Process (MCP Mode):** Retrieve task title, description. Description contains necessary context, findings from previous steps, errors, etc.
-*   **Process (Chat Mode):** Context is already parsed from trigger payload in Step 1.
-*   **Process (Both):** Critically evaluate context. Identify assumptions and verify clarity/feasibility of the task as per [System Prompt & Mandates](mdc:system.mdc).
-*   **Output:** Internal context representation (potentially updated with validation notes).
+**Step 2: Get Full Task/Operational Context**
+*   **Action:** Fetch detailed instructions & context.
+*   **Tool (MCP):** `mcp_taskmanager_open_task_details` (using `taskId`).
+*   **Action (Chat):** Use context parsed in Step 1.
+*   **Action (Both):** Critically evaluate context per @`system.md`. Identify assumptions, verify feasibility.
 
 **Step 3: Fetch Own Role Specification**
-*   **Action:** Retrieve agent's specific operational rules.
-*   **Tooling:** `fetch_rules` (target: `<AgentRole>.md`).
-*   **Input:** Agent's own role name.
-*   **Process:** Fetch rule file content.
-*   **Output:** Fetched rule text.
+*   **Action:** Retrieve agent's rules.
+*   **Tool:** `fetch_rules` (target: `<AgentRole>.md`).
 
-**Step 4: Construct Role-Prompt & Plan Turn**
-*   **Action (Internal):** Prepare LLM prompt and detailed action plan based on role, rules, and context.
-*   **Input:** Fetched rules (Step 3), Task Context (Step 2).
-*   **Process:**
-    1.  Construct prompt reflecting role, rules, context, and goal.
-    2.  Plan specific tool calls needed for **Step 5**, including **mandatory verification steps** and addressing identified **assumptions** as required by [System Prompt & Mandates](mdc:system.mdc).
-*   **Output:** Internal prompt string, structured plan.
+**Step 4: Plan Turn (Internal)**
+*   **Action:** Prepare LLM prompt & detailed action plan.
+*   **Input:** Rules (Step 3), Context (Step 2).
+*   **Process:** Construct prompt; Plan tool calls for Step 5, including **mandatory verification** and **assumption checks** per @`system.md`.
 
 **Step 5: Execute Core Task(s) & Verify**
-*   **Action:** Perform agent's primary function(s) based on the plan.
-*   **Tooling:** Role-specific authorized tools.
-*   **Input:** Plan from Step 4, Task context (Step 2).
+*   **Action:** Perform primary function(s).
+*   **Tooling:** Role-authorized tools.
+*   **Input:** Plan (Step 4), Context (Step 2).
 *   **Process:**
-    1.  **Execute:** Execute planned tool calls sequentially.
-    2.  **Verify:** Execute planned verification steps. Critically analyze results.
-    3.  **Record:** Consolidate results, verification outcomes (PASS/FAIL), assumptions addressed, and uncertainties identified internally.
-*   **Output:** Internal execution results and analysis.
+    1.  **Execute:** Run planned tool calls.
+    2.  **Verify:** Run verification steps. Analyze results.
+    3.  **Record Internally:** Consolidate results, verification outcomes (PASS/FAIL), assumptions addressed, uncertainties.
 
 **Step 6: Update State / Construct Handoff & Finalize Turn (FINAL ACTION)**
-*   **Action:** Persist results to the coordination mechanism and terminate the turn.
-*   **Tooling (MCP Mode):** `mcp_taskmanager_update_task`, `mcp_taskmanager_mark_task_done`.
-*   **Tooling (Chat Mode):** Chat Mechanism.
-*   **Input:** `taskId` (MCP Mode), Internal results/analysis (**Step 5**).
-*   **Process (MCP Mode):**
-    1.  **Update Description:** Use `mcp_taskmanager_update_task` to append **detailed, comprehensive** findings: actions taken, verification steps/results, assumptions, uncertainties, errors (as per Mandate 10 in [System Prompt & Mandates](mdc:system.mdc)).
-    2.  **Mark Done:** If task is complete (Success/Failure), call `mcp_taskmanager_mark_task_done`.
-    3.  **Terminate Turn:** Agent execution MUST end.
-*   **Process (Chat Mode):**
-    1.  **Determine Next Agent:** Decide `<NextAgentRole>`.
-    2.  **Construct Handoff:** Prepare concise payload including **detailed, comprehensive** findings (actions, verification, assumptions, uncertainties, errors).
-    3.  **Trigger Next Agent:** Send Chat Trigger: "Hey `<NextAgentRole>`, [Handoff Payload]".
-    4.  **Terminate Turn:** Agent execution MUST end.
-*   **Output:** Updated task state in MCP / Sent Chat Trigger.
+*   **Action:** Persist results to coordination mechanism; terminate turn.
+*   **Tool (MCP):** `mcp_taskmanager_update_task`, `mcp_taskmanager_mark_task_done`.
+*   **Tool (Chat):** Chat Mechanism.
+*   **Input:** `taskId` (MCP), Internal Results (Step 5).
+*   **Process (MCP):**
+    1.  **Update Task:** `mcp_taskmanager_update_task` with **comprehensive findings** (actions, verification, assumptions, uncertainties, errors) per @`system.md` Mandate 10.
+    2.  **Mark Done:** If complete, `mcp_taskmanager_mark_task_done`.
+    3.  **Terminate:** **MUST** end execution.
+*   **Process (Chat):**
+    1.  **Determine Next Agent:** `<NextAgentRole>`.
+    2.  **Construct Handoff:** Concise payload with **comprehensive findings** (as above).
+    3.  **Trigger:** Send Chat Trigger: "Hey `<NextAgentRole>`, [Handoff Payload]".
+    4.  **Terminate:** **MUST** end execution.
 
-### 2.4. ERROR HANDLING
-
-*   **Get Context Failure (Step 2):** HALT. (`Overmind` should detect stall in MCP Mode).
-*   **Update State/Trigger Failure (Step 6):** Attempt retry once. If still fails, HALT. Log error locally if possible. (`Overmind` should detect stall in MCP Mode).
-*   **Execution Errors (Step 5):** MUST log detailed error analysis into the MCP Task description or Chat Handoff Payload (**Step 6** Process #1 or #2) before potentially marking done (if recoverable) or halting. Escalate to `Overmind` via the appropriate mechanism.
-
-### 2.5. CONSTRAINTS & FORBIDDEN PATTERNS
-
-*   MUST follow **Steps 1-6** sequentially.
-*   The coordination mechanism (MCP Task / Chat Payload) MUST be the SOLE state/context source.
-*   MUST provide detailed updates including verification/assumptions (**Step 6**).
-
-### 2.6. REFERENCES
-
-*   [System Prompt & Mandates](mdc:system.mdc)
-*   [Agent Roles & Responsibilities](mdc:roles.mdc)
-*   [Core Concepts & Definitions](mdc:concepts.mdc)
-*   MCP Task Manager / Chat Tool Specifications
+**Error Handling:**
+*   **Step 2 Failure:** HALT.
+*   **Step 6 Failure:** Retry once. If fails, HALT. Log locally if possible.
+*   **Step 5 Errors:** **MUST** log detailed analysis in Step 6 update/handoff before potentially continuing or HALTing. Escalate to `Overmind`.
