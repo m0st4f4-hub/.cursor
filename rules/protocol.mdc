@@ -1,51 +1,67 @@
 ---
-description:
-globs:
-alwaysApply: false
+# Rule Definition Metadata (V1)
+ruleId: ultra-deep-thinking-protocol
+ruleType: Protocol
+title: Ultra-Deep Thinking Protocol
+description: Core methodology for rigorous planning, verification, and critical analysis. Primarily executed by Overmind.
+schemaVersion: 1
+conformsTo: null
+tags: [core, methodology, planning, verification, analysis, overmind]
+lastUpdated: null
+status: Active
 ---
-# 🧐 CORE METHODOLOGY: Ultra-Deep Thinking Protocol
 
-**Agents designated to execute this protocol (e.g., Overmind) MUST execute the following phases rigorously and sequentially where applicable. All other agents MUST adhere to the core principles as mandated by `mdc:system.mdc`.**
+# 🧐 Ultra-Deep Thinking Protocol
 
-**Phase A: Strategic Planning & Decomposition**
-1.  **Outline Task:** Clearly define the overall goal based on the request.
-2.  **Decompose:** Break down the problem into the smallest logical, verifiable subtasks.
-3.  **Multi-Perspective Exploration:** For each non-trivial subtask:
-    *   MUST explore at least two distinct potential approaches or perspectives (even seemingly improbable ones).
-    *   Document the alternatives considered and the rationale for the chosen path.
-    *   Consider potential failure modes for the chosen path.
-4.  **Assumption Identification & Challenge Planning:**
-    *   MUST explicitly identify and document key assumptions (technical, logical, environmental, data-related).
-    *   For each significant assumption, MUST plan a specific verification step or task (using tools or delegated agents) to actively challenge or confirm it later in the process.
+**Applicability:** Agents designated to execute this protocol (e.g., `Overmind`) **MUST** follow all phases. Other agents **MUST** adhere to core principles per @`system.md`.
 
-**Phase B: Execution Orchestration (via MCP)**
-1.  Delegate planned subtasks to appropriate specialized agents via `mcp_taskmanager_add_tasks_to_request`.
-2.  Ensure task descriptions contain necessary context, planned inputs/outputs, and references to relevant assumptions being tested.
+## Phase A: Strategic Planning & Decomposition
 
-**Phase C: Rigorous Verification & Cross-Checking** (Executed upon subtask completion)
-1.  **Scrutinize Output:** Retrieve task details (`open_task_details`). Critically analyze the agent's report, identifying claims, outputs, and adherence to instructions.
-2.  **Mandatory Multi-Method Verification:**
-    *   MUST employ **at least two distinct verification methods/tools** for all non-trivial task outputs (e.g., `read_file` + `grep_search`, or `codebase_search` + `run_terminal_cmd git diff`).
-    *   MUST employ **at least three distinct verification methods/tools** for critical task outputs, potentially including a delegated `AuditAgent` or `ResearchAgent` task for independent checks (e.g., Self-Tool A, Self-Tool B, AuditAgent Task).
-    *   Utilize diverse tools liberally (`read_file`, `grep_search`, `codebase_search`, `git` commands, `web_search`, `context7`, specialized scripts, delegated agents).
-3.  **Cross-Check Externally:** Where applicable, MUST cross-check facts, inferences, and conclusions against external data (e.g., documentation via `context7`, web results via `web_search`, previous task outputs).
-4.  **Analyze Verification Results:** Compare outcomes from different verification methods. Document any discrepancies, uncertainties, or failures explicitly.
+1.  **Define Goal:** Clearly outline task objective.
+2.  **Decompose:** Break into smallest logical, verifiable subtasks.
+3.  **Explore Alternatives (Mandatory for non-trivial subtasks):**
+    *   **MUST** explore >= 2 distinct approaches.
+    *   **MUST** document alternatives considered and rationale for choice.
+    *   **MUST** consider potential failure modes.
+4.  **Identify & Challenge Assumptions (Mandatory):**
+    *   **MUST** explicitly document key assumptions.
+    *   **MUST** plan specific verification steps/tasks to challenge/confirm each significant assumption.
 
-**Phase D: Critical Scrutiny & Weakness Analysis** (Applied continuously and upon verification)
-1.  **Review Logic:** Scrutinize the reasoning chain, assumptions, and conclusions of completed tasks and verification steps.
-2.  **Identify Uncertainties:** Explicitly note any remaining uncertainties, alternative viewpoints, or potential ambiguities.
-3.  **Systematic Weakness Search:** Even if verification passes, MUST dedicate specific effort (using tools or targeted checks) to systematically search for potential weaknesses, logical gaps, hidden assumptions, or edge cases. Document findings.
-4.  **Document Pitfalls:** Clearly document identified potential pitfalls and how they were addressed or why they are accepted risks.
+## Phase B: Execution Orchestration (via MCP)
 
-**Phase E: Escalation Handling (Deep Analysis)** (Triggered on Task/Verification Failure)
-1.  **Deep Context Gathering:** Use multiple diverse tools (`read_file`, `grep_search`, `codebase_search`, `git log`, etc.) to establish independent understanding of the failure context.
-2.  **Challenge Reported Cause:** Do not accept the initial error at face value. Brainstorm and investigate alternative root causes (environmental, prior error, flawed assumption, improbable events).
-3.  **Plan Recovery:** Based on deep analysis, plan highly specific recovery tasks, potentially using alternative approaches identified in Phase A. Document diagnostic reasoning.
-4.  **Declare Failure (Last Resort):** Only mark the request as Failed if deep analysis confirms recovery is infeasible. Document the rationale.
+1.  **Delegate:** Assign planned subtasks via `mcp_taskmanager_add_tasks_to_request`.
+2.  **Contextualize:** Ensure task descriptions include context, inputs/outputs, and assumptions under test.
 
-**Phase F: Final Review & Reconsideration** (Executed when `get_next_task` returns `all_tasks_done`)
-1.  **Pause Deliberately:** Halt execution briefly.
-2.  **Reconsider Entire Chain:** Review the entire process from the initial request outline (Phase A) from scratch. Re-evaluate key decisions, assumptions, and verification sufficiency.
-3.  **Final Weakness Scan:** Perform a final systematic search for any overlooked weaknesses, gaps, or potential issues based on the full execution history.
-4.  **Document Final Review:** Explicitly document that this final reconsideration step was performed and note any concluding thoughts or identified minor issues.
-5.  **Conclude:** Only after this phase is complete, allow the request to be marked as conceptually complete.
+## Phase C: Rigorous Verification & Cross-Checking (Post-Subtask)
+
+1.  **Scrutinize:** Retrieve task details (`open_task_details`); critically analyze report, claims, outputs, adherence.
+2.  **Multi-Method Verification (Mandatory):**
+    *   **MUST** use >= 2 distinct verification methods/tools for non-trivial outputs (e.g., `read_file` + `grep_search`).
+    *   **MUST** use >= 3 distinct verification methods/tools for critical outputs (may include delegated `AuditAgent`/`ResearchAgent`).
+    *   Utilize diverse tools (`read_file`, `grep_search`, `codebase_search`, `git`, `web_search`, `context7`, scripts, delegated agents).
+3.  **External Cross-Check (Mandatory where applicable):**
+    *   **MUST** cross-check facts/inferences against external data (`context7`, `web_search`, prior tasks).
+4.  **Analyze Results:** Compare verification outcomes; document discrepancies, uncertainties, failures explicitly.
+
+## Phase D: Critical Scrutiny & Weakness Analysis (Continuous)
+
+1.  **Review Logic:** Scrutinize reasoning, assumptions, conclusions.
+2.  **Identify Uncertainties:** Explicitly note remaining ambiguities or alternative viewpoints.
+3.  **Systematic Weakness Search (Mandatory):**
+    *   Even if verified, **MUST** actively search for weaknesses, logical gaps, hidden assumptions, edge cases. Document findings.
+4.  **Document Pitfalls:** Clearly record identified risks and mitigation/acceptance rationale.
+
+## Phase E: Escalation Handling (On Task/Verification Failure)
+
+1.  **Deep Context:** Use multiple diverse tools (`read_file`, `grep_search`, `codebase_search`, `git log`, etc.) for independent failure context understanding.
+2.  **Challenge Cause:** **MUST NOT** accept initial error report at face value. Investigate alternative root causes.
+3.  **Plan Recovery:** Based on deep analysis, plan specific recovery tasks (potentially using Phase A alternatives). Document diagnosis.
+4.  **Declare Failure (Last Resort):** Only if deep analysis confirms infeasibility. Document rationale.
+
+## Phase F: Final Review & Reconsideration (On `all_tasks_done`)
+
+1.  **Pause:** Halt execution deliberately.
+2.  **Reconsider All:** Review entire process from Phase A. Re-evaluate decisions, assumptions, verification sufficiency.
+3.  **Final Weakness Scan:** Perform final systematic search for overlooked issues.
+4.  **Document Review:** Explicitly state final reconsideration performed; note concluding thoughts.
+5.  **Conclude:** Only then allow request completion.
