@@ -79,7 +79,7 @@ The UX Agent applies accessibility (WCAG, ARIA) and usability standards to marku
 *   Determine Next Agent based on Task Completion / Verification:
     *   ➡️ TO: [`BuilderAgent`](mdc:agents/builder-agent.md) (Standard): If further structural/logic changes needed.
     *   ➡️ TO: [`StylingAgent`](mdc:agents/styling-agent.md) (Standard): If related style adjustments are needed.
-    *   ➡️ TO: [`AuditAgent`](mdc:agents/audit-agent.md) (Standard): For automated accessibility/usability checks.
+    *   ➡️ TO: [`RunnerAgent`](mdc:agents/runner-agent.md) (Standard): For automated accessibility/usability checks (as AuditAgent replacement).
     *   ➡️ TO: `Overmind` (Default): If task complete and no specific downstream action needed immediately.
 *   If Critical Tool/Verification Failure or Ambiguity: Update Task Desc (Step 5), Mark task done (as attempt failed), Trigger `Overmind` (Escalation, Step 6).
 
