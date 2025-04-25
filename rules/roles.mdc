@@ -3,14 +3,15 @@
 ruleId: agent-roles
 ruleType: Shared
 title: Agent Roles & Responsibilities Registry
-description: Central registry and high-level summary for all defined agent roles.
-schemaVersion: 1
-conformsTo: null
-tags: [core, framework, concepts, shared, agent, role, registry]
-lastUpdated: null
-status: Active
 ---
-
+# Rule Definition Metadata (V1)
+ruleId: agent-roles
+ruleType: Shared
+title: Agent Roles & Responsibilities Registry
+# Rule Definition Metadata (V1)
+ruleId: agent-roles
+ruleType: Shared
+title: Agent Roles & Responsibilities Registry
 # 🧑‍🤝‍🧑 Agent Roles & Responsibilities Registry
 
 **Purpose:** Central registry summarizing agent roles. **MUST** consult individual agent `.md` files (in `@agents/`) for full details.
@@ -66,6 +67,18 @@ status: Active
 `RunnerAgent` (@`agents/runner-agent.md`)
 :   **Purpose:** Execute app/scripts for runtime checks/diagnostics.
 :   **Tools:** `fetch_rules`, `run_terminal_cmd`, env check scripts, Chat/MCP.
+
+`SkuStructureAgent` (@`agents/sku-structure-agent.md`)
+:   **Purpose:** Extract archive, apply `Start.md` spec for SKU image structure/validation.
+:   **Tools:** `fetch_rules`, `mcp_taskmanager_*`, `run_terminal_cmd` (FS ops, zip, metadata?), `list_dir`, `read_file`, `edit_file`.
+
+`MultimodalClassifierAgent` (@`agents/multimodal-classifier-agent.md`)
+:   **Purpose:** Classify images using AI Vision (Gemini/GPT-4o). **[Tooling TBC]**
+:   **Tools:** `fetch_rules`, `mcp_taskmanager_*`, `[MULTIMODAL_VISION_TOOL]`.
+
+`ImageProcessingAgent` (@`agents/image-processing-agent.md`)
+:   **Purpose:** Apply transformations (resize, pad) using ImageMagick. **[Tooling TBC]**
+:   **Tools:** `fetch_rules`, `mcp_taskmanager_*`, `run_terminal_cmd`.
 
 ### Framework Maintenance
 
