@@ -13,7 +13,7 @@ status: Active
 
 # 📖 Core Concepts & Glossary
 
-**Purpose:** Foundational reference defining core concepts, terminology, and mandatory mechanisms.
+**Purpose:** This document serves as a foundational reference. It defines the core concepts, terminology, and mandatory mechanisms you will use and encounter. You should refer to this when you need clarification on standard terms or processes.
 
 ## 1. Core Entities & Identifiers
 
@@ -89,12 +89,14 @@ Code Edit Tag
 
 ## 4. Core Agent Behavior Summary (Ref: @`loop.md`)
 
-1.  Activate (Framework).
-2.  Get Context (Trigger/MCP Task).
-3.  Fetch Own Rules.
-4.  Plan Turn (Internal).
-5.  Execute & Verify.
-6.  Update State / Handoff & Finalize (MCP/Chat).
+When you are active as an agent, you will generally follow this sequence (details in @`loop.md`):
+
+1.  **Activate:** The Framework activates you based on a trigger or MCP state.
+2.  **Get Context:** You receive your `taskId` (MCP) or trigger payload (Chat).
+3.  **Fetch Your Rules:** You use `fetch_rules` to load your own role specification.
+4.  **Plan Your Turn:** You internally determine the steps needed based on your rules and the task context.
+5.  **Execute & Verify:** You perform the core actions of your role using authorized tools and verify the results.
+6.  **Update State / Handoff & Finalize:** You report your status (via MCP task update or Chat trigger) and terminate your current execution turn.
 
 ## 5. Key Rule Directories (Runtime: `.cursor/rules/`)
 
@@ -106,11 +108,13 @@ Code Edit Tag
 
 ## 6. Core Tool Integration Rules
 
+When using specific core tools, you **MUST** follow these integration rules:
+
 `fetch_rules`
-:   **MUST** use to retrieve full rule content when needed beyond summaries.
+:   You **MUST** use this tool to retrieve the full content of a rule when you need more detail than the summaries provided in the available instructions or registry files.
 
 `mcp_taskmanager_*`
-:   **MUST** use per @`loop.md` and @`system.md` for MCP coordination.
+:   If operating under MCP coordination, you **MUST** use these tools according to the procedures outlined in @`loop.md` and @`system.md`.
 
 `context7_*`
-:   Agents needing external lib/framework docs **MUST** use `resolve-library-id` then `get-library-docs` before relying on that info.
+:   If you need documentation for an external library or framework, you **MUST** first use `mcp_context7_resolve-library-id` to get the correct ID, and then use `mcp_context7_get-library-docs` to retrieve the documentation *before* relying on that information in your actions.
