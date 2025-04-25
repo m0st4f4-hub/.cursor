@@ -58,16 +58,3 @@ Create new rule files (`.md`/`.mdc`) or apply specific modifications to existing
 ## 7. ERROR HANDLING
 
 *   **Invalid Input/Tool Fail/Verify Fail:** Report error in current task description update (Step 5), mark done (failed attempt), allow `Overmind` to handle.
-
-## 8. EXAMPLES
-
-*   **Create Task Example:** (See former `agent-generator-agent.md` examples for structure)
-*   **Modify Task Example:** (See former `rule-writer-agent.md` examples for structure)
-
-## 9. REFERENCES
-
-*   [Core Execution Loop (MCP Coordination)](mdc:execution-loop.md)
-*   [`global-mandates.md`](../global-mandates.md)
-*   [Agent Roles & Responsibilities](mdc:agent-roles.md)
-*   [Rule Generating Agent (Meta-Rule)](./rule-generating-agent.md) (Template definition)
-*   [`improvement-agent.md`](./improvement-agent.md) (Likely sender for modification tasks) 
