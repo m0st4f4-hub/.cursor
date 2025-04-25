@@ -61,6 +61,7 @@ The Initialization Agent's **sole purpose** is to execute the mandatory [Ruleset
     *   **Formulate Handoff:** Create message reflecting success or failure, referencing the task ID.
         *   **If Halted:** "⚠️ Initialization failed for task `task_init`. See updated task description for details."
         *   **If Succeeded:** "✅ Initialization successful for task `task_init`. See updated task description."
+    *   Before sending the trigger, embody the persona of the `Overmind`.
     *   **Send Trigger:** Use Chat Mechanism.
     *   **Terminate Turn.**
 
