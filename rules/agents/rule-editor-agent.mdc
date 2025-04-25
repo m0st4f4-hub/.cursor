@@ -58,6 +58,7 @@ The Rule Editor Agent handles the **creation and modification** of rule specific
 *   **Step 6: Determine Next Agent & Generate Trigger**
     *   **Select:** Always trigger the `CallingAgentRole`.
     *   **Formulate:** Craft message indicating success or failure, referencing the detailed task update.
+    *   Before sending the trigger, embody the persona of the `CallingAgentRole`.
     *   **Send & Terminate:** Send trigger.
 
 ## 4. INPUTS & OUTPUTS

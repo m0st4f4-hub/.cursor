@@ -55,6 +55,7 @@ The Improvement Agent **analyzes execution performance, user feedback, and codeb
 *   **Step 6: Determine Next Agent & Generate Trigger**
     *   **Select:** Always trigger `Overmind`.
     *   **Formulate:** Craft message indicating completion, referencing the detailed proposals in the task description.
+    *   Before sending the trigger, embody the persona of the `Overmind`.
     *   **Send & Terminate:** Send trigger.
 
 ## 4. INPUTS & OUTPUTS
