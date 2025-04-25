@@ -1,33 +1,68 @@
 ---
-description: "[TODO: Add description]"
-globs:
-  - "*.*"
-alwaysApply: false
+# Rule Definition Metadata (V1)
+ruleId: tool-consolidate-rules
+ruleType: Tool
+title: 'Tool Guide: Consolidate Rules (`consolidate_rules.py`)'
+description: Guide for using `tools/consolidate_rules.py` script via `run_terminal_cmd` to combine multiple `.mdc` files into one Markdown file.
+schemaVersion: 1
+conformsTo: null # Not a standard Agent/Procedure spec
+tags: [tool, guide, rules, consolidate, python, script, mdc]
+lastUpdated: null
+status: Active
 ---
 
-# `consolidate_rules` Tool Definition
+# 📚 Tool Guide: Consolidate Rules (`consolidate_rules.py`)
 
-**Purpose:** Scans a specified directory (defaulting to `.cursor/rules`) recursively for `.mdc` files and combines their contents into a single output Markdown file.
+## 1. PURPOSE
 
-**Usage:**
+Scans a directory for `.mdc` files and combines their contents into a single output Markdown file. Primarily used for documentation or creating unified rule views.
+
+## 2. USAGE
+
+*   **Command:** `python tools/consolidate_rules.py --output_file <path_to_output.md> [--rules_dir <path_to_rules>] [--exclude_patterns <pattern1,pattern2>] [--include_header <true|false>]`
+*   **Executor:** Use via `run_terminal_cmd`.
+*   **Arguments:**
+    *   `--output_file`: REQUIRED. Path for the consolidated output Markdown file.
+    *   `--rules_dir`: Optional. Directory to scan. Defaults to `.cursor/rules`.
+    *   `--exclude_patterns`: Optional. Comma-separated glob patterns to exclude (relative to `rules_dir`).
+    *   `--include_header`: Optional (`true`/`false`). Include `## Source: <path>` header for each file. Defaults to `true`.
+*   **Prerequisites:** Python environment.
+*   **Output (stdout):** Prints status messages (files found/processed, output path, errors). The main output is the created file.
+*   **Exit Code:** Assumed 0 for success, non-zero for errors (e.g., file I/O issues).
+
+## 3. TYPICAL AGENTS
+
+*   `RunnerAgent`: Executes the script as part of a documentation or build task.
+*   `DocsAgent`: Might trigger this via `RunnerAgent` to generate combined documentation.
+
+## 4. HOW TO USE (Agent Logic)
+
+1.  Determine required arguments, especially `--output_file`. Decide on optional arguments (`--rules_dir`, `--exclude_patterns`, `--include_header`).
+2.  Construct the full command string.
+3.  Execute the command via `run_terminal_cmd`.
+4.  Check the exit code and review `stdout` for success or error messages.
+5.  Report the outcome (success/failure, output file path, errors) via MCP task description.
+
+## 5. EXAMPLE COMMAND & OUTPUT
+
+**Command:**
 ```bash
-python rules/tools/consolidate_rules.py --output_file <path_to_output.md> [--rules_dir <path_to_rules>] [--exclude_patterns <pattern1,pattern2>] [--include_header <true|false>]
+python tools/consolidate_rules.py --output_file docs/all_rules.md --exclude_patterns "project/*,**/temp*"
 ```
 
-**Arguments:**
-*   `--output_file` (MUST): The path where the consolidated Markdown file will be saved.
-*   `--rules_dir` (Optional): The directory to scan for `.mdc` files. Defaults to `.cursor/rules`.
-*   `--exclude_patterns` (Optional): A comma-separated list of glob patterns (relative to `rules_dir`) for files or directories to exclude. Example: `project/*,temp/**`.
-*   `--include_header` (Optional): Whether to include a `## Source: <relative_path>` header before the content of each file. Defaults to `true`.
-
-**Output:**
-*   Prints the number of files found and processed to standard output.
-*   Prints the path to the successfully created output file.
-*   Prints any errors encountered during file reading or writing.
-*   Creates the consolidated Markdown file at the specified `--output_file` path.
-
-**Example:**
-```bash
-python rules/tools/consolidate_rules.py --output_file docs/all_rules.md --exclude_patterns "project/*,**/temp*"
+**Example `stdout`:**
 ```
-This command will find all `.mdc` files under `.cursor/rules`, excluding any within the `project/` subdirectory or matching `**/temp*`, and combine them into `docs/all_rules.md`, including source headers.
+Found 15 files.
+Processing file: core/agent.mdc
+Processing file: core/loop.mdc
+...
+Successfully consolidated rules to: docs/all_rules.md
+```
+
+## 6. CONSIDERATIONS
+
+*   Ensure the output directory exists and is writable.
+*   Glob patterns in `--exclude_patterns` must be correctly formatted and quoted if necessary in the shell.
+*   The script assumes `.mdc` files contain valid Markdown.
+*   Large numbers of files might take time or generate a very large output file.
+*   The script path in the command (`tools/consolidate_rules.py`) assumes execution from the workspace root.

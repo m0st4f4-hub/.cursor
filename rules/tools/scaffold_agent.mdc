@@ -1,32 +1,74 @@
 ---
-description: "[TODO: Add description]"
-globs:
-  - "*.*"
-alwaysApply: false
+# Rule Definition Metadata (V1)
+ruleId: tool-scaffold-agent
+ruleType: Tool
+title: 'Tool Guide: Scaffold Agent (`scaffold_agent.py`)'
+description: Guide for using `tools/scaffold_agent.py` script via `run_terminal_cmd` to generate boilerplate `.mdc` rule files for new agents.
+schemaVersion: 1
+conformsTo: null # Not a standard Agent/Procedure spec
+tags: [tool, guide, scaffold, generator, agent, rules, python, script, mdc]
+lastUpdated: null
+status: Active
 ---
 
-\
----
-description: Defines the `scaffold_agent.py` tool used to generate boilerplate .mdc rule files for new agents.
-globs: ["*.*"]
-alwaysApply: false
----
+# 🏗️ Tool Guide: Scaffold Agent (`scaffold_agent.py`)
 
-# `scaffold_agent.py` Tool Definition
+## 1. PURPOSE
 
-## Purpose
-Generates a boilerplate `.mdc` rule file for a new agent within the standard agent directory (`.cursor/rules/agents/`). The generated file includes standard sections with TODO placeholders.
+Generates a boilerplate `.mdc` rule file for a new agent based on a standard template, placing it in the correct directory (`.cursor/rules/agents/`).
 
-## Arguments
-- **`agent_name` (Positional):** The desired name for the new agent in `PascalCase` and ending with `Agent` (e.g., `MyCoolAgent`). This is provided as a command-line argument.
+## 2. USAGE
 
-## Output
-- Creates a new agent rule file named using the sanitized `agent_name` (converted to `kebab-case`) with the `.mdc` extension inside the `.cursor/rules/agents/` directory. Example: `MyCoolAgent` -> `.cursor/rules/agents/my-cool-agent.mdc`.
-- Prints a JSON object to stdout indicating success (`{"success": true, "message": "...", "filepath": "..."}`) or failure (`{"success": false, "error": "..."}`).
-- Exits with code 0 on success, 1 on failure.
+*   **Command:** `python tools/scaffold_agent.py <AgentName>`
+*   **Executor:** Use via `run_terminal_cmd`.
+*   **Arguments:**
+    *   `<AgentName>`: REQUIRED (Positional). The desired agent name in `PascalCase`, ending with `Agent` (e.g., `MyNewAgent`).
+*   **Prerequisites:** Python environment. The script itself (`tools/scaffold_agent.py`).
+*   **Output (File):** Creates a new file in `.cursor/rules/agents/` named using the kebab-case version of `<AgentName>` (e.g., `my-new-agent.mdc`).
+*   **Output (stdout):** JSON indicating success or failure (e.g., `{"success": true, "filepath": ".cursor/rules/agents/my-new-agent.mdc"}` or `{"success": false, "error": "Invalid name format."}`).
+*   **Exit Code:** 0 for success, 1 for failure.
 
-## Example Usage
+## 3. TYPICAL AGENTS
+
+*   `AgentGeneratorAgent`: Uses this tool as its primary mechanism for creating new agent specifications.
+*   `Overmind`: Might direct `AgentGeneratorAgent` to use this tool.
+
+## 4. HOW TO USE (Agent Logic)
+
+1.  Determine the correct `PascalCaseAgentName` for the new agent.
+2.  Construct the command string: `python tools/scaffold_agent.py PascalCaseAgentName`.
+3.  Execute via `run_terminal_cmd`.
+4.  Parse the JSON output from `stdout`.
+5.  Check `success` field and `exit_code`.
+6.  Report the outcome (success/failure, new filepath, error message) via MCP task description.
+
+## 5. EXAMPLE COMMAND & OUTPUT
+
+**Command:**
 ```bash
-# Creates .cursor/rules/agents/my-new-agent.mdc
-python rules/tools/scaffold_agent.py MyNewAgent
+python tools/scaffold_agent.py MyCoolAgent
 ```
+
+**Example `stdout` (Success):**
+```json
+{
+  "success": true, 
+  "message": "Agent rule file created successfully.", 
+  "filepath": ".cursor/rules/agents/my-cool-agent.mdc"
+}
+```
+
+**Example `stdout` (Failure - Invalid Name):**
+```json
+{
+  "success": false, 
+  "error": "Agent name must be PascalCase and end with Agent."
+}
+```
+
+## 6. CONSIDERATIONS
+
+*   The target directory (`.cursor/rules/agents/`) must exist and be writable.
+*   The script enforces the naming convention (`PascalCaseAgentName`).
+*   The generated file contains standard sections with TODO placeholders, requiring further edits (likely by `RuleEditorAgent`).
+*   The script path assumes execution from the workspace root.

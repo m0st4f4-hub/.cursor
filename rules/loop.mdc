@@ -38,62 +38,62 @@ status: Active
 
 ## PART 2: CORE AGENT EXECUTION LOOP (Mandatory, MCP Focus)
 
-**Purpose:** Ensure consistent, predictable, auditable behavior using MCP Task Manager (or Chat) as Single Source of Truth.
+**Purpose:** You **MUST** follow this mandatory sequence of steps each time you are activated for a task turn. This ensures your behavior is consistent, predictable, and auditable. You will primarily use the MCP Task Manager (or Chat, if applicable) as your Single Source of Truth for instructions and status.
 
-**Rules (MUST):**
-*   **MUST** follow Steps 1-6 sequentially. No skipping (except HALT).
-*   Coordination mechanism (MCP Task / Chat Payload) **MUST** be Single Source of Truth.
-*   **MUST** get context before acting (Step 2).
-*   **MUST** fetch & use own rules (Step 3).
-*   **MUST** update coordination mechanism with **verification & assumption details** (Step 6).
+**Rules You MUST Follow:**
+*   You **MUST** execute Steps 1 through 6 sequentially in every turn. You cannot skip steps, except when a HALT condition is met.
+*   You **MUST** treat the coordination mechanism (MCP Task details or Chat Payload) as the definitive source for your task instructions and context.
+*   You **MUST** get your full context (Step 2) *before* taking significant action.
+*   You **MUST** fetch and use your own role-specific rules (Step 3).
+*   When reporting your results (Step 6), you **MUST** include details about your verification actions and any assumptions you made or identified.
 
-**Action Sequence (Mandatory Steps):**
+**Action Sequence (Your Mandatory Steps):**
 
 **Step 1: Activate & Get Initial Context**
-*   **Activation:** By Framework.
-*   **Input:** `taskId` (MCP) / Trigger Payload (Chat).
-*   **Action:** Store `taskId` / Parse payload.
+*   **Activation:** The Framework activates you.
+*   **Input:** You receive a `taskId` (MCP) or a Trigger Payload (Chat).
+*   **Action:** You will store the `taskId` or parse the payload to extract initial context.
 
 **Step 2: Get Full Task/Operational Context**
-*   **Action:** Fetch detailed instructions & context.
-*   **Tool (MCP):** `mcp_taskmanager_open_task_details` (using `taskId`).
-*   **Action (Chat):** Use context parsed in Step 1.
-*   **Action (Both):** Critically evaluate context per @`system.md`. Identify assumptions, verify feasibility.
+*   **Action:** You will fetch the detailed instructions and operational context for your task.
+*   **Tool (MCP):** You will use `mcp_taskmanager_open_task_details` with your stored `taskId`.
+*   **Action (Chat):** You will use the context parsed from the payload in Step 1.
+*   **Action (Both):** You **MUST** critically evaluate the context according to the principles in @`system.md`. You will identify your assumptions and verify the feasibility of the task.
 
-**Step 3: Fetch Own Role Specification**
-*   **Action:** Retrieve agent's rules.
-*   **Tool:** `fetch_rules` (target: `<AgentRole>.md`).
+**Step 3: Fetch Your Role Specification**
+*   **Action:** You will retrieve the rules that define your current role.
+*   **Tool:** You will use `fetch_rules`, targeting your specific agent rule file (e.g., `builder-agent.md`).
 
-**Step 4: Plan Turn (Internal)**
-*   **Action:** Prepare LLM prompt & detailed action plan.
-*   **Input:** Rules (Step 3), Context (Step 2).
-*   **Process:** Construct prompt; Plan tool calls for Step 5, including **mandatory verification** and **assumption checks** per @`system.md`.
+**Step 4: Plan Your Turn (Internal)**
+*   **Action:** You will internally prepare your plan of action for the current turn.
+*   **Input:** Your rules (from Step 3) and the full task context (from Step 2).
+*   **Process:** You will construct your internal reasoning or prompt. You will plan the specific tool calls needed for Step 5, ensuring you include **mandatory verification** steps and checks for any **assumptions** you identified, as required by @`system.md`.
 
-**Step 5: Execute Core Task(s) & Verify**
-*   **Action:** Perform primary function(s).
-*   **Tooling:** Role-authorized tools.
-*   **Input:** Plan (Step 4), Context (Step 2).
+**Step 5: Execute Your Core Task(s) & Verify**
+*   **Action:** You will perform the primary function(s) defined by your role and the current task.
+*   **Tooling:** You will use the tools authorized for your role.
+*   **Input:** Your plan (from Step 4) and the context (from Step 2).
 *   **Process:**
-    1.  **Execute:** Run planned tool calls.
-    2.  **Verify:** Run verification steps. Analyze results.
-    3.  **Record Internally:** Consolidate results, verification outcomes (PASS/FAIL), assumptions addressed, uncertainties.
+    1.  **Execute:** You will run the tool calls you planned.
+    2.  **Verify:** You will execute the verification steps you planned. You will analyze the results.
+    3.  **Record Internally:** You will consolidate the results of your actions, the outcomes of your verification checks (PASS/FAIL), a record of assumptions addressed, and any remaining uncertainties.
 
-**Step 6: Update State / Construct Handoff & Finalize Turn (FINAL ACTION)**
-*   **Action:** Persist results to coordination mechanism; terminate turn.
-*   **Tool (MCP):** `mcp_taskmanager_update_task`, `mcp_taskmanager_mark_task_done`.
-*   **Tool (Chat):** Chat Mechanism.
-*   **Input:** `taskId` (MCP), Internal Results (Step 5).
+**Step 6: Update State / Construct Handoff & Finalize Your Turn (FINAL ACTION)**
+*   **Action:** You will persist the results of your turn to the coordination mechanism and then terminate your execution for this turn.
+*   **Tool (MCP):** You will use `mcp_taskmanager_update_task` and potentially `mcp_taskmanager_mark_task_done`.
+*   **Tool (Chat):** You will use the Framework's Chat Mechanism.
+*   **Input:** Your `taskId` (MCP), your internal results recorded in Step 5.
 *   **Process (MCP):**
-    1.  **Update Task:** `mcp_taskmanager_update_task` with **comprehensive findings** (actions, verification, assumptions, uncertainties, errors) per @`system.md` Mandate 10.
-    2.  **Mark Done:** If complete, `mcp_taskmanager_mark_task_done`.
-    3.  **Terminate:** **MUST** end execution.
+    1.  **Update Task:** You will execute `mcp_taskmanager_update_task`, providing a **comprehensive summary** of your findings in the description. This **MUST** include: actions taken, verification methods and results, assumptions made or addressed, remaining uncertainties, and any errors encountered, as per @`system.md` Mandate 10.
+    2.  **Mark Done:** If your task is complete according to your rules and verification, you will execute `mcp_taskmanager_mark_task_done`.
+    3.  **Terminate:** You **MUST** end your execution turn now.
 *   **Process (Chat):**
-    1.  **Determine Next Agent:** `<NextAgentRole>`.
-    2.  **Construct Handoff:** Concise payload with **comprehensive findings** (as above).
-    3.  **Trigger:** Send Chat Trigger: "Hey `<NextAgentRole>`, [Handoff Payload]".
-    4.  **Terminate:** **MUST** end execution.
+    1.  **Determine Next Agent:** You will determine the `<NextAgentRole>` based on your rules and the task outcome.
+    2.  **Construct Handoff:** You will create a concise payload containing your **comprehensive findings** (as described for MCP above).
+    3.  **Trigger:** You will send the Chat Trigger: "Hey `<NextAgentRole>`, [Handoff Payload]".
+    4.  **Terminate:** You **MUST** end your execution turn now.
 
 **Error Handling:**
-*   **Step 2 Failure:** HALT.
-*   **Step 6 Failure:** Retry once. If fails, HALT. Log locally if possible.
-*   **Step 5 Errors:** **MUST** log detailed analysis in Step 6 update/handoff before potentially continuing or HALTing. Escalate to `Overmind`.
+*   **Step 2 Failure (Cannot get context):** You will HALT.
+*   **Step 6 Failure (Cannot update state/trigger next):** You may retry the final tool call once. If it still fails, you will HALT. Attempt local logging if possible.
+*   **Step 5 Errors (During core task):** You **MUST** log a detailed analysis of the error in your Step 6 update/handoff message before either continuing (if recoverable per your rules) or HALTing. You **MUST** ensure errors are clearly reported to `Overmind` via the coordination mechanism.

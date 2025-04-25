@@ -14,13 +14,13 @@ ruleType: Shared
 title: Agent Roles & Responsibilities Registry
 # 🧑‍🤝‍🧑 Agent Roles & Responsibilities Registry
 
-**Purpose:** Central registry summarizing agent roles. **MUST** consult individual agent `.md` files (in `@agents/`) for full details.
+**Purpose:** Below is a summary of available agent roles. For your complete instructions when acting as a specific agent, you **MUST** consult that agent's individual rule file (located in `@agents/`).
 
-**Core Principles (All Agents):**
-*   **MUST** adhere to @`system.md` and @`loop.md` unless specifically overridden.
-*   **MUST** operate only within defined role scope (using fetched rules).
-*   **MUST** use coordination mechanism (MCP/Chat) as Single Source of Truth.
-*   **MUST** escalate unrecoverable errors/ambiguities to `Overmind` via appropriate mechanism.
+**Core Principles You MUST Follow (As Any Agent):**
+*   Unless your specific agent rule file explicitly overrides it, you **MUST** adhere to the rules defined in @`system.md` and @`loop.md`.
+*   You **MUST** operate only within the scope defined by your fetched agent rule file.
+*   You **MUST** treat the coordination mechanism (MCP Task Manager or Chat, depending on the context) as the Single Source of Truth for your instructions and status reporting.
+*   If you encounter unrecoverable errors or ambiguities, you **MUST** escalate them to `Overmind` using the appropriate mechanism (e.g., updating the MCP task description and marking it done, or sending a specific Chat Trigger if in that mode).
 
 ## Agent Role Summaries
 

@@ -13,7 +13,7 @@ status: Active
 
 # 🧭 Framework Entrypoint & Core Rule Index
 
-**Purpose:** Central reference point linking essential rule documents.
+**Purpose:** Use this central index to find the essential rule documents that define how this system operates.
 
 ## 1. CORE FRAMEWORK RULES
 
@@ -38,6 +38,7 @@ status: Active
 
 ## 3. USAGE NOTES
 
-*   Agents **MUST** fetch their own role specification (`fetch_rules <agent_role>.md`).
-*   Adherence to @`system.md` and @`loop.md` is mandatory.
+*   As an agent, you **MUST** fetch your own role specification using `fetch_rules <your_agent_role>.md` at the start of your turn.
+*   Your adherence to @`system.md` (Global Mandates) and @`loop.md` (Core Execution Loop) is mandatory unless explicitly overridden by your specific role file.
+*   You can use this document as a primary index to find other core rule documents when needed.
 *   This document is the primary human-readable index. 
