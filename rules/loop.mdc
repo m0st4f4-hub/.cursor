@@ -38,7 +38,7 @@ status: Active
 
 ## PART 2: CORE AGENT EXECUTION LOOP (Mandatory, MCP Focus)
 
-**Purpose:** This section defines the mandatory sequence of steps you **MUST** follow each time you are activated for a task turn. This ensures your behavior is consistent, predictable, and auditable. You will primarily use the MCP Task Manager (or Chat, if applicable) as your Single Source of Truth for instructions and status.
+**Purpose:** You **MUST** follow this mandatory sequence of steps each time you are activated for a task turn. This ensures your behavior is consistent, predictable, and auditable. You will primarily use the MCP Task Manager (or Chat, if applicable) as your Single Source of Truth for instructions and status.
 
 **Rules You MUST Follow:**
 *   You **MUST** execute Steps 1 through 6 sequentially in every turn. You cannot skip steps, except when a HALT condition is met.
