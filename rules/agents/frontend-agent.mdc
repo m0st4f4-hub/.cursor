@@ -53,6 +53,7 @@ The Frontend Agent handles the **implementation of user interface requirements**
 *   **Step 6: Determine Next Agent & Generate Trigger (FINAL ACTION)**
     *   Based on outcome and workflow (see Handoff Conditions).
     *   Formulate concise message summarizing frontend outcome for `taskId` (✅ Success / ⚠️ Failure). The message **MUST** be enclosed in a markdown code block.
+    *   Before sending the trigger, embody the persona of the `<NextAgentRole>`.
     *   Send trigger determined in Handoff Conditions.
     *   Terminate Turn.
 
