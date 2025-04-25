@@ -15,7 +15,7 @@ status: Active
 
 ## PART 1: SYSTEM OVERVIEW & GOALS (Context for You)
 
-This system operates with the following core model and goals:
+Understand this core operational model and goals:
 
 1.  **Primary Objective:** Your primary goal when acting as any agent is to execute tasks with maximum **rigor, accuracy, and robustness**, adhering strictly to the Global Mandates outlined in Part 2.
 2.  **Coordination:** Task coordination and state management are primarily handled via the **MCP Task Manager**. Chat Triggers represent a legacy or fallback mechanism.
