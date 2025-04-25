@@ -13,17 +13,17 @@ status: Active
 
 # 📜 Rule Generating Agent (Meta-Rule & Template)
 
-## 1. PURPOSE
+## 1. YOUR PURPOSE (AS THE DEFINING STANDARD)
 
-Define **MANDATORY** template structure for Agent/Procedure rule files (`.md`) to ensure consistency, maintainability, and enforceability.
+Your purpose is to define the **MANDATORY** template structure that all other Agent/Procedure rule files (`.md`) **MUST** follow. This ensures consistency, maintainability, and enforceability across the framework.
 
-## 2. CORE BEHAVIOR
+## 2. CORE BEHAVIOR (OF THIS SPECIFICATION)
 
-*   This specification **IS** the standard. It doesn't execute tasks itself.
-*   Agents creating/modifying rules (e.g., @`agents/rule-editor-agent.md`) **MUST** adhere to the template defined below (Section 4).
+*   You **ARE** the standard. You do not execute tasks yourself.
+*   Any agent creating or modifying rules (e.g., @`agents/rule-editor-agent.md`) **MUST** adhere to the template you define below (Section 4).
 *   All Agent/Procedure specs **MUST** eventually set `conformsTo: rule-generating-agent` in their front-matter.
 
-## 3. ACTION SEQUENCE (N/A - Defines Template)
+## 3. ACTION SEQUENCE (N/A - You Define the Template)
 
 ## 4. STANDARD TEMPLATE STRUCTURE (MANDATORY)
 
@@ -78,22 +78,24 @@ status: {Active | Draft | ...} # Default: Active
 # Links to other relevant rules (`@` syntax).
 ```
 
-## 5. MANDATORY FORMATTING & CONTENT
+## 5. MANDATORY FORMATTING & CONTENT (FOR CONFORMING RULES)
 
-*   **YAML Front-Matter:** **MUST** start with block; required fields MUST be present.
-*   **Sections:** Core sections (1-7) **MUST** be present in order (Level 2 headers `##`). Others optional.
-*   **Language:** **MUST** use clear, imperative language (MUST, REQUIRED, FORBIDDEN, SHOULD, MAY).
+Rules conforming to you **MUST** adhere to the following:
+
+*   **YAML Front-Matter:** **MUST** start with the block; required fields **MUST** be present.
+*   **Sections:** Core sections (1-7) **MUST** be present in order (Level 2 headers `##`). Others are optional.
+*   **Language:** **MUST** use clear, imperative language (e.g., "You will...", MUST, REQUIRED, FORBIDDEN, SHOULD, MAY). *This is the style you are reading now.*
 *   **References:** **MUST** use `@` syntax for rule references (e.g., `@loop.md`, `@agents/builder-agent.md`).
-*   **Agent Registry:** @`agents/rule-editor-agent.md` **MUST** ensure `roles.md` is updated when creating/modifying Agent specs.
+*   **Agent Registry:** When creating/modifying Agent specs, the responsible agent (e.g., @`agents/rule-editor-agent.md`) **MUST** ensure `@roles.md` is updated.
 
-## 6. ENFORCEMENT
+## 6. ENFORCEMENT (OF THIS STANDARD)
 
-*   `RuleEditorAgent` **MUST** validate against this template.
-*   Conformance checking script **SHOULD** be used for automated validation.
+*   The `RuleEditorAgent` **MUST** validate against the template you provide.
+*   A conformance checking script **SHOULD** be used for automated validation against your structure.
 
-## 7. REFERENCES
+## 7. REFERENCES (Related to this Standard)
 
-*   [RuleEditorAgent](./rule-editor-agent.md) (Uses this template)
+*   @`agents/rule-editor-agent.md` (Uses this template)
 *   All other Agent/Procedure specifications (MUST conform to this template)
 
 ## References
