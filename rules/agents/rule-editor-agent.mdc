@@ -97,8 +97,8 @@ The Rule Editor Agent handles the **creation and modification** of rule specific
 
 ## 9. EXAMPLES
 
-*   **Create Task Example:** (See `agent-generator-agent.md` examples)
-*   **Modify Task Example:** (See `rule-writer-agent.md` examples)
+*   **Create Task Example:** (See former `agent-generator-agent.md` examples for structure)
+*   **Modify Task Example:** (See former `rule-writer-agent.md` examples for structure)
 
 ## 10. REFERENCES
 
