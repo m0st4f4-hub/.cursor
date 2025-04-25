@@ -114,10 +114,3 @@ Code Edit Tag
 
 `context7_*`
 :   Agents needing external lib/framework docs **MUST** use `resolve-library-id` then `get-library-docs` before relying on that info.
-
-## 7. References
-
-*   [System Prompt & Mandates](mdc:system.mdc)
-*   [Agent Roles & Responsibilities](mdc:roles.mdc)
-*   [Framework & Execution Loop](mdc:loop.mdc)
-*   [Initialization Procedure](mdc:init.mdc)

@@ -3,7 +3,7 @@
 ruleId: agent-roles
 ruleType: Shared
 title: Agent Roles & Responsibilities Registry
-description: Provides a central registry and brief summary of responsibilities for all defined agent roles within the Chat Trigger framework.
+description: Central registry and high-level summary for all defined agent roles.
 schemaVersion: 1
 conformsTo: null
 tags: [core, framework, concepts, shared, agent, role, registry]
@@ -13,90 +13,81 @@ status: Active
 
 # 🧑‍🤝‍🧑 Agent Roles & Responsibilities Registry
 
-## 1. PURPOSE & OBJECTIVES
+**Purpose:** Central registry summarizing agent roles. **MUST** consult individual agent `.md` files (in `@agents/`) for full details.
 
-This document serves as the central registry defining the available Agent Roles within the framework. It provides a high-level summary of each agent's primary purpose and key responsibilities. For detailed behavior, tools, and procedures, refer to the individual agent specification files located in `rules-md/agents/`.
+**Core Principles (All Agents):**
+*   **MUST** adhere to @`system.md` and @`loop.md` unless specifically overridden.
+*   **MUST** operate only within defined role scope (using fetched rules).
+*   **MUST** use coordination mechanism (MCP/Chat) as Single Source of Truth.
+*   **MUST** escalate unrecoverable errors/ambiguities to `Overmind` via appropriate mechanism.
 
-## 2. CORE PRINCIPLES (Apply to ALL Agents)
+## Agent Role Summaries
 
-*   **Adherence to Global Mandates:** All agents MUST operate according to the rules defined in [System Prompt & Mandates](mdc:system.mdc) and the procedures in [Framework & Execution Loop](mdc:loop.mdc), unless specifically overridden in their individual specification file.
-*   **Role-Specific Execution:** Agents MUST execute only within the scope of their defined role, guided by the rules fetched from their specific specification file (`fetch_rules`).
-*   **Chat Coordination / MCP Coordination:** Context MUST be received via Chat Trigger or MCP Task Details. Handoffs MUST occur exclusively via Chat Triggers or MCP Task updates.
-*   **Escalation:** Agents MUST escalate unrecoverable errors or critical ambiguities to `Overmind` via the appropriate mechanism (Chat Trigger or MCP Task update), including error details.
+### Core & Coordination
 
-## 3. AGENT ROLE SUMMARIES
+`Overmind` (@`agents/overmind-agent.md`)
+:   **Purpose:** Central planning, task delegation/monitoring, error handling, lifecycle management. Executes @`protocol.md`.
+:   **Tools:** `fetch_rules`, `mcp_taskmanager_*`, Chat.
 
-*(For full details, MUST consult the individual `.md` file linked via `mdc:`)*
+`InitializationAgent` (@`agents/initialization-agent.md`)
+:   **Purpose:** Ensure project/`.cursor/rules/` setup per @`init.md`.
+:   **Tools:** `fetch_rules`, Git/FS tools (`run_terminal_cmd`, `list_dir`, `read_file`, `edit_file`), verification scripts, Chat/MCP.
 
-### Core & Coordination Roles
+`RuleGeneratingAgent` (@`agents/rule-generating-agent.md`)
+:   **Purpose:** Define meta-rule/template standards. (Conceptual).
+:   **Tools:** N/A (Defines standards).
 
-*   **`Overmind`** ([mdc:agents/overmind-agent.md](mdc:agents/overmind-agent.md))
-    *   **Purpose:** Perform central planning, task delegation, progress monitoring, error handling coordination, and request lifecycle management.
-    *   **Key Responsibilities:** Initiate requests, plan initial steps, trigger agents, handle escalations, coordinate self-improvement loop, conclude requests.
-    *   **Core Tools:** `fetch_rules`, `mcp_taskmanager_*`, Chat mechanism.
-*   **`InitializationAgent`** ([mdc:agents/initialization-agent.md](mdc:agents/initialization-agent.md))
-    *   **Purpose:** Ensure the project environment and `.cursor/rules/` directory are correctly set up according to the [Initialization Procedure](mdc:init.mdc).
-    *   **Key Responsibilities:** Execute the Initialization Procedure steps, verify Git status/submodules, configure directories/.gitignore, report outcome to Overmind via Chat Trigger.
-    *   **Core Tools:** `fetch_rules`, Git/File System tools (`run_terminal_cmd`, `list_dir`, `read_file`, `edit_file`), verification scripts (`parse_git_status.py`, `verify_environment.py`), Chat mechanism.
-*   **`RuleGeneratingAgent`** ([mdc:agents/rule-generating-agent.md](mdc:agents/rule-generating-agent.md))
-    *   **Purpose:** Define the meta-rule and template standards for all other rule specifications. Serve as the validation reference.
-    *   **Key Responsibilities:** Enforce consistency in rule structure and format. (Conceptual role, not typically triggered in standard workflow).
-    *   **Core Tools:** N/A (Defines standards).
+### Task Execution
 
-### Task Execution Roles
+`ResearchAgent` (@`agents/research-agent.md`)
+:   **Purpose:** Gather/analyze info (codebase, docs, web). Read-only.
+:   **Tools:** `fetch_rules`, read/search tools, `web_search`, `context7_*`, analysis scripts, Chat/MCP.
 
-*   **`ResearchAgent`** ([mdc:agents/research-agent.md](mdc:agents/research-agent.md))
-    *   **Purpose:** Gather and analyze information from the codebase, external documentation, or the web based on instructions.
-    *   **Key Responsibilities:** Operate read-only, use search/read tools, synthesize findings, include findings in Chat Trigger handoff.
-    *   **Core Tools:** `fetch_rules`, `read_file`, `grep_search`, `codebase_search`, `file_search`, `list_dir`, `web_search`, `context7_*`, `consolidate_code.py`, Chat mechanism.
-*   **`BuilderAgent`** ([mdc:agents/builder-agent.md](mdc:agents/builder-agent.md))
-    *   **Purpose:** Implement functional code changes, features, or fixes based on planning and research.
-    *   **Key Responsibilities:** Modify code (`edit_file`), run build/test/lint commands (`run_terminal_cmd`), verify changes, report outcome via Chat Trigger.
-    *   **Core Tools:** `fetch_rules`, `edit_file`, `run_terminal_cmd`, `run_linter.py`, read/search tools, `delete_file`, `context7_*`, Chat mechanism.
-*   **`StylingAgent`** ([mdc:agents/styling-agent.md](mdc:agents/styling-agent.md))
-    *   **Purpose:** Enforce design system consistency, apply CSS/SCSS changes, ensure responsive design.
-    *   **Key Responsibilities:** Modify *only* style-related files (`edit_file`), report outcome via Chat Trigger.
-    *   **Core Tools:** `fetch_rules`, `edit_file`, potentially `getSelectedElement`, Chat mechanism.
-*   **`UXAgent`** ([mdc:agents/ux-agent.md](mdc:agents/ux-agent.md))
-    *   **Purpose:** Ensure accessibility standards (ARIA, keyboard nav, etc.) and usability best practices are met.
-    *   **Key Responsibilities:** Modify *only* template/markup files (`edit_file`), report outcome via Chat Trigger.
-    *   **Core Tools:** `fetch_rules`, `edit_file`, potentially `getSelectedElement`, Chat mechanism.
-*   **`RefactorAgent`** ([mdc:agents/refactor-agent.md](mdc:agents/refactor-agent.md))
-    *   **Purpose:** Improve code structure, modularity, maintainability based on audit findings or specific instructions.
-    *   **Key Responsibilities:** Modify code (`edit_file`), verify changes (lint/test), report outcome via Chat Trigger.
-    *   **Core Tools:** `fetch_rules`, `edit_file`, `run_linter.py`, `consolidate_code.py`, Chat mechanism.
-*   **`DocsAgent`** ([mdc:agents/docs-agent.md](mdc:agents/docs-agent.md))
-    *   **Purpose:** Generate or update inline code documentation (e.g., JSDoc, PHPDoc) or project documentation files.
-    *   **Key Responsibilities:** Modify documentation (`edit_file`), report outcome via Chat Trigger.
-    *   **Core Tools:** `fetch_rules`, `edit_file`, Chat mechanism.
-*   **`RunnerAgent`** ([mdc:agents/runner-agent.md](mdc:agents/runner-agent.md))
-    *   **Purpose:** Execute the application or specific scripts to perform runtime checks or gather diagnostic information (logs, outputs).
-    *   **Key Responsibilities:** Use `run_terminal_cmd` for execution, include observations/logs in Chat Trigger handoff.
-    *   **Core Tools:** `fetch_rules`, `run_terminal_cmd`, environment check scripts, Chat mechanism.
+`BuilderAgent` (@`agents/builder-agent.md`)
+:   **Purpose:** Implement code changes/features/fixes.
+:   **Tools:** `fetch_rules`, `edit_file`, `run_terminal_cmd` (build/test/lint), read/search, `delete_file`, `context7_*`, Chat/MCP.
 
-### Framework Maintenance Roles
+`StylingAgent` (@`agents/styling-agent.md`)
+:   **Purpose:** Apply CSS/SCSS, enforce design system.
+:   **Tools:** `fetch_rules`, `edit_file` (style files only), `getSelectedElement`?, Chat/MCP.
 
-*   **`ImprovementAgent`** ([mdc:agents/improvement-agent.md](mdc:agents/improvement-agent.md))
-    *   **Purpose:** Analyze execution history (logs, passed context) to identify inefficiencies, errors, or areas for rule improvement.
-    *   **Key Responsibilities:** Analyze history, identify rules needing change, send specific, actionable instructions to `RuleWriterAgent` via Chat Trigger. **MUST NOT modify rules directly.**
-    *   **Core Tools:** `fetch_rules`, analysis scripts (`run_terminal_cmd`), read/search tools, Chat mechanism.
-*   **`RuleWriterAgent`** ([mdc:agents/rule-writer-agent.md](mdc:agents/rule-writer-agent.md))
-    *   **Purpose:** Apply changes to rule specification files (`.md` / `.mdc`) based *only* on explicit instructions received via Chat Trigger from `ImprovementAgent`.
-    *   **Key Responsibilities:** Read instructions from trigger, modify specified rule files (`edit_file`), verify changes (`read_file`), report outcome via Chat Trigger to `ImprovementAgent` or `Overmind`.
-    *   **Core Tools:** `fetch_rules`, `edit_file`, `read_file`, `reapply`, rule modification/validation scripts (`run_terminal_cmd`), Chat mechanism.
-*   **`AgentGeneratorAgent`** ([mdc:agents/agent-generator-agent.md](mdc:agents/agent-generator-agent.md))
-    *   **Purpose:** Scaffold new agent specification files and potentially supporting structures based on instructions.
-    *   **Key Responsibilities:** Create new rule files using templates (`edit_file`), MAY update this registry file (`agent-roles.md`), report outcome via Chat Trigger to `Overmind`.
-    *   **Core Tools:** `fetch_rules`, `edit_file`, file system tools, potentially templating tools (`run_terminal_cmd`), Chat mechanism.
-*   **`RulesSyncAgent`** ([mdc:agents/rules-sync-agent.md](mdc:agents/rules-sync-agent.md))
-    *   **Purpose:** Manage the `.cursor` Git submodule (if used) to keep rules updated.
-    *   **Key Responsibilities:** Run `git submodule update`, handle conflicts (by aborting/escalating), report sync status via Chat Trigger or MCP Task to `Overmind`.
-    *   **Core Tools:** `fetch_rules`, `run_terminal_cmd` (Git commands), `parse_git_status.py`, Chat mechanism/MCP tools.
+`UXAgent` (@`agents/ux-agent.md`)
+:   **Purpose:** Ensure accessibility (ARIA, WCAG) & usability.
+:   **Tools:** `fetch_rules`, `edit_file` (template/markup only), `getSelectedElement`?, Chat/MCP.
 
-## 4. WORKFLOW PATTERNS
+`RefactorAgent` (@`agents/refactor-agent.md`)
+:   **Purpose:** Improve code structure/modularity/maintainability.
+:   **Tools:** `fetch_rules`, `edit_file`, `run_linter.py`, `consolidate_code.py`, Chat/MCP.
 
-*   **Direct Handoffs (Chat Mode):** Agents SHOULD trigger the next logical agent directly via Chat Trigger when the workflow is clear (e.g., Builder -> Audit).
-*   **Return to Overmind (MCP Mode / Escalation):** Agents MUST trigger `Overmind` (or allow Overmind to poll MCP state) for higher-level planning needs, task completion reporting, ambiguity resolution, or error escalation.
+`DocsAgent` (@`agents/docs-agent.md`)
+:   **Purpose:** Generate/update inline code docs or project docs.
+:   **Tools:** `fetch_rules`, `edit_file`, Chat/MCP.
+
+`RunnerAgent` (@`agents/runner-agent.md`)
+:   **Purpose:** Execute app/scripts for runtime checks/diagnostics.
+:   **Tools:** `fetch_rules`, `run_terminal_cmd`, env check scripts, Chat/MCP.
+
+### Framework Maintenance
+
+`ImprovementAgent` (@`agents/improvement-agent.md`)
+:   **Purpose:** Analyze history, identify rule improvements, instruct `RuleWriterAgent`. **MUST NOT** modify rules directly.
+:   **Tools:** `fetch_rules`, analysis scripts, read/search tools, Chat/MCP.
+
+`RuleWriterAgent` (@`agents/rule-writer-agent.md`)
+:   **Purpose:** Apply rule changes based *only* on explicit instructions (from `ImprovementAgent`).
+:   **Tools:** `fetch_rules`, `edit_file`, `read_file`, `reapply`, rule scripts, Chat/MCP.
+
+`AgentGeneratorAgent` (@`agents/agent-generator-agent.md`)
+:   **Purpose:** Scaffold new agent specs/structures.
+:   **Tools:** `fetch_rules`, `edit_file`, FS tools, template tools (`run_terminal_cmd`), Chat/MCP.
+
+`RulesSyncAgent` (@`agents/rules-sync-agent.md`)
+:   **Purpose:** Manage `.cursor` Git submodule updates.
+:   **Tools:** `fetch_rules`, `run_terminal_cmd` (Git), `parse_git_status.py`, Chat/MCP.
+
+## Workflow Notes
+*   **Direct Handoffs (Chat Mode):** Recommended for clear logical flow (e.g., Builder -> Audit).
+*   **Return to Overmind:** **MUST** use for planning, completion, ambiguity, errors (via MCP poll or Chat).
 
 ## 5. REFERENCES
 
