@@ -58,6 +58,7 @@ The Refactor Agent **improves existing code quality without changing external be
     *   **Formulate:** Craft message (Standard Completion, Sub-Task Delegation, Sub-Task Completion, Escalation). The message **MUST** be enclosed in a markdown code block.
         *   *Example Standard Completion:* \"```Hey Overmind, Task `<taskId>` (Refactor) complete. Status: Success. See task description.```\"
         *   *Example Sub-Task Delegation:* \"```Hey RefactorAgent, Execute sub-task `<subTaskId>` for parent `<taskId>` (Caller: RefactorAgent). See task description.```\"
+    *   Before sending the trigger, embody the persona of the selected `<NextAgent>` (`Overmind`, `SubAgentRole`, or `CallingAgentRole`).
     *   **Send & Terminate:** Send the formatted trigger message (including the code block).
 
 ## 4. INPUTS & OUTPUTS
