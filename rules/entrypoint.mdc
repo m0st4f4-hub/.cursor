@@ -2,8 +2,8 @@
 # Rule Definition Metadata (V1)
 ruleId: framework-entrypoint
 ruleType: Framework
-title: Framework Entrypoint & Core Document Index
-description: Provides a central index and high-level overview linking to all essential framework rule documents.
+title: Framework Entrypoint & Core Rule Index
+description: Central index linking to essential framework rule documents.
 schemaVersion: 1
 conformsTo: null
 tags: [core, framework, index, overview, entry-point]
@@ -11,48 +11,33 @@ lastUpdated: null
 status: Active
 ---
 
-# 🧭 Framework Entrypoint & Core Document Index
+# 🧭 Framework Entrypoint & Core Rule Index
 
-## 1. PURPOSE
+**Purpose:** Central reference point linking essential rule documents.
 
-This document serves as a central reference point, providing links to the essential rule files that define the structure, operation, and core principles of the autonomous agent framework.
+## 1. CORE FRAMEWORK RULES
 
-## 2. FRAMEWORK OVERVIEW
+*   **System Overview & Global Rules:** @`system.md`
+    *   *Defines overall goals, operational model, non-negotiable rules.*
+*   **Framework Engine & Agent Turn Process:** @`loop.md`
+    *   *Defines external engine and mandatory agent turn steps.*
+*   **Core Concepts & Terms:** @`concepts.md`
+    *   *Glossary of key terms, entities, mechanisms.*
+*   **Ultra-Deep Thinking Protocol:** @`protocol.md` (Executed by Overmind)
+    *   *Methodology for rigorous planning, verification, analysis.*
+*   **Initialization Procedure:** @`init.md` (Executed by InitializationAgent)
+    *   *Mandatory setup procedure for `.cursor/rules/`.*
 
-The framework operates based on specialized agents coordinated primarily via the MCP Task Manager (with Chat Triggers as a secondary mechanism). Agents execute tasks sequentially according to the mandatory [Framework & Execution Loop](mdc:loop.mdc), adhering strictly to their defined roles ([Agent Roles & Responsibilities](mdc:roles.mdc)) and the non-negotiable [System Prompt & Mandates](mdc:system.mdc).
-
-The core philosophy emphasizes rigor, verification, critical scrutiny, assumption awareness, and detailed reporting, derived from the [Ultra-Deep Thinking Protocol](mdc:protocol.mdc) which is fully executed by `Overmind`.
-
-## 3. CORE FRAMEWORK RULE DOCUMENTS
-
-*   **System Overview & Global Rules:**
-    *   [System Prompt & Mandates](mdc:system.mdc)
-      *   *Defines overall goals, operational model, and non-negotiable rules for all agents.* 
-*   **Framework Engine & Agent Turn Process:**
-    *   [Framework & Execution Loop](mdc:loop.mdc)
-      *   *Defines the external execution engine and the mandatory steps each agent follows per turn.*
-*   **Core Concepts & Terms:**
-    *   [Core Concepts & Definitions](mdc:concepts.mdc)
-      *   *Provides a glossary of key terms, entities, and mechanisms.*
-
-## 4. KEY SUPPORTING DOCUMENTS & PROCEDURES
+## 2. AGENT & TOOL RULES
 
 *   **Agent Role Definitions:**
-    *   [Agent Roles & Responsibilities](mdc:roles.mdc)
-      *   *Central registry summarizing all defined agent roles.*
-    *   Individual Agent Specifications (Located in `rules-md/agents/*.md`)
-      *   *Detailed specifications for each agent role (e.g., BuilderAgent, ResearchAgent).* **This is the primary source for agent rules.**
+    *   **Registry:** @`roles.md`
+    *   **Specifications:** Located in `@agents/` directory. *Primary source for agent rules.*
 *   **Tool Definitions:**
-    *   Individual Tool Specifications (Located in `rules-md/tools/*.md`)
-      *   *Specifications for custom tools or scripts used by agents (if defined).* **This is the primary source for tool rules.**
-*   **Core Protocols & Procedures:**
-    *   [Ultra-Deep Thinking Protocol](mdc:protocol.mdc) (Executed by Overmind)
-      *   *Detailed methodology for rigorous planning, verification, and analysis.*
-    *   [Initialization Procedure](mdc:init.mdc) (Executed by InitializationAgent)
-      *   *Mandatory procedure for setting up the `.cursor/rules/` directory.*
+    *   **Specifications:** Located in `@tools/` directory. *Primary source for tool rules.*
 
-## 5. USAGE NOTES
+## 3. USAGE NOTES
 
-*   Agents fetch their *own* role specification (`fetch_rules <agent_role>.md`).
-*   Adherence to [System Prompt & Mandates](mdc:system.mdc) and the [Framework & Execution Loop](mdc:loop.mdc) is mandatory and implicit in the framework's operation.
-*   This document serves primarily as a human-readable index and high-level map of the core rules. 
+*   Agents **MUST** fetch their own role specification (`fetch_rules <agent_role>.md`).
+*   Adherence to @`system.md` and @`loop.md` is mandatory.
+*   This document is the primary human-readable index. 
