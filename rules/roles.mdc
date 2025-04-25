@@ -70,10 +70,10 @@ status: Active
 ### Framework Maintenance
 
 `ImprovementAgent` (@`agents/improvement-agent.md`)
-:   **Purpose:** Analyze history, identify rule improvements, instruct `RuleWriterAgent`. **MUST NOT** modify rules directly.
+:   **Purpose:** Analyze history, identify rule improvements, instruct `RuleEditorAgent`. **MUST NOT** modify rules directly.
 :   **Tools:** `fetch_rules`, analysis scripts, read/search tools, Chat/MCP.
 
-`RuleWriterAgent` (@`agents/rule-writer-agent.md`)
+`RuleEditorAgent` (@`agents/rule-editor-agent.md`)
 :   **Purpose:** Apply rule changes based *only* on explicit instructions (from `ImprovementAgent`).
 :   **Tools:** `fetch_rules`, `edit_file`, `read_file`, `reapply`, rule scripts, Chat/MCP.
 
