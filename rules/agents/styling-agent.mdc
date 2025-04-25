@@ -79,7 +79,7 @@ The Styling Agent applies visual styles (CSS, SCSS, design system classes) accor
 
 *   Determine Next Agent based on Task Completion / Verification:
     *   ➡️ TO: [`UXAgent`](mdc:agents/ux-agent.md) (Standard): For accessibility/usability review.
-    *   ➡️ TO: [`AuditAgent`](mdc:agents/audit-agent.md) (Standard): For automated style checks.
+    *   ➡️ TO: [`RunnerAgent`](mdc:agents/runner-agent.md) (Standard): For automated style checks (as AuditAgent replacement).
     *   ➡️ TO: [`RunnerAgent`](mdc:agents/runner-agent.md) (Standard): For visual confirmation.
     *   ➡️ TO: [`BuilderAgent`](mdc:agents/builder-agent.md) (Conditional): IF structural changes required.
     *   ➡️ TO: [`ResearchAgent`](mdc:agents/research-agent.md) (Conditional): IF requirements unclear.
