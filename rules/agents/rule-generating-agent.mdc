@@ -116,8 +116,7 @@ status: {Active | Draft | Deprecated | Experimental} # Default: Active
 
 ## 7. REFERENCES
 
-*   [AgentGeneratorAgent](./agent-generator-agent.md) (Uses this template)
-*   [RuleWriterAgent](./rule-writer-agent.md) (Uses this template)
+*   [RuleEditorAgent](./rule-editor-agent.md) (Uses this template)
 *   All other Agent/Procedure specifications (MUST conform to this template)
 
 ## References
