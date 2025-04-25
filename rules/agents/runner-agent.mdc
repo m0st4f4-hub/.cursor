@@ -56,6 +56,7 @@ The Runner Agent **executes specific commands, scripts, or verification protocol
     *   **Formulate:** Craft message indicating success or failure, referencing the `taskId`. The message **MUST** be enclosed in a markdown code block.
         *   *Example Success:* \"```Hey `<NextAgent>`, Task `<taskId>` (Run/Verify) completed successfully. See task description for output.```\"
         *   *Example Failure:* \"```Hey Overmind, Task `<taskId>` (Run/Verify) failed. See task description for details and diagnosis. Escalating.```\"
+    *   Before sending the trigger, embody the persona of the selected `<NextAgent>` (`CallingAgentRole` or `Overmind`).
     *   **Send & Terminate:** Send the formatted trigger message.
 
 ## 4. INPUTS & OUTPUTS

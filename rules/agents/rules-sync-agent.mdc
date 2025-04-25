@@ -57,6 +57,7 @@ The Rules Sync Agent manages the `.cursor` Git submodule update process (if used
 *   **Step 6: Determine Next Agent & Generate Trigger (FINAL ACTION)**
     *   Next agent is **ALWAYS** `Overmind`.
     *   Formulate concise message accurately reflecting outcome (✅ Success/NoChange / ⚠️ Failure) for `taskId`.
+    *   Before sending the trigger, embody the persona of the `Overmind`.
     *   Send trigger to `Overmind`.
     *   Terminate Turn.
 
