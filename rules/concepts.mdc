@@ -1,112 +1,121 @@
 ---
-description:
-globs:
-alwaysApply: false
+# Rule Definition Metadata (V1)
+ruleId: core-concepts
+ruleType: Framework
+title: Core Framework Concepts & Glossary
+description: Defines non-negotiable core concepts, terminology, entities, and mandatory mechanisms. Foundational reference and glossary.
+schemaVersion: 1
+conformsTo: null
+tags: [core, framework, concepts, glossary, definitions]
+lastUpdated: null
+status: Active
 ---
-# 📖 Core Framework Concepts, Definitions & Glossary
 
-## 1. PURPOSE & OBJECTIVES
+# 📖 Core Concepts & Glossary
 
-This document defines the non-negotiable core concepts, terminology, entities, and mandatory mechanisms underpinning the autonomous agent framework coordinated via Chat Triggers or MCP Task Manager. It serves as a foundational reference and consolidated glossary for all agents and rule definitions.
+**Purpose:** Foundational reference defining core concepts, terminology, and mandatory mechanisms.
 
-## 2. KEY CONCEPTS & DEFINITIONS
+## 1. Core Entities & Identifiers
 
-*   **`requestId`:**
-    *   MUST be a unique identifier for a specific task sequence or workflow instance.
-    *   FORMAT: String.
-    *   USAGE: Used in MCP Taskmanager calls and Code Edit Tags.
-    *   ORIGIN: Typically initiated by Overmind or an external trigger.
-*   **Agent Roles:**
-    *   DEFINITION: Specialized functional units within the framework (e.g., BuilderAgent, AuditAgent). Each role has specific responsibilities, allowed tools, and behaviors defined in its own rule specification file.
-    *   REFERENCE: See [Agent Roles & Responsibilities](mdc:roles.mdc) for the registry.
-*   **Chat Trigger:**
-    *   (Legacy/Alternative Coordination) MUST be the control signal via platform chat message when MCP Task Manager is not the primary coordinator. Sole trigger for Agent activation and handoff in chat-driven mode. Agent MUST generate trigger message as final action. See [Framework & Execution Loop](mdc:loop.mdc).
-*   **Framework:**
-    *   DEFINITION: The underlying execution engine that manages the agent lifecycle based on rules and coordination mechanism (Chat or MCP).
-    *   RESPONSIBILITIES: Parsing triggers/MCP state, activating agents, providing tools, facilitating execution.
-    *   REFERENCE: See [Framework & Execution Loop](mdc:loop.mdc).
-*   **Rules (`.cursor/rules/`, `rules-md/`):**
-    *   MUST be the `.md` / `.mdc` files defining behavior, standards, workflow. Processed by the Framework and Agents. See [System Prompt & Mandates](mdc:system.mdc).
-*   **Tools:**
-    *   MUST be the capabilities provided by the Framework for environment interaction (MCP, file system, terminal, custom APIs). Availability defined per-agent role.
-*   **Autonomous Execution:**
-    *   MUST ensure agents operate independently, activated by the framework based on triggers or MCP state, driven by rules and context. User interaction MUST occur ONLY for requested diagnostics ([Framework & Execution Loop](mdc:loop.mdc) Part 2, Step 4).
-*   **Coordination Mechanisms:**
-    *   **Chat-Driven Coordination:** Control passed via Chat Trigger messages. Context included in trigger payload.
-    *   **MCP Task Manager Coordination:** Control flow managed by `Overmind` polling MCP Task Manager (`get_next_task`). Context and state persisted in MCP task descriptions. This is the PREFERRED model.
-*   **Specialized Agents:**
-    *   The design pattern of breaking down complex tasks into functions performed by distinct Agent Roles, each with a specific purpose and ruleset.
-*   **Sequential Activation:**
-    *   MUST be the execution flow where only one agent is active at a time for a given `requestId`. Parallel execution within a single request chain MUST NOT occur.
-*   **Direct Peer Handoffs (Chat-Driven Mode):**
-    *   The RECOMMENDED practice for an agent to trigger another specialized agent directly via Chat Trigger when the workflow logically follows, minimizing unnecessary steps through `Overmind`. Return to `Overmind` for planning, escalation, or completion reporting. (Less relevant in pure MCP model).
-*   **Self-Improvement Loop:**
-    *   MUST be the secondary goal of the framework where agents (`ImprovementAgent`, `RuleWriterAgent`) collaborate via MCP tasks or Chat Triggers to analyze past performance and automatically refine or generate rules. See [System Prompt & Mandates](mdc:system.mdc).
-*   **Global Rules (`.cursor/rules/global/`):**
-    *   Foundational rules providing core behaviors and capabilities, typically shared across projects. See [System Prompt & Mandates](mdc:system.mdc).
-*   **Project Rules (`.cursor/rules/project/`):**
-    *   Project-specific rules that MUST override conflicting Global Rules, enabling customization. See [System Prompt & Mandates](mdc:system.mdc).
+`requestId`
+:   **Definition:** Unique identifier for a task sequence/workflow.
+:   **Format:** String.
+:   **Usage:** MCP calls, Code Edit Tags.
+:   **Origin:** Overmind / External Trigger.
 
-## 3. MANDATORY MECHANISMS & TOOLING
+Agent Role
+:   **Definition:** Specialized functional unit (e.g., `BuilderAgent`). Defined in own `.md` file.
+:   **Reference:** @`roles.md` (Registry).
 
-*   **Global Mandates:**
-    *   All agents MUST adhere to the rules defined in [System Prompt & Mandates](mdc:system.mdc) unless explicitly overridden by their specific role specification or project-level rules.
-*   **Mandatory Toolchain:**
-    *   A baseline set of tools available to most agents. Individual agent roles may have access to additional specialized tools.
-    *   Key tools include:
-        *   `fetch_rules`: MUST be used by agents to load their role specification.
-        *   `edit_file`: For modifying code.
-        *   `run_terminal_cmd`: For executing shell commands, build steps, tests, and custom tool scripts.
-        *   Context gathering tools (`web_search`, `mcp_context7_*`, `codebase_search`, `grep_search`, `file_search`, `list_dir`).
-        *   `mcp_taskmanager_*`: Core tools for MCP Coordination model. Primarily used by `Overmind`, but also by agents for fetching context (`open_task_details`) and reporting results (`update_task`, `mark_task_done`).
-        *   `delete_file`: Use with extreme caution.
-        *   `reapply`: To retry failed edits.
-*   **Common Custom Tools (`tools/`):**
-    *   Helper scripts executed via `run_terminal_cmd`. Examples:
-        *   `parse_git_status.py`: Structured Git info.
-        *   `verify_environment.py`, `check_dependencies.py`, `check_versions.py`: Environment checks.
-        *   `run_linter.py`: Linting.
-        *   `consolidate_code.py`: Code aggregation.
-*   **Code Edit Tag:**
-    *   MUST be a comment block at the start of the `code_edit` parameter for the `edit_file` tool when modifying CODE files.
-    *   Use language-appropriate comment syntax.
-    *   FORMAT:
-```
-COMMENT_START Task ID: <taskId> // Optional MCP Task ID
-COMMENT_START Agent Role: <agent_role>
-COMMENT_START Request ID: <requestId>
-        COMMENT_START Project: <projectName> // Project name context if available
-COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
-        COMMENT_END (if applicable)
-        ```
+Framework
+:   **Definition:** External execution engine managing agent lifecycle based on rules & coordination. **Not an agent.**
+:   **Responsibilities:** Activation, Tool Provision, Rule Management, Lifecycle.
+:   **Reference:** @`loop.md`.
 
-## 4. KEY BEHAVIORAL RULES SUMMARY
+Rules
+:   **Definition:** `.md`/`.mdc` files defining behavior, standards, workflow. Processed by Framework/Agents.
+:   **Location:** `.cursor/rules/` (runtime), `rules-md/` (source).
+:   **Reference:** @`system.md`.
 
-*(Refer to [System Prompt & Mandates](mdc:system.mdc) for the complete list and detailed descriptions)*
+Tools
+:   **Definition:** Capabilities for environment interaction (MCP, FS, terminal, API). Availability per-role.
 
-1.  MUST Activate via Framework (Trigger/MCP State).
-2.  MUST Get Context (Trigger Payload/MCP Task Details).
-3.  MUST Fetch Own Role Rules.
-4.  MUST Execute based on Role/Rules/Context, applying rigor/verification.
-5.  (Chat Mode) MUST Determine Next Agent & Construct Handoff Message.
-6.  (Chat Mode) MUST Trigger Next Agent via Chat (Final Action).
-7.  (MCP Mode) MUST Update Task State (Description, Status) via MCP Tools (Final Action).
-8.  MUST NOT Wait (except Diagnostics).
-9.  MUST Escalate Errors via appropriate mechanism (Chat Trigger / MCP Update) to `Overmind`.
+## 2. Operational Concepts
 
-## 5. KEY RULE DIRECTORIES (RUNTIME STRUCTURE)
+Autonomous Execution
+:   Agents operate independently, activated by Framework (Trigger/MCP state), driven by rules/context. **MUST** ignore user input (except diagnostics).
 
-*   **`.cursor/rules/`**: The root directory containing the active ruleset used by the AI agent framework during execution within the current project. This directory's structure and content MUST be managed by the [Initialization Procedure](mdc:init.mdc) and potentially `RulesSyncAgent`.
-*   **`global/` (within `.cursor/rules/`)**: Contains the base ruleset providing foundational agent behaviors and capabilities. These rules are typically synchronized from a shared, external source (e.g., via Git submodule) and apply generally across projects unless overridden.
-*   **`project/` (within `.cursor/rules/`)**: Contains rules specific to the *current* project. These rules are created and maintained within this project (potentially by agents like `AgentGeneratorAgent` or `RuleWriterAgent`) and **MUST** override any conflicting rules found in the `global/` directory.
+Coordination Mechanisms
+:   **MCP Task Manager (Preferred):** Control via `Overmind` polling `get_next_task`. Context/state in MCP tasks.
+:   **Chat-Driven (Legacy/Fallback):** Control via Chat Triggers. Context in payload.
 
-## 6. CORE TOOL INTEGRATION RULES
+Sequential Activation
+:   **MUST:** Only one agent active per `requestId` at a time. No parallel execution within a request.
 
-*   **`fetch_rules`:** Agents MUST use `fetch_rules` to retrieve the full content of referenced rules (`mdc:...`) when the definition is required for detailed understanding or execution beyond the summary provided in registry files like `agent-roles.md`.
-*   **`mcp_taskmanager_*`:** Core tools for state management in the MCP Coordination model. MUST be used according to the [Core Execution Loop](mdc:loop.mdc) and [System Prompt & Mandates](mdc:system.mdc).
-*   **`context7_*`:** Agents involved in implementation or detailed analysis requiring external library/framework knowledge (e.g., `BuilderAgent`, `ResearchAgent`) MUST use `mcp_context7_resolve-library-id` followed by `mcp_context7_get-library-docs` *before* attempting implementation or analysis relying on that external documentation.
+Self-Improvement Loop
+:   **MUST:** Secondary goal. `ImprovementAgent`/`RuleWriterAgent` refine rules via MCP/Chat. See @`system.md`.
 
-## 7. REFERENCES
+Rules Hierarchy
+:   **MUST:** 1. `project/` (Overrides Global). 2. `global/`. 3. Agent-specific. See @`system.md`.
+
+## 3. Mandatory Mechanisms & Tooling
+
+Global Mandates
+:   **MUST:** Adhere to @`system.md` unless overridden by role/project rules.
+
+Key Tools (Baseline)
+:   `fetch_rules`: **MUST** use to load own role spec.
+:   `edit_file`: Code modification.
+:   `run_terminal_cmd`: Shell commands, scripts, builds, tests.
+:   Context Tools: `web_search`, `mcp_context7_*`, `codebase_search`, etc.
+:   MCP Tools (`mcp_taskmanager_*`): Core for MCP Coordination.
+:   `delete_file`: Use with extreme caution.
+:   `reapply`: Retry failed edits.
+
+Common Custom Tools (`tools/`)
+:   Helper scripts run via `run_terminal_cmd` (e.g., `parse_git_status.py`, `verify_environment.py`, `run_linter.py`).
+
+Code Edit Tag
+:   **MUST:** Use language-appropriate comment block at start of `code_edit` parameter for `edit_file` on CODE files.
+:   **Format:**
+    ```
+    COMMENT_START Task ID: <taskId> // Optional
+    COMMENT_START Agent Role: <agent_role>
+    COMMENT_START Request ID: <requestId>
+    COMMENT_START Project: <projectName> // Optional
+    COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
+    COMMENT_END // Optional
+    ```
+
+## 4. Core Agent Behavior Summary (Ref: @`loop.md`)
+
+1.  Activate (Framework).
+2.  Get Context (Trigger/MCP Task).
+3.  Fetch Own Rules.
+4.  Plan Turn (Internal).
+5.  Execute & Verify.
+6.  Update State / Handoff & Finalize (MCP/Chat).
+
+## 5. Key Rule Directories (Runtime: `.cursor/rules/`)
+
+`global/`
+:   Base ruleset, applies generally unless overridden. Synced externally (submodule).
+
+`project/`
+:   Current project-specific rules. **MUST** override conflicting `global/` rules.
+
+## 6. Core Tool Integration Rules
+
+`fetch_rules`
+:   **MUST** use to retrieve full rule content when needed beyond summaries.
+
+`mcp_taskmanager_*`
+:   **MUST** use per @`loop.md` and @`system.md` for MCP coordination.
+
+`context7_*`
+:   Agents needing external lib/framework docs **MUST** use `resolve-library-id` then `get-library-docs` before relying on that info.
+
+## 7. References
 
 *   [System Prompt & Mandates](mdc:system.mdc)
 *   [Agent Roles & Responsibilities](mdc:roles.mdc)
