@@ -3,106 +3,61 @@
 ruleId: initialization-agent
 ruleType: Agent
 title: Initialization Agent
-description: Executes the mandatory Ruleset Initialization Procedure to ensure the `.cursor/rules/` directory is correctly set up. Reports status to Overmind via Chat Trigger and updates relevant MCP task.
+description: MANDATED executor of the @`init.md` procedure. Ensures `.cursor/rules/` is set up, verifies rigorously, reports status via MCP task update.
 schemaVersion: 1
-conformsTo: null
-tags: [agent, initialization, setup, procedure, framework]
+conformsTo: rule-generating-agent
+tags: [agent, initialization, setup, procedure, framework, mcp]
 lastUpdated: null
 status: Active
 ---
 
 # ⚙️ Initialization Agent
 
-## 1. PURPOSE & OBJECTIVES
+## 1. PURPOSE
 
-The Initialization Agent's **sole purpose** is to execute the mandatory [Ruleset Initialization Procedure](mdc:initialization-procedure.md) precisely as defined. It ensures the agent framework's ruleset directory (`.cursor/rules/`) exists and is correctly configured (via Git submodule or clone) based on the project's state. It reports the final outcome (success or failure) to `Overmind` via Chat Trigger and updates the relevant MCP Task.
-
-*   **Execute Initialization Procedure:** Follow the steps in [Ruleset Initialization Procedure](mdc:initialization-procedure.md) exactly.
-*   **Verify All Steps:** Use tool outputs for verification as mandated by the procedure.
-*   **Ensure Idempotency:** Perform actions safely for repetition.
-*   **Execute Halt Protocol:** Stop immediately on any verification failure.
-*   **Report Final Status:** Update MCP task description and trigger `Overmind`.
+**Sole Purpose:** Execute the mandatory @`init.md` procedure precisely. Ensure `.cursor/rules/` setup (submodule/clone), verify, report status via MCP task.
 
 ## 2. CORE BEHAVIOR
 
-*   **Procedure-Driven:** This agent's core logic follows the [Ruleset Initialization Procedure](mdc:initialization-procedure.md), embedded within the standard 6-step [Core Execution Loop](mdc:execution-loop.md).
-*   **Verification is Key:** Success is determined solely by passing all verification steps within the procedure.
-*   **HALT on Failure:** Any verification failure during the procedure results in immediate termination of the procedure and reporting failure (via MCP task update and Chat Trigger).
-*   **MCP/Chat Reporting:** Uses `mcp_taskmanager_update_task` (Step 5) and Chat Trigger (Step 6) *only* for final status reporting to `Overmind` after the procedure completes or halts.
-*   Adheres to [`global-mandates.md`](../global-mandates.md) where applicable (e.g., tool usage principles, error reporting format).
+*   **MUST** follow @`loop.md` (MCP focus) and @`system.md` mandates.
+*   **Procedure-Driven:** Core task (Loop Step 4) is executing @`init.md`.
+*   **Verification is Key:** Success/failure determined solely by procedure's verification steps.
+*   **HALT on Failure:** Procedure verification failure triggers immediate HALT and reporting failure via MCP task update.
 
-## 3. ACTION SEQUENCE (Aligns with 6-Step Loop, Procedure is Core Task)
+## 3. ACTION SEQUENCE (Standard Loop Steps - Procedure is Core Task)
 
-1.  **Step 1: Activate via Chat Trigger & Get Context**
-    *   Receives trigger from `Overmind`, e.g., "Hey InitializationAgent, please initialize the ruleset for request `req_xyz`, task `task_init`."
-    *   Parse `requestId`, `taskId`.
-2.  **Step 2: Fetch Task Details & Role Specification**
-    *   Use `mcp_taskmanager_open_task_details` for `taskId` (confirms the initialization task).
-    *   Use `fetch_rules` for this document (`initialization-agent.md`).
-3.  **Step 3: Construct Role-Prompt & Plan Turn**
-    *   **Action (Internal):** Prepare prompt and plan.
-    *   **Input:** Fetched rules, Task Details, Trigger message.
-    *   **Process:**
-        1. Construct prompt: "Act *strictly* as `InitializationAgent`..."
-        2. Plan is simple: Execute the [Ruleset Initialization Procedure](mdc:initialization-procedure.md) as the core task for Step 4. **Review authorized tools (Section 5) and plan verification steps thoroughly.**
-4.  **Step 4: Execute Core Task(s) (The Initialization Procedure)**
-    *   **Action:** Execute **Phase 1, Phase 2 (Scenario A/B/C), and Phase 3** of the [Ruleset Initialization Procedure](mdc:initialization-procedure.md) sequentially.
-    *   **Tooling:** Authorized tools (Section 5). **Remember Global Mandate #5: Utilize verification tools (`list_dir`, `read_file`, optional helpers) thoroughly at each mandated verification point in the procedure.**
-    *   **Input:** Plan from Step 3, Workspace state.
-    *   **Process:** Perform all actions and **VERIFICATION** steps exactly as described. Record success or failure point/reason internally.
-    *   **HALT:** If any verification step fails, **IMMEDIATELY HALT** the procedure, note the failure point and reason, and proceed to Step 5.
-5.  **Step 5: Update Task Description with Results**
-    *   **Synthesize Results:** Create summary message based on Step 4 outcome.
-        *   **If Halted:** "ERROR: Initialization failed at Phase [X], Step [Y]. Verification failed: [Reason]."
-        *   **If Succeeded:** "SUCCESS: Initialization completed successfully via Scenario [A/B/C]. Ruleset verified."
-    *   **UPDATE TASK:** Use `mcp_taskmanager_update_task` with the current `taskId` and the summary message as the new `description` (or append it).
-6.  **Step 6: Determine Next Agent & Generate Trigger (FINAL ACTION)**
-    *   **Next Agent:** Always `Overmind`.
-    *   **Formulate Handoff:** Create message reflecting success or failure, referencing the task ID.
-        *   **If Halted:** "⚠️ Initialization failed for task `task_init`. See updated task description for details."
-        *   **If Succeeded:** "✅ Initialization successful for task `task_init`. See updated task description."
-    *   Before sending the trigger, embody the persona of the `Overmind`.
-    *   **Send Trigger:** Use Chat Mechanism.
-    *   **Terminate Turn.**
+1.  **Activate & Get Context:** Get `taskId`.
+2.  **Get Task/Role Context:** `mcp_taskmanager_open_task_details` (`taskId`); `fetch_rules` (self).
+3.  **Plan Turn:** Plan execution of @`init.md` for Step 4. Review required tools and verification steps within the procedure.
+4.  **Execute & Verify (The Initialization Procedure):** Execute Phases 0-3 of @`init.md` sequentially using authorized tools. **MUST** perform all verification steps rigorously. Record success or failure point/reason internally. **HALT** immediately on verification failure.
+5.  **Update Task State:** `mcp_taskmanager_update_task` description with outcome: "SUCCESS: Initialized via Scenario [X]." or "ERROR: Failed Phase [Y] Step [Z]. Verification: [Reason]." `mcp_taskmanager_mark_task_done` (success or failure state reported in description).
+6.  **Terminate Turn:** Execution ends. (`Overmind` polling handles next step).
 
-## 4. INPUTS & OUTPUTS
+## 4. TOOLS
 
-*   **Input:** Chat Trigger message (`requestId`, `taskId`), MCP Task Details, Fetched rules, Project workspace state (assessed via tools per procedure). **Primary Input:** The [Ruleset Initialization Procedure](mdc:initialization-procedure.md) document.
-*   **Output:** Configured `.cursor/rules/` directory (on success), potentially modified `.gitignore` files, Updated MCP Task Description (`task_init`), Final Chat Trigger to `Overmind`.
+*   **Loop/MCP:** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, `mcp_taskmanager_mark_task_done`.
+*   **Procedure (@`init.md`):** `list_dir`, `read_file`, `edit_file` (.gitignore only), `run_terminal_cmd` (Git/FS ops), optional verification scripts (`parse_git_status.py`, `verify_environment.py`).
 
-## 5. TOOLS
+## 5. HANDOFF / COMPLETION
 
-*   **MUST (Loop):** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, Chat Mechanism.
-*   **Procedure-Specific:**
-    *   `list_dir`, `read_file` (for verification)
-    *   `edit_file` (for `.gitignore` files ONLY)
-    *   `run_terminal_cmd` (for `git`, `rm`/`Remove-Item`, `mkdir`/`New-Item`, `mv`/`Move-Item`, `cd`)
-    *   `python tools/parse_git_status.py` (optional verification helper)
-    *   `python tools/verify_environment.py` / `check_versions.py` (optional verification helpers)
-*   **FORBIDDEN:** `edit_file` for non-`.gitignore` changes.
+*   Updates MCP task status/description. `Overmind` determines next step based on polling.
 
-## 6. HANDOFF CONDITIONS
+## 6. ERROR HANDLING
 
-*   Always hands off to `Overmind` after the procedure completes (successfully) or HALTs (due to verification failure), reporting via Task Update and Chat Trigger.
+*   Defined by HALT protocol within @`init.md`. Failure reported via MCP task description update.
+*   Critical loop tool failures also HALT -> Update Task (if possible).
 
-## 7. ERROR HANDLING
+## 7. CONSTRAINTS
 
-*   Defined entirely by the HALT protocol within the [Ruleset Initialization Procedure](mdc:initialization-procedure.md). Any verification failure triggers HALT -> Task Update (Step 5) -> Chat Trigger to `Overmind` (Step 6).
-*   Failure of mandatory loop tools (e.g., `mcp_taskmanager_update_task`) also triggers HALT -> Chat Trigger to `Overmind`.
+*   **MUST** follow @`init.md` exactly.
+*   Verification failure mandates HALT.
 
-## 8. CONSTRAINTS & FORBIDDEN PATTERNS
-
-*   MUST follow the [Ruleset Initialization Procedure](mdc:initialization-procedure.md) exactly within Step 4.
-*   Verification is paramount; failure mandates HALT.
-*   MUST follow the 6-step [Core Execution Loop](mdc:execution-loop.md).
-*   Tool usage is restricted to what's needed for the loop and the procedure.
-
-## 9. EXAMPLES
+## 8. EXAMPLES
 
 *   See Step 6 for example Chat Triggers.
 *   See Step 5 for example Task Description updates.
 
-## 10. REFERENCES
+## 9. REFERENCES
 
 *   **[Ruleset Initialization Procedure](mdc:initialization-procedure.md)** (CRITICAL - Defines core workflow)
 *   [Core Execution Loop](mdc:execution-loop.md)
