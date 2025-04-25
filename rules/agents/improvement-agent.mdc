@@ -99,6 +99,6 @@ The Improvement Agent **analyzes execution performance, user feedback, and codeb
 *   [Core Execution Loop (MCP Coordination)](mdc:execution-loop.md)
 *   [`global-mandates.md`](../global-mandates.md)
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
-*   [`rule-writer-agent.md`](./rule-writer-agent.md) (potential target for created tasks)
+*   [`rule-editor-agent.md`](./rule-editor-agent.md) (potential target for created tasks)
 
 ---
