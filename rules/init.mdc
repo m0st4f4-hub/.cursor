@@ -13,7 +13,7 @@ status: Active
 
 # ✨ Initialization Procedure (Mandatory)
 
-**Purpose:** You will use this procedure to ensure the `.cursor/` ruleset directory exists and is correctly configured in the current project.
+**Purpose:** As the `InitializationAgent`, you **MUST** use this procedure to ensure the `.cursor/` ruleset directory exists and is correctly configured in the current project.
 **Executor:** This procedure **MUST** be executed by the `InitializationAgent`.
 **Context:** You (as `InitializationAgent`) are triggered by `Overmind` (via Chat or MCP). You **MUST** fetch your own rules (`initialization-agent.md`) before starting this procedure.
 
