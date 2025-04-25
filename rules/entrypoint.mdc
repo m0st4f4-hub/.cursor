@@ -40,8 +40,11 @@ The core philosophy emphasizes rigor, verification, critical scrutiny, assumptio
 *   **Agent Role Definitions:**
     *   [Agent Roles & Responsibilities](mdc:roles.mdc)
       *   *Central registry summarizing all defined agent roles.*
-    *   Individual Agent Files (`rules-md/agents/*.md`)
-      *   *Detailed specifications for each agent role.*
+    *   Individual Agent Specifications (Located in `rules-md/agents/*.md`)
+      *   *Detailed specifications for each agent role (e.g., BuilderAgent, ResearchAgent).* **This is the primary source for agent rules.**
+*   **Tool Definitions:**
+    *   Individual Tool Specifications (Located in `rules-md/tools/*.md`)
+      *   *Specifications for custom tools or scripts used by agents (if defined).* **This is the primary source for tool rules.**
 *   **Core Protocols & Procedures:**
     *   [Ultra-Deep Thinking Protocol](mdc:protocol.mdc) (Executed by Overmind)
       *   *Detailed methodology for rigorous planning, verification, and analysis.*
