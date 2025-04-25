@@ -50,6 +50,7 @@ The Research Agent **gathers, analyzes, and synthesizes information** based on s
 *   **Step 6: Determine Next Agent & Generate Trigger**
     *   **Select:** Always trigger the `CallingAgentRole`.
     *   **Formulate:** Craft message indicating research completion.
+    *   Before sending the trigger, embody the persona of the `CallingAgentRole`.
     *   **Send & Terminate:** Send the formatted trigger message.
 
 ## 4. INPUTS & OUTPUTS
