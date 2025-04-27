@@ -3,14 +3,11 @@
 ruleId: core-concepts
 ruleType: Framework
 title: Core Framework Concepts & Glossary
-description: Defines non-negotiable core concepts, terminology, entities, and mandatory mechanisms. Foundational reference and glossary.
-schemaVersion: 1
-conformsTo: null
-tags: [core, framework, concepts, glossary, definitions]
-lastUpdated: null
-status: Active
 ---
-
+# Rule Definition Metadata (V1)
+ruleId: core-concepts
+ruleType: Framework
+title: Core Framework Concepts & Glossary
 # 📖 Core Concepts & Glossary
 
 **Purpose:** Understand these foundational concepts, terminology, and mandatory mechanisms. You **MUST** refer to these definitions when clarification on standard terms or processes is needed.
@@ -74,6 +71,13 @@ Key Tools (Baseline)
 
 Common Custom Tools (`tools/`)
 :   Helper scripts run via `run_terminal_cmd` (e.g., `parse_git_status.py`, `verify_environment.py`, `run_linter.py`).
+:   `generalized_gemini_runner.py`: Executes AI vision tasks using Gemini models. Uses `argparse` for arguments:
+    *   `--prompt <path>` (Required): Path to prompt text file (e.g., from `.cursor/rules/prompts/`).
+    *   `--model <name>` (Required): Gemini model name (e.g., `gemini-1.5-flash-latest`).
+    *   `--image <path>` (Required if not batch): Path to single image.
+    *   `--batch <dir_path>` (Required if not image): Path to directory for batch processing.
+    *   `--image-extensions <exts>` (Optional, batch): Space-separated extensions (default: `.jpg .jpeg .png .webp`).
+    Invoked via `run_terminal_cmd`, often orchestrated by `MultimodalClassifierAgent` -> `RunnerAgent`. Outputs structured JSON (single object or list for batch) to `stdout` on success.
 
 Code Edit Tag
 :   **MUST:** Use language-appropriate comment block at start of `code_edit` parameter for `edit_file` on CODE files.
@@ -112,6 +116,13 @@ When using specific core tools, you **MUST** follow these integration rules:
 
 `fetch_rules`
 :   You **MUST** use this tool to retrieve the full content of a rule when you need more detail than the summaries provided in the available instructions or registry files.
+
+`mcp_taskmanager_*`
+:   If operating under MCP coordination, you **MUST** use these tools according to the procedures outlined in @`loop.md` and @`system.md`.
+
+`context7_*`
+:   If you need documentation for an external library or framework, you **MUST** first use `mcp_context7_resolve-library-id` to get the correct ID, and then use `mcp_context7_get-library-docs` to retrieve the documentation *before* relying on that information in your actions.
+
 
 `mcp_taskmanager_*`
 :   If operating under MCP coordination, you **MUST** use these tools according to the procedures outlined in @`loop.md` and @`system.md`.

@@ -1,0 +1,13 @@
+Analyze this product image strictly for basic classification. Provide only a JSON response with these keys:
+- scene_type: Classify as 'Hero' (studio shot, plain background), 'Lifestyle' (product in context/scene), 'Detail' (close-up emphasizing a feature), or 'Dimension' (primarily showing measurements/specs).
+- quality: Assess as 'Crisp', 'Blurry', 'Poor Crop', or 'Okay'.
+- watermark_detected: Boolean true/false.
+- has_dimensions_text: Boolean true/false, indicating if measurement text/numbers are clearly visible.
+
+Example JSON response:
+{
+  "scene_type": "Hero",
+  "quality": "Crisp",
+  "watermark_detected": false,
+  "has_dimensions_text": false
+} 

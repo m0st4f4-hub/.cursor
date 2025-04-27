@@ -1,0 +1,21 @@
+Analyze this product image for detailed information. Provide only a JSON response with these keys:
+- description: A concise, factual sentence describing the main product(s) shown.
+- materials: List (array of strings) of visually identifiable materials (e.g., "Wood", "Metal", "Fabric", "Plastic"). Infer cautiously.
+- colors: List (array of strings) of dominant colors visible on the product (e.g., "Dark Gray", "Brown", "White").
+- extracted_dimensions: If dimension text/numbers are clearly visible on the image itself, extract them as a single string. If not clearly visible, return null. Do NOT estimate dimensions.
+
+Example JSON response (if dimensions are visible):
+{
+  "description": "A bar height table with four matching stools.",
+  "materials": ["Wood", "Metal"],
+  "colors": ["Brown", "Black"],
+  "extracted_dimensions": "Table: 140cm L x 40cm W x 100cm H; Stool: 42cm W x 30cm D"
+}
+
+Example JSON response (if dimensions are NOT visible):
+{
+  "description": "An L-shaped outdoor sofa with gray cushions and wooden side tables.",
+  "materials": ["Fabric", "Metal", "Wood"],
+  "colors": ["Dark Gray", "Silver", "Brown"],
+  "extracted_dimensions": null
+} 
