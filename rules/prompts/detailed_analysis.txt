@@ -1,21 +1,30 @@
-Analyze this product image for detailed information. Provide only a JSON response with these keys:
-- description: A concise, factual sentence describing the main product(s) shown.
+Analyze this product image for detailed information. Provide **only** a JSON response with these keys. **Do not include any text outside the JSON structure.**
+- description: A concise, factual sentence describing the main product(s) shown. **This field is mandatory and must always contain a relevant summary, even if the image is unclear.**
+- category: A general product category (e.g., "Furniture", "Lighting", "Decor", "Textiles").
+- style: A perceived style (e.g., "Modern", "Traditional", "Industrial", "Minimalist", "Bohemian"). If unclear, return null.
 - materials: List (array of strings) of visually identifiable materials (e.g., "Wood", "Metal", "Fabric", "Plastic"). Infer cautiously.
 - colors: List (array of strings) of dominant colors visible on the product (e.g., "Dark Gray", "Brown", "White").
 - extracted_dimensions: If dimension text/numbers are clearly visible on the image itself, extract them as a single string. If not clearly visible, return null. Do NOT estimate dimensions.
+- sku_suggestion: If you can confidently identify a SKU pattern like `[a-z]{3}\d{2}` based *only* on the product type and appearance in the image, provide it as a lowercase string (e.g., "sof04", "din10"). Common prefixes include `bar`, `bat`, `bch`, `bed`, `con`, `din`, `grd`, `lch`, `oud`, `roc`, `sch`, `shf`, `sit`, `sof`, `sto`, `tbl`. If you are not confident or cannot determine a pattern, **return `null`**. Do not guess.
 
-Example JSON response (if dimensions are visible):
+Example JSON response (if dimensions are visible and SKU is suggested):
 {
   "description": "A bar height table with four matching stools.",
+  "category": "Furniture",
+  "style": "Industrial",
   "materials": ["Wood", "Metal"],
   "colors": ["Brown", "Black"],
-  "extracted_dimensions": "Table: 140cm L x 40cm W x 100cm H; Stool: 42cm W x 30cm D"
+  "extracted_dimensions": "Table: 140cm L x 40cm W x 100cm H; Stool: 42cm W x 30cm D",
+  "sku_suggestion": "bar17"
 }
 
-Example JSON response (if dimensions are NOT visible):
+Example JSON response (if dimensions NOT visible and SKU is NOT suggested):
 {
   "description": "An L-shaped outdoor sofa with gray cushions and wooden side tables.",
+  "category": "Furniture",
+  "style": "Modern",
   "materials": ["Fabric", "Metal", "Wood"],
   "colors": ["Dark Gray", "Silver", "Brown"],
-  "extracted_dimensions": null
+  "extracted_dimensions": null,
+  "sku_suggestion": null
 } 
