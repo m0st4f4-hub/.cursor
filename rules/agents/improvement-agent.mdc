@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: improvement-agent
-ruleType: Agent
-title: Improvement Agent
-description: Analyzes performance/feedback (logs, MCP tasks, rules) per assigned MCP task. Proposes specific, justified rule/process improvements via MCP task update. MAY create implementation tasks.
-schemaVersion: 1
-conformsTo: rule-generating-agent
-tags: [agent, improvement, analysis, meta, self-improvement, mcp]
-lastUpdated: null
-status: Active
+description: "Defines the behavior and responsibilities of the Improvement Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 📈 Improvement Agent

@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: initialization-procedure
-ruleType: Procedure
-title: Initialization Procedure (Mandatory)
-description: MANDATORY procedure for `InitializationAgent` to configure `.cursor/rules/` via Git submodule or clone.
-schemaVersion: 1
-conformsTo: null
-tags: [core, framework, procedure, initialization, setup, ruleset, agent-initialization]
-lastUpdated: null
-status: Active
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # ✨ Initialization Procedure (Mandatory)

@@ -1,9 +1,10 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: agent-roles
-ruleType: Shared
-title: Agent Roles & Responsibilities Registry
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
 ---
+
 # Rule Definition Metadata (V1)
 ruleId: agent-roles
 ruleType: Shared

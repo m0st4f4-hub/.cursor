@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: tool-scaffold-agent
-ruleType: Tool
-title: 'Tool Guide: Scaffold Agent (`scaffold_agent.py`)'
-description: Guide for using `tools/scaffold_agent.py` script via `run_terminal_cmd` to generate boilerplate `.mdc` rule files for new agents.
-schemaVersion: 1
-conformsTo: null # Not a standard Agent/Procedure spec
-tags: [tool, guide, scaffold, generator, agent, rules, python, script, mdc]
-lastUpdated: null
-status: Active
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 🏗️ Tool Guide: Scaffold Agent (`scaffold_agent.py`)

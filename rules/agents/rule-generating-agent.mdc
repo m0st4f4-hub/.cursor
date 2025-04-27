@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: rule-generating-agent
-ruleType: Meta # Defines the standard for other rules
-title: Rule Generating Agent (Meta-Rule & Template)
-description: Defines the MANDATORY meta-rule template structure for Agent/Procedure specs (`.md`). Ensures consistency.
-schemaVersion: 1
-conformsTo: null # This IS the meta-rule
-tags: [agent, meta, generator, standard, template, mcp]
-lastUpdated: null
-status: Active
+description: "Defines the behavior and responsibilities of the Rule Generating Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 📜 Rule Generating Agent (Meta-Rule & Template)

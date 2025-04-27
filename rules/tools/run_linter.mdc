@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: tool-run-linter
-ruleType: Tool
-title: 'Tool Guide: Run Linter (`run_linter.py`)'
-description: Guide for using `tools/run_linter.py` script via `run_terminal_cmd` to execute a specified linter on target files/directories.
-schemaVersion: 1
-conformsTo: null # Not a standard Agent/Procedure spec
-tags: [tool, guide, lint, format, python, script]
-lastUpdated: null
-status: Active
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 🛠️ Tool Guide: Run Linter (`run_linter.py`)

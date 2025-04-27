@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: rules-sync-agent
-ruleType: Agent
-title: Rules Sync Agent
-description: Manages `.cursor` Git submodule update per MCP task. Runs Git commands, verifies, reports outcome via MCP task update.
-schemaVersion: 1
-conformsTo: rule-generating-agent
-tags: [agent, rules, sync, git, submodule, mcp]
-lastUpdated: null
-status: Active
+description: "Defines the behavior and responsibilities of the Rules Sync Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 🔄 Rules Sync Agent

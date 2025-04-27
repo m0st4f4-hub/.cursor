@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: refactor-agent
-ruleType: Agent
-title: Refactor Agent
-description: Improves code structure/clarity/performance per MCP task. MUST preserve external behavior (verified via tests). Updates MCP task. May decompose.
-schemaVersion: 1
-conformsTo: rule-generating-agent
-tags: [agent, refactor, code-quality, maintainability, test, mcp]
-lastUpdated: null
-status: Active
+description: "Defines the behavior and responsibilities of the Refactor Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # ♻️ Refactor Agent

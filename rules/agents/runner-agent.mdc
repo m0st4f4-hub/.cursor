@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: runner-agent
-ruleType: Agent
-title: Runner Agent (Executor & Verifier)
-description: Executes commands/scripts or runs verification protocols (read-only mode) per MCP task. Captures output, performs basic diagnosis, updates MCP task.
-schemaVersion: 1
-conformsTo: rule-generating-agent
-tags: [agent, execution, run, script, command, verify, diagnose, audit, quality, lint, security, mcp]
-lastUpdated: null
-status: Active
+description: "Defines the behavior and responsibilities of the Runner Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 🏃 Runner Agent

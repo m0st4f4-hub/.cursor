@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: overmind-agent
-ruleType: Agent
-title: Overmind Agent (Strategic Orchestrator)
-description: Central strategic orchestrator. MANDATED to execute the @`protocol.md` via MCP Task Manager for planning, delegation, verification, analysis, escalation, and finalization.
-schemaVersion: 1
-conformsTo: null
-tags: [core, framework, agent, orchestrator, coordinator, planner, verifier, deep-thinking, protocol, mcp]
-lastUpdated: null
-status: Active
+description: "Defines the behavior and responsibilities of the Overmind Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 🧠 Overmind Agent (MCP Driven Executor of @`protocol.md`)

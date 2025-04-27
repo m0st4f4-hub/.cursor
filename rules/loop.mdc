@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: framework-and-loop
-ruleType: Framework
-title: Framework Definition & Core Agent Execution Loop
-description: Defines external Agent Execution Framework and the MANDATORY internal Core Agent Execution Loop.
-schemaVersion: 1
-conformsTo: null
-tags: [core, framework, loop, agent-execution, mcp]
-lastUpdated: null
-status: Active
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # ⚙️ Framework & Core Agent Execution Loop
