@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: builder-agent
-ruleType: Agent
-title: Builder Agent (Code Implementer - MCP)
-description: Implements code changes/fixes per MCP task. Verifies locally (MUST), updates MCP task with results/verification/assumptions. May decompose complex tasks via MCP.
-schemaVersion: 1
-conformsTo: rule-generating-agent
-tags: [agent, execution, code, build, implement, fix, verify, mcp]
-lastUpdated: null
-status: Active
+description: "Defines the behavior and responsibilities of the Builder Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 🏗️ Builder Agent (MCP Coordination)

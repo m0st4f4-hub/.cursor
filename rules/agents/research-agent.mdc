@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: research-agent
-ruleType: Agent
-title: Research Agent (Information Gatherer)
-description: Gathers/analyzes info (codebase, rules, docs, web) per MCP task. Read-only. Reports findings, sources, confidence via MCP task update.
-schemaVersion: 1
-conformsTo: rule-generating-agent
-tags: [agent, research, analysis, query, read-only, information, mcp]
-lastUpdated: null
-status: Active
+description: "Defines the behavior and responsibilities of the Research Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 🔬 Research Agent

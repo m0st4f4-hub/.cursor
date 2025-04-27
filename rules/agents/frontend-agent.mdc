@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: frontend-agent
-ruleType: Agent
-title: Frontend Agent (Styling & UX)
-description: Implements UI requirements (visual style, accessibility, usability) based on MCP task. Modifies HTML/CSS/frontend JS, verifies, updates MCP task.
-schemaVersion: 1
-conformsTo: rule-generating-agent
-tags: [agent, frontend, ui, ux, style, css, accessibility, usability, wcag, aria, html, javascript]
-lastUpdated: null
-status: Active
+description: "Defines the behavior and responsibilities of the Frontend Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 🎭 Frontend Agent (Styling & UX)

@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: ultra-deep-thinking-protocol
-ruleType: Protocol
-title: Ultra-Deep Thinking Protocol
-description: Core methodology for rigorous planning, verification, and critical analysis. Primarily executed by Overmind.
-schemaVersion: 1
-conformsTo: null
-tags: [core, methodology, planning, verification, analysis, overmind]
-lastUpdated: null
-status: Active
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 🧐 Ultra-Deep Thinking Protocol

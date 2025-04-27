@@ -1,9 +1,10 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: core-concepts
-ruleType: Framework
-title: Core Framework Concepts & Glossary
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
 ---
+
 # Rule Definition Metadata (V1)
 ruleId: core-concepts
 ruleType: Framework

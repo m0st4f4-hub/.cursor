@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: docs-agent
-ruleType: Agent
-title: Docs Agent
-description: Generates/maintains docs (code comments, READMEs, etc.) per MCP task. Analyzes code, edits docs, updates MCP task.
-schemaVersion: 1
-conformsTo: rule-generating-agent
-tags: [agent, documentation, comments, readme, generator, mcp]
-lastUpdated: null
-status: Active
+description: "Defines the behavior and responsibilities of the Docs Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 📄 Docs Agent

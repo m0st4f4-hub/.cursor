@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: framework-entrypoint
-ruleType: Framework
-title: Framework Entrypoint & Core Rule Index
-description: Central index linking to essential framework rule documents.
-schemaVersion: 1
-conformsTo: null
-tags: [core, framework, index, overview, entry-point]
-lastUpdated: null
-status: Active
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 🧭 Framework Entrypoint & Core Rule Index

@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: initialization-agent
-ruleType: Agent
-title: Initialization Agent
-description: MANDATED executor of the @`init.md` procedure. Ensures `.cursor/rules/` is set up, verifies rigorously, reports status via MCP task update.
-schemaVersion: 1
-conformsTo: rule-generating-agent
-tags: [agent, initialization, setup, procedure, framework, mcp]
-lastUpdated: null
-status: Active
+description: "Defines the behavior and responsibilities of the Initialization Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # ⚙️ Initialization Agent

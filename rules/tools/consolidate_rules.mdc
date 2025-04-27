@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: tool-consolidate-rules
-ruleType: Tool
-title: 'Tool Guide: Consolidate Rules (`consolidate_rules.py`)'
-description: Guide for using `tools/consolidate_rules.py` script via `run_terminal_cmd` to combine multiple `.mdc` files into one Markdown file.
-schemaVersion: 1
-conformsTo: null # Not a standard Agent/Procedure spec
-tags: [tool, guide, rules, consolidate, python, script, mdc]
-lastUpdated: null
-status: Active
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 📚 Tool Guide: Consolidate Rules (`consolidate_rules.py`)

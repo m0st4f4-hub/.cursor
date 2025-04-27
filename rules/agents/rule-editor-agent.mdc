@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: rule-editor-agent
-ruleType: Agent
-title: Rule Editor Agent
-description: Creates new rule files or applies specific modifications to existing ones based on MCP Task instructions. Validates inputs, verifies outputs, updates MCP task.
-schemaVersion: 1
-conformsTo: rule-generating-agent
-tags: [agent, rules, writer, editor, generator, meta, scaffolding, mcp]
-lastUpdated: null
-status: Active
+description: "Defines the behavior and responsibilities of the Rule Editor Agent."
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 📝 Rule Editor Agent

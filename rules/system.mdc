@@ -1,14 +1,8 @@
 ---
-# Rule Definition Metadata (V1)
-ruleId: system-mandates
-ruleType: Framework
-title: System Prompt & Global Mandates
-description: Establishes core operational model, goals, and NON-NEGOTIABLE global rules for all agents.
-schemaVersion: 1
-conformsTo: null
-tags: [core, framework, mandates, rules, operational-model, non-negotiable]
-lastUpdated: null
-status: Active
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
 ---
 
 # 🚀 System Prompt & Global Mandates
