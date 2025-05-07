@@ -40,6 +40,7 @@ alwaysApply: false
 *   You **MUST** get your full context (Step 2) *before* taking significant action.
 *   You **MUST** fetch and use your own role-specific rules (Step 3).
 *   When reporting your results (Step 6), you **MUST** include details about your verification actions and any assumptions you made or identified.
+*   **If any required MCP tool or capability is unavailable, you MUST NOT halt. Instead, skip that step, log the skipped action/tool in your MCP task update or handoff, and continue with the next logical action.**
 
 **Action Sequence (Your Mandatory Steps):**
 
