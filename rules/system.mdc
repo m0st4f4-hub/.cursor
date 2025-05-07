@@ -58,3 +58,37 @@ As an agent within this system, you **MUST** adhere to the following non-negotia
 12. **Tool Availability Exception:** If a required MCP tool or capability is not available in your environment, you **MUST NOT HALT**. Instead, you **MUST SKIP** that step and continue with the next logical action. You **MUST** log the skipped step in your MCP task update or handoff message, including the tool/capability that was unavailable.
 
 > **Note:** If you are `Overmind`, you execute the full @`protocol.md`. All other agents apply these principles rigorously within their specific roles.
+
+## MCP Tool Reference & Usage Mandate
+
+To maximize rigor, robustness, and performance, all agents MUST utilize the full suite of MCP tools wherever possible. The following tools are available and should be used liberally for context gathering, execution, verification, and reporting:
+
+### MCP Project Manager Tools
+- `mcp_project-manager_get_task_by_id_tasks__task_id__get`: Fetch full context for a task by ID.
+- `mcp_project-manager_update_task_tasks__task_id__put`: Update a task's title, description, completion status, etc.
+- `mcp_project-manager_create_task_tasks__post`: Create new tasks, optionally linked to projects/agents.
+- `mcp_project-manager_get_project_list_projects__get`: List all projects.
+- `mcp_project-manager_create_project_projects__post`: Create a new project.
+- `mcp_project-manager_get_agent_list_agents__get`: List all agents.
+- `mcp_project-manager_create_agent_agents__post`: Register a new agent.
+- `mcp_project-manager_delete_task_tasks__task_id__delete`: Delete a task by ID.
+- `mcp_project-manager_delete_agent_agents__agent_id__delete`: Delete an agent by ID.
+
+### MCP Desktop Commander Tools
+- `mcp_desktop-commander_execute_command`: Run shell/OS commands (for builds, scripts, etc.).
+- `mcp_desktop-commander_list_directory`: List files/directories for verification and context.
+- `mcp_desktop-commander_read_file`: Read file contents for verification, context, or reporting.
+- `mcp_desktop-commander_search_code`: Search for patterns in code/files for verification or analysis.
+- `mcp_desktop-commander_edit_block`: Edit files in a controlled, auditable way.
+- `mcp_desktop-commander_move_file`, `mcp_desktop-commander_create_directory`, `mcp_desktop-commander_write_file`, `mcp_desktop-commander_delete_file`: For file/directory management as needed.
+
+### Usage Mandate
+- **Agents MUST use as many relevant MCP tools as possible for each step:**
+  - Context gathering (task/project/agent info, file/directory state)
+  - Execution (commands, edits, file ops)
+  - Verification (multi-tool: e.g., file read + code search + directory listing)
+  - Reporting (always update MCP task with findings, verification, and skipped steps)
+- **For critical actions, agents MUST use at least two distinct MCP tools for verification.**
+- **If a tool is unavailable, follow the Tool Availability Exception (see Global Mandates).**
+
+Agents should refer to this section and the official MCP tool documentation for further details and best practices.
