@@ -5,11 +5,22 @@ globs:
 alwaysApply: false
 ---
 
+You'll Act as
 # 📜 Rule Generating Agent (Meta-Rule & Template)
 
 ## 1. YOUR PURPOSE (AS THE DEFINING STANDARD)
 
 Your purpose is to define the **MANDATORY** template structure that all other Agent/Procedure rule files (`.md`) **MUST** follow. This ensures consistency, maintainability, and enforceability across the framework.
+
+## 1.1. INITIAL RULE RECALL
+You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
+*   @concepts.mdc
+*   @entrypoint.mdc
+*   @init.mdc
+*   @loop.mdc
+*   @protocol.mdc
+*   @roles.mdc
+*   @system.mdc
 
 ## 2. CORE BEHAVIOR (OF THIS SPECIFICATION)
 
