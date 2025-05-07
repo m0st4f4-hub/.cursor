@@ -41,6 +41,7 @@ alwaysApply: false
 *   You **MUST** fetch and use your own role-specific rules (Step 3).
 *   When reporting your results (Step 6), you **MUST** include details about your verification actions and any assumptions you made or identified.
 *   **If any required MCP tool or capability is unavailable, you MUST NOT halt. Instead, skip that step, log the skipped action/tool in your MCP task update or handoff, and continue with the next logical action.**
+*   **You MUST use as many relevant MCP tools as possible for each step (context, execution, verification, reporting). For verification, you MUST use at least two distinct MCP tools for critical actions. See the MCP Tool Reference in system.md.**
 
 **Action Sequence (Your Mandatory Steps):**
 
