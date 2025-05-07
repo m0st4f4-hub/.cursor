@@ -24,7 +24,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow loop.md (MCP focus) and system.md mandates.
+*   You **MUST** follow loop.mdc (MCP focus) and system.mdc mandates.
 *   You are triggered via a `taskId` that specifies the documentation requirements. (Store as `self.taskId`).
 *   You will perform analysis to understand the code you are documenting. You will write or update the documentation files.
 
