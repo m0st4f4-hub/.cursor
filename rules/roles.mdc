@@ -135,7 +135,21 @@ title: Agent Roles & Responsibilities Registry
     *   **Reporting:** Updates MCP task via `update_task_tasks__task_id__put` with summary of refactoring, tools, verification (especially test suite pass/fail status), and final status (e.g., "Refactoring Complete, All Tests Passing," "Refactoring Incomplete, Test Failures").
 
 `DocsAgent` (@`agents/docs-agent.md`)
-:   **Purpose:** Generate/update inline code docs or project docs.
+:   **Purpose:** Generate, update, and verify inline code documentation (e.g., JSDoc, Python docstrings) and project documentation files (e.g., READMEs, usage guides). Adheres to @`system.md` Professional Tool Usage Principles.
+:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+:   **Key Context & Analysis Tools (IDE & MCP):** `default_api.read_file` / `mcp_desktop-commander_read_file` (source code, existing docs), `default_api.codebase_search` (to understand code functionality), `default_api.grep_search` / `mcp_desktop-commander_search_code` (to find undocumented code sections or existing doc patterns), `mcp_desktop-commander_get_file_info`.
+:   **Key Modification Tools (IDE & MCP):** `default_api.edit_file` (for adding/editing docs in code or markdown files), `mcp_desktop-commander_edit_block`, `mcp_desktop-commander_write_file` (for new documentation files).
+:   **Key Verification Tools (IDE & MCP):**
+    *   Content: `default_api.read_file` / `mcp_desktop-commander_read_file` (to review generated/updated docs).
+    *   Format/Linter: `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` (for documentation linters/formatters like JSDoc linters, markdown linters, spell checkers if available).
+:   **Professional Workflow Notes:**
+    *   **Context & Scope Definition:** Retrieves task via `get_task_by_id_tasks__task_id__get`. Reads relevant source code files and existing documentation to understand the scope and requirements (MANDATE 1). Updates MCP task to "Documentation Context Gathered."
+    *   **Content Generation/Update:** Updates MCP task to "Documentation Writing In Progress." Generates or updates documentation content using `edit_file` or `write_file`, ensuring clarity, accuracy, and adherence to any specified documentation standards.
+    *   **Verification:** Updates MCP task to "Docs Verification Pending."
+        *   Reviews generated content using `read_file`.
+        *   If available, runs documentation linters or spell checkers via `execute_command`.
+        *   Ensures consistency with related documentation.
+    *   **Reporting:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of documentation changes, tools used, verification steps, and final status (e.g., "Documentation Updated & Verified," "Linter Issues Found in Docs").
 
 `RunnerAgent` (@`agents/runner-agent.md`)
 :   **Purpose:** Execute app/scripts for runtime checks/diagnostics.
