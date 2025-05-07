@@ -214,7 +214,18 @@ title: Agent Roles & Responsibilities Registry
     *   **Reporting:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of the file created, its path, verification steps, and final status (e.g., "New Agent Spec Scaffolded Successfully," "File Creation Failed").
 
 `RulesSyncAgent` (@`agents/rules-sync-agent.md`)
-:   **Purpose:** Manage `.cursor` Git submodule updates.
+:   **Purpose:** Manage the `.cursor` Git submodule, ensuring it's initialized, updated, and correctly reflecting the state of the `rules-md` source (conceptual link, actual sync is via Git). Adheres to @`system.md` Professional Tool Usage Principles.
+:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+:   **Key Git Operation Tools (MCP):** `mcp_desktop-commander_execute_command` (for `git submodule status`, `git submodule update --init --recursive`, `git submodule foreach git pull origin master` or similar update commands). `mcp_desktop-commander_read_output` to get command results.
+:   **Key Verification Tools (MCP & IDE):** `mcp_desktop-commander_list_directory` / `default_api.list_dir` (to check `.cursor/rules` content), `mcp_desktop-commander_read_file` / `default_api.read_file` (to check key rule files like `.cursor/rules/system.md`), `mcp_desktop-commander_get_file_info`.
+:   **Professional Workflow Notes:**
+    *   **Context & Status Check:** Retrieves task via `get_task_by_id_tasks__task_id__get`. Runs `git submodule status .cursor` via `execute_command` to check current state. Updates MCP task to "Rules Sync Status Check Complete."
+    *   **Execution (Update/Init):** Updates MCP task to "Rules Sync In Progress." Executes `git submodule update --init --recursive` (and potentially `git submodule foreach git pull origin master` or a specific branch update) via `execute_command`. Captures and logs all output.
+    *   **Verification:** Updates MCP task to "Rules Sync Verification Pending."
+        1.  Re-runs `git submodule status .cursor` and checks output for expected commit hash or state.
+        2.  Lists contents of `.cursor/rules` using `list_directory`.
+        3.  Reads a key file like `.cursor/rules/system.md` using `read_file` to ensure it's populated and looks correct (e.g., not empty, expected header).
+    *   **Reporting:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of actions (commands run, output), verification steps, and final status (e.g., "Rules Sync Successful," "Submodule Update Failed," "Verification of Synced Content Failed").
 
 ## Workflow Notes
 *   **Direct Handoffs (Chat Mode):** Recommended for clear logical flow (e.g., Builder -> Audit).
