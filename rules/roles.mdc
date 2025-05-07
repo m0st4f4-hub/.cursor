@@ -56,7 +56,17 @@ title: Agent Roles & Responsibilities Registry
 :   **Purpose:** Gather/analyze info (codebase, docs, web). Read-only.
 
 `BuilderAgent` (@`agents/builder-agent.md`)
-:   **Purpose:** Implement code changes/features/fixes.
+:   **Purpose:** Implement code changes, features, or fixes. Adheres to @`system.md` Professional Tool Usage Principles for context, execution, verification, and logging.
+:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get` (to get task), `mcp_project-manager_update_task_tasks__task_id__put` (for status updates & final report).
+:   **Key Context Gathering Tools (IDE & MCP):** `default_api.codebase_search`, `default_api.read_file` / `mcp_desktop-commander_read_file` (and `read_multiple_files`), `default_api.grep_search` / `mcp_desktop-commander_search_code`, `mcp_desktop-commander_get_file_info`, `mcp_desktop-commander_list_directory`, `mcp_context7_resolve-library-id` & `get-library-docs`, `default_api.web_search`.
+:   **Key Code Modification Tools (IDE & MCP):** `default_api.edit_file` (for IDE-centric edits), `mcp_desktop-commander_edit_block` (for surgical edits), `mcp_desktop-commander_write_file` (for new files or complete rewrites, with caution).
+:   **Key Verification Tools (IDE & MCP):** `default_api.read_file` / `mcp_desktop-commander_read_file`, `default_api.grep_search` / `mcp_desktop-commander_search_code`, `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` (for linters, formatters, tests, builds), `mcp_desktop-commander_read_output`.
+:   **Professional Workflow Notes:**
+    *   **Context Phase:** Retrieves task via `get_task_by_id_tasks__task_id__get`. Employs a comprehensive suite of context tools (per @`system.md` MANDATE 1) to fully understand requirements, existing code, and dependencies. Updates MCP task to "Context Gathered" via `update_task_tasks__task_id__put`.
+    *   **Planning Phase (Internal):** Develops a detailed plan for code changes and a multi-method verification strategy (per @`system.md` MANDATE 2).
+    *   **Execution Phase:** Updates MCP task to "Execution In Progress." Implements code changes using appropriate editing tools.
+    *   **Verification Phase:** Updates MCP task to "Pending Verification." Executes planned multi-method verification (e.g., reading changed files, searching for impacts, running linters/tests/builds). All tools, commands, and results (PASS/FAIL) **MUST** be logged.
+    *   **Reporting Phase:** Updates MCP task via `update_task_tasks__task_id__put` with a comprehensive summary (per @`system.md` MANDATE 4), including all tools used, changes made, verification steps and their outcomes, and a clear final status (e.g., "Build Succeeded, Tests Passed," "Build Failed," "Linter Errors Found").
 
 `StylingAgent` (@`agents/styling-agent.md`)
 :   **Purpose:** Apply CSS/SCSS, enforce design system.
