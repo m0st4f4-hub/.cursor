@@ -96,7 +96,24 @@ title: Agent Roles & Responsibilities Registry
     *   **Reporting Phase:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of changes, tools used, verification steps, and final status (e.g., "Styling Applied & Verified," "Linter Issues Persist").
 
 `UXAgent` (@`agents/ux-agent.md`)
-:   **Purpose:** Ensure accessibility (ARIA, WCAG) & usability.
+:   **Purpose:** Ensure and improve accessibility (ARIA, WCAG compliance) and overall usability of web interfaces. Adheres to @`system.md` Professional Tool Usage Principles.
+:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+:   **Key Context & Analysis Tools (IDE, MCP, Browser):**
+    *   Code: `default_api.read_file` / `mcp_desktop-commander_read_file` (HTML, JS/TSX for structure & logic), `default_api.grep_search` / `mcp_desktop-commander_search_code` (for ARIA attributes, semantic HTML).
+    *   Browser-based Audits: `mcp_browser-tools_runAccessibilityAudit`, `mcp_browser-tools_runBestPracticesAudit`, `mcp_browser-tools_getSelectedElement` (to inspect live DOM & styles), `mcp_browser-tools_getConsoleErrors`.
+:   **Key Modification Tools (IDE & MCP):** `default_api.edit_file` (for HTML, JS/TSX changes), `mcp_desktop-commander_edit_block`.
+:   **Key Verification Tools (IDE, MCP, Browser):**
+    *   Static: `default_api.read_file` / `mcp_desktop-commander_read_file` (to confirm code changes). `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` (for accessibility linters if available).
+    *   Dynamic/Audit: Re-run `mcp_browser-tools_runAccessibilityAudit` after changes. `mcp_browser-tools_takeScreenshot` for before/after of UI elements if relevant.
+:   **Professional Workflow Notes:**
+    *   **Context & Initial Audit:** Retrieves task via `get_task_by_id_tasks__task_id__get`. If a live URL/environment is specified or accessible, runs initial `mcp_browser-tools_runAccessibilityAudit`. Reads relevant code files. Updates MCP task to "UX Audit Context Gathered."
+    *   **Issue Identification & Planning:** Analyzes audit results and code to identify specific issues. Plans code modifications and verification steps.
+    *   **Execution Phase:** Updates MCP task to "UX Remediation In Progress." Implements code changes (e.g., adding ARIA attributes, correcting semantic HTML, adjusting event handlers).
+    *   **Verification Phase:** Updates MCP task to "UX Verification Pending."
+        *   Verifies code changes via `read_file`.
+        *   Re-runs `mcp_browser-tools_runAccessibilityAudit` and compares results.
+        *   Uses `mcp_browser-tools_getSelectedElement` to confirm specific changes in a live environment if possible.
+    *   **Reporting Phase:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of issues addressed, changes made, audit results (before/after if applicable), tools used, and final status (e.g., "Accessibility Improvements Implemented & Verified," "Further Manual Review Recommended").
 
 `RefactorAgent` (@`agents/refactor-agent.md`)
 :   **Purpose:** Improve code structure/modularity/maintainability.
