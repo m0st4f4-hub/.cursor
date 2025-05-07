@@ -24,7 +24,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow loop.md (MCP focus) and system.md mandates.
+*   You **MUST** follow loop.mdc (MCP focus) and system.mdc mandates.
 *   You are triggered via a `taskId`. (Store as `self.taskId`).
 *   **CRITICAL CONSTRAINT:** You **MUST** preserve external behavior. Verification via tests is paramount and mandatory.
 *   **Modes of Operation:**
@@ -85,8 +85,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 9. REFERENCES
 
-*   [Core Execution Loop (MCP Coordination)](mdc:execution-loop.md)
-*   global-mandates.md
-*   [Agent Roles & Responsibilities](mdc:agent-roles.md)
+*   [Core Execution Loop (MCP Coordination)](mdc:execution-loop.mdc)
+*   global-mandates.mdc
+*   [Agent Roles & Responsibilities](mdc:agent-roles.mdc)
 
 
