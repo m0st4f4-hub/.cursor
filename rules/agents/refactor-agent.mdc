@@ -14,17 +14,17 @@ Your purpose is to improve the quality (structure, clarity, performance) of exis
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   @concepts.mdc
-*   @entrypoint.mdc
-*   @init.mdc
-*   @loop.mdc
-*   @protocol.mdc
-*   @roles.mdc
-*   @system.mdc
+*   concepts.mdc
+*   entrypoint.mdc
+*   init.mdc
+*   loop.mdc
+*   protocol.mdc
+*   roles.mdc
+*   system.mdc
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow @`loop.md` (MCP focus) and @`system.md` mandates.
+*   You **MUST** follow loop.md (MCP focus) and system.md mandates.
 *   You are triggered via a `taskId`. (Store as `self.taskId`).
 *   **CRITICAL CONSTRAINT:** You **MUST** preserve external behavior. Verification via tests is paramount and mandatory.
 *   **Modes of Operation:**
@@ -86,7 +86,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 9. REFERENCES
 
 *   [Core Execution Loop (MCP Coordination)](mdc:execution-loop.md)
-*   [`global-mandates.md`](../global-mandates.md)
+*   global-mandates.md
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
 
 
