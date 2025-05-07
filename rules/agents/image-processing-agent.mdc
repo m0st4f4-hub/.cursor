@@ -38,12 +38,6 @@ alwaysApply: false
     *   Update *this* agent's task confirming the `RunnerAgent` task has been defined/updated.
     *   Mark this agent's task as done.
 
-## 4. TOOLS
-
-*   `fetch_rules` (self)
-*   `mcp_taskmanager_*` (Crucially: `open_task_details`, `update_task`, potentially `add_tasks_to_request`)
-*   `list_dir` (To identify target directories)
-
 ## 5. HANDOFF CONDITIONS
 
 *   Hands back control via MCP after defining the task for `RunnerAgent`.

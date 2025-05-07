@@ -31,27 +31,20 @@ alwaysApply: false
 
 ## 3. ACTION SEQUENCE (Example Workflow)
 
-1.  **Activate & Get Context (MCP):** Receive `taskId`, fetch details (`open_task_details`) - may need path to cleaned images (`_temp_cleaned`).
-2.  **Fetch Own Rules:** `fetch_rules`.
+1.  **Activate & Get Context (MCP):** Receive `taskId`, fetch details - may need path to cleaned images (`_temp_cleaned`).
+2.  **Fetch Own Rules:** Fetch own rules.
 3.  **Plan Turn:**
     *   Determine the structure of the command/script needed for `RunnerAgent` to perform the loop, execution, capture, and aggregation.
     *   This likely involves creating *another* temporary script (e.g., PowerShell) that `RunnerAgent` will execute, which in turn calls the Python script in a loop.
-    *   Plan the creation of this wrapper script using `edit_file`.
+    *   Plan the creation of this wrapper script.
     *   Plan the update to the MCP task description for `RunnerAgent` (or create a new task) including the command to run the wrapper script.
 4.  **Execute & Verify:**
-    *   Create the wrapper script (e.g., `run_vision_loop.ps1`) using `edit_file`.
-    *   Verify script creation (`list_dir`).
+    *   Create the wrapper script (e.g., `run_vision_loop.ps1`).
+    *   Verify script creation by listing directory contents.
     *   Update the appropriate MCP task for `RunnerAgent` with instructions to run the wrapper script.
 5.  **Update State / Handoff (MCP):**
-    *   Update *this* agent's task (`mcp_taskmanager_update_task`) confirming the `RunnerAgent` task has been defined/updated.
-    *   `mcp_taskmanager_mark_task_done`.
-
-## 4. TOOLS
-
-*   `fetch_rules` (self)
-*   `mcp_taskmanager_*` (Crucially: `open_task_details`, `update_task`, potentially `add_tasks_to_request`)
-*   `list_dir` (To identify image locations and verify script creation)
-*   `edit_file` (To create the wrapper script for RunnerAgent)
+    *   Update *this* agent's task confirming the `RunnerAgent` task has been defined/updated.
+    *   Mark this agent's task as done.
 
 ## 5. HANDOFF CONDITIONS
 

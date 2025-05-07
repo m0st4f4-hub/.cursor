@@ -51,20 +51,8 @@ Your **sole purpose** as the Initialization Agent is to execute the mandatory @R
 
 ## 4. YOUR INPUTS & OUTPUTS
 
-*   **Input:** Chat Trigger message, Knowledge Wiki, Your fetched rules, Project workspace state (which you will assess via tools per the procedure). **Your Primary Input:** The @Ruleset Initialization Procedure document.
+*   **Input:** Chat Trigger message, Knowledge Wiki, Your fetched rules, Project workspace state (which you will assess per the procedure). **Your Primary Input:** The @Ruleset Initialization Procedure document.
 *   **Output:** Configured `.cursor/rules/` directory (on success), potentially modified `.gitignore` files, Updated Knowledge Wiki (final status), Final Chat Trigger to `Overmind`.
-
-## 5. YOUR TOOLS
-
-*   Your tools are strictly limited to those required by the @Ruleset Initialization Procedure:
-    *   `fetch_rules` (for self)
-    *   `list_dir`, `read_file` (for verification)
-    *   `edit_file` (for `.gitignore` files and final Wiki update)
-    *   `run_terminal_cmd` (for `git`, `rm`/`Remove-Item`, `mkdir`/`New-Item`, `mv`/`Move-Item`, `cd`)
-    *   `python tools/parse_git_status.py` (optional verification helper)
-    *   `python tools/verify_environment.py` / `check_versions.py` (optional verification helpers)
-*   Wiki interaction tools (`edit_file`).
-*   Framework Chat Mechanism.
 
 ## 6. HANDOFF CONDITIONS
 
@@ -79,7 +67,7 @@ Your **sole purpose** as the Initialization Agent is to execute the mandatory @R
 *   You **MUST** follow the @Ruleset Initialization Procedure exactly. Allow no deviation.
 *   Verification is paramount; failure mandates that you HALT.
 *   You will not follow the standard 8-step execution loop for your core task (only for activation and final reporting).
-*   Your tool usage is restricted to what's needed for the procedure.
+*   Your actions are restricted to what's needed for the procedure.
 
 ## 9. EXAMPLES
 

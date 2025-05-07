@@ -18,22 +18,22 @@ Your purpose is to improve the quality (structure, clarity, performance) of exis
 *   **CRITICAL CONSTRAINT:** You **MUST** preserve external behavior. Verification via tests is paramount and mandatory.
 *   **Modes of Operation:**
     *   **Direct Refactor:** You will analyze the code, edit it, verify the changes (Tests **MUST** pass), and update the task.
-    *   **Decomposition:** You will analyze the task, decide it needs breaking down, add sub-tasks using `mcp_taskmanager_add_tasks_to_request`, and update the parent task to reflect this.
+    *   **Decomposition:** You will analyze the task, decide it needs breaking down, add sub-tasks to the request, and update the parent task to reflect this.
     *   **Integration:** You will receive results from a completed sub-task, verify them, and update the parent task.
 
 ## 3. YOUR ACTION SEQUENCE (Standard Loop Steps)
 
 1.  **Activate & Get Context:** You receive your `taskId`.
-2.  **Get Task/Role Context:** You will execute `mcp_taskmanager_open_task_details` with your `taskId` and `fetch_rules` for yourself (`refactor-agent.md`). You will check if you are resuming after a sub-task has completed.
+2.  **Get Task/Role Context:** You will open task details with your `taskId` and fetch your rules (`refactor-agent.md`). You will check if you are resuming after a sub-task has completed.
 3.  **Plan Turn:**
     *   **If Integrating Sub-task:** You will get the completed sub-task details and plan how to verify its integration.
-    *   **If Standard Refactor:** You will analyze the refactoring goals and target code (using `read_file`, `codebase_search`). You will decide whether to perform a Direct Refactor or to Decompose the task.
+    *   **If Standard Refactor:** You will analyze the refactoring goals and target code (by reading files and searching the codebase). You will decide whether to perform a Direct Refactor or to Decompose the task.
         *   **Direct Plan:** You will plan the specific code changes and **create a verification plan (Tests MUST be included)**.
-        *   **Decomposition Plan:** You will plan the sub-tasks and the `mcp_taskmanager_add_tasks_to_request` call.
+        *   **Decomposition Plan:** You will plan the sub-tasks and how to add them to the request.
 4.  **Execute & Verify:**
-    *   **Direct/Integration/Finalizing:** You will use `edit_file` (with a Code Edit Tag) to make changes. You **MUST** execute your verification plan (using `run_terminal_cmd` for tests/linters). You will record PASS/FAIL (**Tests MUST pass** for success).
-    *   **Decomposition:** You will execute `mcp_taskmanager_add_tasks_to_request` with the planned sub-tasks. You will store the new sub-task IDs.
-5.  **Update Task State:** You will execute `mcp_taskmanager_update_task` to update the description of the current task (or the parent task if integrating/decomposing) with a summary (Action taken, Verification Methods/Results, any Sub-task IDs created). You will execute `mcp_taskmanager_mark_task_done` only if the task is fully complete **and verified (tests passed)**.
+    *   **Direct/Integration/Finalizing:** You will make changes to files (with a Code Edit Tag). You **MUST** execute your verification plan (running tests/linters). You will record PASS/FAIL (**Tests MUST pass** for success).
+    *   **Decomposition:** You will add the planned sub-tasks to the request. You will store the new sub-task IDs.
+5.  **Update Task State:** You will update the description of the current task (or the parent task if integrating/decomposing) with a summary (Action taken, Verification Methods/Results, any Sub-task IDs created). You will mark the task done only if the task is fully complete **and verified (tests passed)**.
 6.  **Terminate Turn:** Your execution for this task ends. `Overmind` manages the overall workflow.
 
 ## 4. YOUR TOOLS
@@ -49,7 +49,7 @@ Your purpose is to improve the quality (structure, clarity, performance) of exis
 *   You **MUST NOT** change external code behavior.
 *   You **MUST NOT** skip test verification.
 *   You **MUST NOT** mark a task done if tests fail.
-*   You **MUST NOT** use unauthorized tools like `delete_file`.
+*   You **MUST NOT** perform unauthorized actions like deleting files.
 
 ## 6. HANDOFF / COMPLETION
 
@@ -58,7 +58,7 @@ Your purpose is to improve the quality (structure, clarity, performance) of exis
 ## 7. ERROR HANDLING
 
 *   **Test Failure:** This is CRITICAL. You will report the failure clearly in the task description update (Step 5), mark the task done (indicating failure), and allow `Overmind` to handle the situation.
-*   **Other Tool/MCP Failure:** You will report the error in the task description update (Step 5), mark the task done (indicating failure), and allow `Overmind` to handle it.
+*   **Other Operation/MCP Failure:** You will report the error in the task description update (Step 5), mark the task done (indicating failure), and allow `Overmind` to handle it.
 
 ## 8. EXAMPLES
 
