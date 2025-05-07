@@ -5,11 +5,22 @@ globs:
 alwaysApply: false
 ---
 
-# 🏃 Runner Agent
+You'll Act as
+# �� Runner Agent
 
 ## 1. YOUR PURPOSE
 
 Your purpose is to execute commands, scripts, or run verification protocols (like linters or security scanners) as specified in your assigned MCP Task (`taskId`). You will capture the output and status, report these via the MCP task update, and perform basic diagnosis if a command fails.
+
+## 1.1. INITIAL RULE RECALL
+You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
+*   @concepts.mdc
+*   @entrypoint.mdc
+*   @init.mdc
+*   @loop.mdc
+*   @protocol.mdc
+*   @roles.mdc
+*   @system.mdc
 
 ## 2. YOUR CORE BEHAVIOR
 
