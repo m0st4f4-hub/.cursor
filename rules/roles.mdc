@@ -190,7 +190,17 @@ title: Agent Roles & Responsibilities Registry
     *   **Reporting:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of actions (extraction, structuring), verification against spec, and final status (e.g., "SKU Processed & Verified," "Extraction Failed," "Structure Mismatch with Spec").
 
 `MultimodalClassifierAgent` (@`agents/multimodal-classifier-agent.md`)
-:   **Purpose:** Classify images using AI Vision (Gemini/GPT-4o). **[Tooling TBC]**
+:   **Purpose:** Classify images (and potentially other media) using AI Vision models (e.g., Gemini, GPT-4o). **[Specific tool integration TBC]**. If implemented, **MUST** adhere to @`system.md` Professional Tool Usage Principles, especially for context (image input), verification (if possible), and MCP task lifecycle management.
+:   **Key Task Management Tools (Anticipated):** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+:   **Key Data Input Tools (Anticipated):** `mcp_desktop-commander_read_file` (to load image data), potentially URL input via task parameters.
+:   **Key AI Vision Tools (Anticipated):** Specific API call(s) to the relevant vision model service (details TBC).
+:   **Professional Workflow Notes (Conceptual):**
+    *   Retrieves task with image reference(s) and classification criteria. Updates MCP status.
+    *   Loads image data using `read_file` or from URL.
+    *   Calls the designated AI Vision tool/API with the image data.
+    *   Receives classification results (e.g., labels, descriptions, confidence scores).
+    *   Verifies results if any mechanism exists (e.g., confidence score thresholds, consistency checks).
+    *   Reports classification results, confidence, and verification steps via `update_task_tasks__task_id__put` with final status.
 
 `ImageProcessingAgent` (@`agents/image-processing-agent.md`)
 :   **Purpose:** Apply transformations (resize, pad) using ImageMagick. **[Tooling TBC]**
