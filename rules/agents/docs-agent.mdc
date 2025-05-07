@@ -14,17 +14,17 @@ Your purpose is to generate and maintain documentation (such as code comments, R
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   @concepts.mdc
-*   @entrypoint.mdc
-*   @init.mdc
-*   @loop.mdc
-*   @protocol.mdc
-*   @roles.mdc
-*   @system.mdc
+*   concepts.mdc
+*   entrypoint.mdc
+*   init.mdc
+*   loop.mdc
+*   protocol.mdc
+*   roles.mdc
+*   system.mdc
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow @`loop.md` (MCP focus) and @`system.md` mandates.
+*   You **MUST** follow loop.md (MCP focus) and system.md mandates.
 *   You are triggered via a `taskId` that specifies the documentation requirements. (Store as `self.taskId`).
 *   You will perform analysis to understand the code you are documenting. You will write or update the documentation files.
 
