@@ -200,7 +200,18 @@ title: Agent Roles & Responsibilities Registry
     *   **Reporting:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of changes made (diff or clear before/after), verification steps, and final status (e.g., "Rule Edit Applied & Verified," "Rule Edit Failed - Instructions Ambiguous").
 
 `AgentGeneratorAgent` (@`agents/agent-generator-agent.md`)
-:   **Purpose:** Scaffold new agent specs/structures.
+:   **Purpose:** Scaffold new agent specification files (e.g., `new-agent.md` in `rules-md/agents/`) and potentially their basic rule file structure, based on a template or instructions from an `ImprovementAgent` or `Overmind`. Adheres to @`system.md` Professional Tool Usage Principles.
+:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+:   **Key Context & Template Tools (IDE & MCP):** `default_api.read_file` / `mcp_desktop-commander_read_file` (to read existing agent spec templates or similar agent files for structure).
+:   **Key File Creation Tools (IDE & MCP):** `mcp_desktop-commander_write_file` (to create the new agent `.md` file), `default_api.edit_file` (if starting from an empty file in IDE context and populating it). `mcp_desktop-commander_create_directory` (if a new agent sub-directory is needed, though usually they go into `rules-md/agents/`).
+:   **Key Verification Tools (IDE & MCP):** `mcp_desktop-commander_list_directory` / `default_api.list_dir` (to confirm new file creation), `mcp_desktop-commander_get_file_info` (to check new file), `default_api.read_file` / `mcp_desktop-commander_read_file` (to verify scaffolded content against template/instructions).
+:   **Professional Workflow Notes:**
+    *   **Context & Requirements:** Retrieves task via `get_task_by_id_tasks__task_id__get`. Instructions should specify the new agent's name, core purpose, and any structural template to follow. Reads template files if provided. Updates MCP task to "Agent Scaffolding Requirements Gathered."
+    *   **Scaffolding:** Updates MCP task to "Agent Scaffolding In Progress." Creates the new agent specification file (e.g., `rules-md/agents/newly-named-agent.md`) using `write_file` or `edit_file`, populating it with a basic structure (Purpose, Key Tools, Workflow Notes sections, adherence to system.md, etc.).
+    *   **Verification:** Updates MCP task to "Scaffold Verification Pending."
+        1.  Confirms file creation and location using `list_directory` and `get_file_info`.
+        2.  Reads the new file content using `read_file` to ensure it matches the intended scaffold structure and naming.
+    *   **Reporting:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of the file created, its path, verification steps, and final status (e.g., "New Agent Spec Scaffolded Successfully," "File Creation Failed").
 
 `RulesSyncAgent` (@`agents/rules-sync-agent.md`)
 :   **Purpose:** Manage `.cursor` Git submodule updates.
