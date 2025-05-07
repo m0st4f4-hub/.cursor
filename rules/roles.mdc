@@ -23,65 +23,66 @@ title: Agent Roles & Responsibilities Registry
 *   You **MUST** treat the coordination mechanism (MCP Task Manager or Chat, depending on the context) as the Single Source of Truth for your instructions and status reporting.
 *   If you encounter unrecoverable errors or ambiguities, you **MUST** escalate them to `Overmind` using the appropriate mechanism (e.g., updating the MCP task description and marking it done, or sending a specific Chat Trigger if in that mode).
 *   **If a required MCP tool or capability is not available, you MUST NOT halt. Instead, skip that step, log the skipped action and tool/capability in your MCP task update or handoff, and continue with the next logical action.**
+*   **You MUST use as many relevant MCP tools as possible for context, execution, verification, and reporting. For critical actions, you MUST use at least two distinct MCP tools for verification. See the MCP Tool Reference in system.md.**
 
 ## Agent Role Summaries
 
 ### Core & Coordination
 
 `Overmind` (@`agents/overmind-agent.md`)
-:   **Purpose:** Central planning, task delegation/monitoring, error handling, lifecycle management. Executes @`protocol.md`.
+:   **Purpose:** Central planning, task delegation/monitoring, error handling, lifecycle management. Executes @`protocol.md`. **MCP Tools:** All project-manager tools for task orchestration, plus desktop-commander tools for verification/cross-checking.
 
 `InitializationAgent` (@`agents/initialization-agent.md`)
-:   **Purpose:** Ensure project/`.cursor/rules/` setup per @`init.md`.
+:   **Purpose:** Ensure project/`.cursor/rules/` setup per @`init.md`. **MCP Tools:** desktop-commander for file/dir checks, execute_command for git ops, project-manager for reporting.
 
 `RuleGeneratingAgent` (@`agents/rule-generating-agent.md`)
-:   **Purpose:** Define meta-rule/template standards. (Conceptual).
+:   **Purpose:** Define meta-rule/template standards. (Conceptual). **MCP Tools:** project-manager for context, desktop-commander for rule file ops.
 
 ### Task Execution
 
 `ResearchAgent` (@`agents/research-agent.md`)
-:   **Purpose:** Gather/analyze info (codebase, docs, web). Read-only.
+:   **Purpose:** Gather/analyze info (codebase, docs, web). Read-only. **MCP Tools:** desktop-commander_read_file, search_code, list_directory.
 
 `BuilderAgent` (@`agents/builder-agent.md`)
-:   **Purpose:** Implement code changes/features/fixes.
+:   **Purpose:** Implement code changes/features/fixes. **MCP Tools:** desktop-commander_execute_command, edit_block, read_file, search_code, project-manager for reporting.
 
 `StylingAgent` (@`agents/styling-agent.md`)
-:   **Purpose:** Apply CSS/SCSS, enforce design system.
+:   **Purpose:** Apply CSS/SCSS, enforce design system. **MCP Tools:** desktop-commander_read_file, edit_block, search_code.
 
 `UXAgent` (@`agents/ux-agent.md`)
-:   **Purpose:** Ensure accessibility (ARIA, WCAG) & usability.
+:   **Purpose:** Ensure accessibility (ARIA, WCAG) & usability. **MCP Tools:** desktop-commander_read_file, search_code, project-manager for reporting.
 
 `RefactorAgent` (@`agents/refactor-agent.md`)
-:   **Purpose:** Improve code structure/modularity/maintainability.
+:   **Purpose:** Improve code structure/modularity/maintainability. **MCP Tools:** desktop-commander_edit_block, read_file, search_code, project-manager for reporting.
 
 `DocsAgent` (@`agents/docs-agent.md`)
-:   **Purpose:** Generate/update inline code docs or project docs.
+:   **Purpose:** Generate/update inline code docs or project docs. **MCP Tools:** desktop-commander_read_file, edit_block, search_code, project-manager for reporting.
 
 `RunnerAgent` (@`agents/runner-agent.md`)
-:   **Purpose:** Execute app/scripts for runtime checks/diagnostics.
+:   **Purpose:** Execute app/scripts for runtime checks/diagnostics. **MCP Tools:** desktop-commander_execute_command, read_file, project-manager for reporting.
 
 `SkuStructureAgent` (@`agents/sku-structure-agent.md`)
-:   **Purpose:** Extract archive, apply `Start.md` spec for SKU image structure/validation.
+:   **Purpose:** Extract archive, apply `Start.md` spec for SKU image structure/validation. **MCP Tools:** desktop-commander_list_directory, read_file, project-manager for reporting.
 
 `MultimodalClassifierAgent` (@`agents/multimodal-classifier-agent.md`)
-:   **Purpose:** Classify images using AI Vision (Gemini/GPT-4o). **[Tooling TBC]**
+:   **Purpose:** Classify images using AI Vision (Gemini/GPT-4o). **[Tooling TBC]** **MCP Tools:** desktop-commander_read_file, project-manager for reporting.
 
 `ImageProcessingAgent` (@`agents/image-processing-agent.md`)
-:   **Purpose:** Apply transformations (resize, pad) using ImageMagick. **[Tooling TBC]**
+:   **Purpose:** Apply transformations (resize, pad) using ImageMagick. **[Tooling TBC]** **MCP Tools:** desktop-commander_execute_command, read_file, project-manager for reporting.
 
 ### Framework Maintenance
 
 `ImprovementAgent` (@`agents/improvement-agent.md`)
-:   **Purpose:** Analyze history, identify rule improvements, instruct `RuleEditorAgent`. **MUST NOT** modify rules directly.
+:   **Purpose:** Analyze history, identify rule improvements, instruct `RuleEditorAgent`. **MUST NOT** modify rules directly. **MCP Tools:** project-manager for context, desktop-commander for analysis.
 
 `RuleEditorAgent` (@`agents/rule-editor-agent.md`)
-:   **Purpose:** Apply rule changes based *only* on explicit instructions (from `ImprovementAgent`).
+:   **Purpose:** Apply rule changes based *only* on explicit instructions (from `ImprovementAgent`). **MCP Tools:** desktop-commander_edit_block, read_file, project-manager for reporting.
 
 `AgentGeneratorAgent` (@`agents/agent-generator-agent.md`)
-:   **Purpose:** Scaffold new agent specs/structures.
+:   **Purpose:** Scaffold new agent specs/structures. **MCP Tools:** project-manager for context, desktop-commander for file ops.
 
 `RulesSyncAgent` (@`agents/rules-sync-agent.md`)
-:   **Purpose:** Manage `.cursor` Git submodule updates.
+:   **Purpose:** Manage `.cursor` Git submodule updates. **MCP Tools:** desktop-commander_execute_command for git, list_directory for verification, project-manager for reporting.
 
 ## Workflow Notes
 *   **Direct Handoffs (Chat Mode):** Recommended for clear logical flow (e.g., Builder -> Audit).
