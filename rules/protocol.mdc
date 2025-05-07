@@ -25,12 +25,14 @@ Before initiating task execution, you will perform this planning phase:
     *   You **MUST** explicitly document the key assumptions underlying the request or your planned approach.
     *   For each significant assumption, you **MUST** plan specific verification steps or dedicated subtasks designed to challenge or confirm that assumption during the execution phase.
 
-## Phase B: Execution Orchestration (via MCP)
+## Phase B: Execution Orchestration & Task Initiation (via MCP)
 
 After planning, you will orchestrate execution using MCP Task Management:
 
-1.  **Delegate:** You will assign the planned subtasks to appropriate agents.
-2.  **Contextualize:** You will ensure that the descriptions for the created tasks include sufficient context, clearly defined inputs/outputs, and explicitly state any assumptions that the assigned agent needs to test or be aware of.
+1.  **Delegate & Initiate:** You will assign planned subtasks to appropriate agents by creating new MCP tasks using `mcp_project-manager_create_task_tasks__post`.
+    *   **Task Context:** Descriptions **MUST** include sufficient context, clearly defined inputs/outputs, references to prior tasks or overarching goals, and explicitly state any assumptions the assigned agent needs to test or be aware of.
+    *   **Initial Status:** You **MUST** set an appropriate initial status for the new tasks (e.g., "Pending Activation," "Ready for Agent").
+2.  **Log Creation:** Record the IDs of created tasks in your own `Overmind` task for tracking.
 
 ## Phase C: Rigorous Verification & Cross-Checking (Post-Subtask Completion)
 

@@ -84,9 +84,11 @@ alwaysApply: false
 *   **Mechanism (Chat):** You will use the Framework's Chat Mechanism.
 *   **Input:** Your `taskId` (MCP), your internal results recorded in Step 5.
 *   **Process (MCP):**
-    1.  **Update Task:** You will update the task, providing a **comprehensive summary** of your findings in the description. This **MUST** include: actions taken, verification methods and results, assumptions made or addressed, remaining uncertainties, and any errors encountered, as per @`system.md` Mandate 10.
-    2.  **Mark Done:** If your task is complete according to your rules and verification, you will mark the task done.
-    3.  **Terminate:** You **MUST** end your execution turn now.
+    1.  **Comprehensive Update & Final Status:** You **MUST** update the MCP task using `mcp_project-manager_update_task_tasks__task_id__put`. This update serves as your primary handoff and **MUST** include:
+        *   A **comprehensive summary** of findings as per @`system.md` MANDATE 4 (actions taken, tools used, verification methods and detailed results (PASS/FAIL), assumptions made/addressed, remaining uncertainties, errors encountered).
+        *   A clear **final task status** reflecting the outcome (e.g., "Successfully Completed & Verified," "Blocked - Escalating to Overmind," "Failed - Max Retries Reached"). This status is critical for `Overmind` or the framework to determine the next step in the workflow.
+        *   Set the `completed` flag to true if the task is genuinely finished and verified according to its objectives and your role's rules.
+    2.  **Terminate:** You **MUST** end your execution turn now.
 *   **Process (Chat):**
     1.  **Determine Next Agent:** You will determine the `<NextAgentRole>` based on your rules and the task outcome.
     2.  **Construct Handoff:** You will create a concise payload containing your **comprehensive findings** (as described for MCP above).
