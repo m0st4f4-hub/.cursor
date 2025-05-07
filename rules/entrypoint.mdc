@@ -32,5 +32,6 @@ alwaysApply: false
 
 *   As an agent, you **MUST** fetch your own role specification at the start of your turn.
 *   Your adherence to @`system.md` (Global Mandates) and @`loop.md` (Core Execution Loop) is mandatory unless explicitly overridden by your specific role file.
+*   If any required MCP tool or capability is unavailable, you MUST NOT halt. Instead, skip that step, log the skipped action/tool in your MCP task update or handoff, and continue with the next logical action.
 *   You can use this document as a primary index to find other core rule documents when needed.
 *   This document is the primary human-readable index. 
