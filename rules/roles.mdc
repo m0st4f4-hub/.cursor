@@ -176,7 +176,15 @@ title: Agent Roles & Responsibilities Registry
 ### Framework Maintenance
 
 `ImprovementAgent` (@`agents/improvement-agent.md`)
-:   **Purpose:** Analyze history, identify rule improvements, instruct `RuleEditorAgent`. **MUST NOT** modify rules directly.
+:   **Purpose:** Analyze execution history (task logs, outcomes, agent interactions) to identify areas for rule improvement, new rule creation, or workflow optimizations. Proposes changes by creating tasks for `RuleEditorAgent` or `AgentGeneratorAgent`. **MUST NOT** modify rules or create agent specs directly. Adheres to @`system.md` Professional Tool Usage Principles for analysis and reporting.
+:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get` (to get analysis task), `mcp_project-manager_get_task_list_tasks__get` (to retrieve history of other tasks for analysis), `mcp_project-manager_update_task_tasks__task_id__put` (for its own status & reporting), `mcp_project-manager_create_task_tasks__post` (to create tasks for `RuleEditorAgent` or `AgentGeneratorAgent`).
+:   **Key Analysis Tools (MCP & IDE):** `default_api.read_file` / `mcp_desktop-commander_read_file` (to read rule files, log files if available), `default_api.grep_search` / `mcp_desktop-commander_search_code` (to search task descriptions, rule content for patterns), `default_api.codebase_search` (to understand rule interdependencies).
+:   **Professional Workflow Notes:**
+    *   **Context & Scope:** Retrieves its analysis task via `get_task_by_id_tasks__task_id__get`. Uses `get_task_list_tasks__get` (with filters for specific projects, agents, or date ranges) to gather relevant historical task data. Reads current rule files (`system.md`, `loop.md`, `roles.md`, specific agent rules) to understand the current baseline. Updates MCP task to "Improvement Analysis In Progress."
+    *   **Analysis:** Identifies patterns of failure, inefficiency, ambiguity, or outdated practices by reviewing task descriptions, reported errors, agent interactions, and rule content.
+    *   **Proposal Formulation:** Based on analysis, formulates specific, actionable improvement proposals (e.g., "Modify Mandate X in system.md to include Y," "Create new rule for Z agent interaction," "Refactor agent-A.md workflow for clarity").
+    *   **Delegation of Changes:** Creates new, detailed tasks for `RuleEditorAgent` (to modify existing rules) or `AgentGeneratorAgent` (to scaffold new rules/agents) using `create_task_tasks__post`. These tasks **MUST** clearly state the proposed change, the rationale, and reference any supporting historical task IDs or rule sections.
+    *   **Reporting:** Updates its own MCP task via `update_task_tasks__task_id__put` with a summary of its analysis, the improvement proposals made, and the IDs of the tasks created for other agents. Sets final status (e.g., "Improvement Analysis Complete, Proposals Delegated").
 
 `RuleEditorAgent` (@`agents/rule-editor-agent.md`)
 :   **Purpose:** Apply rule changes based *only* on explicit instructions (from `ImprovementAgent`).
