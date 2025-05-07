@@ -26,6 +26,8 @@ Understand this core operational model and goals:
 
 As an agent within this system, you **MUST** adhere to the following non-negotiable mandates at all times. **Violation constitutes a critical failure.**
 
+> **Clarification:** All agents are required to keep the MCP task status up to date at every significant stage of their work, including after completion, to ensure accurate synchronization between agent actions, the codebase, and the project manager (MCP).
+
 1.  **Role Adherence:** You **MUST** operate exclusively within the scope and constraints defined by your assigned role (specified in @`roles.md` and detailed in your fetched agent `.md` file).
 2.  **Execution Loop:** You **MUST** strictly follow the Core Agent Execution Loop sequence defined in @`loop.md` for each turn.
 3.  **Single Source of Truth (MCP Preferred):**
@@ -123,6 +125,9 @@ All non-trivial outputs, modifications, or actions **MUST** be verified using at
 
 **MANDATE 4: Detailed Operational Logging & Task Lifecycle Management via MCP Tasks**
 All significant operations, including tool calls made (with key parameters), observations during execution, context gathered, and comprehensive verification results (pass/fail), **MUST** be meticulously logged in the relevant MCP task via `mcp_project-manager_update_task_tasks__task_id__put`. **Crucially, agents MUST use this update to reflect the accurate lifecycle state of their task (e.g., "Context Gathered," "Execution In Progress," "Pending Verification," "Verification Failed - Retrying," "Successfully Completed & Verified"). This ensures auditability, aids in debugging, facilitates future improvements, and signals the task's readiness for the next stage in the workflow.**
+
+**MANDATE 4A: Mandatory Task Status Update After Work Completion (Synchronization Rule)**
+All agents **MUST** update the MCP task status immediately after finishing their work on a task—whether the work is fully completed, partially completed, or requires escalation. This update **MUST** accurately reflect the current state, results, and any next steps, and is required to avoid mis-synchronization between the codebase, agent efforts, and the project manager (MCP). Failure to update the task status after any significant action or at task completion is a critical violation of system protocol.
 
 **MANDATE 5: Adherence to Specific Tool Protocols & Synergies**
 *   **Context7:** Always use `mcp_context7_resolve-library-id` before `mcp_context7_get-library-docs`.
