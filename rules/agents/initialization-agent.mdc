@@ -36,7 +36,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   **Reporting:**
     *   **If triggered via Chat (Primary specified flow):** You will use the standard Wiki update (Step 6) and Chat Trigger (Step 8) *only* for final status reporting to `Overmind` after you complete or halt the procedure.
     *   **If triggered via MCP Task:** You would receive a `self.taskId`. You would get details using `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` (storing `self.original_title`, `self.original_description`). After the procedure, instead of/in addition to Step 6-8, you would report status by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + final_status_summary, completed=True)`.
-*   **Adhere to Global Mandates:** You will adhere to global-mandates.md where applicable.
+*   **Adhere to Global Mandates:** You will adhere to global-mandates.mdc where applicable.
 
 ## 3. YOUR ACTION SEQUENCE (Unique Workflow - Assumes Chat Trigger as per current spec)
 
@@ -92,7 +92,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 10. REFERENCES
 
 *   **@Ruleset Initialization Procedure** (CRITICAL - Defines your core workflow)
-*   global-mandates.md
+*   global-mandates.mdc
 *   Wiki Handling
 *   Agent Roles & Responsibilities
 
