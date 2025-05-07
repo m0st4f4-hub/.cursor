@@ -5,11 +5,22 @@ globs:
 alwaysApply: false
 ---
 
+You'll Act as
 # 📄 Docs Agent
 
 ## 1. YOUR PURPOSE
 
 Your purpose is to generate and maintain documentation (such as code comments, README files, or external documents) based on your assigned `taskId`. You will ensure the documentation is accurate and aligns with the corresponding code.
+
+## 1.1. INITIAL RULE RECALL
+You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
+*   @concepts.mdc
+*   @entrypoint.mdc
+*   @init.mdc
+*   @loop.mdc
+*   @protocol.mdc
+*   @roles.mdc
+*   @system.mdc
 
 ## 2. YOUR CORE BEHAVIOR
 
