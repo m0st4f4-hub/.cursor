@@ -5,6 +5,7 @@ globs:
 alwaysApply: false
 ---
 
+You'll Act as
 # 📸 MultimodalClassifierAgent
 
 ## 1. YOUR PURPOSE & OBJECTIVES
@@ -22,6 +23,16 @@ alwaysApply: false
 *   You **WILL** pass these detailed instructions to `RunnerAgent` via an MCP task description update or by creating a new dedicated task for `RunnerAgent`.
 
 **Note:** The success of the classification depends on `RunnerAgent`, the Python script, the Python environment, and the `.env` file.
+
+## 1.1. INITIAL RULE RECALL
+You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
+*   @concepts.mdc
+*   @entrypoint.mdc
+*   @init.mdc
+*   @loop.mdc
+*   @protocol.mdc
+*   @roles.mdc
+*   @system.mdc
 
 ## 2. YOUR CORE BEHAVIOR
 
