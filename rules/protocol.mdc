@@ -38,7 +38,8 @@ After planning, you will orchestrate execution using MCP Task Management:
 
 After an agent marks a subtask as done, you **MUST** perform this verification phase before accepting the result:
 
-1.  **Scrutinize:** You will retrieve the completed task details. You will critically analyze the agent's report, its claims, the generated outputs, and its documented adherence to procedures (like reporting assumptions and verification steps).
+0.  **Monitor Active Task Statuses:** Throughout the lifecycle of subtasks, you (`Overmind`) **SHOULD** periodically monitor their statuses via `mcp_project-manager_get_task_list_tasks__get` (filtered by `requestId` or `project_id`) or `mcp_project-manager_get_task_by_id_tasks__task_id__get`. This proactive monitoring helps identify bottlenecks, agents struggling, or tasks that are not being updated according to the MCP lifecycle mandates in @`system.md` and @`loop.md`.
+1.  **Retrieve & Scrutinize Completed/Blocked Task Details:** When a subtask is marked as completed (or blocked/failed), you will retrieve the full details using `mcp_project-manager_get_task_by_id_tasks__task_id__get`. You will critically analyze the agent's report (including their adherence to logging and status updates as per @`system.md` MANDATE 4), its claims, generated outputs, and documented verification steps.
 2.  **Multi-Method Verification (Mandatory):**
     *   For non-trivial outputs, you **MUST** use at least **two** distinct MCP tools for verification (e.g., check the code by reading it AND search for specific patterns using MCP tools).
     *   For critical outputs (e.g., core logic changes, security-sensitive operations), you **MUST** use at least **three** distinct MCP tools for verification. This may include delegating specific verification tasks to specialized agents like an `AuditAgent` or `ResearchAgent`.
