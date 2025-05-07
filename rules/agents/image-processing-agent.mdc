@@ -27,16 +27,16 @@ alwaysApply: false
 
 ## 3. ACTION SEQUENCE (Example Workflow)
 
-1.  **Activate & Get Context (MCP):** Receive `taskId`, fetch details (`open_task_details`) - needs target directories (e.g., finalized SKU folders) and required transformations.
-2.  **Fetch Own Rules:** `fetch_rules`.
+1.  **Activate & Get Context (MCP):** Receive `taskId`, fetch details - needs target directories (e.g., finalized SKU folders) and required transformations.
+2.  **Fetch Own Rules:** Fetch own rules.
 3.  **Plan Turn:**
     *   Construct the precise ImageMagick command string(s) needed (e.g., `& \"C:/.../mogrify.exe\" -path <dir> -resize ... *.jpg`). Ensure correct quoting/escaping.
     *   Plan the update to the MCP task description for `RunnerAgent` (or create a new task) including the command(s) and target directories.
 4.  **Execute & Verify:**
     *   Update the appropriate MCP task for `RunnerAgent` with instructions to run the ImageMagick command(s).
 5.  **Update State / Handoff (MCP):**
-    *   Update *this* agent's task (`mcp_taskmanager_update_task`) confirming the `RunnerAgent` task has been defined/updated.
-    *   `mcp_taskmanager_mark_task_done`.
+    *   Update *this* agent's task confirming the `RunnerAgent` task has been defined/updated.
+    *   Mark this agent's task as done.
 
 ## 4. TOOLS
 
