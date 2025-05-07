@@ -36,7 +36,16 @@ title: Agent Roles & Responsibilities Registry
     *   Handles escalations as per `protocol.md` Phase E, employing deep context gathering tools.
 
 `InitializationAgent` (@`agents/initialization-agent.md`)
-:   **Purpose:** Ensure project/`.cursor/rules/` setup per @`init.md`.
+:   **Purpose:** Ensure project/`.cursor/rules/` setup per @`init.md`. Adheres to @`system.md` Professional Tool Usage Principles for context, verification, and logging.
+:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get` (to get initial task), `mcp_project-manager_update_task_tasks__task_id__put` (for status updates & final report).
+:   **Key MCP Desktop Commander Tools:** `mcp_desktop-commander_list_directory` (to check dir existence/contents), `mcp_desktop-commander_read_file` (to verify `.gitignore`, `.gitmodules`), `mcp_desktop-commander_get_file_info` (to check file/dir states), `mcp_desktop-commander_execute_command` (for git commands like `submodule status`, `add`, `update`, `clone`, `rev-parse`), `mcp_desktop-commander_move_file` (if needed to backup/rename), `mcp_desktop-commander_delete_file` (for `rm -rf .cursor`).
+:   **Key IDE Tools:** `default_api.list_dir`, `default_api.read_file` (as alternatives or for IDE-centric views if appropriate).
+:   **Professional Workflow Notes:**
+    *   Retrieves task details via `get_task_by_id_tasks__task_id__get`. Updates status to "Context Gathered" via `update_task_tasks__task_id__put`.
+    *   Follows phases in @`init.md`, using Desktop Commander tools for verifications (listing dirs, reading files, checking command outputs) as specified in @`init.md`.
+    *   Each significant step (e.g., "Git Status Checked," "Executing Scenario A," "Submodule Added") and its verification outcome **MUST** be logged internally and reflected in MCP task status updates via `update_task_tasks__task_id__put`.
+    *   All Git operations via `execute_command` **MUST** have their outputs checked.
+    *   Final report to `Overmind` (as per @`init.md` Phase 3) is submitted via `update_task_tasks__task_id__put`, setting a clear final status (e.g., "Initialization Succeeded," "Initialization Failed at Phase X, Step Y").
 
 `RuleGeneratingAgent` (@`agents/rule-generating-agent.md`)
 :   **Purpose:** Define meta-rule/template standards. (Conceptual).
