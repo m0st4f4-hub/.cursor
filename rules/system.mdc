@@ -92,3 +92,53 @@ To maximize rigor, robustness, and performance, all agents MUST utilize the full
 - **If a tool is unavailable, follow the Tool Availability Exception (see Global Mandates).**
 
 Agents should refer to this section and the official MCP tool documentation for further details and best practices.
+
+## Part 3: PROFESSIONAL TOOL USAGE PRINCIPLES & MANDATES
+
+To ensure maximum rigor, robustness, and professional execution, all agents **MUST** adhere to these principles. Agents **MUST** leverage the full suite of available tools (IDE `default_api` tools, MCP Project Manager, MCP Desktop Commander, MCP Context7, MCP Web Fetch, MCP Browser Tools) strategically and document their usage meticulously.
+
+**MANDATE 1: Comprehensive Context Gathering (Foundation for All Actions)**
+Before initiating any significant action or modification, agents **MUST** build a thorough understanding of the current state and task requirements. This involves a combination of tools:
+*   **Task Deconstruction:**
+    *   `mcp_project-manager_get_task_by_id_tasks__task_id__get`: Retrieve full task details, description, and any linked project/agent context.
+*   **File/Code Analysis (as applicable):**
+    *   Verify existence and get metadata: `mcp_desktop-commander_get_file_info` (for specific files), `mcp_desktop-commander_list_directory` or `default_api.list_dir` (for directory context).
+    *   Read content: `mcp_desktop-commander_read_file` (for full, scriptable access of one or more files via `read_multiple_files`) or `default_api.read_file` (for interactive/partial reads from the IDE perspective).
+    *   Understand semantic relationships: `default_api.codebase_search`.
+    *   Find specific patterns/keywords: `mcp_desktop-commander_search_code` (powerful, scriptable) or `default_api.grep_search` (precise regex from IDE).
+    *   Locate files: `default_api.file_search` (fuzzy path matching).
+*   **Dependency/External Knowledge (as applicable):**
+    *   Library documentation: `mcp_context7_resolve-library-id` followed by `mcp_context7_get-library-docs`.
+    *   General web research/fetching content: `default_api.web_search` (for processed search results) or `mcp_web-fetch_fetch` (for direct URL content retrieval).
+*   **Record Keeping:** All gathered context, assumptions derived, and tools used for gathering **MUST** be documented in the MCP task update (`mcp_project-manager_update_task_tasks__task_id__put`).
+
+**MANDATE 2: Multi-Method Verification (Ensuring Accuracy and Safety)**
+All non-trivial outputs, modifications, or actions **MUST** be verified using at least **TWO** distinct methods/tools. Critical operations (e.g., core logic changes, security-sensitive operations, major file structure changes) **MUST** use at least **THREE** verification methods.
+*   **Example Workflow: Code Modification Verification (e.g., after `default_api.edit_file` or `mcp_desktop-commander_edit_block`):**
+    1.  **Content Confirmation:** `mcp_desktop-commander_read_file` (or `default_api.read_file`) to check direct content changes.
+    2.  **Pattern/Side-Effect Check:** `mcp_desktop-commander_search_code` (or `default_api.grep_search`) to ensure no unintended patterns were introduced/removed or that expected patterns now exist.
+    3.  **Functional Validation:** `mcp_desktop-commander_execute_command` (or `default_api.run_terminal_cmd`) to execute linters, formatters, and available tests. Analyze output using `mcp_desktop-commander_read_output` if needed.
+    4.  **(Optional, for complex changes) Semantic Impact Assessment:** `default_api.codebase_search` on related code areas.
+*   **Example Workflow: File/Directory Operation Verification (e.g., after `mcp_desktop-commander_create_directory`, `move_file`, `write_file`, `default_api.delete_file`):**
+    1.  **Structural Confirmation:** `mcp_desktop-commander_list_directory` in relevant parent/source/target locations.
+    2.  **Metadata Check:** `mcp_desktop-commander_get_file_info` on new/moved/modified items.
+    3.  **Content Validation (if written/modified):** `mcp_desktop-commander_read_file`.
+*   **Documentation:** All verification steps, tools used, parameters, and pass/fail results **MUST** be documented in the MCP task update.
+
+**MANDATE 3: Strategic Tool Selection & Execution Best Practices**
+*   **Prefer MCP Tools for Automated/Background Operations:** For tasks requiring robust background execution, output capture, and process management (e.g., builds, complex scripts), `mcp_desktop-commander_execute_command` (with its associated `read_output`, `force_terminate`, `list_sessions` capabilities) is generally preferred over `default_api.run_terminal_cmd`. Similarly, `mcp_desktop-commander_` file tools offer broad, scriptable control.
+*   **Targeted Edits:** Use `default_api.edit_file` for IDE-centric changes or `mcp_desktop-commander_edit_block` for precise, automated text replacements. `mcp_desktop-commander_write_file` (which overwrites) should be used cautiously, often preceded by `mcp_desktop-commander_get_file_info` or `read_file` if preserving parts of existing content or ensuring the target is correct.
+*   **Safe File Deletion:** Before using `default_api.delete_file` or `mcp_desktop-commander_delete_file`, confirm target with `mcp_desktop-commander_get_file_info` and consider implications.
+*   **Efficient Information Retrieval:** Tailor search tools (`codebase_search` for semantics, `search_code` for broad patterns, `grep_search` for specific regex) to the nature of the query. Utilize `filePattern`, `ignoreCase`, etc. parameters.
+*   **Leverage Browser Tools for Web-Focused Tasks:** Agents like `UXAgent` or those interacting with web interfaces should utilize `mcp_browser-tools_*` for audits, log retrieval, and interaction.
+
+**MANDATE 4: Detailed Operational Logging & Task Lifecycle Management via MCP Tasks**
+All significant operations, including tool calls made (with key parameters), observations during execution, context gathered, and comprehensive verification results (pass/fail), **MUST** be meticulously logged in the relevant MCP task via `mcp_project-manager_update_task_tasks__task_id__put`. **Crucially, agents MUST use this update to reflect the accurate lifecycle state of their task (e.g., "Context Gathered," "Execution In Progress," "Pending Verification," "Verification Failed - Retrying," "Successfully Completed & Verified"). This ensures auditability, aids in debugging, facilitates future improvements, and signals the task's readiness for the next stage in the workflow.**
+
+**MANDATE 5: Adherence to Specific Tool Protocols & Synergies**
+*   **Context7:** Always use `mcp_context7_resolve-library-id` before `mcp_context7_get-library-docs`.
+*   **MCP Desktop Commander `execute_command`:** For commands that produce output or run in the background, use the PID returned to interact via `read_output`, `force_terminate`. Check `list_sessions` or `list_processes` for broader system state if needed.
+*   **Project Management for `Overmind`:** `mcp_project-manager_gen_overmind_planning_prompt` can kickstart planning, followed by `create_task_tasks__post` for delegation, and `get_task_list_tasks__get` / `get_task_by_id_tasks__task_id__get` for monitoring.
+
+**MANDATE 6: Tool Availability Exception (Reiteration of Global Mandate 12)**
+If a required tool or capability is not available, agents **MUST NOT HALT** catastrophically. Instead, they **MUST SKIP** that specific tool usage, log the skipped step (including the unavailable tool/capability) in their MCP task update, and continue with the next logical action or alternative method if available. The inability to use one specific tool should not derail the entire process if other tools or approaches can still achieve the sub-task or overall goal. Agents should strive to identify alternative tool combinations where possible.
