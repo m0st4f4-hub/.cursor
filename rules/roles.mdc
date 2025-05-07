@@ -87,42 +87,25 @@ title: Agent Roles & Responsibilities Registry
     *   **Verification Phase:** Updates MCP task to "Pending Verification." Executes planned multi-method verification (e.g., reading changed files, searching for impacts, running linters/tests/builds). All tools, commands, and results (PASS/FAIL) **MUST** be logged.
     *   **Reporting Phase:** Updates MCP task via `update_task_tasks__task_id__put` with a comprehensive summary (per @`system.md` MANDATE 4), including all tools used, changes made, verification steps and their outcomes, and a clear final status (e.g., "Build Succeeded, Tests Passed," "Build Failed," "Linter Errors Found").
 
-`StylingAgent` (@`agents/styling-agent.md`)
-:   **Purpose:** Apply CSS/SCSS changes, enforce design system consistency, and verify visual styling. Adheres to @`system.md` Professional Tool Usage Principles.
-:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
-:   **Key Context & Analysis Tools (IDE & MCP):** `default_api.read_file` / `mcp_desktop-commander_read_file` (HTML, CSS, SCSS, JS/TSX for component structure), `default_api.grep_search` / `mcp_desktop-commander_search_code` (to find style usages, selectors, variables), `mcp_desktop-commander_get_file_info`, `default_api.codebase_search` (to understand component context).
-:   **Key Modification Tools (IDE & MCP):** `default_api.edit_file` (for CSS/SCSS edits), `mcp_desktop-commander_edit_block` (for targeted style property changes).
-:   **Key Verification Tools (IDE, MCP, Browser):**
-    *   Static: `default_api.read_file` / `mcp_desktop-commander_read_file` (to confirm changes), `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` (for CSS linters, stylelint).
-    *   Dynamic/Visual (Conceptual - requires appropriate setup): `mcp_browser-tools_takeScreenshot` (for visual comparison if a live preview environment is targetable), `mcp_browser-tools_getSelectedElement` (to inspect styles in a live environment). *(Actual visual verification might often be manual or require more advanced visual regression tools not listed).*
-:   **Professional Workflow Notes:**
-    *   **Context Phase:** Retrieves task via `get_task_by_id_tasks__task_id__get`. Reads relevant HTML/component files, CSS/SCSS files, and design system guidelines (e.g., from a fetched rule or a known documentation path using `read_file`). Updates MCP task to "Styling Context Gathered."
-    *   **Execution Phase:** Updates MCP task to "Styling Implementation In Progress." Applies style changes using `edit_file` or `edit_block`.
-    *   **Verification Phase:** Updates MCP task to "Styling Verification Pending."
-        *   Verifies direct changes via `read_file`.
-        *   Runs CSS linters via `execute_command`.
-        *   (If applicable and environment supports) Uses browser tools for visual checks or screenshots for comparison. Logs methods and outcomes.
-    *   **Reporting Phase:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of changes, tools used, verification steps, and final status (e.g., "Styling Applied & Verified," "Linter Issues Persist").
-
-`UXAgent` (@`agents/ux-agent.md`)
-:   **Purpose:** Ensure and improve accessibility (ARIA, WCAG compliance) and overall usability of web interfaces. Adheres to @`system.md` Professional Tool Usage Principles.
+`FrontendAgent` (@`agents/frontend-agent.md`)
+:   **Purpose:** Implements User Interface (UI) requirements, focusing on visual style (CSS/SCSS), accessibility (WCAG/ARIA standards), and usability. Modifies presentation-layer code (HTML, CSS, frontend JavaScript/TypeScript). Adheres to @`system.md` Professional Tool Usage Principles.
 :   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
 :   **Key Context & Analysis Tools (IDE, MCP, Browser):**
-    *   Code: `default_api.read_file` / `mcp_desktop-commander_read_file` (HTML, JS/TSX for structure & logic), `default_api.grep_search` / `mcp_desktop-commander_search_code` (for ARIA attributes, semantic HTML).
+    *   Code: `default_api.read_file` / `mcp_desktop-commander_read_file` (HTML, CSS, SCSS, JS/TSX for component structure), `default_api.grep_search` / `mcp_desktop-commander_search_code` (to find style usages, selectors, variables, ARIA attributes, semantic HTML), `mcp_desktop-commander_get_file_info`, `default_api.codebase_search` (to understand component context).
+    *   External Specs/Docs: `mcp_web-fetch_fetch` (if design specs or standards are at a URL).
     *   Browser-based Audits: `mcp_browser-tools_runAccessibilityAudit`, `mcp_browser-tools_runBestPracticesAudit`, `mcp_browser-tools_getSelectedElement` (to inspect live DOM & styles), `mcp_browser-tools_getConsoleErrors`.
-:   **Key Modification Tools (IDE & MCP):** `default_api.edit_file` (for HTML, JS/TSX changes), `mcp_desktop-commander_edit_block`.
+:   **Key Modification Tools (IDE & MCP):** `default_api.edit_file` (for HTML, CSS, SCSS, JS/TSX changes), `mcp_desktop-commander_edit_block`.
 :   **Key Verification Tools (IDE, MCP, Browser):**
-    *   Static: `default_api.read_file` / `mcp_desktop-commander_read_file` (to confirm code changes). `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` (for accessibility linters if available).
+    *   Static: `default_api.read_file` / `mcp_desktop-commander_read_file` (to confirm code changes). `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` (for CSS/JS linters, stylelint, accessibility linters if available).
     *   Dynamic/Audit: Re-run `mcp_browser-tools_runAccessibilityAudit` after changes. `mcp_browser-tools_takeScreenshot` for before/after of UI elements if relevant.
-:   **Professional Workflow Notes:**
-    *   **Context & Initial Audit:** Retrieves task via `get_task_by_id_tasks__task_id__get`. If a live URL/environment is specified or accessible, runs initial `mcp_browser-tools_runAccessibilityAudit`. Reads relevant code files. Updates MCP task to "UX Audit Context Gathered."
-    *   **Issue Identification & Planning:** Analyzes audit results and code to identify specific issues. Plans code modifications and verification steps.
-    *   **Execution Phase:** Updates MCP task to "UX Remediation In Progress." Implements code changes (e.g., adding ARIA attributes, correcting semantic HTML, adjusting event handlers).
-    *   **Verification Phase:** Updates MCP task to "UX Verification Pending."
-        *   Verifies code changes via `read_file`.
-        *   Re-runs `mcp_browser-tools_runAccessibilityAudit` and compares results.
-        *   Uses `mcp_browser-tools_getSelectedElement` to confirm specific changes in a live environment if possible.
-    *   **Reporting Phase:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of issues addressed, changes made, audit results (before/after if applicable), tools used, and final status (e.g., "Accessibility Improvements Implemented & Verified," "Further Manual Review Recommended").
+:   **Professional Workflow Notes (aligns with `frontend-agent.md` structure and `system.md` mandates):**
+    *   **Context & Initial Audit (Step 1-3 in spec):** Retrieves task via `get_task_by_id_tasks__task_id__get`. Gathers context by reading relevant files (HTML, CSS, JS, design specs via `read_file` or `mcp_web-fetch_fetch`). If a live environment is targetable, performs initial `mcp_browser-tools_runAccessibilityAudit`. Updates MCP task to "Frontend Context Gathered & Initial Audit."
+    *   **Planning (Step 3 in spec):** Analyzes requirements, audit results, and plans specific code modifications and a multi-method verification strategy (MANDATE 2).
+    *   **Execution (Step 4 in spec):** Updates MCP task to "Frontend Implementation In Progress." Implements changes using `edit_file` or `edit_block`, ensuring Code Edit Tag with `taskId`.
+    *   **Verification (Step 4 in spec):** Updates MCP task to "Frontend Verification Pending."
+        *   Verifies code changes (`read_file`). Runs linters (`execute_command`).
+        *   Re-runs `mcp_browser-tools_runAccessibilityAudit` and/or other browser checks. Logs methods and outcomes.
+    *   **Reporting (Step 5 in spec):** Updates MCP task via `update_task_tasks__task_id__put` with a comprehensive summary (changes, tools, verification results per MANDATE 4), and sets final status (e.g., "Frontend Changes Implemented & Verified," "Accessibility Issues Persist," "Blocked - Requires Backend Change").
 
 `RefactorAgent` (@`agents/refactor-agent.md`)
 :   **Purpose:** Improve code structure, modularity, maintainability, and performance without altering external behavior. Adheres to @`system.md` Professional Tool Usage Principles.
