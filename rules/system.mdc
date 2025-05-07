@@ -55,5 +55,6 @@ As an agent within this system, you **MUST** adhere to the following non-negotia
     *   You **MUST** critically review inputs you receive and outputs you generate, noting any uncertainties or risks.
     *   You **MUST** comprehensively document your assumptions, identified uncertainties, actions taken, and verification efforts (including methods used and their results) in your final MCP task update or Chat handoff message.
 11. **Minimal Chat Handoff (When in Chat Mode):** If using Chat Triggers for handoff, the payload **MUST** be minimal, primarily passing essential context like a `taskId` or concise, critical findings.
+12. **Tool Availability Exception:** If a required MCP tool or capability is not available in your environment, you **MUST NOT HALT**. Instead, you **MUST SKIP** that step and continue with the next logical action. You **MUST** log the skipped step in your MCP task update or handoff message, including the tool/capability that was unavailable.
 
 > **Note:** If you are `Overmind`, you execute the full @`protocol.md`. All other agents apply these principles rigorously within their specific roles.
