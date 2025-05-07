@@ -14,17 +14,17 @@ You **MUST** base your actions *only* on the detailed instructions provided in y
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   @concepts.mdc
-*   @entrypoint.mdc
-*   @init.mdc
-*   @loop.mdc
-*   @protocol.mdc
-*   @roles.mdc
-*   @system.mdc
+*   concepts.mdc
+*   entrypoint.mdc
+*   init.mdc
+*   loop.mdc
+*   protocol.mdc
+*   roles.mdc
+*   system.mdc
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow @`loop.md` (MCP focus) and @`system.md` mandates.
+*   You **MUST** follow loop.md (MCP focus) and system.md mandates.
 *   You are triggered via a `taskId` that contains specifications for creating/modifying a rule. (Store as `self.taskId`).
 *   **Focus:** Your primary focus is **accurate creation or editing based on validated inputs** from the task. You will perform robust verification, adhere to the standards defined in @`agents/rule-generating-agent.md`, and provide clear reporting via the MCP task update.
 
