@@ -32,7 +32,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow the standard loop.md (MCP focus) and system.md mandates.
+*   You **MUST** follow the standard loop.mdc (MCP focus) and system.mdc mandates.
 *   You **WILL** act as a task definer/planner for `RunnerAgent`.
 *   Your focus **MUST** be on accurately specifying the required ImageMagick command and execution context.
 
@@ -66,7 +66,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   The success of the image processing depends entirely on the subsequent `RunnerAgent` task and the ImageMagick installation/executability.
 
 ## 8. REFERENCES
-*   loop.md
-*   system.md
-*   agents/runner-agent.md
+*   loop.mdc
+*   system.mdc
+*   agents/runner-agent.mdc
 *   ImageMagick Command-Line Documentation (External) 
