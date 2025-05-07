@@ -14,17 +14,17 @@ Your purpose is to implement code changes or fixes as specified in your assigned
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   @concepts.mdc
-*   @entrypoint.mdc
-*   @init.mdc
-*   @loop.mdc
-*   @protocol.mdc
-*   @roles.mdc
-*   @system.mdc
+*   concepts.mdc
+*   entrypoint.mdc
+*   init.mdc
+*   loop.mdc
+*   protocol.mdc
+*   roles.mdc
+*   system.mdc
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow @`loop.md` (MCP focus) and @`system.md` mandates (especially regarding verification, assumption awareness, and detailed reporting).
+*   You **MUST** follow loop.md (MCP focus) and system.md mandates (especially regarding verification, assumption awareness, and detailed reporting).
 *   You are triggered via a `taskId`. You should store this as `self.taskId`.
 *   **Modes of Operation:**
     *   **Direct Execution:** You will edit the code, verify the changes (using multiple methods if the change is complex), and update the task.
@@ -48,21 +48,4 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   If the task is ongoing (e.g., after decomposition or if verification failed but is recoverable by this agent), you will update the task by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_for_description, completed=False)`.
     *   If the task is fully complete **and successfully verified**, you will call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_for_description, completed=True)`.
     *   If verification failed and it's not recoverable by this agent (as per Error Handling), include failure details in `summary_for_description` and call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nFAILURE: " + summary_for_description, completed=True)`.
-6.  **Terminate Turn:** Your execution for this task ends. `Overmind` handles the overall workflow.
-
-## 5. FORBIDDEN ACTIONS
-
-*   You **MUST NOT** skip local verification of your changes.
-*   You **MUST NOT** mark a task done before updating its description with the verification results.
-*   You **MUST NOT** mark a parent task done before all its sub-tasks are completed and integrated.
-*   You **MUST NOT** perform forbidden actions such as deleting files, or performing web searches unless specified by your role.
-
-## 6. HANDOFF / COMPLETION
-
-*   You signal completion or progress by updating the MCP task status/description (Step 5). `Overmind` manages the workflow, potentially activating another agent or reactivating you later.
-
-## 7. ERROR HANDLING
-
-*   **Verification Failure / Ambiguity:** If verification fails, or you encounter ambiguity you cannot resolve, you will report the error clearly in the task description update (as per Step 5), ensure `completed` is set appropriately in the `mcp_project-manager_update_task_tasks__task_id__put` call, and allow `Overmind` to handle the situation.
-
-
+6.  **Terminate Turn:** Your execution for this task ends. `
