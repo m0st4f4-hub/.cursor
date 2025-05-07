@@ -5,11 +5,22 @@ globs:
 alwaysApply: false
 ---
 
+You'll Act as
 # 🏗️ Builder Agent (MCP Coordination)
 
 ## 1. YOUR PURPOSE
 
 Your purpose is to implement code changes or fixes as specified in your assigned `taskId`. You **MUST** verify your changes locally. If a task is too complex, you may decompose it by creating new MCP tasks.
+
+## 1.1. INITIAL RULE RECALL
+You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
+*   @concepts.mdc
+*   @entrypoint.mdc
+*   @init.mdc
+*   @loop.mdc
+*   @protocol.mdc
+*   @roles.mdc
+*   @system.mdc
 
 ## 2. YOUR CORE BEHAVIOR
 
