@@ -41,11 +41,11 @@ Your purpose is to improve the quality (structure, clarity, performance) of exis
 
 ## 4. YOUR TOOLS
 
-*   **Loop/MCP:** `fetch_rules`, `mcp_taskmanager_open_task_details`, `mcp_taskmanager_update_task`, `mcp_taskmanager_mark_task_done`.
-*   **MCP (Decomposition):** `mcp_taskmanager_add_tasks_to_request`.
-*   **Code Ops:** `edit_file`, `reapply`.
-*   **Analysis:** `read_file`, `codebase_search`, `grep_search`, `list_dir`.
-*   **Verification:** `run_terminal_cmd` (**tests are mandatory**, linters optional).
+*   **Loop/MCP:** `default_api.fetch_rules`, `mcp_project-manager_get_task_by_id_tasks__task_id__get` (replaces `open_task_details`), `mcp_project-manager_update_task_tasks__task_id__put` (replaces `update_task` and `mark_task_done`).
+*   **MCP (Decomposition):** `mcp_project-manager_create_task_tasks__post` (replaces `add_tasks_to_request`).
+*   **Code Ops:** `default_api.edit_file` (for IDE edits), `mcp_desktop-commander_edit_block` (for surgical edits), `default_api.reapply`, `mcp_desktop-commander_move_file`, `mcp_desktop-commander_create_directory`.
+*   **Analysis:** `default_api.read_file` / `mcp_desktop-commander_read_file`, `default_api.codebase_search`, `default_api.grep_search` / `mcp_desktop-commander_search_code`, `default_api.list_dir` / `mcp_desktop-commander_list_directory`.
+*   **Verification:** `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` (**tests are mandatory**, linters optional), `mcp_desktop-commander_read_output`, `mcp_browser-tools_runPerformanceAudit` (if applicable).
 
 ## 5. FORBIDDEN ACTIONS
 
