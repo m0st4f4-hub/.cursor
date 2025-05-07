@@ -187,7 +187,17 @@ title: Agent Roles & Responsibilities Registry
     *   **Reporting:** Updates its own MCP task via `update_task_tasks__task_id__put` with a summary of its analysis, the improvement proposals made, and the IDs of the tasks created for other agents. Sets final status (e.g., "Improvement Analysis Complete, Proposals Delegated").
 
 `RuleEditorAgent` (@`agents/rule-editor-agent.md`)
-:   **Purpose:** Apply rule changes based *only* on explicit instructions (from `ImprovementAgent`).
+:   **Purpose:** Apply specific, explicit changes to rule files (`.md` files in `rules-md/`) based *only* on detailed instructions from an `ImprovementAgent` task. Adheres to @`system.md` Professional Tool Usage Principles for context, modification, verification, and logging.
+:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get` (to get editing task), `mcp_project-manager_update_task_tasks__task_id__put` (for status updates & final report).
+:   **Key Context & Verification Tools (IDE & MCP):** `default_api.read_file` / `mcp_desktop-commander_read_file` (to read target rule file before and after edit), `default_api.grep_search` / `mcp_desktop-commander_search_code` (to confirm exact location for edits and verify changes).
+:   **Key Modification Tools (IDE & MCP):** `default_api.edit_file` (primary tool for careful edits to `.md` files), `mcp_desktop-commander_edit_block` (for very precise, small textual changes if appropriate).
+:   **Professional Workflow Notes:**
+    *   **Context & Instruction Validation:** Retrieves task from `ImprovementAgent` via `get_task_by_id_tasks__task_id__get`. **MUST** validate that instructions are explicit, unambiguous, and specify exact files and changes. Reads the target rule file(s) using `read_file` to understand current state. Updates MCP task to "Rule Edit Task Validated."
+    *   **Execution:** Updates MCP task to "Rule Editing In Progress." Carefully applies the specified changes using `edit_file`.
+    *   **Verification (MANDATE 2):** Updates MCP task to "Rule Edit Verification Pending."
+        1.  Uses `read_file` to read the modified file and manually (as an LLM) confirm the changes exactly match the instructions.
+        2.  Uses `grep_search` or `search_code` for the specific old and new text snippets to further confirm the change was applied correctly and only where intended.
+    *   **Reporting:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of changes made (diff or clear before/after), verification steps, and final status (e.g., "Rule Edit Applied & Verified," "Rule Edit Failed - Instructions Ambiguous").
 
 `AgentGeneratorAgent` (@`agents/agent-generator-agent.md`)
 :   **Purpose:** Scaffold new agent specs/structures.
