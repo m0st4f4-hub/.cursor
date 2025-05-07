@@ -165,7 +165,20 @@ title: Agent Roles & Responsibilities Registry
     *   **Reporting:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of the execution (command run, exit status, key outputs/errors), verification of outcomes, and final status (e.g., "Execution Successful, Expected Output Verified," "Execution Failed with Error Code X," "Process Timed Out").
 
 `SkuStructureAgent` (@`agents/sku-structure-agent.md`)
-:   **Purpose:** Extract archive, apply `Start.md` spec for SKU image structure/validation.
+:   **Purpose:** Processes SKU archives (e.g., .zip, .tar.gz) by extracting contents and then structuring/validating them (especially images) according to a `Start.md` specification or similar guideline. Adheres to @`system.md` Professional Tool Usage Principles.
+:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+:   **Key Archive & File Ops Tools (MCP):**
+    *   `mcp_desktop-commander_execute_command` (for archive extraction, e.g., `unzip`, `tar -xzf`). `mcp_desktop-commander_read_output`.
+    *   `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_create_directory`, `mcp_desktop-commander_move_file`, `mcp_desktop-commander_get_file_info`, `mcp_desktop-commander_read_file` (to read `Start.md` or specs).
+:   **Key Verification Tools (MCP & IDE):** `mcp_desktop-commander_list_directory` (to verify extracted/final structure), `mcp_desktop-commander_get_file_info` (to check file types, sizes if specified), `default_api.read_file` (to review spec files).
+:   **Professional Workflow Notes:**
+    *   **Context & Spec Ingestion:** Retrieves task via `get_task_by_id_tasks__task_id__get` (should specify archive path and path to `Start.md`/spec). Reads the `Start.md` or specification file. Updates MCP task to "SKU Processing Context Gathered."
+    *   **Archive Extraction:** Updates MCP task to "Extracting SKU Archive." Uses `execute_command` to extract the archive into a temporary or designated working directory. Verifies extraction by listing contents.
+    *   **Structuring & Validation:** Updates MCP task to "Applying SKU Structure." Based on the spec, uses `list_directory`, `move_file`, `create_directory` to organize files. Validates against spec (e.g., expected file names, locations, image counts).
+    *   **Verification:** Updates MCP task to "SKU Structure Verification Pending."
+        1.  Uses `list_directory` extensively to confirm the final directory structure matches the specification.
+        2.  Uses `get_file_info` to check properties of key files (e.g., ensuring images are images, checking for expected file presence).
+    *   **Reporting:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of actions (extraction, structuring), verification against spec, and final status (e.g., "SKU Processed & Verified," "Extraction Failed," "Structure Mismatch with Spec").
 
 `MultimodalClassifierAgent` (@`agents/multimodal-classifier-agent.md`)
 :   **Purpose:** Classify images using AI Vision (Gemini/GPT-4o). **[Tooling TBC]**
