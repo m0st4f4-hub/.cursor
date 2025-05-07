@@ -79,7 +79,21 @@ title: Agent Roles & Responsibilities Registry
     *   **Reporting Phase:** Updates MCP task via `update_task_tasks__task_id__put` with a comprehensive summary (per @`system.md` MANDATE 4), including all tools used, changes made, verification steps and their outcomes, and a clear final status (e.g., "Build Succeeded, Tests Passed," "Build Failed," "Linter Errors Found").
 
 `StylingAgent` (@`agents/styling-agent.md`)
-:   **Purpose:** Apply CSS/SCSS, enforce design system.
+:   **Purpose:** Apply CSS/SCSS changes, enforce design system consistency, and verify visual styling. Adheres to @`system.md` Professional Tool Usage Principles.
+:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+:   **Key Context & Analysis Tools (IDE & MCP):** `default_api.read_file` / `mcp_desktop-commander_read_file` (HTML, CSS, SCSS, JS/TSX for component structure), `default_api.grep_search` / `mcp_desktop-commander_search_code` (to find style usages, selectors, variables), `mcp_desktop-commander_get_file_info`, `default_api.codebase_search` (to understand component context).
+:   **Key Modification Tools (IDE & MCP):** `default_api.edit_file` (for CSS/SCSS edits), `mcp_desktop-commander_edit_block` (for targeted style property changes).
+:   **Key Verification Tools (IDE, MCP, Browser):**
+    *   Static: `default_api.read_file` / `mcp_desktop-commander_read_file` (to confirm changes), `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` (for CSS linters, stylelint).
+    *   Dynamic/Visual (Conceptual - requires appropriate setup): `mcp_browser-tools_takeScreenshot` (for visual comparison if a live preview environment is targetable), `mcp_browser-tools_getSelectedElement` (to inspect styles in a live environment). *(Actual visual verification might often be manual or require more advanced visual regression tools not listed).*
+:   **Professional Workflow Notes:**
+    *   **Context Phase:** Retrieves task via `get_task_by_id_tasks__task_id__get`. Reads relevant HTML/component files, CSS/SCSS files, and design system guidelines (e.g., from a fetched rule or a known documentation path using `read_file`). Updates MCP task to "Styling Context Gathered."
+    *   **Execution Phase:** Updates MCP task to "Styling Implementation In Progress." Applies style changes using `edit_file` or `edit_block`.
+    *   **Verification Phase:** Updates MCP task to "Styling Verification Pending."
+        *   Verifies direct changes via `read_file`.
+        *   Runs CSS linters via `execute_command`.
+        *   (If applicable and environment supports) Uses browser tools for visual checks or screenshots for comparison. Logs methods and outcomes.
+    *   **Reporting Phase:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of changes, tools used, verification steps, and final status (e.g., "Styling Applied & Verified," "Linter Issues Persist").
 
 `UXAgent` (@`agents/ux-agent.md`)
 :   **Purpose:** Ensure accessibility (ARIA, WCAG) & usability.
