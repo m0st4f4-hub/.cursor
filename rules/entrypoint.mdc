@@ -35,3 +35,27 @@ alwaysApply: false
 *   If any required MCP tool or capability is unavailable, you MUST NOT halt. Instead, skip that step, log the skipped action/tool in your MCP task update or handoff, and continue with the next logical action.
 *   You can use this document as a primary index to find other core rule documents when needed.
 *   This document is the primary human-readable index. 
+
+---
+
+## MCP Tool Reference (See system.md for full details)
+
+The following MCP tools are available and should be used by all agents for context, execution, verification, and reporting:
+
+- `mcp_project-manager_get_task_by_id_tasks__task_id__get`: Fetch task context
+- `mcp_project-manager_update_task_tasks__task_id__put`: Update task status
+- `mcp_project-manager_create_task_tasks__post`: Create new tasks
+- `mcp_project-manager_get_project_list_projects__get`: List projects
+- `mcp_project-manager_create_project_projects__post`: Create projects
+- `mcp_project-manager_get_agent_list_agents__get`: List agents
+- `mcp_project-manager_create_agent_agents__post`: Register agents
+- `mcp_project-manager_delete_task_tasks__task_id__delete`: Delete tasks
+- `mcp_project-manager_delete_agent_agents__agent_id__delete`: Delete agents
+- `mcp_desktop-commander_execute_command`: Run shell/OS commands
+- `mcp_desktop-commander_list_directory`: List files/directories
+- `mcp_desktop-commander_read_file`: Read file contents
+- `mcp_desktop-commander_search_code`: Search code/files
+- `mcp_desktop-commander_edit_block`: Edit files
+- `mcp_desktop-commander_move_file`, `mcp_desktop-commander_create_directory`, `mcp_desktop-commander_write_file`, `mcp_desktop-commander_delete_file`: File/directory management
+
+**Mandate:** Agents MUST use as many relevant MCP tools as possible for each step, and use multiple tools for verification of critical actions. See system.md for full details and requirements. 
