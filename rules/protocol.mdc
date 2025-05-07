@@ -10,8 +10,6 @@ alwaysApply: false
 **Applicability Rules:**
 *   If you are designated to execute this protocol (e.g., you are `Overmind`), you **MUST** follow all phases rigorously.
 *   If you are any other agent, you **MUST** still adhere to the core principles of verification, assumption checking, and scrutiny as mandated by @`system.md`.
-*   **If any required MCP tool or capability is unavailable, you MUST NOT halt. Instead, skip that step, log the skipped action/tool in your MCP task update or handoff, and continue with the next logical action.**
-*   **You MUST use as many relevant MCP tools as possible for each phase (planning, execution, verification, escalation, review). For verification and cross-checking, you MUST use at least two distinct MCP tools for critical actions. See the MCP Tool Reference in system.md.**
 
 ## Phase A: Strategic Planning & Decomposition
 

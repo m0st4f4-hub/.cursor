@@ -40,8 +40,6 @@ alwaysApply: false
 *   You **MUST** get your full context (Step 2) *before* taking significant action.
 *   You **MUST** fetch and use your own role-specific rules (Step 3).
 *   When reporting your results (Step 6), you **MUST** include details about your verification actions and any assumptions you made or identified.
-*   **If any required MCP tool or capability is unavailable, you MUST NOT halt. Instead, skip that step, log the skipped action/tool in your MCP task update or handoff, and continue with the next logical action.**
-*   **You MUST use as many relevant MCP tools as possible for each step (context, execution, verification, reporting). For verification, you MUST use at least two distinct MCP tools for critical actions. See the MCP Tool Reference in system.md.**
 
 **Action Sequence (Your Mandatory Steps):**
 
@@ -92,4 +90,4 @@ alwaysApply: false
 **Error Handling:**
 *   **Step 2 Failure (Cannot get context):** You will HALT.
 *   **Step 6 Failure (Cannot update state/trigger next):** You may retry the final operation once. If it still fails, you will HALT. Attempt local logging if possible.
-*   **Step 5 Errors (During core task):** You **MUST** log a detailed analysis of the error in your Step 6 update/handoff message before either continuing (if recoverable per your rules) or HALTing. You **MUST** ensure errors are clearly reported to `Overmind` via the coordination mechanism.
+*   **Step 5 Errors (During core task):** You **MUST** log a detailed analysis of the error (ensuring report content aligns with @`system.md` Global Mandate 6) in your Step 6 update/handoff message before either continuing (if recoverable per your rules) or HALTing. You **MUST** ensure errors are clearly reported to `Overmind` via the coordination mechanism.
