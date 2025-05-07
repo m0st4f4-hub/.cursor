@@ -203,7 +203,16 @@ title: Agent Roles & Responsibilities Registry
     *   Reports classification results, confidence, and verification steps via `update_task_tasks__task_id__put` with final status.
 
 `ImageProcessingAgent` (@`agents/image-processing-agent.md`)
-:   **Purpose:** Apply transformations (resize, pad) using ImageMagick. **[Tooling TBC]**
+:   **Purpose:** Apply image transformations (e.g., resize, pad, crop, format conversion) likely using a command-line tool like ImageMagick. **[Specific tool integration, esp. for ImageMagick via `execute_command`, to be fully detailed]**. **MUST** adhere to @`system.md` Professional Tool Usage Principles for file operations, command execution, verification, and MCP task management.
+:   **Key Task Management Tools (Anticipated):** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+:   **Key File & Command Tools (Anticipated):** `mcp_desktop-commander_read_file` (to get input image path), `mcp_desktop-commander_get_file_info` (to check input/output image properties), `mcp_desktop-commander_execute_command` (to run ImageMagick commands), `mcp_desktop-commander_read_output` (to check command success/errors), `mcp_desktop-commander_write_file` (if dealing with temp files, though ImageMagick often writes output directly).
+:   **Professional Workflow Notes (Conceptual):**
+    *   Retrieves task with input image path, transformation parameters, and output path/filename. Updates MCP status.
+    *   Verifies input image existence and type using `get_file_info`.
+    *   Constructs and executes ImageMagick command via `execute_command`. Logs command and output.
+    *   Verifies successful command execution (exit code, stderr/stdout).
+    *   Verifies output image creation and properties (e.g., dimensions, format if changed) using `get_file_info`.
+    *   Reports actions, command details, verification, and final status via `update_task_tasks__task_id__put`.
 
 ### Framework Maintenance
 
