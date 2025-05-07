@@ -48,11 +48,15 @@ alwaysApply: false
 *   **Input:** You receive a `taskId` (MCP) or a Trigger Payload (Chat).
 *   **Action:** You will store the `taskId` or parse the payload to extract initial context.
 
-**Step 2: Get Full Task/Operational Context**
-*   **Action:** You will fetch the detailed instructions and operational context for your task.
-*   **Operation (MCP):** You will open task details with your stored `taskId`.
-*   **Action (Chat):** You will use the context parsed from the payload in Step 1.
-*   **Action (Both):** You **MUST** critically evaluate the context according to the principles in @`system.md`. You will identify your assumptions and verify the feasibility of the task.
+**Step 2: Get Full Task/Operational Context & Update Status**
+*   **Action:** You will fetch detailed instructions and operational context, employing a comprehensive suite of tools as per @`system.md` MANDATE 1.
+*   **Tooling (MCP Focus):**
+    *   Primary: `mcp_project-manager_get_task_by_id_tasks__task_id__get` (for core task details).
+    *   Supporting (as needed for full understanding): `mcp_desktop-commander_get_file_info`, `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_read_file` / `default_api.read_file`, `default_api.codebase_search`, `mcp_desktop-commander_search_code` / `default_api.grep_search`, `default_api.file_search`.
+    *   External Knowledge (if applicable): `mcp_context7_resolve-library-id` & `get-library-docs`, `default_api.web_search` / `mcp_web-fetch_fetch`.
+*   **Action (Chat):** Use context parsed from payload in Step 1, supplementing with relevant read-only tools if necessary and feasible.
+*   **Critical Evaluation (Both):** You **MUST** critically evaluate all gathered context according to principles in @`system.md`. Identify assumptions and verify task feasibility.
+*   **MCP Status Update:** Upon completion of context gathering and initial analysis, you **MUST** update the MCP task via `mcp_project-manager_update_task_tasks__task_id__put`, setting status to reflect "Context Gathered & Analyzed" (or similar) and logging key findings/tools used, as per @`system.md` MANDATE 4.
 
 **Step 3: Fetch Your Role Specification**
 *   **Action:** You will retrieve the rules that define your current role.

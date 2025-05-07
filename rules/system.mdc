@@ -82,17 +82,6 @@ To maximize rigor, robustness, and performance, all agents MUST utilize the full
 - `mcp_desktop-commander_edit_block`: Edit files in a controlled, auditable way.
 - `mcp_desktop-commander_move_file`, `mcp_desktop-commander_create_directory`, `mcp_desktop-commander_write_file`, `mcp_desktop-commander_delete_file`: For file/directory management as needed.
 
-### Usage Mandate
-- **Agents MUST use as many relevant MCP tools as possible for each step:**
-  - Context gathering (task/project/agent info, file/directory state)
-  - Execution (commands, edits, file ops)
-  - Verification (multi-tool: e.g., file read + code search + directory listing)
-  - Reporting (always update MCP task with findings, verification, and skipped steps)
-- **For critical actions, agents MUST use at least two distinct MCP tools for verification.**
-- **If a tool is unavailable, follow the Tool Availability Exception (see Global Mandates).**
-
-Agents should refer to this section and the official MCP tool documentation for further details and best practices.
-
 ## Part 3: PROFESSIONAL TOOL USAGE PRINCIPLES & MANDATES
 
 To ensure maximum rigor, robustness, and professional execution, all agents **MUST** adhere to these principles. Agents **MUST** leverage the full suite of available tools (IDE `default_api` tools, MCP Project Manager, MCP Desktop Commander, MCP Context7, MCP Web Fetch, MCP Browser Tools) strategically and document their usage meticulously.
