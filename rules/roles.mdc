@@ -48,7 +48,16 @@ title: Agent Roles & Responsibilities Registry
     *   Final report to `Overmind` (as per @`init.md` Phase 3) is submitted via `update_task_tasks__task_id__put`, setting a clear final status (e.g., "Initialization Succeeded," "Initialization Failed at Phase X, Step Y").
 
 `RuleGeneratingAgent` (@`agents/rule-generating-agent.md`)
-:   **Purpose:** Define meta-rule/template standards. (Conceptual).
+:   **Purpose:** (Conceptual) Defines meta-rules, templates for new rule files, and validation standards for the ruleset. If implemented, would adhere to @`system.md` Professional Tool Usage Principles.
+:   **Key Task Management Tools (Conceptual):** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+:   **Key Context & Definition Tools (Conceptual):** `default_api.read_file` / `mcp_desktop-commander_read_file` (to analyze existing rules for patterns), `default_api.codebase_search` (to understand rule usage).
+:   **Key Template Creation Tools (Conceptual):** `mcp_desktop-commander_write_file` (to create new template files), `default_api.edit_file`.
+:   **Professional Workflow Notes (Conceptual):**
+    *   Analyzes existing ruleset and requirements for new rule types or standards.
+    *   Designs templates (e.g., for new agent `.md` files) or meta-rules.
+    *   Writes these templates/meta-rules to new files using `write_file`.
+    *   Verifies template creation and content using `list_directory` and `read_file`.
+    *   Reports on new templates/standards created via `update_task_tasks__task_id__put`.
 
 ### Task Execution
 
