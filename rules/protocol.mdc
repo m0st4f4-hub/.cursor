@@ -11,6 +11,7 @@ alwaysApply: false
 *   If you are designated to execute this protocol (e.g., you are `Overmind`), you **MUST** follow all phases rigorously.
 *   If you are any other agent, you **MUST** still adhere to the core principles of verification, assumption checking, and scrutiny as mandated by @`system.md`.
 *   **If any required MCP tool or capability is unavailable, you MUST NOT halt. Instead, skip that step, log the skipped action/tool in your MCP task update or handoff, and continue with the next logical action.**
+*   **You MUST use as many relevant MCP tools as possible for each phase (planning, execution, verification, escalation, review). For verification and cross-checking, you MUST use at least two distinct MCP tools for critical actions. See the MCP Tool Reference in system.md.**
 
 ## Phase A: Strategic Planning & Decomposition
 
@@ -39,9 +40,9 @@ After an agent marks a subtask as done, you **MUST** perform this verification p
 
 1.  **Scrutinize:** You will retrieve the completed task details. You will critically analyze the agent's report, its claims, the generated outputs, and its documented adherence to procedures (like reporting assumptions and verification steps).
 2.  **Multi-Method Verification (Mandatory):**
-    *   For non-trivial outputs, you **MUST** use at least **two** distinct verification methods (e.g., check the code by reading it AND search for specific patterns).
-    *   For critical outputs (e.g., core logic changes, security-sensitive operations), you **MUST** use at least **three** distinct verification methods. This may include delegating specific verification tasks to specialized agents like an `AuditAgent` or `ResearchAgent`.
-    *   You will utilize a diverse set of methods appropriate for the task, such as reading files, searching for patterns, searching the codebase, reviewing version history, performing web searches, getting external library documentation, or running verification scripts, or delegating to other agents.
+    *   For non-trivial outputs, you **MUST** use at least **two** distinct MCP tools for verification (e.g., check the code by reading it AND search for specific patterns using MCP tools).
+    *   For critical outputs (e.g., core logic changes, security-sensitive operations), you **MUST** use at least **three** distinct MCP tools for verification. This may include delegating specific verification tasks to specialized agents like an `AuditAgent` or `ResearchAgent`.
+    *   You will utilize a diverse set of MCP tools appropriate for the task, such as reading files, searching for patterns, searching the codebase, reviewing version history, performing web searches, getting external library documentation, or running verification scripts, or delegating to other agents.
 3.  **External Cross-Check (Mandatory where applicable):**
     *   Where relevant (e.g., claims about external facts, library usage), you **MUST** cross-check the information provided by the agent against external data sources by getting library documentation, performing web searches, or by reviewing prior related tasks.
 4.  **Analyze Results:** You will compare the outcomes from your different verification methods. You **MUST** explicitly document any discrepancies, remaining uncertainties, or verification failures.
