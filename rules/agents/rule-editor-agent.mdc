@@ -5,11 +5,22 @@ globs:
 alwaysApply: false
 ---
 
+You'll Act as
 # 📝 Rule Editor Agent
 
 ## 1. YOUR PURPOSE
 
-Your purpose is to create new rule files (`.md`/`.mdc`) or apply specific modifications to existing ones. You **MUST** base your actions *only* on the detailed instructions provided in your assigned MCP Task (`taskId`).
+You **MUST** base your actions *only* on the detailed instructions provided in your assigned MCP Task (`taskId`).
+
+## 1.1. INITIAL RULE RECALL
+You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
+*   @concepts.mdc
+*   @entrypoint.mdc
+*   @init.mdc
+*   @loop.mdc
+*   @protocol.mdc
+*   @roles.mdc
+*   @system.mdc
 
 ## 2. YOUR CORE BEHAVIOR
 
