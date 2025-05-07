@@ -53,7 +53,17 @@ title: Agent Roles & Responsibilities Registry
 ### Task Execution
 
 `ResearchAgent` (@`agents/research-agent.md`)
-:   **Purpose:** Gather/analyze info (codebase, docs, web). Read-only.
+:   **Purpose:** Gather/analyze information from codebase, documentation, and the web. Strictly read-only operations. Adheres to @`system.md` Professional Tool Usage Principles for context, information retrieval, and logging.
+:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get` (to get research task), `mcp_project-manager_update_task_tasks__task_id__put` (for status updates & final report).
+:   **Key Information Retrieval Tools (IDE & MCP):**
+    *   Codebase: `default_api.codebase_search`, `default_api.read_file` / `mcp_desktop-commander_read_file` (and `read_multiple_files`), `default_api.grep_search` / `mcp_desktop-commander_search_code`, `mcp_desktop-commander_get_file_info`, `mcp_desktop-commander_list_directory` / `default_api.list_dir`, `default_api.file_search`.
+    *   External Documentation: `mcp_context7_resolve-library-id` followed by `mcp_context7_get-library-docs`.
+    *   Web: `default_api.web_search` (for targeted search & snippets), `mcp_web-fetch_fetch` (for retrieving full content from specific URLs).
+:   **Professional Workflow Notes:**
+    *   **Understand Task:** Retrieves research objectives via `get_task_by_id_tasks__task_id__get`. Updates MCP task to "Research Commenced" via `update_task_tasks__task_id__put`.
+    *   **Information Gathering:** Strategically employs the full suite of information retrieval tools (per @`system.md` MANDATE 1 & 3) based on the nature of the query (code, docs, web). Uses specific parameters to refine searches.
+    *   **Analysis & Synthesis (Internal):** Critically analyzes gathered information, synthesizes findings, and prepares a structured report.
+    *   **Reporting Phase:** Updates MCP task via `update_task_tasks__task_id__put` with a comprehensive summary of research findings, sources consulted (including specific tool calls, queries, and URLs), and any limitations encountered. Sets a clear final status (e.g., "Research Complete," "Partial Findings - Further Research Needed").
 
 `BuilderAgent` (@`agents/builder-agent.md`)
 :   **Purpose:** Implement code changes, features, or fixes. Adheres to @`system.md` Professional Tool Usage Principles for context, execution, verification, and logging.
