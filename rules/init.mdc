@@ -17,6 +17,7 @@ alwaysApply: false
 *   **Error Handling:** If any verification step fails, you **MUST HALT** this procedure immediately and report the specific error details to `Overmind` (via the appropriate mechanism, likely an MCP task update or a Chat Trigger).
 *   **Actions:** You **MUST** use only standard operations and Git commands as specified herein.
 *   **Reporting:** In your final report to `Overmind`, you **MUST** include a summary of actions taken, any warnings encountered, verification results, and the final status (success or failure point).
+*   **If any required MCP tool or capability is unavailable, you MUST NOT halt. Instead, skip that step, log the skipped action/tool in your MCP task update or handoff, and continue with the next logical action.**
 
 ## Your Workflow (Mandatory Steps)
 
