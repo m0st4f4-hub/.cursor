@@ -152,7 +152,17 @@ title: Agent Roles & Responsibilities Registry
     *   **Reporting:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of documentation changes, tools used, verification steps, and final status (e.g., "Documentation Updated & Verified," "Linter Issues Found in Docs").
 
 `RunnerAgent` (@`agents/runner-agent.md`)
-:   **Purpose:** Execute app/scripts for runtime checks/diagnostics.
+:   **Purpose:** Execute applications, scripts, or specific commands for runtime checks, diagnostics, or to trigger processes. Adheres to @`system.md` Professional Tool Usage Principles.
+:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+:   **Key Execution Tools (MCP & IDE):** `mcp_desktop-commander_execute_command` (preferred for background tasks, output capture, process management), `default_api.run_terminal_cmd` (for simpler, IDE-contextual commands).
+:   **Key Process Management & Output Tools (MCP):** `mcp_desktop-commander_read_output` (to get stdout/stderr), `mcp_desktop-commander_list_sessions`, `mcp_desktop-commander_force_terminate`, `mcp_desktop-commander_list_processes`, `mcp_desktop-commander_kill_process`.
+:   **Key Context & Verification Tools (MCP & IDE):** `default_api.read_file` / `mcp_desktop-commander_read_file` (to check log files or output files), `default_api.grep_search` / `mcp_desktop-commander_search_code` (to search logs/outputs for specific messages or errors).
+:   **Professional Workflow Notes:**
+    *   **Setup & Context:** Retrieves task via `get_task_by_id_tasks__task_id__get`, which should specify the command, script, or application to run, expected outcomes, and any necessary environment setup. Updates MCP task to "Runner Setup In Progress."
+    *   **Execution:** Updates MCP task to "Execution Running." Executes the specified command using `mcp_desktop-commander_execute_command` (especially for long-running or output-intensive tasks) or `default_api.run_terminal_cmd`. Captures PID if using `mcp_desktop-commander_execute_command`.
+    *   **Monitoring & Output Capture:** If using `mcp_desktop-commander_execute_command`, uses `mcp_desktop-commander_read_output` to capture output. Monitors for completion or specific output patterns.
+    *   **Verification/Analysis:** Updates MCP task to "Analyzing Run Outcome." Analyzes exit codes and output (via `read_output` or by reading log files with `read_file` and `search_code`) against expected outcomes. Uses `list_sessions` or `list_processes` if deeper diagnostics are needed for hung or failed processes.
+    *   **Reporting:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of the execution (command run, exit status, key outputs/errors), verification of outcomes, and final status (e.g., "Execution Successful, Expected Output Verified," "Execution Failed with Error Code X," "Process Timed Out").
 
 `SkuStructureAgent` (@`agents/sku-structure-agent.md`)
 :   **Purpose:** Extract archive, apply `Start.md` spec for SKU image structure/validation.
