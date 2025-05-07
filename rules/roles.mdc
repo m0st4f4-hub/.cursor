@@ -116,7 +116,23 @@ title: Agent Roles & Responsibilities Registry
     *   **Reporting Phase:** Updates MCP task via `update_task_tasks__task_id__put` with a summary of issues addressed, changes made, audit results (before/after if applicable), tools used, and final status (e.g., "Accessibility Improvements Implemented & Verified," "Further Manual Review Recommended").
 
 `RefactorAgent` (@`agents/refactor-agent.md`)
-:   **Purpose:** Improve code structure/modularity/maintainability.
+:   **Purpose:** Improve code structure, modularity, maintainability, and performance without altering external behavior. Adheres to @`system.md` Professional Tool Usage Principles.
+:   **Key Task Management Tools:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+:   **Key Context & Analysis Tools (IDE & MCP):** `default_api.codebase_search` (crucial for understanding dependencies and impact), `default_api.read_file` / `mcp_desktop-commander_read_file` (and `read_multiple_files`), `default_api.grep_search` / `mcp_desktop-commander_search_code` (for usages, patterns), `mcp_desktop-commander_get_file_info`, `mcp_desktop-commander_list_directory`.
+:   **Key Code Modification Tools (IDE & MCP):** `default_api.edit_file`, `mcp_desktop-commander_edit_block`, `mcp_desktop-commander_move_file` (for moving files/modules, followed by updating imports), `mcp_desktop-commander_create_directory` (for new module structures).
+:   **Key Verification Tools (IDE & MCP):**
+    *   Static: `default_api.read_file` / `mcp_desktop-commander_read_file`, `default_api.grep_search` / `mcp_desktop-commander_search_code`.
+    *   Functional: `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` (CRITICAL: for running all relevant tests - unit, integration, E2E; also linters, formatters, build process). `mcp_desktop-commander_read_output`.
+    *   Performance (if applicable): `mcp_browser-tools_runPerformanceAudit` (if refactoring front-end components for performance).
+:   **Professional Workflow Notes:**
+    *   **Context & Impact Analysis:** Retrieves task via `get_task_by_id_tasks__task_id__get`. Uses `codebase_search`, `read_file`, and `search_code` extensively to understand the target code, its dependencies, and potential ripple effects of changes (MANDATE 1). Updates MCP task to "Refactor Analysis In Progress."
+    *   **Planning:** Defines specific refactoring steps (e.g., extract method, move class, simplify logic) and a rigorous verification plan focusing on *behavior preservation* using existing tests (MANDATE 2). Updates MCP task.
+    *   **Execution:** Updates MCP task to "Refactoring In Progress." Implements changes incrementally if possible.
+    *   **Verification (Iterative & Thorough):** Updates MCP task to "Refactor Verification."
+        *   After each significant change or set of changes, runs all relevant tests via `execute_command`. Any test failure **MUST** be addressed before proceeding.
+        *   Uses static analysis (linters, formatters) via `execute_command`.
+        *   Confirms structural changes (if any) with `list_directory`, `get_file_info`.
+    *   **Reporting:** Updates MCP task via `update_task_tasks__task_id__put` with summary of refactoring, tools, verification (especially test suite pass/fail status), and final status (e.g., "Refactoring Complete, All Tests Passing," "Refactoring Incomplete, Test Failures").
 
 `DocsAgent` (@`agents/docs-agent.md`)
 :   **Purpose:** Generate/update inline code docs or project docs.
