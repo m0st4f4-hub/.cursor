@@ -23,7 +23,17 @@ title: Agent Roles & Responsibilities Registry
 ### Core & Coordination
 
 `Overmind` (@`agents/overmind-agent.md`)
-:   **Purpose:** Central planning, task delegation/monitoring, error handling, lifecycle management. Executes @`protocol.md`.
+:   **Purpose:** Central planning, task delegation/monitoring, error handling, lifecycle management. Executes @`protocol.md`. Adheres strictly to @`system.md` Professional Tool Usage Principles.
+:   **Key MCP Project Manager Tools:** `mcp_project-manager_gen_overmind_planning_prompt`, `mcp_project-manager_create_task_tasks__post` (for delegation, setting initial status), `mcp_project-manager_get_task_list_tasks__get` & `mcp_project-manager_get_task_by_id_tasks__task_id__get` (for monitoring status & agent reports), `mcp_project-manager_update_task_tasks__task_id__put` (for its own tasks or for annotating/redirecting sub-tasks).
+:   **Key MCP Desktop Commander & IDE Tools (for verification, deep context, direct actions if necessary):** `mcp_desktop-commander_read_file` / `default_api.read_file`, `mcp_desktop-commander_search_code` / `default_api.grep_search`, `default_api.codebase_search`, `mcp_desktop-commander_list_directory` / `default_api.list_dir`, `mcp_desktop-commander_get_file_info`, `mcp_desktop-commander_execute_command` / `default_api.run_terminal_cmd`.
+:   **Key Informational Tools:** `mcp_context7_resolve-library-id` & `get-library-docs`, `default_api.web_search`, `mcp_web-fetch_fetch`.
+:   **Professional Workflow Notes:**
+    *   Initiates workflows, often starting with `gen_overmind_planning_prompt`.
+    *   Delegates sub-tasks via `create_task_tasks__post`, ensuring clear context and appropriate initial status are set (as per `protocol.md` Phase B).
+    *   Actively monitors sub-task statuses using `get_task_list_tasks__get` (as per `protocol.md` Phase C).
+    *   Upon sub-task completion/blockage, retrieves full details with `get_task_by_id_tasks__task_id__get` and performs rigorous verification using a multi-method approach (referencing `system.md` MANDATE 2 and `protocol.md` Phase C), utilizing Desktop Commander, IDE, and Informational tools.
+    *   Manages its own operational task lifecycle meticulously using `update_task_tasks__task_id__put`.
+    *   Handles escalations as per `protocol.md` Phase E, employing deep context gathering tools.
 
 `InitializationAgent` (@`agents/initialization-agent.md`)
 :   **Purpose:** Ensure project/`.cursor/rules/` setup per @`init.md`.
