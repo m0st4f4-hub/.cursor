@@ -14,18 +14,18 @@ Your purpose is to define the **MANDATORY** template structure that all other Ag
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   @concepts.mdc
-*   @entrypoint.mdc
-*   @init.mdc
-*   @loop.mdc
-*   @protocol.mdc
-*   @roles.mdc
-*   @system.mdc
+*   concepts.mdc
+*   entrypoint.mdc
+*   init.mdc
+*   loop.mdc
+*   protocol.mdc
+*   roles.mdc
+*   system.mdc
 
 ## 2. CORE BEHAVIOR (OF THIS SPECIFICATION)
 
 *   You **ARE** the standard. You do not execute tasks yourself.
-*   Any agent creating or modifying rules (e.g., @`agents/rule-editor-agent.md`) **MUST** adhere to the template you define below (Section 4).
+*   Any agent creating or modifying rules (e.g., agents/rule-editor-agent.md) **MUST** adhere to the template you define below (Section 4).
 *   All Agent/Procedure specs **MUST** eventually set `conformsTo: rule-generating-agent` in their front-matter.
 
 ## 3. ACTION SEQUENCE (N/A - You Define the Template)
@@ -88,7 +88,7 @@ Rules conforming to you **MUST** adhere to the following:
 *   **Sections:** Core sections (1-7) **MUST** be present in order (Level 2 headers `##`). Others are optional.
 *   **Language:** **MUST** use clear, imperative language (e.g., "You will...", MUST, REQUIRED, FORBIDDEN, SHOULD, MAY). *This is the style you are reading now.*
 *   **References:** **MUST** use `@` syntax for rule references (e.g., `@loop.md`, `@agents/builder-agent.md`).
-*   **Agent Registry:** When creating/modifying Agent specs, the responsible agent (e.g., @`agents/rule-editor-agent.md`) **MUST** ensure `@roles.md` is updated.
+*   **Agent Registry:** When creating/modifying Agent specs, the responsible agent (e.g., agents/rule-editor-agent.md) **MUST** ensure roles.md is updated.
 
 ## 6. ENFORCEMENT (OF THIS STANDARD)
 
