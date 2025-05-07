@@ -1,0 +1,103 @@
+---
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
+---
+
+# Rule Definition Metadata (V1)
+ruleId: core-concepts
+ruleType: Framework
+title: Core Framework Concepts & Glossary
+# 📖 Core Concepts & Glossary
+
+**Purpose:** Understand these foundational concepts, terminology, and mandatory mechanisms. You **MUST** refer to these definitions when clarification on standard terms or processes is needed.
+
+## 1. Core Entities & Identifiers
+
+`requestId`
+:   **Definition:** Unique identifier for a task sequence/workflow.
+:   **Format:** String.
+:   **Usage:** MCP calls, Code Edit Tags.
+:   **Origin:** Overmind / External Trigger.
+
+Agent Role
+:   **Definition:** Specialized functional unit (e.g., `BuilderAgent`). Defined in own `.md` file.
+:   **Reference:** @`roles.md` (Registry).
+
+Framework
+:   **Definition:** External execution engine managing agent lifecycle based on rules & coordination. **Not an agent.**
+:   **Responsibilities:** Activation, Tool Provision, Rule Management, Lifecycle.
+:   **Reference:** @`loop.md`.
+
+Rules
+:   **Definition:** `.md`/`.mdc` files defining behavior, standards, workflow. Processed by Framework/Agents.
+:   **Location:** `.cursor/rules/` (runtime), `rules-md/` (source).
+:   **Reference:** @`system.md`.
+
+## 2. Operational Concepts
+
+Autonomous Execution
+:   Agents operate independently, activated by Framework (Trigger/MCP state), driven by rules/context. **MUST** ignore user input (except diagnostics).
+
+Coordination Mechanisms
+:   **MCP Task Manager (Preferred):** Control via `Overmind` polling `get_next_task`. Context/state in MCP tasks.
+:   **Chat-Driven (Legacy/Fallback):** Control via Chat Triggers. Context in payload.
+
+Sequential Activation
+:   **MUST:** Only one agent active per `requestId` at a time. No parallel execution within a request.
+
+Self-Improvement Loop
+:   **MUST:** Secondary goal. `ImprovementAgent`/`RuleWriterAgent` refine rules via MCP/Chat. See @`system.md`.
+
+Rules Hierarchy
+:   **MUST:** 1. `project/` (Overrides Global). 2. `global/`. 3. Agent-specific. See @`system.md`.
+
+## 3. Mandatory Mechanisms
+
+Global Mandates
+:   **MUST:** Adhere to @`system.md` unless overridden by role/project rules.
+
+Code Edit Tag
+:   **MUST:** Use language-appropriate comment block at start of file edits on CODE files.
+:   **Format:**
+    ```
+    COMMENT_START Task ID: <taskId> // Optional
+    COMMENT_START Agent Role: <agent_role>
+    COMMENT_START Request ID: <requestId>
+    COMMENT_START Project: <projectName> // Optional
+    COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
+    COMMENT_END // Optional
+    ```
+
+## 4. Core Agent Behavior Summary (Ref: @`loop.md`)
+
+When you are active as an agent, you will generally follow this sequence (details in @`loop.md`):
+
+1.  **Activate:** The Framework activates you based on a trigger or MCP state.
+2.  **Get Context:** You receive your `taskId` (MCP) or trigger payload (Chat).
+3.  **Fetch Your Rules:** You fetch your own role specification.
+4.  **Plan Your Turn:** You internally determine the steps needed based on your rules and the task context.
+5.  **Execute & Verify:** You perform the core actions of your role using authorized methods and verify the results.
+6.  **Update State / Handoff & Finalize:** You report your status (via MCP task update or Chat trigger) and terminate your current execution turn.
+
+## 5. Key Rule Directories (Runtime: `.cursor/rules/`)
+
+`global/`
+:   Base ruleset, applies generally unless overridden. Synced externally (submodule).
+
+`project/`
+:   Current project-specific rules. **MUST** override conflicting `global/` rules.
+
+## 6. Core Integration Rules
+
+When performing specific core operations, you **MUST** follow these integration rules:
+
+Fetching Rules
+:   You **MUST** retrieve the full content of a rule when you need more detail than the summaries provided in the available instructions or registry files.
+
+MCP Task Management
+:   If operating under MCP coordination, you **MUST** use these operations according to the procedures outlined in @`loop.md` and @`system.md`.
+
+External Library Documentation
+:   If you need documentation for an external library or framework, you **MUST** first resolve the library ID, and then get the documentation *before* relying on that information in your actions.

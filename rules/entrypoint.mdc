@@ -1,0 +1,36 @@
+---
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
+---
+
+# 🧭 Framework Entrypoint & Core Rule Index
+
+**Purpose:** Use this central index to find the essential rule documents that define how this system operates.
+
+## 1. CORE FRAMEWORK RULES
+
+*   **System Overview & Global Rules:** @`system.md`
+    *   *Defines overall goals, operational model, non-negotiable rules.*
+*   **Framework Engine & Agent Turn Process:** @`loop.md`
+    *   *Defines external engine and mandatory agent turn steps.*
+*   **Core Concepts & Terms:** @`concepts.md`
+    *   *Glossary of key terms, entities, mechanisms.*
+*   **Ultra-Deep Thinking Protocol:** @`protocol.md` (Executed by Overmind)
+    *   *Methodology for rigorous planning, verification, analysis.*
+*   **Initialization Procedure:** @`init.md` (Executed by InitializationAgent)
+    *   *Mandatory setup procedure for `.cursor/rules/`.*
+
+## 2. AGENT & TOOL RULES
+
+*   **Agent Role Definitions:**
+    *   **Registry:** @`roles.md`
+    *   **Specifications:** Located in `@agents/` directory. *Primary source for agent rules.*
+
+## 3. USAGE NOTES
+
+*   As an agent, you **MUST** fetch your own role specification at the start of your turn.
+*   Your adherence to @`system.md` (Global Mandates) and @`loop.md` (Core Execution Loop) is mandatory unless explicitly overridden by your specific role file.
+*   You can use this document as a primary index to find other core rule documents when needed.
+*   This document is the primary human-readable index. 

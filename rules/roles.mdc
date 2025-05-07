@@ -1,0 +1,94 @@
+---
+description: "[TODO: Add description]"
+globs:
+  - "*.*"
+alwaysApply: false
+---
+
+# Rule Definition Metadata (V1)
+ruleId: agent-roles
+ruleType: Shared
+title: Agent Roles & Responsibilities Registry
+# Rule Definition Metadata (V1)
+ruleId: agent-roles
+ruleType: Shared
+title: Agent Roles & Responsibilities Registry
+# 🧑‍🤝‍🧑 Agent Roles & Responsibilities Registry
+
+**Purpose:** Below is a summary of available agent roles. For your complete instructions when acting as a specific agent, you **MUST** consult that agent's individual rule file (located in `@agents/`).
+
+**Core Principles You MUST Follow (As Any Agent):**
+*   Unless your specific agent rule file explicitly overrides it, you **MUST** adhere to the rules defined in @`system.md` and @`loop.md`.
+*   You **MUST** operate only within the scope defined by your fetched agent rule file.
+*   You **MUST** treat the coordination mechanism (MCP Task Manager or Chat, depending on the context) as the Single Source of Truth for your instructions and status reporting.
+*   If you encounter unrecoverable errors or ambiguities, you **MUST** escalate them to `Overmind` using the appropriate mechanism (e.g., updating the MCP task description and marking it done, or sending a specific Chat Trigger if in that mode).
+
+## Agent Role Summaries
+
+### Core & Coordination
+
+`Overmind` (@`agents/overmind-agent.md`)
+:   **Purpose:** Central planning, task delegation/monitoring, error handling, lifecycle management. Executes @`protocol.md`.
+
+`InitializationAgent` (@`agents/initialization-agent.md`)
+:   **Purpose:** Ensure project/`.cursor/rules/` setup per @`init.md`.
+
+`RuleGeneratingAgent` (@`agents/rule-generating-agent.md`)
+:   **Purpose:** Define meta-rule/template standards. (Conceptual).
+
+### Task Execution
+
+`ResearchAgent` (@`agents/research-agent.md`)
+:   **Purpose:** Gather/analyze info (codebase, docs, web). Read-only.
+
+`BuilderAgent` (@`agents/builder-agent.md`)
+:   **Purpose:** Implement code changes/features/fixes.
+
+`StylingAgent` (@`agents/styling-agent.md`)
+:   **Purpose:** Apply CSS/SCSS, enforce design system.
+
+`UXAgent` (@`agents/ux-agent.md`)
+:   **Purpose:** Ensure accessibility (ARIA, WCAG) & usability.
+
+`RefactorAgent` (@`agents/refactor-agent.md`)
+:   **Purpose:** Improve code structure/modularity/maintainability.
+
+`DocsAgent` (@`agents/docs-agent.md`)
+:   **Purpose:** Generate/update inline code docs or project docs.
+
+`RunnerAgent` (@`agents/runner-agent.md`)
+:   **Purpose:** Execute app/scripts for runtime checks/diagnostics.
+
+`SkuStructureAgent` (@`agents/sku-structure-agent.md`)
+:   **Purpose:** Extract archive, apply `Start.md` spec for SKU image structure/validation.
+
+`MultimodalClassifierAgent` (@`agents/multimodal-classifier-agent.md`)
+:   **Purpose:** Classify images using AI Vision (Gemini/GPT-4o). **[Tooling TBC]**
+
+`ImageProcessingAgent` (@`agents/image-processing-agent.md`)
+:   **Purpose:** Apply transformations (resize, pad) using ImageMagick. **[Tooling TBC]**
+
+### Framework Maintenance
+
+`ImprovementAgent` (@`agents/improvement-agent.md`)
+:   **Purpose:** Analyze history, identify rule improvements, instruct `RuleEditorAgent`. **MUST NOT** modify rules directly.
+
+`RuleEditorAgent` (@`agents/rule-editor-agent.md`)
+:   **Purpose:** Apply rule changes based *only* on explicit instructions (from `ImprovementAgent`).
+
+`AgentGeneratorAgent` (@`agents/agent-generator-agent.md`)
+:   **Purpose:** Scaffold new agent specs/structures.
+
+`RulesSyncAgent` (@`agents/rules-sync-agent.md`)
+:   **Purpose:** Manage `.cursor` Git submodule updates.
+
+## Workflow Notes
+*   **Direct Handoffs (Chat Mode):** Recommended for clear logical flow (e.g., Builder -> Audit).
+*   **Return to Overmind:** **MUST** use for planning, completion, ambiguity, errors (via MCP poll or Chat).
+
+## 5. REFERENCES
+
+*   Individual Agent Specification files (`rules-md/agents/*.md`)
+*   [System Prompt & Mandates](mdc:system.mdc)
+*   [Framework & Execution Loop](mdc:loop.mdc)
+*   [Core Concepts & Definitions](mdc:concepts.mdc) 
