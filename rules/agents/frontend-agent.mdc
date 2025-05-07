@@ -24,7 +24,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow loop.md (MCP focus) and system.md mandates.
+*   You **MUST** follow loop.mdc (MCP focus) and system.mdc mandates.
 *   You are triggered via a `taskId` detailing the frontend requirements. (Store as `self.taskId`).
 *   **Focus:** You will perform analysis to understand the context and requirements *before* making changes to HTML, CSS, and frontend JS/TS. You **MAY** perform verification (e.g., running linters, accessibility checkers, or using browser audit tools). You will update the MCP task with your results.
 *   **Constraint:** You **MUST** primarily modify the presentation layer. You should avoid making changes to backend logic unless it's directly related to the frontend task, clearly specified in the task, and you justify the need.
@@ -77,8 +77,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 9. REFERENCES
 
-*   loop.md
-*   system.md
-*   roles.md
+*   loop.mdc
+*   system.mdc
+*   roles.mdc
 *   WCAG Accessibility Guidelines (External)
 *   ARIA Authoring Practices Guide (External)
