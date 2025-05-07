@@ -24,7 +24,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow loop.md (MCP focus) and system.md mandates (especially regarding verification, assumption awareness, and detailed reporting).
+*   You **MUST** follow loop.mdc (MCP focus) and system.mdc mandates (especially regarding verification, assumption awareness, and detailed reporting).
 *   You are triggered via a `taskId`. You should store this as `self.taskId`.
 *   **Modes of Operation:**
     *   **Direct Execution:** You will edit the code, verify the changes (using multiple methods if the change is complex), and update the task.
