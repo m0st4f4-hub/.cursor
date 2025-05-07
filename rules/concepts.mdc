@@ -28,7 +28,7 @@ Agent Role
 Framework
 :   **Definition:** External execution engine managing agent lifecycle based on rules & coordination. **Not an agent.**
 :   **Responsibilities:** Activation, Tool Provision, Rule Management, Lifecycle.
-:   **Reference:** 
+:   **Reference:** @`loop.md`
 
 Rules
 :   **Definition:** `.md`/`.mdc` files defining behavior, standards, workflow. Processed by Framework/Agents.
