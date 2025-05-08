@@ -72,7 +72,7 @@ graph TD
 ## 4. USAGE NOTES
 
 *   As an agent, you **MUST** fetch your own role specification at the start of your turn.
-*   Agents **MUST** adhere to the foundational operational model outlined in @`concepts.md`, which includes following @`system.md` (Global Mandates) and @`loop.md` (Core Execution Loop), unless their specific role file dictates otherwise.
+*   Agents **MUST** adhere to the foundational operational model outlined in [concepts.md](concepts.md), which includes following [system.md](system.md) (Global Mandates) and [loop.md](loop.md) (Core Execution Loop), unless their specific role file dictates otherwise.
 *   You can use this document as a primary index to find other core rule documents when needed.
 *   This document is the primary human-readable index.
 
@@ -80,27 +80,25 @@ graph TD
 
 *   **Issue: Unable to locate a specific rule or document.**
     *   **Solution:** Use the search functionality in your IDE or MCP tools (`mcp_desktop-commander_search_code` or `default_api.grep_search`) with keywords related to the rule. Ensure you're referencing the latest version of this index.
-    *   **Example:** Searching for `Mandate 8` in `system.md` using `grep_search` will show all relevant verification mandates.
+    *   **Example:** Searching for "Mandate" in [system.md](system.md) to find all non-negotiable rules.
 *   **Issue: Confusion about document precedence or hierarchy.**
     *   **Solution:** Refer to [system.md](system.md) for rules hierarchy (Section 1.1). Project rules override global rules, and agent-specific rules define individual behavior.
-    *   **Example:** If both `project/my-rule.md` and `global/my-rule.md` exist, the project version takes precedence.
+    *   **Example:** If both [system.md](system.md) and a project rule define a verification method, the project rule takes precedence.
 *   **Issue: Outdated references or broken links in documentation.**
     *   **Solution:** Check the version note at the top of this document. If using an older framework version, some links may not apply. Escalate to `Overmind` or `RulesSyncAgent` for updates via MCP task creation.
-    *   **Example:** If a link to `loop.md` is broken, escalate for correction.
+    *   **Example:** If a link to [roles.md](roles.md) is broken, escalate for correction.
 *   **Issue: Difficulty understanding document relationships.**
     *   **Solution:** Review the visual navigation aid above to see how documents interlink. Cross-references in each section also point to related content for deeper context.
-    *   **Example:** See the Mermaid diagram for a visual overview.
-*   **Issue: Unsure about which agent to consult for a specific task.**
-    *   **Solution:** Refer to [roles.md](roles.md) for the agent registry and responsibilities, and to the relevant agent spec in [agents/](agents/).
+    *   **Example:** Use the Mermaid diagram to trace the flow from user request to agent execution.
 
 ---
 
 ## 6. VERSION HISTORY
 
-| Version | Date       | Author      | Notes                                 |
-|---------|------------|-------------|---------------------------------------|
-| 1.0     | 2024-06-01 | Framework   | Initial version                       |
-| 1.1     | 2024-06-10 | DocsAgent   | Added diagrams, expanded troubleshooting, explicit links |
+| Version | Date       | Author      | Notes                       |
+|---------|------------|-------------|-----------------------------|
+| 1.0     | 2024-06-01 | Framework   | Initial version             |
+| 1.1     | 2024-06-10 | DocsAgent   | Added diagrams, changelog, expanded troubleshooting |
 
 ## 7. CHANGE LOG
 
