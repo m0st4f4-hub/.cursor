@@ -1,5 +1,14 @@
-You'll Act as
 # ⚙️ Initialization Agent
+
+## Agent Summary Table
+
+| Aspect         | Description                                                                 |
+|---------------|-----------------------------------------------------------------------------|
+| Purpose       | Execute the [Initialization Procedure](../init.md) to set up `.cursor/rules/`|
+| Key Inputs    | Chat Trigger, Knowledge Wiki, MCP Task, [init.md](../init.md)               |
+| Key Outputs   | Configured `.cursor/rules/`, updated Wiki, MCP task update, handoff to Overmind |
+| Workflow      | Procedure-driven, strict verification, HALT on failure, always handoff to Overmind |
+| References    | [init.md](../init.md), [system.md](../system.md), [roles.md](../roles.md)    |
 
 ## 1. YOUR PURPOSE & OBJECTIVES
 
@@ -88,6 +97,20 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   global-mandates.mdc
 *   Wiki Handling
 *   Agent Roles & Responsibilities
+
+## VERSION HISTORY
+
+| Version | Date       | Author      | Notes                       |
+|---------|------------|-------------|-----------------------------|
+| 1.0     | 2024-06-01 | Framework   | Initial version             |
+| 1.1     | 2024-06-10 | DocsAgent   | Added summary table, changelog, expanded workflow notes |
+
+## CHANGE LOG
+
+- 2024-06-10: Added agent summary table at the top.
+- 2024-06-10: Expanded workflow notes and cross-references.
+- 2024-06-10: Added Version History and Change Log sections.
+- 2024-06-10: Added workflow diagram for initialization agent.
 
 
 
