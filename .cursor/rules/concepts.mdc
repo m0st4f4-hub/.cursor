@@ -4,6 +4,17 @@ ruleType: Framework
 title: Core Framework Concepts & Glossary
 # 📖 Core Concepts & Glossary
 
+## Glossary Table
+
+| Term         | Definition/Reference                                      |
+|--------------|----------------------------------------------------------|
+| requestId    | Unique workflow identifier. See [system.md](system.md)    |
+| Agent Role   | Specialized functional unit. See [roles.md](roles.md)     |
+| Framework    | External execution engine. See [system.md](system.md)     |
+| Rules        | Markdown files defining standards. See [init.md](init.md) |
+| MCP          | Model Context Protocol Task Manager. See [system.md](system.md) |
+| Chat Trigger | Legacy/fallback activation. See [system.md](system.md)    |
+
 **Version Note:** This document is compatible with framework version 1.0 and above. For earlier versions, some referenced concepts, tool names, or mandates may not apply. Always cross-reference with @`system.md` for tool specifics and version compatibility.
 
 **Purpose:** Understand these foundational concepts, terminology, and mandatory mechanisms. You **MUST** refer to these definitions when clarification on standard terms or processes is needed.
@@ -200,3 +211,17 @@ External Library Documentation
     *   **Clarification:** Always. If a rule for the same concept or behavior exists in both `project/` and `global/`, the `project/` version takes precedence. See "Rules Hierarchy."
 *   **Misunderstanding: "How detailed should my MCP Task updates be?"**
     *   **Clarification:** Very detailed. Per @`system.md` (Mandate 4 and 10), updates **MUST** include findings, explicit verification details (methods used, pass/fail), and assumptions made or challenged. This is critical for auditability and Overmind's ability to monitor protocol adherence.
+
+## VERSION HISTORY
+
+| Version | Date       | Author      | Notes                       |
+|---------|------------|-------------|-----------------------------|
+| 1.0     | 2024-06-01 | Framework   | Initial version             |
+| 1.1     | 2024-06-10 | DocsAgent   | Added glossary, changelog, expanded examples and diagram explanation |
+
+## CHANGE LOG
+
+- 2024-06-10: Added glossary table at the top.
+- 2024-06-10: Added more real-world examples and cross-references.
+- 2024-06-10: Expanded diagram explanation.
+- 2024-06-10: Added Version History and Change Log sections.
