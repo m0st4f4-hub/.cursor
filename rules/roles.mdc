@@ -339,7 +339,7 @@ end
 *   Individual Agent Specification files (`rules-md/agents/*.md`)
 *   [System Prompt & Mandates](mdc:system.mdc)
 *   [Framework & Execution Loop](mdc:loop.mdc)
-*   [Core Concepts & Definitions](mdc:concepts.mdc)
+*   [Core Concepts & Definitions](mdc:concepts.mdc) 
 
 ## VERSION HISTORY
 
