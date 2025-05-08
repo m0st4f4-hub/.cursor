@@ -11,93 +11,199 @@ ruleType: Framework
 title: Core Framework Concepts & Glossary
 # 📖 Core Concepts & Glossary
 
+**Version Note:** This document is compatible with framework version 1.0 and above. For earlier versions, some referenced concepts, tool names, or mandates may not apply. Always cross-reference with @`system.md` for tool specifics and version compatibility.
+
 **Purpose:** Understand these foundational concepts, terminology, and mandatory mechanisms. You **MUST** refer to these definitions when clarification on standard terms or processes is needed.
+
+## CONCEPTUAL DIAGRAM: FRAMEWORK ENTITIES & INTERACTIONS
+
+```mermaid
+graph TD
+    A[Framework Engine] -->|Manages/Activates| B(Agents)
+    B -->|Execute Tasks via| C{Coordination Mechanisms}
+    C -->|Preferred| D[MCP Task Manager]
+    C -->|Legacy/Fallback| E[Chat Triggers]
+    B -->|Follow| F[Rules (.md)]
+    F -->|Hierarchy| G[Project Rules]
+    F -->|Hierarchy| H[Global Rules]
+    F -->|Hierarchy| I[Agent-Specific Rules]
+    B -->|Operate on| J[requestId]
+    D -->|Manages| K[Tasks w/ taskId]
+    A -->|References| L[Core Docs: @system.md, @loop.md, @init.md]
+    F -->|Defines| M[Global Mandates]
+    F -->|Defines| N[Code Edit Tag Format]
+    B -->|Undergo| O[Self-Improvement Loop]
+
+    subgraph "Core Entities"
+        B
+        F
+        J
+        K
+    end
+
+    subgraph "Operational Pillars"
+        A
+        C
+        M
+        O
+    end
+```
+**Diagram Explanation:** The Framework Engine activates Agents, which use Coordination Mechanisms (primarily MCP) to execute tasks based on a hierarchy of Rules, all tracked by a `requestId`. Core documents provide foundational knowledge.
 
 ## 1. Core Entities & Identifiers
 
 `requestId`
-:   **Definition:** Unique identifier for a task sequence/workflow.
-:   **Format:** String.
-:   **Usage:** MCP calls, Code Edit Tags.
-:   **Origin:** Overmind / External Trigger.
+:   **Definition:** Unique identifier for a task sequence/workflow, ensuring all related actions and logs can be correlated.
+:   **Format:** String (e.g., "task-20230101-123456-abcdef").
+:   **Usage:** MCP calls, Code Edit Tags, logging, and inter-agent communication context.
+:   **Origin:** `Overmind` / External Trigger (e.g., a user request initiates a workflow, generating a new `requestId`).
+:   **Example:** When `Overmind` plans a new feature implementation, it assigns a `requestId` to the overall effort, which is then used by all participating agents and tasks.
+:   **Related:** @`system.md` (Global Mandate 10 for assumption documentation tied to `requestId`), @`loop.md` (Context Fetching).
 
 Agent Role
-:   **Definition:** Specialized functional unit (e.g., `BuilderAgent`). Defined in own `.md` file.
-:   **Reference:** @`roles.md` (Registry).
+:   **Definition:** Specialized functional unit (e.g., `BuilderAgent`, `ResearchAgent`) designed to perform a specific set of tasks. Each role's behavior, capabilities, and rules are defined in its own `.md` file.
+:   **Reference:** @`roles.md` (Central registry of all defined agent roles and their summaries), `@agents/` (Directory containing individual agent specification files).
+:   **Example:** The `DocsAgent` is responsible for creating and updating documentation, using tools like `read_file` and `edit_file` as defined in `agents/docs-agent.md`.
+:   **Related:** @`system.md` (Role Adherence Mandate), @`loop.md` (Fetching Role Specification).
 
 Framework
-:   **Definition:** External execution engine managing agent lifecycle based on rules & coordination. **Not an agent.**
-:   **Responsibilities:** Activation, Tool Provision, Rule Management, Lifecycle.
-:   **Reference:** @`loop.md`
+:   **Definition:** External execution engine managing agent lifecycle based on rules & coordination. **Not an agent itself.**
+:   **Responsibilities:** Agent Activation, Tool Provisioning, Rule Management, Lifecycle Control, and ensuring adherence to Global Mandates.
+:   **Reference:** @`loop.md` (Defines the agent execution loop managed by the Framework), @`system.md` (Outlines Framework objectives and interaction with agents).
+:   **Example:** The Framework reads the `roles.md` to understand available agents and uses `loop.md` to guide an agent through its execution steps for a given task.
 
 Rules
-:   **Definition:** `.md`/`.mdc` files defining behavior, standards, workflow. Processed by Framework/Agents.
-:   **Location:** `.cursor/rules/` (runtime), `rules-md/` (source).
-:   **Reference:** @`system.md`.
+:   **Definition:** `.md` or `.mdc` files that define the behavior, standards, workflows, and constraints for agents and the Framework. They are processed by the Framework and interpreted by Agents.
+:   **Location:** `.cursor/rules/` (Runtime directory used by the Framework), `rules-md/` (Source directory containing the markdown masters).
+:   **Reference:** @`system.md` (Rules Hierarchy, Global Mandates), @`init.md` (Procedure for setting up the `.cursor/rules/` directory).
+:   **Example:** `system.md` is a global rule file containing non-negotiable mandates for all agents. `agents/builder-agent.md` is an agent-specific rule file.
 
 ## 2. Operational Concepts
 
 Autonomous Execution
-:   Agents operate independently, activated by Framework (Trigger/MCP state), driven by rules/context. **MUST** ignore user input (except diagnostics).
+:   **Definition:** Agents operate independently once activated by the Framework (via Trigger or MCP state change). They are driven by their rules and the context of their assigned task.
+:   **Mandate:** Agents **MUST** ignore user input during active execution, except for explicitly approved diagnostic interactions.
+:   **Reference:** @`system.md` (Global Mandate 7: No User Interaction), @`loop.md` (Agent Activation step).
+:   **Example:** Once `BuilderAgent` is assigned a task to write a function, it proceeds autonomously based on its rules and the task requirements, without seeking user input for each line of code.
 
 Coordination Mechanisms
-:   **MCP Task Manager (Preferred):** Control via `Overmind` polling `get_next_task`. Context/state in MCP tasks.
-:   **Chat-Driven (Legacy/Fallback):** Control via Chat Triggers. Context in payload.
+:   **Definition:** Methods by which agent tasks are assigned, managed, and their state is tracked.
+:   **MCP Task Manager (Preferred):** The primary mechanism. Control flow is typically managed by `Overmind` polling for the next available/appropriate task (e.g., via `get_next_task` if such a conceptual MCP operation exists or by querying tasks). All context, status updates, and results are stored within MCP tasks.
+    *   **Example:** `Overmind` creates a task in MCP (e.g., using `mcp_project-manager_create_task_tasks__post`) for `ResearchAgent` to analyze a file. `ResearchAgent` fetches this task, performs the analysis, and updates the task with its findings using `mcp_project-manager_update_task_tasks__task_id__put`.
+    *   **Related:** @`system.md` (Mandate 3: Single Source of Truth - MCP Preferred), @`loop.md` (MCP Context Fetching).
+:   **Chat-Driven (Legacy/Fallback):** Control flow is managed via direct Chat Triggers passed between agents. Context and results are contained within the chat payload.
+    *   **Example:** `AgentA` finishes its work and sends a chat message like `execute_agent AgentB --requestId 123 --payload "data_for_B"` to trigger `AgentB`.
+    *   **Related:** @`system.md` (Mandate 11: Minimal Chat Handoff).
 
 Sequential Activation
-:   **MUST:** Only one agent active per `requestId` at a time. No parallel execution within a request.
+:   **Mandate:** Only one agent **MUST** be active per `requestId` at any given time. Parallel execution of different agents working on the same `requestId` simultaneously is forbidden to maintain state integrity and predictable workflow.
+:   **Reference:** @`system.md` (Implied by single-threaded execution model per task).
+:   **Example:** If `ResearchAgent` is working on `requestId-001`, `BuilderAgent` cannot start working on `requestId-001` until `ResearchAgent` has completed its turn and handed off or updated MCP state.
 
 Self-Improvement Loop
-:   **MUST:** Secondary goal. `ImprovementAgent`/`RuleWriterAgent` refine rules via MCP/Chat. See @`system.md`.
+:   **Definition:** A secondary but crucial goal of the framework where agents like `ImprovementAgent` and `RuleWriterAgent` collaborate to refine and enhance the existing ruleset based on operational experience and analysis.
+:   **Mandate:** This process **MUST** be managed via MCP tasks or Chat Triggers, as detailed in @`system.md`.
+:   **Reference:** @`system.md` (System Overview, Goal 5), @`roles.md` (Responsibilities of `ImprovementAgent`, `RuleWriterAgent`).
+:   **Example:** `ImprovementAgent` analyzes task logs and identifies that a rule in `system.md` is often misinterpreted. It creates an MCP task for `RuleWriterAgent` to clarify that rule. `Overmind` reviews the proposed change.
 
 Rules Hierarchy
-:   **MUST:** 1. `project/` (Overrides Global). 2. `global/`. 3. Agent-specific. See @`system.md`.
+:   **Definition:** The order of precedence for applying rules when conflicts arise.
+:   **Mandate:** The hierarchy **MUST** be followed:
+    1.  Project-specific rules (`.cursor/rules/project/`) override Global rules.
+    2.  Global rules (`.cursor/rules/global/`) apply generally.
+    3.  Agent-specific rules (e.g., `agents/builder-agent.md`) define the core role and can override Global rules for that agent.
+:   **Reference:** @`system.md` (System Overview, Goal 6 & Global Mandate 1), @`init.md` (Rules directory structure).
+:   **Example:** If `system.md` (global rule) specifies a general timeout of 60 seconds for tool calls, but `project/my-project-rules.md` specifies 120 seconds, agents working on "my-project" will use 120 seconds.
 
 ## 3. Mandatory Mechanisms
 
 Global Mandates
-:   **MUST:** Adhere to @`system.md` unless overridden by role/project rules.
+:   **Definition:** Non-negotiable operational principles and constraints that all agents **MUST** adhere to at all times.
+:   **Reference:** @`system.md` (Part 2: Global Mandates). These are the supreme rules unless explicitly and narrowly overridden by a project or agent-specific rule for a particular scenario.
+:   **Example:** "Mandate 8: Idempotency & Verification" requires agents to verify inputs/outputs and document methods.
 
 Code Edit Tag
-:   **MUST:** Use language-appropriate comment block at start of file edits on CODE files.
+:   **Definition:** A standardized comment block that **MUST** be inserted at the beginning of any code file being edited by an agent. This tag provides metadata about the change.
+:   **Mandate:** Use the language-appropriate comment style for the file being edited.
 :   **Format:**
     ```
-    COMMENT_START Task ID: <taskId> // Optional
+    COMMENT_START Task ID: <taskId> // Optional, but highly recommended for MCP traceability
     COMMENT_START Agent Role: <agent_role>
     COMMENT_START Request ID: <requestId>
-    COMMENT_START Project: <projectName> // Optional
-    COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
-    COMMENT_END // Optional
+    COMMENT_START Project: <projectName> // Optional, if applicable
+    COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z (e.g., 2023-10-26T10:00:00Z)
+    COMMENT_END // Optional, if the comment style requires explicit closing
     ```
+:   **Example (Python):**
+    ```python
+    # Task ID: task_mcp_123
+    # Agent Role: BuilderAgent
+    # Request ID: req_abc_789
+    # Project: CoreFrameworkEnhancement
+    # Timestamp: 2024-05-15T14:35:00Z
+    # --- End of Edit Tag --- (Optional style)
+    
+    def new_function():
+        pass
+    ```
+:   **Related:** @`loop.md` (Implied during execution step where file edits occur).
 
 ## 4. Core Agent Behavior Summary (Ref: @`loop.md`)
 
-When you are active as an agent, you will generally follow this sequence (details in @`loop.md`):
+When you are active as an agent, you will generally follow this sequence (full details and strict procedure in @`loop.md`):
 
 1.  **Activate:** The Framework activates you based on a trigger or MCP state.
 2.  **Get Context:** You receive your `taskId` (MCP) or trigger payload (Chat).
 3.  **Fetch Your Rules:** You fetch your own role specification.
 4.  **Plan Your Turn:** You internally determine the steps needed based on your rules and the task context.
 5.  **Execute & Verify:** You perform the core actions of your role using authorized methods and verify the results.
-6.  **Update State / Handoff & Finalize:** You report your status (via MCP task update or Chat trigger) and terminate your current execution turn.
+6.  **Update State / Handoff & Finalize:** You report your status (via MCP task update or Chat trigger), including verification details and assumptions, and terminate your current execution turn.
+:   **Reference:** @`system.md` (Mandate 4: MCP Task Integration, Mandate 10: Assumption Reporting).
 
 ## 5. Key Rule Directories (Runtime: `.cursor/rules/`)
 
 `global/`
-:   Base ruleset, applies generally unless overridden. Synced externally (submodule).
+:   **Definition:** Contains the base ruleset for the framework (e.g., @`system.md`, @`loop.md`). These rules apply generally to all operations and agents unless specifically overridden.
+:   **Source:** Typically synchronized from an external repository (e.g., via Git submodule) to ensure consistency.
+:   **Reference:** @`init.md` (Describes setup of this directory).
 
 `project/`
-:   Current project-specific rules. **MUST** override conflicting `global/` rules.
+:   **Definition:** Contains rules specific to the current project or workspace.
+:   **Mandate:** These rules **MUST** override any conflicting rules found in the `global/` directory.
+:   **Reference:** @`init.md` (Setup), @`system.md` (Rules Hierarchy).
+:   **Example:** If `global/system.md` defines a generic linting command, `project/linting_override.md` could specify a project-specific linter and configuration.
 
 ## 6. Core Integration Rules
 
 When performing specific core operations, you **MUST** follow these integration rules:
 
 Fetching Rules
-:   You **MUST** retrieve the full content of a rule when you need more detail than the summaries provided in the available instructions or registry files.
+:   **Mandate:** You **MUST** retrieve the full content of a rule (e.g., your agent-specific `.md` file, or a global rule like @`system.md`) when you need more detail than the summaries provided in available instructions (like `fetch_rules` tool description) or registry files (like @`roles.md`).
+:   **Tooling:** Use the `fetch_rules` tool.
+:   **Example:** An agent, before starting its main logic, calls `fetch_rules(rule_names=['agents/my_agent_role.md'])` to load its complete operational guidelines.
+:   **Related:** @`loop.md` (Step: Fetch Role Specification).
 
 MCP Task Management
-:   If operating under MCP coordination, you **MUST** use these operations according to the procedures outlined in @`loop.md` and @`system.md`.
+:   **Mandate:** If operating under MCP coordination (the preferred method), you **MUST** use MCP operations (e.g., `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`) strictly according to the procedures outlined in @`loop.md` and @`system.md`. This includes fetching task context, updating task descriptions with findings and verification, and marking tasks complete only after verification.
+:   **Reference:** @`system.md` (Mandate 4: MCP Task Integration), @`loop.md` (MCP-specific steps).
+:   **Example:** `ResearchAgent` uses `mcp_project-manager_get_task_by_id_tasks__task_id__get` to get its analysis task, then uses `mcp_project-manager_update_task_tasks__task_id__put` to submit its findings and mark the task as completed.
 
 External Library Documentation
-:   If you need documentation for an external library or framework, you **MUST** first resolve the library ID, and then get the documentation *before* relying on that information in your actions.
+:   **Mandate:** If you need documentation for an external library or framework (e.g., a Python package, a JavaScript library), you **MUST** first attempt to resolve the library ID using a tool like `mcp_context7_resolve-library-id`, and then get the documentation using `mcp_context7_get-library-docs` *before* relying on that information in your actions or code generation.
+:   **Reference:** @`system.md` (Tool Usage Mandate 5: Adherence to Specific Tool Protocols).
+:   **Example:** Before using the `requests` Python library, an agent calls `mcp_context7_resolve-library-id(libraryName='requests')`, then uses the returned ID with `mcp_context7_get-library-docs` to fetch its usage guidelines.
+
+## 7. TROUBLESHOOTING COMMON MISUNDERSTANDINGS
+
+*   **Misunderstanding: "Is the Framework an agent?"**
+    *   **Clarification:** No, the Framework is the external execution engine that manages agents. It is not an agent itself. See definition of "Framework" above and @`loop.md`.
+*   **Misunderstanding: "Can I ask the user for help if I'm stuck?"**
+    *   **Clarification:** No, agents **MUST** operate autonomously and not interact directly with the user, except for approved diagnostics. Refer to "Autonomous Execution" and Global Mandate 7 in @`system.md`. Escalate issues to `Overmind` via MCP or Chat.
+*   **Misunderstanding: "Where do I find my specific instructions if I'm, for example, the BuilderAgent?"**
+    *   **Clarification:** Your primary instructions are in your agent-specific rule file (e.g., `agents/builder-agent.md`). You fetch this using `fetch_rules`. The @`roles.md` file provides a registry and summary.
+*   **Misunderstanding: "What's the difference between `rules-md/` and `.cursor/rules/`?"**
+    *   **Clarification:** `rules-md/` contains the source markdown files. `.cursor/rules/` is the runtime directory where the Framework expects to find the rules, often populated by a process like `git clone` or `git submodule update` as described in @`init.md`.
+*   **Misunderstanding: "When do Project rules override Global rules?"**
+    *   **Clarification:** Always. If a rule for the same concept or behavior exists in both `project/` and `global/`, the `project/` version takes precedence. See "Rules Hierarchy."
+*   **Misunderstanding: "How detailed should my MCP Task updates be?"**
+    *   **Clarification:** Very detailed. Per @`system.md` (Mandate 4 and 10), updates **MUST** include findings, explicit verification details (methods used, pass/fail), and assumptions made or challenged. This is critical for auditability and Overmind's ability to monitor protocol adherence.
