@@ -86,21 +86,10 @@ alwaysApply: false
 
 ### Phase 3: Final Verification & Reporting
 
-1.  **Final Rules Check:** You **MUST** list the contents of `.cursor/rules`. You **MUST** also read the contents of a key rule file (e.g., `.cursor/rules/system.md`) to confirm the rules directory was populated correctly. If this check fails, you **MUST HALT & REPORT** this as the primary failure.
-2.  **MCP Configuration Check:**
-    *   You **MUST** check for the existence of the file `.cursor/mcp.json` at the project root.
-    *   IF the file exists:
-        *   You **SHOULD** attempt to read and parse it as JSON. 
-        *   You **SHOULD** check if a top-level key `mcpServers` (object) exists.
-        *   If parsing fails or `mcpServers` is missing, you will log this internally as `mcpJsonMalformed = true`.
-    *   ELSE (file does not exist):
-        *   You will log this internally as `mcpJsonMissing = true`.
-3.  **Report Outcome:** You **MUST** report the final outcome (success, or failure including the specific phase/step/reason and verification details) to `Overmind` using the appropriate mechanism (Chat Trigger or MCP Task Update).
-    *   Your report **MUST** include the status of the `.cursor/rules/` setup.
-    *   IF `mcpJsonMissing` is true, your report **MUST** include a recommendation: "The `.cursor/mcp.json` file is missing. Please refer to @`entrypoint.md` for instructions on configuring the MCP server integration."
-    *   IF `mcpJsonMalformed` is true, your report **MUST** include a recommendation: "The `.cursor/mcp.json` file was found but appears to be malformed (e.g., not valid JSON or missing the 'mcpServers' key). Please refer to @`entrypoint.md` for the correct structure and content."
+1.  **Final Check:** You **MUST** list the contents of `.cursor/rules`. You **MUST** also read the contents of a key rule file (e.g., `.cursor/rules/system.md`) to confirm the rules directory was populated correctly.
+2.  **Report Outcome:** You **MUST** report the final outcome (success, or failure including the specific phase/step/reason and verification details) to `Overmind` using the appropriate mechanism (Chat Trigger or MCP Task Update).
 
-**Error Handling Summary:** Any verification failure marked with **MUST HALT & REPORT** triggers an immediate stop of this procedure and reporting the failure details as described in Phase 3, Step 3.
+**Error Handling Summary:** Any verification failure marked with **MUST HALT & REPORT** triggers an immediate stop of this procedure and reporting the failure details as described in Phase 3, Step 2.
 
 ## REFERENCES
 

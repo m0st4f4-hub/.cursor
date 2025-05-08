@@ -5,99 +5,34 @@ globs:
 alwaysApply: false
 ---
 
-# 🏁 Entrypoint & Quickstart Guide
+# 🧭 Framework Entrypoint & Core Rule Index
 
-This project contains both the **Project Manager backend (FastAPI)** and **frontend (Next.js)**, as well as the MCP server configuration for integration with the Cursor rules framework.
+**Purpose:** Use this central index to find the essential rule documents that define how this system operates.
 
-## 1. Prerequisites
+## 1. CORE FRAMEWORK RULES
 
-- Python 3.10+ (for backend)
-- Node.js 18+ and npm (for frontend)
-- (Recommended) [Poetry](https://python-poetry.org/) or `pip` for Python dependencies
+*   **System Overview & Global Rules:** @`system.md`
+    *   *Defines overall goals, operational model, non-negotiable rules.*
+*   **Framework Engine & Agent Turn Process:** @`loop.md`
+    *   *Defines external engine and mandatory agent turn steps.*
+*   **Core Concepts & Terms:** @`concepts.md`
+    *   *Glossary of key terms, entities, mechanisms.*
+*   **Ultra-Deep Thinking Protocol:** @`protocol.md` (Executed by Overmind)
+    *   *Methodology for rigorous planning, verification, analysis.*
+*   **Initialization Procedure:** @`init.md` (Executed by InitializationAgent)
+    *   *Mandatory setup procedure for `.cursor/rules/`.*
 
-## 2. Install Dependencies
+## 2. AGENT & TOOL RULES
 
-```bash
-# Backend (from project root)
-cd backend
-python -m venv .venv
-.venv/Scripts/activate  # or source .venv/bin/activate on Unix
-pip install -r requirements.txt
+*   **Agent Role Definitions:**
+    *   **Registry:** @`roles.md`
+    *   **Specifications:** Located in `@agents/` directory. *Primary source for agent rules.*
 
-# Frontend (from project root)
-cd ../frontend
-npm install
-```
+## 3. USAGE NOTES
 
-## 3. Build & Run (Development)
+*   As an agent, you **MUST** fetch your own role specification at the start of your turn.
+*   Agents **MUST** adhere to the foundational operational model outlined in @`concepts.md`, which includes following @`system.md` (Global Mandates) and @`loop.md` (Core Execution Loop), unless their specific role file dictates otherwise.
+*   You can use this document as a primary index to find other core rule documents when needed.
+*   This document is the primary human-readable index. 
 
-From the project root, use the provided scripts in `package.json`:
-
-```bash
-# Start both backend (with hot reload) and frontend concurrently:
-npm run dev
-```
-
-- Backend: [http://localhost:8000](http://localhost:8000)
-- Frontend: [http://localhost:3000](http://localhost:3000)
-
-## 4. MCP Server Integration
-
-To enable MCP integration, add the following to your `.cursor/mcp.json` file (create it if it doesn't exist at the root of your project):
-
-```json
-{
-  "mcpServers": {
-    "mcp-server-time": {
-      "command": "uvx",
-      "args": ["mcp-server-time", "--local-timezone=Africa/Cairo"],
-      "enabled": true
-    },
-    "web-fetch": {
-      "command": "uvx",
-      "args": ["mcp-server-fetch"],
-      "enabled": true
-    },
-    "server-memory": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
-      "enabled": true
-    },
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"],
-      "enabled": true
-    },
-    "browser-tools": {
-      "command": "cmd",
-      "type": "stdio",
-      "args": ["/c", "npx", "-y", "@agentdeskai/browser-tools-mcp"],
-      "enabled": true
-    },
-    "desktop-commander": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@wonderwhy-er/desktop-commander"
-      ]
-    },
-    "project-manager": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "http://localhost:8000/mcp"
-      ],
-      "enabled": true
-    }
-  }
-}
-```
-
-- Place this file at `.cursor/mcp.json` in your project root.
-- This enables the MCP Project Manager server to communicate with your backend.
-
-## 5. Additional Notes
-
-- For production deployment, refer to the README files within the `backend/` and `frontend/` directories.
-- For troubleshooting, consult the logs such as `lint_backend.log`, `lint_frontend.log`, and any build logs generated. 
+--- 

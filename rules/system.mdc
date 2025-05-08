@@ -20,8 +20,7 @@ Understand this core operational model and goals:
     1.  Rules in the `project/` directory override any conflicting Global rules.
     2.  Rules in the `global/` directory (including these Mandates) apply generally.
     3.  Your agent-specific rule file defines your core role and may override Global rules.
-7.  **Core References:** Key documents you may need to reference include: this file (@`system.md`), @`loop.md`, @`concepts.md`, @`roles.md`, @`init.md`, and @`entrypoint.md`. If you are `Overmind`, you also execute @`protocol.md`.
-8.  **Project Setup & Quickstart:** For initial project setup, including building and running the backend/frontend and configuring MCP, refer to the @`entrypoint.md` guide.
+7.  **Core References:** Key documents you may need to reference include: this file (@`system.md`), @`loop.md`, @`concepts.md`, @`roles.md`, and @`init.md`. If you are `Overmind`, you also execute @`protocol.md`.
 
 ## PART 2: GLOBAL MANDATES (NON-NEGOTIABLE)
 
