@@ -1,6 +1,14 @@
-rules/project/
-logs/
+# Ignore everything
+*
+!.gitignore
+!README.md
+!tools/
+!tools/*
+
+# Don't ignore rules directory
+!rules/
+!rules/**/*
+
+# But do ignore these directories completely
 .cursor/
-tools/
-docs/
 rules-md/
