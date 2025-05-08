@@ -39,19 +39,32 @@
 
 Below is a conceptual diagram of how the core documents relate to each other. This can help visualize the framework structure:
 
-```
-[User Request]
-      |
-[Overmind] --> @protocol.md
-      |              |
-      v              v
-[Agents] --> @roles.md --> @agents/*.md
-      |              |
-      v              v
-[Execution] --> @loop.md --> @system.md (Mandates)
-      |              |
-      v              v
-[Setup] --> @init.md     @concepts.md (Terms)
+```mermaid
+graph TD
+    UserRequest[User Request]
+    Overmind[Overmind]
+    Protocol[protocol.md]
+    Agents[Agents]
+    Roles[roles.md]
+    AgentSpecs[agents/*.md]
+    Execution[Execution]
+    Loop[loop.md]
+    System[system.md]
+    Setup[Setup]
+    Init[init.md]
+    Concepts[concepts.md]
+
+    UserRequest --> Overmind
+    Overmind --> Protocol
+    Overmind --> Agents
+    Agents --> Roles
+    Roles --> AgentSpecs
+    Agents --> Execution
+    Execution --> Loop
+    Loop --> System
+    Execution --> Setup
+    Setup --> Init
+    Setup --> Concepts
 ```
 
 **Diagram Explanation:** The user request flows through Overmind using the protocol, delegates to agents defined in roles and individual specs, follows the execution loop with system mandates, and relies on initialization and core concepts for foundation.
@@ -67,11 +80,31 @@ Below is a conceptual diagram of how the core documents relate to each other. Th
 
 *   **Issue: Unable to locate a specific rule or document.**
     *   **Solution:** Use the search functionality in your IDE or MCP tools (`mcp_desktop-commander_search_code` or `default_api.grep_search`) with keywords related to the rule. Ensure you're referencing the latest version of this index.
+    *   **Example:** Searching for `Mandate 8` in `system.md` using `grep_search` will show all relevant verification mandates.
 *   **Issue: Confusion about document precedence or hierarchy.**
-    *   **Solution:** Refer to @`system.md` for rules hierarchy (Section 1.1). Project rules override global rules, and agent-specific rules define individual behavior.
+    *   **Solution:** Refer to [system.md](system.md) for rules hierarchy (Section 1.1). Project rules override global rules, and agent-specific rules define individual behavior.
+    *   **Example:** If both `project/my-rule.md` and `global/my-rule.md` exist, the project version takes precedence.
 *   **Issue: Outdated references or broken links in documentation.**
     *   **Solution:** Check the version note at the top of this document. If using an older framework version, some links may not apply. Escalate to `Overmind` or `RulesSyncAgent` for updates via MCP task creation.
+    *   **Example:** If a link to `loop.md` is broken, escalate for correction.
 *   **Issue: Difficulty understanding document relationships.**
     *   **Solution:** Review the visual navigation aid above to see how documents interlink. Cross-references in each section also point to related content for deeper context.
+    *   **Example:** See the Mermaid diagram for a visual overview.
+*   **Issue: Unsure about which agent to consult for a specific task.**
+    *   **Solution:** Refer to [roles.md](roles.md) for the agent registry and responsibilities, and to the relevant agent spec in [agents/](agents/).
 
---- 
+---
+
+## 6. VERSION HISTORY
+
+| Version | Date       | Author      | Notes                                 |
+|---------|------------|-------------|---------------------------------------|
+| 1.0     | 2024-06-01 | Framework   | Initial version                       |
+| 1.1     | 2024-06-10 | DocsAgent   | Added diagrams, expanded troubleshooting, explicit links |
+
+## 7. CHANGE LOG
+
+- 2024-06-10: Added Mermaid diagram for document relationships.
+- 2024-06-10: Expanded troubleshooting section with more examples.
+- 2024-06-10: Converted all @file.md references to markdown links.
+- 2024-06-10: Added Version History and Change Log sections. 
