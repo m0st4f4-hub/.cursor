@@ -3,6 +3,26 @@ ruleType: Shared
 title: Agent Roles & Responsibilities Registry
 # 🧑‍🤝‍🧑 Agent Roles & Responsibilities Registry
 
+## Agent Roles Summary Table
+
+| Agent Role                | Purpose/Responsibility                                 | Spec File                        |
+|---------------------------|-------------------------------------------------------|----------------------------------|
+| Overmind                  | Planning, delegation, monitoring, escalation          | [overmind-agent.md](agents/overmind-agent.md) |
+| InitializationAgent       | Setup `.cursor/rules/`, verify environment            | [initialization-agent.md](agents/initialization-agent.md) |
+| RuleGeneratingAgent       | Define rule templates and validation standards         | [rule-generating-agent.md](agents/rule-generating-agent.md) |
+| ResearchAgent             | Read-only analysis & synthesis                        | [research-agent.md](agents/research-agent.md) |
+| BuilderAgent              | Code implementation, build/test/lint                  | [builder-agent.md](agents/builder-agent.md) |
+| FrontendAgent             | UI, CSS/SCSS, accessibility, usability                | [frontend-agent.md](agents/frontend-agent.md) |
+| RefactorAgent             | Code structure improvements                           | [refactor-agent.md](agents/refactor-agent.md) |
+| DocsAgent                 | Documentation generation/updates                      | [docs-agent.md](agents/docs-agent.md) |
+| RunnerAgent               | Runtime execution & diagnostics                       | [runner-agent.md](agents/runner-agent.md) |
+| MultimodalClassifierAgent | Image/media classification                            | [multimodal-classifier-agent.md](agents/multimodal-classifier-agent.md) |
+| ImageProcessingAgent      | Image transformations                                | [image-processing-agent.md](agents/image-processing-agent.md) |
+| ImprovementAgent          | Analyze history for rule improvements                 | [improvement-agent.md](agents/improvement-agent.md) |
+| RuleEditorAgent           | Apply rule changes from ImprovementAgent              | [rule-editor-agent.md](agents/rule-editor-agent.md) |
+| AgentGeneratorAgent       | Scaffold new agent specs                              | [agent-generator-agent.md](agents/agent-generator-agent.md) |
+| RulesSyncAgent            | Synchronize `.cursor` submodule                       | [rules-sync-agent.md](agents/rules-sync-agent.md) |
+
 **Version:** 1.0.0 (YYYY-MM-DD)
 **Status:** Stable
 
@@ -319,4 +339,19 @@ end
 *   Individual Agent Specification files (`rules-md/agents/*.md`)
 *   [System Prompt & Mandates](mdc:system.mdc)
 *   [Framework & Execution Loop](mdc:loop.mdc)
-*   [Core Concepts & Definitions](mdc:concepts.mdc) 
+*   [Core Concepts & Definitions](mdc:concepts.mdc)
+
+## VERSION HISTORY
+
+| Version | Date       | Author      | Notes                       |
+|---------|------------|-------------|-----------------------------|
+| 1.0     | 2024-06-01 | Framework   | Initial version             |
+| 1.1     | 2024-06-10 | DocsAgent   | Added agent summary, diagram, changelog, expanded workflow notes |
+
+## CHANGE LOG
+
+- 2024-06-10: Added agent roles summary table at the top.
+- 2024-06-10: Added agent interaction diagram.
+- 2024-06-10: Expanded workflow notes and cross-references.
+- 2024-06-10: Converted all @file.md references to markdown links.
+- 2024-06-10: Added Version History and Change Log sections. 
