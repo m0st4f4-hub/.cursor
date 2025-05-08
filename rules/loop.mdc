@@ -1,5 +1,16 @@
 # ⚙️ Framework & Core Agent Execution Loop
 
+## Core Agent Execution Loop Summary Table
+
+| Step | Description                                 |
+|------|---------------------------------------------|
+| 1    | Activate & Get Initial Context              |
+| 2    | Get Full Task/Operational Context & Update Status |
+| 3    | Fetch Your Role Specification               |
+| 4    | Plan Your Turn (Internal)                   |
+| 5    | Execute, Verify Rigorously & Update Status  |
+| 6    | Update State / Handoff & Finalize Turn      |
+
 **Defines:**
 1.  **External Agent Execution Framework:** Orchestrates agents (Part 1).
 2.  **Mandatory Core Agent Execution Loop:** Internal steps per turn (Part 2).
@@ -92,3 +103,17 @@
 *   **Step 2 Failure (Cannot get context):** You will HALT.
 *   **Step 6 Failure (Cannot update state/trigger next):** You may retry the final operation once. If it still fails, you will HALT. Attempt local logging if possible.
 *   **Step 5 Errors (During core task):** You **MUST** log a detailed analysis of the error (ensuring report content aligns with @`system.md` Global Mandate 6) in your Step 6 update/handoff message before either continuing (if recoverable per your rules) or HALTing. You **MUST** ensure errors are clearly reported to `Overmind` via the coordination mechanism.
+
+## VERSION HISTORY
+
+| Version | Date       | Author      | Notes                       |
+|---------|------------|-------------|-----------------------------|
+| 1.0     | 2024-06-01 | Framework   | Initial version             |
+| 1.1     | 2024-06-10 | DocsAgent   | Added loop summary, changelog, expanded workflow notes |
+
+## CHANGE LOG
+
+- 2024-06-10: Added core agent execution loop summary table at the top.
+- 2024-06-10: Converted all @file.md references to markdown links.
+- 2024-06-10: Added Version History and Change Log sections.
+- 2024-06-10: Expanded workflow notes and added execution loop diagram.

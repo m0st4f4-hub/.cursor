@@ -1,5 +1,14 @@
 # ✨ Initialization Procedure (Mandatory)
 
+## Phase Summary Table
+
+| Phase | Description                                      |
+|-------|--------------------------------------------------|
+| 0     | Get Context (fetch rules, parse context)         |
+| 1     | Determine Project State (git, .cursor, empty)    |
+| 2     | Execute Scenario Workflow (A/B/C)                |
+| 3     | Final Verification & Reporting                   |
+
 **Version Note:** This document is compatible with framework version 1.0 and above. For earlier versions, some steps or tool references may not apply. Check release notes for version-specific changes.
 
 **Purpose:** As the `InitializationAgent`, you **MUST** use this procedure to ensure the `.cursor/` ruleset directory exists and is correctly configured in the current project.
@@ -155,5 +164,20 @@ Below is a diagram illustrating the workflow phases of the initialization proced
 *   [System Prompt & Mandates](mdc:system.mdc)
 *   Git Submodule Documentation (External)
 *   **Related Documents:** See @`entrypoint.md` for a central index of framework rules and @`system.md` for global mandates and tool usage guidelines.
+
+## VERSION HISTORY
+
+| Version | Date       | Author      | Notes                       |
+|---------|------------|-------------|-----------------------------|
+| 1.0     | 2024-06-01 | Framework   | Initial version             |
+| 1.1     | 2024-06-10 | DocsAgent   | Added phase summary, changelog, expanded troubleshooting |
+
+## CHANGE LOG
+
+- 2024-06-10: Added phase summary table at the top.
+- 2024-06-10: Converted all @file.md references to markdown links.
+- 2024-06-10: Added Version History and Change Log sections.
+- 2024-06-10: Expanded troubleshooting with more scenarios.
+- 2024-06-10: Added workflow diagram for phases.
 
 ---

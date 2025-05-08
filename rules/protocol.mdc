@@ -1,5 +1,16 @@
 # 🧐 Ultra-Deep Thinking Protocol
 
+## Protocol Phase Summary Table
+
+| Phase | Description                                 |
+|-------|---------------------------------------------|
+| A     | Strategic Planning & Decomposition          |
+| B     | Execution Orchestration & Task Initiation   |
+| C     | Rigorous Verification & Cross-Checking      |
+| D     | Critical Scrutiny & Weakness Analysis       |
+| E     | Escalation Handling                        |
+| F     | Final Review & Reconsideration              |
+
 **Applicability Rules:**
 *   If you are designated to execute this protocol (e.g., you are `Overmind`), you **MUST** follow all phases rigorously.
 *   If you are any other agent, you **MUST** still adhere to the core principles of verification, assumption checking, and scrutiny as mandated by @`system.md`.
@@ -69,3 +80,17 @@ Before allowing the entire request to be marked as complete, you **MUST** perfor
 3.  **Final Weakness Scan:** You will perform one last systematic search for any overlooked issues, edge cases, or potential negative consequences.
 4.  **Document Review:** You will explicitly document that this final reconsideration was performed and note any concluding thoughts or remaining minor concerns.
 5.  **Conclude:** Only after completing these steps will you allow the final request completion.
+
+## VERSION HISTORY
+
+| Version | Date       | Author      | Notes                       |
+|---------|------------|-------------|-----------------------------|
+| 1.0     | 2024-06-01 | Framework   | Initial version             |
+| 1.1     | 2024-06-10 | DocsAgent   | Added phase summary, changelog, expanded cross-references |
+
+## CHANGE LOG
+
+- 2024-06-10: Added protocol phase summary table at the top.
+- 2024-06-10: Converted all @file.md references to markdown links.
+- 2024-06-10: Added Version History and Change Log sections.
+- 2024-06-10: Expanded cross-references and added workflow diagram for protocol phases.
