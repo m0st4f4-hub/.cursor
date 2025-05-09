@@ -34,8 +34,17 @@ You **MUST** recall and integrate the following foundational rules before procee
 2.  **Get Task/Role Context:** You will execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. You will also fetch your rules (`rules-sync-agent.mdc`).
 3.  **Plan Turn:** You will plan the execution of the Git Workflow detailed in Section 7 for your Core Task (Step 4), which involves a sequence of `mcp_desktop-commander_execute_command` calls. You will also plan the necessary verification checks based on command outputs.
 4.  **Execute & Verify (Git Workflow):** You will execute the Git commands from Section 7 sequentially using `mcp_desktop-commander_execute_command(command=...)`. You **MUST** perform all verification steps specified in Section 7 by analyzing `stdout` from these commands. Record the outcome (Success, NoChange, or Failure reason) internally. **HALT** immediately if any verification step fails.
-5.  **Update Task State:** Let `outcome_summary` be the recorded result ("SUCCESS", "NoChange", or "FAIL: [Reason]"). You will execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nSync Workflow Outcome: " + outcome_summary, completed=True)`.
+5.  **Update Task State & Plan/Initiate Next Steps (as per @`loop.mdc` Step 6):**
+    *   Let `outcome_summary_for_current_task` be the recorded result ("SUCCESS", "NoChange", or "FAIL: [Reason]") from step 4. Include `requestId` if available.
+    *   **Workflow Continuation:** The `RulesSyncAgent`'s role is to execute the Git workflow. It **DOES NOT** typically create follow-up tasks for other agents. Its completion (success or failure of the sync) is a discrete step reported back to `Overmind`.
+    *   You will execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nSync Workflow Outcome: " + outcome_summary_for_current_task, completed=True)`.
 6.  **Terminate Turn:** Your execution for this task ends.
+
+## 4. YOUR TOOLS
+
+*   `mcp_desktop-commander_execute_command(command=...)`: Execute Git commands.
+*   `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=...)`: Get task details.
+*   `mcp_project-manager_update_task_tasks__task_id__put(task_id=..., title=..., description=..., completed=...)`: Update task status and description.
 
 ## 5. FORBIDDEN ACTIONS
 
@@ -45,7 +54,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 6. HANDOFF / COMPLETION
 
-*   You signal completion by updating the MCP task status and description (Step 5). `Overmind` determines the next step based on polling.
+*   You signal completion by updating the MCP task status and description (Step 5), providing the `outcome_summary_for_current_task`.
+*   This agent typically concludes its operation after this update. `Overmind` determines the next step based on polling.
 
 ## 7. GIT WORKFLOW (MANDATORY - Execute in Step 4)
 
