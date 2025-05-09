@@ -33,13 +33,42 @@ globs: []
 **STRICT ADHERENCE IS MANDATORY.** UTILIZE THE FULL TOOL SUITE. DOCUMENT ALL ACTIONS METICULOUSLY.
 
 **MANDATE 1: COMPREHENSIVE CONTEXT GATHERING**
-PRIOR TO ANY ACTION: EXECUTE `get_task_by_id` (MCP). FOR FILES/CODE: `get_file_info`, `list_directory`, `read_file`, `codebase_search`, `search_code`, `file_search`. FOR DEPENDENCIES/EXTERNAL DATA: Context7, WEB SEARCH/FETCH. RECORD ALL CONTEXT, ASSUMPTIONS, AND TOOLS UTILIZED IN THE MCP TASK.
+PRIOR TO ANY ACTION: EXECUTE `mcp_project-manager_get_task_by_id_tasks__task_id__get` (MCP).
+FOR FILES/CODE:
+  - File Information: `default_api.file_search` (IDE, fuzzy path), `mcp_desktop-commander_get_file_info` (MCP, specific path).
+  - Directory Listing: `default_api.list_dir` (IDE), `mcp_desktop-commander_list_directory` (MCP).
+  - Reading Files: `default_api.read_file` (IDE), `mcp_desktop-commander_read_file` (MCP), `mcp_desktop-commander_read_multiple_files` (MCP).
+  - Code Search: `default_api.codebase_search` (IDE, semantic), `default_api.grep_search` (IDE, regex), `mcp_desktop-commander_search_code` (MCP, regex).
+FOR DEPENDENCIES/EXTERNAL DATA:
+  - Library Docs: `mcp_context7_resolve-library-id` followed by `mcp_context7_get-library-docs` (MCP).
+  - Web Info: `default_api.web_search` (IDE), `mcp_web-fetch_fetch` (MCP).
+RECORD ALL CONTEXT, ASSUMPTIONS, AND TOOLS UTILIZED IN THE MCP TASK. MCP tools are preferred for automated contexts.
 
 **MANDATE 2: MULTI-METHOD VERIFICATION**
-NON-TRIVIAL OPERATIONS: MINIMUM OF 2 METHODS. CRITICAL OPERATIONS: MINIMUM OF 3. EXAMPLE (CODE MODIFICATION): `read_file`, `search_code`/`grep_search`, `execute_command` (TESTS). EXAMPLE (FILE OPERATION): `list_directory`, `get_file_info`, `read_file`. DOCUMENT ALL VERIFICATION STEPS IN MCP.
+NON-TRIVIAL OPERATIONS: MINIMUM OF 2 METHODS. CRITICAL OPERATIONS: MINIMUM OF 3.
+EXAMPLE (CODE MODIFICATION):
+  - `default_api.read_file` / `mcp_desktop-commander_read_file` (content confirmation).
+  - `default_api.grep_search` / `mcp_desktop-commander_search_code` (pattern/side-effect check).
+  - `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` (for tests/linters).
+EXAMPLE (FILE OPERATION):
+  - `default_api.list_dir` / `mcp_desktop-commander_list_directory`.
+  - `mcp_desktop-commander_get_file_info`.
+  - `default_api.read_file` / `mcp_desktop-commander_read_file`.
+EXAMPLE (UI CHANGES):
+  - `mcp_browser-tools_takeScreenshot` / `mcp_playwright_browser_take_screenshot` (visual confirmation).
+  - `mcp_browser-tools_runAccessibilityAudit` (accessibility check).
+  - `mcp_browser-tools_getSelectedElement` (DOM state).
+DOCUMENT ALL VERIFICATION STEPS AND THEIR PASS/FAIL RESULTS IN MCP. MCP tools are preferred for automated contexts.
 
 **MANDATE 3: STRATEGIC TOOL SELECTION & EXECUTION**
-PREFER MCP FOR BACKGROUND OPERATIONS (`execute_command`). EMPLOY TARGETED EDITS (`edit_file`/`edit_block`). `write_file` TO BE USED WITH CAUTION. SAFE DELETION PROTOCOLS (CONFIRM TARGET). EFFICIENT SEARCH (TAILOR TOOL TO QUERY). UTILIZE BROWSER TOOLS FOR WEB-BASED TASKS.
+PREFER MCP TOOLS FOR AUTOMATED/BACKGROUND OPERATIONS.
+  - Command Execution: `default_api.run_terminal_cmd` (IDE), `mcp_desktop-commander_execute_command` (MCP, supports background execution, use with `mcp_desktop-commander_read_output` and `mcp_desktop-commander_force_terminate` for backgrounded tasks).
+  - File Edits:
+    - `default_api.edit_file` (IDE, general edits).
+    - `mcp_desktop-commander_edit_block` (MCP, surgical text replacements).
+    - `mcp_desktop-commander_write_file` (MCP, overwrite entire file, use with caution).
+  - File Deletion: `default_api.delete_file` (IDE). For MCP, use `mcp_desktop-commander_execute_command` with OS-specific commands (e.g., `rm`, `del`) and verify.
+SAFE DELETION PROTOCOLS (CONFIRM TARGET). EFFICIENT SEARCH (TAILOR TOOL TO QUERY). UTILIZE BROWSER TOOLS (`mcp_browser-tools_*`, `mcp_playwright_browser_*`) FOR WEB-BASED TASKS.
 
 **MANDATE 4: DETAILED OPERATIONAL LOGGING & TASK LIFECYCLE MANAGEMENT (MCP)**
 LOG ALL OPERATIONS (TOOLS, PARAMETERS, CONTEXT, VERIFICATION RESULTS) IN THE MCP TASK (`update_task`). TASK LIFECYCLE STATE **MUST** BE ACCURATELY REFLECTED.
@@ -48,7 +77,10 @@ LOG ALL OPERATIONS (TOOLS, PARAMETERS, CONTEXT, VERIFICATION RESULTS) IN THE MCP
 MCP STATUS **MUST** BE UPDATED IMMEDIATELY FOLLOWING WORK COMPLETION. THIS IS CRITICAL.
 
 **MANDATE 5: ADHERENCE TO SPECIFIC TOOL PROTOCOLS**
-Context7: EXECUTE `resolve-library-id` PRIOR TO `get-library-docs`. MCP `execute_command`: UTILIZE PID. `Overmind` PROJECT MANAGEMENT: PLANNING PROMPT -> CREATE TASK -> GET TASKS.
+Context7: EXECUTE `mcp_context7_resolve-library-id` PRIOR TO `mcp_context7_get-library-docs`.
+MCP `mcp_desktop-commander_execute_command`: When running background tasks, utilize the returned PID with `mcp_desktop-commander_read_output` for monitoring and `mcp_desktop-commander_force_terminate` for control.
+`Overmind` PROJECT MANAGEMENT: `mcp_project-manager_gen_overmind_planning_prompt` -> `mcp_project-manager_create_task_tasks__post` -> `mcp_project-manager_get_task_list_tasks__get`.
+Playwright: Use `mcp_playwright_browser_install` if browser setup issues occur.
 
 **MANDATE 6: TOOL UNAVAILABILITY PROTOCOL**
 IF A TOOL IS UNAVAILABLE: DO NOT HALT. SKIP THE STEP, LOG THE INCIDENT, AND CONTINUE. IDENTIFY ALTERNATIVE SOLUTIONS.
