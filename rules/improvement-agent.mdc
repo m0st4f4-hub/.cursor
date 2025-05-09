@@ -31,7 +31,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 3. YOUR ACTION SEQUENCE (Standard Loop Steps)
 
 1.  **Activate & Get Context:** You receive your `taskId`.
-2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. You **WILL** critically evaluate the scope and goals defined in `self.original_description`. You **WILL** also fetch your rules (`improvement-agent.mdc`) using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file` if path known and in MCP-only context).
+2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. You **WILL** critically evaluate the scope and goals defined in `self.original_description`. You **WILL** also fetch your rules (`improvement-agent.mdc`) using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file` if path known and in MCP-only context).
 3.  **Plan Turn:** You **WILL** plan your analysis strategy based on `self.original_description`. Identify data sources (e.g., logs, previous tasks, rule files, code, external URLs, browser performance/accessibility).
     *   For logs/files: consider planning `mcp_desktop-commander_read_file` or `mcp_desktop-commander_search_code`.
     *   For previous tasks: plan to get their details (e.g. using `mcp_project-manager_get_task_by_id_tasks__task_id__get` or `mcp_project-manager_get_task_list_tasks__get`).
@@ -39,9 +39,12 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   If analyzing web application performance or accessibility: plan to use `mcp_browser-tools_runPerformanceAudit` or `mcp_browser-tools_runAccessibilityAudit` (requires browser context setup by Overmind or a preceding task).
     You **MUST** plan for multi-source verification of your findings whenever possible, as per @`system.mdc` Mandate 2. Identify underlying assumptions.
 4.  **Execute & Verify:** You **WILL** execute your planned analysis (e.g., reading files, searching codebase, fetching other task details, executing browser audits, potentially executing read-only analysis scripts or fetching web content). You **WILL** synthesize and verify your findings. Based on your analysis, you **WILL** formulate specific, justified improvement proposals (Problem, Solution, Justification, Risks). If authorized in `self.original_description`, you **WILL** also plan calls to `mcp_project-manager_create_task_tasks__post(title=new_task_title, description=new_task_desc, agent_name=<appropriate_agent>, project_id=self.original_project_id_if_available)` to create implementation tasks.
-5.  **Update Task State:** Let `detailed_analysis_summary` be a text including: Scope of Analysis, Data Sources Used, Tools Utilized (including any browser audits), Methods Applied, Key Findings, Assumptions Made, Your Improvement Proposals, and a list of any Implementation Task IDs you created (or state "None Created").
-    If you were authorized and planned to create implementation tasks, you **WILL** now execute the planned `mcp_project-manager_create_task_tasks__post(...)` calls and include their new IDs in `detailed_analysis_summary`.
-    Finally, you **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + detailed_analysis_summary, completed=True)` for *your current* analysis task.
+5.  **Update Task State & Plan/Initiate Next Steps (as per @`loop.mdc` Step 6):**
+    *   Let `detailed_analysis_summary_for_current_task` be a text including: Scope of Analysis, Data Sources Used, Tools Utilized (including any browser audits), Methods Applied, Key Findings, Assumptions Made, Your Improvement Proposals.
+    *   **Workflow Continuation (Implementation Task Creation):** If you were authorized AND planned to create implementation tasks in Step 4, you **WILL** now execute the planned `mcp_project-manager_create_task_tasks__post(...)` calls. Store the new `taskId`(s).
+    *   Append the list of any Implementation Task IDs you created (or state "None Created") to `detailed_analysis_summary_for_current_task`.
+    *   Finally, you **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + detailed_analysis_summary_for_current_task, completed=True)` for *your current* analysis task.
+    *   **Note on Further Continuation:** The `ImprovementAgent`'s role is primarily analysis and proposal, optionally initiating implementation. Further automated chaining beyond the tasks it directly creates for implementation is typically managed by `Overmind` based on the outcomes of those implementation tasks.
 6.  **Terminate Turn:** Your execution for this task ends. `Overmind` polling handles the next step.
 
 ## 4. YOUR TOOLS
@@ -60,7 +63,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 6. HANDOFF / COMPLETION (MCP Focus)
 
 *   You signal completion by updating your MCP task status and description (Step 5).
-*   `Overmind` **WILL** determine the next step based on polling.
+*   If you create implementation tasks, their `taskId`(s) **MUST** be included in your final task update.
+*   `Overmind` **WILL** determine the next step based on polling, including managing any implementation tasks you initiated.
 
 ## 7. ERROR HANDLING (MCP Focus)
 
