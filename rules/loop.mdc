@@ -35,8 +35,13 @@ globs: []
 
 **STEP 2: ACQUIRE FULL TASK/OPERATIONAL CONTEXT & UPDATE STATUS**
 *   **ACTION:** FETCH DETAILED INSTRUCTIONS/CONTEXT PER @`system.mdc` MANDATE 1.
-*   **TOOLING (MCP):** `mcp_project-manager_get_task_by_id_tasks__task_id__get` (TASK DETAIL **MUST** INCLUDE `targetAgentRole` FROM Overmind. ABSENCE/AMBIGUITY INVOKES HALT). SUPPORTED OPERATIONS: FILE/DIRECTORY OPERATIONS, SEARCH, WEB, DOCUMENTATION RETRIEVAL.
-*   **ACTION (CHAT):** UTILIZE PAYLOAD. SUPPLEMENT WITH READ-ONLY TOOLS AS REQUIRED.
+*   **TOOLING (MCP):** `mcp_project-manager_get_task_by_id_tasks__task_id__get` (TASK DETAIL **MUST** INCLUDE `targetAgentRole` FROM Overmind. ABSENCE/AMBIGUITY INVOKES HALT).
+    *   **SUPPORTED OPERATIONS FOR CONTEXT GATHERING (MCP Preferred for Automation):**
+        *   File/Directory Info: `mcp_desktop-commander_read_file`, `mcp_desktop-commander_read_multiple_files`, `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_get_file_info`.
+        *   Code/File Search: `mcp_desktop-commander_search_code` (regex), `mcp_desktop-commander_search_files` (name pattern).
+        *   Web Research: `mcp_web-fetch_fetch` (direct URL), `default_api.web_search` (general search).
+        *   Library Documentation: `mcp_context7_resolve-library-id` followed by `mcp_context7_get-library-docs`.
+*   **ACTION (CHAT):** UTILIZE PAYLOAD. SUPPLEMENT WITH READ-ONLY TOOLS AS REQUIRED (e.g., `default_api.read_file`, `default_api.codebase_search`).
 *   **CRITICAL EVALUATION (BOTH):** CONTEXT **MUST** BE CRITICALLY EVALUATED PER @`system.mdc`. IDENTIFY ASSUMPTIONS, VERIFY FEASIBILITY.
 *   **MCP STATUS UPDATE:** POST-CONTEXT/ANALYSIS, MCP TASK (`mcp_project-manager_update_task_tasks__task_id__put`) **MUST** BE UPDATED WITH STATUS (E.G., "CONTEXT ACQUIRED"), FINDINGS, AND TOOLS UTILIZED, PER @`system.mdc` MANDATE 4.
 
@@ -52,7 +57,7 @@ globs: []
 
 **STEP 5: EXECUTE CORE TASK(S), RIGOROUSLY VERIFY & UPDATE STATUS**
 *   **ACTION:** PERFORM PRIMARY ROLE/TASK FUNCTIONS.
-*   **PROCESS:** 1. **MCP UPDATE (EXECUTION START):** STATUS "EXECUTION IN PROGRESS". 2. **EXECUTE:** IMPLEMENT PLAN. 3. **MCP UPDATE (VERIFICATION START):** STATUS "PENDING VERIFICATION". 4. **VERIFY RIGOROUSLY:** PER @`system.mdc` MANDATE 2 (MULTI-METHOD VERIFICATION). 5. **ANALYZE/RECORD:** CONSOLIDATE RESULTS, VERIFICATION DATA, ASSUMPTIONS, UNCERTAINTIES. 6. **MCP UPDATE (POST-VERIFICATION):** STATUS REFLECTING OUTCOME (E.G., "VERIFICATION SUCCEEDED/FAILED").
+*   **PROCESS:** 1. **MCP UPDATE (EXECUTION START):** STATUS "EXECUTION IN PROGRESS". 2. **EXECUTE:** IMPLEMENT PLAN (Refer to agent-specific rules for tool selection, adhering to @`system.mdc` tool mandates). 3. **MCP UPDATE (VERIFICATION START):** STATUS "PENDING VERIFICATION". 4. **VERIFY RIGOROUSLY:** PER @`system.mdc` MANDATE 2 (MULTI-METHOD VERIFICATION). This may involve tools like `mcp_desktop-commander_execute_command` (for tests, linters), `mcp_desktop-commander_read_file`, `mcp_desktop-commander_search_code`, or browser audit tools (e.g., `mcp_browser-tools_runAccessibilityAudit`, `mcp_playwright_browser_snapshot`). 5. **ANALYZE/RECORD:** CONSOLIDATE RESULTS, VERIFICATION DATA, ASSUMPTIONS, UNCERTAINTIES. 6. **MCP UPDATE (POST-VERIFICATION):** STATUS REFLECTING OUTCOME (E.G., "VERIFICATION SUCCEEDED/FAILED").
 
 **STEP 6: UPDATE STATE / CONSTRUCT HANDOFF & FINALIZE TURN (FINAL ACTION)**
 *   **ACTION:** PERSIST RESULTS TO COORDINATION MECHANISM, THEN TERMINATE TURN.
