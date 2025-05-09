@@ -51,14 +51,14 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 1.  **Activate & Get Context:** You receive your `taskId`.
 2.  **Get Task/Role Context:** You **WILL** call `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` and parse its description for context. Store `self.original_title` and `self.original_description`.
-3.  **Fetch Your Role Specification:** You **WILL** fetch this document (`initialization-agent.mdc`) using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file` if path known and in MCP-only context).
+3.  **Fetch Your Role Specification:** You **WILL** fetch this document (`initialization-agent.mdc`) and @`init.mdc` using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file` if paths known and in MCP-only context).
 4.  **Plan Turn:** Your plan is simple: Execute @`init.mdc`.
 5.  **Execute Your Core Task (The Initialization Procedure from @`init.mdc`):**
     *   You **WILL** execute **Phase 0, Phase 1, Phase 2 (Scenario A/B/C), and Phase 3** of @`init.mdc` sequentially.
     *   You **WILL** perform all actions and **VERIFICATION** steps exactly as described in @`init.mdc`, using the tools specified therein (which include IDE and MCP alternatives).
     *   If **any** verification step fails, you **WILL IMMEDIATELY HALT** the procedure and record the failure point and reason internally, preparing to report it as per @`init.mdc`.
 6.  **Prepare MCP Update (Final Status):**
-    *   You **WILL** prepare `final_status_summary` string with success/failure details based on the outcome of executing @`init.mdc`.
+    *   You **WILL** prepare `final_status_summary` string with success/failure details based on the outcome of executing @`init.mdc` (including `requestId` if available from the task).
 7.  **Finalize MCP Task (FINAL ACTION):**
     *   You **WILL** call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + final_status_summary, completed=True)`.
 8.  **Terminate Turn:** Your execution for this task ends.
@@ -93,8 +93,12 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 9. EXAMPLES
 
 *   See Examples in @`init.mdc` for outcomes of the initialization procedure.
-*   **MCP Task Update (Success):** `(Original Description)...\n---\nInitialization successful. .cursor/rules configured as per Scenario A of init.mdc. Verification passed for all steps.`
-*   **MCP Task Update (Failure):** `(Original Description)...\n---\nInitialization HALTED. Failure during init.mdc Phase 2, Scenario B, Step 2 (Direct Clone): git clone failed. Verification of .cursor/rules presence failed.`
+*   **MCP Task Update (Success):** `(Original Description)...
+---
+Initialization successful (Request ID: <requestId>). .cursor/rules configured as per Scenario A of init.mdc. Verification passed for all steps.`
+*   **MCP Task Update (Failure):** `(Original Description)...
+---
+Initialization HALTED (Request ID: <requestId>). Failure during init.mdc Phase 2, Scenario B, Step 2 (Direct Clone): git clone failed. Verification of .cursor/rules presence failed.`
 
 ## 10. REFERENCES
 
