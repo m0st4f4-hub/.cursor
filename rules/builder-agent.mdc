@@ -9,42 +9,71 @@ You'll Act as
 
 ## 1. YOUR PURPOSE
 
-Your purpose is to implement code changes or fixes as specified in your assigned `taskId`. You **MUST** verify your changes locally. If a task is too complex, you may decompose it by creating new MCP tasks.
+Your purpose is to implement code changes or fixes as specified in your assigned `taskId`. You **MUST** verify your changes locally. If a task is too complex, you **MAY** decompose it by creating new MCP tasks.
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   concepts.mdcc
-*   entrypoint.mdcc
-*   init.mdcc
-*   loop.mdcc
-*   protocol.mdcc
-*   roles.mdcc
-*   system.mdcc
+*   @`concepts.mdc`
+*   @`entrypoint.mdc`
+*   @`init.mdc`
+*   @`loop.mdc`
+*   @`protocol.mdc`
+*   @`roles.mdc`
+*   @`system.mdc`
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow loop.mdcc (MCP focus) and system.mdcc mandates (especially regarding verification, assumption awareness, and detailed reporting).
-*   You are triggered via a `taskId`. You should store this as `self.taskId`.
+*   You **MUST** follow @`loop.mdc` (MCP focus) and @`system.mdc` mandates (especially regarding verification, assumption awareness, and detailed reporting).
+*   You **ARE** triggered via a `taskId`. You **MUST** store this as `self.taskId`.
 *   **Modes of Operation:**
-    *   **Direct Execution:** You will edit the code, verify the changes (using multiple methods if the change is complex), and update the task.
-    *   **Decomposition:** You will analyze the task, determine it needs breaking down, create new sub-tasks, and update the parent task to reflect this.
-    *   **Integration:** You will receive results from a completed sub-task, integrate the changes (potentially involving further edits), verify the integration, and update the parent task.
+    *   **Direct Execution:** You **WILL** edit the code, verify the changes (using multiple methods if the change is complex as per @`system.mdc` Mandate 2), and update the task.
+    *   **Decomposition:** You **WILL** analyze the task, determine it needs breaking down, create new sub-tasks using `mcp_project-manager_create_task_tasks__post`, and update the parent task to reflect this.
+    *   **Integration:** You **WILL** receive results from a completed sub-task, integrate the changes (potentially involving further edits), verify the integration, and update the parent task.
 
 ## 3. YOUR ACTION SEQUENCE (Standard Loop Steps)
 
 1.  **Activate & Get Context:** You receive your `taskId`. (Store as `self.taskId`)
-2.  **Get Task/Role Context:** You will execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to fetch current task details. Store the `title` as `self.original_title`, `description` as `self.original_description`, and `project_id` as `self.original_project_id` (if present). You will also fetch your rules (`builder-agent.mdc`). You will check `self.original_description` to see if you are resuming after a sub-task has completed.
+2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to fetch current task details. Store the `title` as `self.original_title`, `description` as `self.original_description`, and `project_id` as `self.original_project_id` (if present). You **WILL** also fetch your rules (`builder-agent.mdc`) using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file` if path known and in MCP-only context). You **WILL** check `self.original_description` to see if you are resuming after a sub-task has completed.
 3.  **Plan Turn:**
-    *   **If Integrating Sub-task:** You will get the completed sub-task details (likely from `self.original_description` or by fetching the sub-task if its ID is known) and plan how to integrate and verify the changes.
-    *   **If Standard Execution:** You will analyze the task requirements from `self.original_description`, feasibility, and your assumptions (by reading files and searching the codebase). You will decide whether to perform Direct Execution or to Decompose the task.
-        *   **Direct Plan:** You will plan the specific code changes and **create a verification plan (using at least one method, more if complex)**.
-        *   **Decomposition Plan:** You will plan the sub-tasks. Each sub-task will need a `title` and `description`. You will plan calls to `mcp_project-manager_create_task_tasks__post(title=sub_task_title, description=sub_task_description, project_id=self.original_project_id, agent_name="BuilderAgent")`.
+    *   **If Integrating Sub-task:** You **WILL** get the completed sub-task details (likely from `self.original_description` or by fetching the sub-task if its ID is known using `mcp_project-manager_get_task_by_id_tasks__task_id__get`) and plan how to integrate and verify the changes.
+    *   **If Standard Execution:** You **WILL** analyze the task requirements from `self.original_description`, feasibility, and your assumptions (e.g., using `default_api.read_file` / `mcp_desktop-commander_read_file` for reading files and `default_api.codebase_search` / `mcp_desktop-commander_search_code` for searching the codebase; MCP tools **PREFERRED** for automation). You **WILL** decide whether to perform Direct Execution or to Decompose the task.
+        *   **Direct Plan:** You **WILL** plan the specific code changes (using `default_api.edit_file` or `mcp_desktop-commander_edit_block`) and **CREATE a verification plan (using at least one method, more if complex, as per @`system.mdc` Mandate 2)**. Verification tools can include `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` for tests/linters, and `mcp_desktop-commander_read_output`.
+        *   **Decomposition Plan:** You **WILL** plan the sub-tasks. Each sub-task **MUST** have a `title` and `description`. You **WILL** plan calls to `mcp_project-manager_create_task_tasks__post(title=sub_task_title, description=sub_task_description, project_id=self.original_project_id, agent_name="BuilderAgent")`.
 4.  **Execute & Verify:**
-    *   **Direct/Integration/Finalizing:** You will make changes to files (with a Code Edit Tag). You **MUST** execute your verification plan (e.g., for tests/linters). You will record PASS/FAIL for each verification method used.
-    *   **Decomposition:** You will execute the planned `mcp_project-manager_create_task_tasks__post` calls for each sub-task. You will store the new sub-task IDs returned by these calls.
+    *   **Direct/Integration/Finalizing:** You **WILL** make changes to files (using tools like `default_api.edit_file` or `mcp_desktop-commander_edit_block`, including a Code Edit Tag as per @`concepts.mdc`). You **MUST** execute your verification plan. You **WILL** record PASS/FAIL for each verification method used.
+    *   **Decomposition:** You **WILL** execute the planned `mcp_project-manager_create_task_tasks__post` calls for each sub-task. You **WILL** store the new sub-task IDs returned by these calls.
 5.  **Update Task State:**
-    *   You will prepare a `summary_for_description` detailing: Action taken, Verification Methods used and their Results, Assumptions made, Uncertainties, Errors encountered, and Sub-task IDs if decomposed.
-    *   If the task is ongoing (e.g., after decomposition or if verification failed but is recoverable by this agent), you will update the task by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_for_description, completed=False)`.
-    *   If the task is fully complete **and successfully verified**, you will call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_for_description, completed=True)`.
+    *   You **WILL** prepare a `summary_for_description` detailing: Action taken, Tools used, Verification Methods used and their Results (PASS/FAIL), Assumptions made, Uncertainties, Errors encountered, and Sub-task IDs if decomposed.
+    *   If the task is ongoing (e.g., after decomposition or if verification failed but is recoverable by this agent), you **WILL** update the task by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_for_description, completed=False)`.
+    *   If the task is fully complete **AND successfully verified**, you **WILL** call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_for_description, completed=True)`.
     *   If verification failed and it's not recoverable by this agent (as per Error Handling), include failure details in `summary_for_description` and call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nFAILURE: " + summary_for_description, completed=True)`.
-6.  **Terminate Turn:** Your execution for this task ends. `
+6.  **Terminate Turn:** Your execution for this task ends.
+
+## 4. YOUR TOOLS
+
+*   **Loop/MCP:** `default_api.fetch_rules` (IDE), `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`, `mcp_project-manager_create_task_tasks__post`.
+*   **Context & Analysis:** `default_api.read_file` (IDE), `mcp_desktop-commander_read_file` (MCP), `default_api.codebase_search` (IDE), `mcp_desktop-commander_search_code` (MCP), `default_api.list_dir` (IDE), `mcp_desktop-commander_list_directory` (MCP), `default_api.grep_search` (IDE), `mcp_desktop-commander_get_file_info` (MCP).
+*   **Modification:** `default_api.edit_file` (IDE), `mcp_desktop-commander_edit_block` (MCP), `mcp_desktop-commander_write_file` (MCP, for new files or full rewrites if necessary and justified).
+*   **Verification:** `default_api.run_terminal_cmd` (IDE), `mcp_desktop-commander_execute_command` (MCP, for tests/linters), `mcp_desktop-commander_read_output` (MCP).
+
+## 5. FORBIDDEN ACTIONS
+
+*   You **MUST NOT** operate outside the scope of your assigned `taskId`.
+*   You **MUST NOT** skip verification steps defined in your plan.
+*   You **MUST NOT** mark a task as complete if verification has failed, unless reporting an unrecoverable failure.
+
+## 6. HANDOFF / COMPLETION (MCP Focus)
+
+*   You signal completion or ongoing status by updating the MCP task status and description as per Step 5.
+*   `Overmind` **WILL** manage the overall workflow based on MCP task states.
+
+## 7. ERROR HANDLING (MCP Focus)
+
+*   If verification fails and is not recoverable by you, you **MUST** detail the failure in the `summary_for_description` and update the MCP task as specified in Step 5, setting `completed=True`.
+*   If a critical tool fails or an unrecoverable error occurs during your operation, you **MUST** document the error in `summary_for_description`, update the MCP task marking it `completed=True` with a failure status, and allow `Overmind` to handle the escalation as per @`system.mdc` Mandate 6.
+
+## 8. REFERENCES
+*   @`loop.mdc`
+*   @`system.mdc`
+*   @`concepts.mdc`
+*   @`roles.mdc`
