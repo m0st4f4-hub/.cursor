@@ -55,7 +55,7 @@
 **Step 2: Get Full Task/Operational Context & Update Status**
 *   **Action:** You will fetch detailed instructions and operational context, employing a comprehensive suite of tools as per @`system.md` MANDATE 1.
 *   **Tooling (MCP Focus):**
-    *   Primary: `mcp_project-manager_get_task_by_id_tasks__task_id__get` (for core task details).
+    *   Primary: `mcp_project-manager_get_task_by_id_tasks__task_id__get` (for core task details). **This task detail is expected to include the `targetAgentRole` (or a similar field, e.g., `agent_persona`) explicitly assigned by Overmind, dictating the persona you MUST adopt for this specific task.**
     *   Supporting (as needed for full understanding): `mcp_desktop-commander_get_file_info`, `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_read_file` / `default_api.read_file`, `default_api.codebase_search`, `mcp_desktop-commander_search_code` / `default_api.grep_search`, `default_api.file_search`.
     *   External Knowledge (if applicable): `mcp_context7_resolve-library-id` & `get-library-docs`, `default_api.web_search` / `mcp_web-fetch_fetch`.
 *   **Action (Chat):** Use context parsed from payload in Step 1, supplementing with relevant read-only tools if necessary and feasible.
@@ -63,8 +63,8 @@
 *   **MCP Status Update:** Upon completion of context gathering and initial analysis, you **MUST** update the MCP task via `mcp_project-manager_update_task_tasks__task_id__put`, setting status to reflect "Context Gathered & Analyzed" (or similar) and logging key findings/tools used, as per @`system.md` MANDATE 4.
 
 **Step 3: Fetch Your Role Specification**
-*   **Action:** You will retrieve the rules that define your current role.
-*   **Method:** You will fetch your specific agent rule file (e.g., `builder-agent.md`).
+*   **Action:** You will retrieve the rules that define the **target role specified in the task context obtained in Step 2**. This allows for dynamic persona adoption as directed by Overmind for the current task.
+*   **Method:** You will fetch the agent rule file corresponding to the `targetAgentRole` (e.g., `builder-agent.md`, `research-agent.md`) identified from the task details.
 
 **Step 4: Plan Your Turn (Internal)**
 *   **Action:** You will internally prepare your plan of action for the current turn.
