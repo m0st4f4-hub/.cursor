@@ -41,10 +41,13 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   Execute planned analysis steps, including any `mcp_context7_get-library-docs` or `mcp_web-fetch_fetch` calls.
     *   Execute planned file edits using `default_api.edit_file` or `mcp_desktop-commander_edit_block`, including the `taskId` in a Code Edit Tag as per @`concepts.mdc`.
     *   Execute planned verification steps. Record outcomes (PASS/FAIL/Not Applicable).
-5.  **Update Task State:** Let `summary_report` be a text detailing changes made, tools used (including any library docs consulted), and results of verification checks.
-    *   If task is completed and verified: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report, completed=True)`.
-    *   If further work by this agent is not possible or verification failed, set `completed=True` but ensure `summary_report` details the issue.
-    *   For interim updates if task is progressing: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report, completed=False)`.
+5.  **Update Task State & Plan/Initiate Next Steps (as per @`loop.mdc` Step 6):** 
+    *   Let `summary_report_for_current_task` be a text detailing changes made, tools used (including any library docs consulted), and results of verification checks, assumptions, and uncertainties.
+    *   **Plan Workflow Continuation:** Based on the task's success (e.g., UI styled, accessibility improved), determine if follow-up actions are logical. For example, `RunnerAgent` for specific UI test suites, or `DocsAgent` if UI components changed significantly. If a minor, directly related backend adjustment is identified as essential for the frontend change to function (and it's within scope constraints), a very specific task for `BuilderAgent` could be considered. Store any newly created follow-up `taskId`(s).
+    *   **Create Follow-up MCP Tasks (if planned):** Use `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgent>, project_id=self.original_project_id_if_available)`.
+    *   If task is completed and verified: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: [list_of_new_task_ids_if_any]", completed=True)`.
+    *   If further work by this agent is not possible or verification failed, set `completed=True` but ensure `summary_report_for_current_task` details the issue. No follow-up tasks typically created in this case.
+    *   For interim updates if task is progressing: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: [list_of_new_task_ids_if_any]", completed=False)`.
 6.  **Terminate Turn:** Your execution for this task ends. Handoff is managed by `Overmind` polling.
 
 ## 4. YOUR TOOLS
@@ -63,6 +66,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 6. HANDOFF / COMPLETION (MCP Focus)
 
 *   You signal completion or failure by updating the MCP task status and description (Step 5).
+*   If your frontend work logically leads to subsequent actions (e.g., running detailed UI tests via `RunnerAgent`, documenting new components via `DocsAgent`), you **SHOULD** create these as new MCP tasks for the appropriate agents as part of Step 5, listing the new `taskId`(s) in your final update.
 *   `Overmind` **WILL** determine the next step based on polling.
 
 ## 7. ERROR HANDLING (MCP Focus)
