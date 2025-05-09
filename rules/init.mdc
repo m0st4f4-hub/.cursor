@@ -1,202 +1,58 @@
 ---
 
-alwaysApply: false
-description: ''
+alwaysApply: true
+description: Description to be filled
 globs: []
 ---
 
 # ✨ Initialization Procedure (Mandatory)
 
-## Phase Summary Table
+**Purpose:** `InitializationAgent` **MUST** use to ensure `.cursor/` ruleset dir exists & is correctly configured.
+**Executor:** **MUST** be `InitializationAgent`.
+**Context:** Triggered by `Overmind`. **MUST** fetch own rules (`initialization-agent.mdc`) first.
 
-| Phase | Description                                      |
-|-------|--------------------------------------------------|
-| 0     | Get Context (fetch rules, parse context)         |
-| 1     | Determine Project State (git, .cursor, empty)    |
-| 2     | Execute Scenario Workflow (A/B/C)                |
-| 3     | Final Verification & Reporting                   |
+**Principles (MUST Follow):**
+*   **Idempotency:** Repeated execution yields same valid end state.
+*   **Verification:** Confirm critical step success/failure (not just exit codes). Document outcomes.
+*   **Error Handling:** If verification fails, **MUST HALT** immediately, report to `Overmind`.
+*   **Actions:** Use only specified standard ops & Git commands.
+*   **Reporting:** Final report to `Overmind` **MUST** include summary, warnings, verification, status.
 
-**Version Note:** This document is compatible with framework version 1.0 and above. For earlier versions, some steps or tool references may not apply. Check release notes for version-specific changes.
-
-**Purpose:** As the `InitializationAgent`, you **MUST** use this procedure to ensure the `.cursor/` ruleset directory exists and is correctly configured in the current project.
-**Executor:** This procedure **MUST** be executed by the `InitializationAgent`.
-**Context:** You (as `InitializationAgent`) are triggered by `Overmind` (via Chat or MCP). You **MUST** fetch your own rules (`initialization-agent.md`) before starting this procedure.
-
-**Principles You MUST Follow:**
-*   **Idempotency:** You **MUST** perform actions such that repeated execution of this procedure yields the same valid end state.
-*   **Verification:** You **MUST** confirm the success or failure of each critical step by checking directory listings, file contents, git status, etc., **NOT** by relying solely on command exit codes. You **MUST** document the outcomes of your verification checks in your final report.
-*   **Error Handling:** If any verification step fails, you **MUST HALT** this procedure immediately and report the specific error details to `Overmind` (via the appropriate mechanism, likely an MCP task update or a Chat Trigger).
-*   **Actions:** You **MUST** use only standard operations and Git commands as specified herein.
-*   **Reporting:** In your final report to `Overmind`, you **MUST** include a summary of actions taken, any warnings encountered, verification results, and the final status (success or failure point).
-
-## PHASE TRANSITION DIAGRAM
-
-Below is a diagram illustrating the workflow phases of the initialization procedure to help visualize the process:
-
-```
-[Trigger by Overmind]
-      |
-[Phase 0: Get Context] --> Fetch Rules & Parse Context
-      |
-[Phase 1: Determine Project State] --> Check Git, .cursor, Empty Status
-      |
-      v
-[Phase 2: Execute Scenario Workflow]
-      |--> Scenario A: Git Repo --> Handle .cursor, Update Submodule
-      |--> Scenario B: Non-Git, Empty --> Clone Rules
-      |--> Scenario C: Non-Git, Not Empty --> Halt & Report
-      |
-[Phase 3: Final Verification & Reporting] --> Check Rules & Report to Overmind
-```
-
-**Diagram Explanation:** The process starts with a trigger from Overmind, moves through context gathering and state determination, executes the appropriate scenario based on project state, and concludes with final verification and reporting back to Overmind.
-
-## Your Workflow (Mandatory Steps)
+## Workflow (Mandatory Steps)
 
 ### Phase 0: Get Context
-
-1.  **Fetch Your Rules:** You **MUST** fetch rules for `initialization-agent.md`.
-    *   **Example:** Use `fetch_rules` tool with parameter `rule_names: ['agents/initialization-agent']` to retrieve your role-specific rules.
-    *   **Related:** See @`roles.md` for `InitializationAgent` role definition.
-2.  **Parse Context:** You **MUST** extract the `requestId` and any other relevant context from the incoming Chat Trigger or MCP Task details.
-    *   **Example:** Retrieve `requestId` from MCP task using `mcp_project-manager_get_task_by_id_tasks__task_id__get` to track the initialization request.
-    *   **Related:** See @`concepts.md` for definition of `requestId` and MCP task context.
+1.  **Fetch Rules:** `fetch_rules(rule_names: ['agents/initialization-agent'])`.
+2.  **Parse Context:** Extract `requestId` etc. from Trigger/MCP Task.
 
 ### Phase 1: Determine Project State
-
-1.  **Check Git Status:**
-    *   You **MUST** verify Git is available (e.g., by running a script like `verify_environment.py --check git`).
-    *   You **MUST** check if the current directory is inside a Git repository (e.g., using a script like `parse_git_status.py` or the command `git rev-parse --is-inside-work-tree`).
-    *   You **MUST** record the result as `isGitRepo` (boolean).
-    *   **Example:** Execute `git rev-parse --is-inside-work-tree` via `mcp_desktop-commander_execute_command` and check output for 'true' to confirm Git repo status.
-    *   **Related:** See @`system.md` for tool usage mandates on command execution.
-2.  **Check `.cursor` Directory Existence:**
-    *   You **MUST** list the contents of `.` to check for the `.cursor` directory.
-    *   You **MUST** record the result as `cursorDirExists` (boolean).
-    *   **Example:** Use `mcp_desktop-commander_list_directory` with path `.` to check if `.cursor` appears in the listing.
-    *   **Related:** See @`system.md` for directory listing tool usage.
-3.  **Check if Directory is Empty (Only if Not a Git Repo):**
-    *   *Condition:* You will perform this check only if `isGitRepo` is false.
-    *   You **MUST** list the contents of `.` again. You will check if the listing contains *any* files or folders other than potentially a `.cursor` or `.git` directory.
-    *   You **MUST** record the result as `isNotEmpty` (boolean).
-    *   **Example:** Use `mcp_desktop-commander_list_directory` to count non-ignored entries in `.` excluding `.cursor` and `.git` to determine if empty.
-    *   **Related:** See @`system.md` for verification mandates on directory checks.
+1.  **Git Status:** Verify Git available. Check if in Git repo (`isGitRepo`).
+2.  **`.cursor` Existence:** List `.` for `.cursor` (`cursorDirExists`).
+3.  **Empty Dir (if not Git):** If `!isGitRepo`, list `.` for other files/folders (`isNotEmpty`).
 
 ### Phase 2: Execute Scenario Workflow
 
-➡️ **Scenario A: Git Repository (`isGitRepo` is true)**
-1.  **Handle Existing `.cursor` Directory:**
-    *   IF `cursorDirExists` is true:
-        *   You **MUST** execute the command `git submodule status .cursor`.
-        *   IF the output indicates it's a valid Git submodule: GOTO Step A.4.
-        *   IF it is not a submodule or the command errors: You will log a warning internally. You **MUST** attempt to remove the existing directory by executing the command `rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor` on Windows). You **MUST** verify its removal by listing the contents of `.`. IF verification fails, you **MUST HALT & REPORT** the failure. Then, GOTO Step A.2.
-    *   ELSE (`cursorDirExists` is false): GOTO Step A.2.
-    *   **Example:** Use `mcp_desktop-commander_execute_command` to run `git submodule status .cursor` and parse output for submodule validity.
-    *   **Related:** See @`system.md` for safe command execution and verification steps.
-2.  **Check/Modify Root `.gitignore`:**
-    *   You will set an internal flag: `rootGitignoreModified = false`.
-    *   You **MUST** read the contents of the file `.gitignore`. Handle the case where the file might not exist gracefully.
-    *   Search the content for the exact line `.cursor/` (not commented out).
-    *   IF the exact line `.cursor/` is found:
-        *   You **MUST** edit the file `.gitignore` to comment out the line (e.g., changing it to `# .cursor/`). You will log this action internally.
-        *   Set your internal flag: `rootGitignoreModified = true`.
-        *   You **MUST** verify the change by reading the contents of the file `.gitignore` again. IF verification fails, you **MUST HALT & REPORT** the failure.
-    *   GOTO Step A.3.
-    *   **Example:** Use `mcp_desktop-commander_read_file` to read `.gitignore` and `mcp_desktop-commander_edit_block` to comment out the line if found.
-    *   **Related:** See @`system.md` for file editing and verification mandates.
-3.  **Add Submodule:**
-    *   You **MUST** execute the command `git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`.
-    *   **Verify:**
-        *   You **MUST** list the contents of `.` to confirm that both `.cursor` AND `.gitmodules` now exist.
-        *   You **MUST** read the contents of the file `.gitmodules`. Confirm it contains an entry for `[submodule ".cursor"]`.
-        *   *If Verification Fails:* If the failure seems related to a pre-existing conflicting state (e.g., you just removed an old directory in Step A.1), you **MUST** attempt the command `git submodule add --force https://github.com/m0st4f4-hub/.cursor .cursor` **ONCE**. If it still fails after the force attempt, you **MUST HALT & REPORT** the failure.
-    *   GOTO Step A.4.
-    *   **Example:** After adding submodule with `mcp_desktop-commander_execute_command`, verify using `mcp_desktop-commander_list_directory` and `mcp_desktop-commander_read_file` for `.gitmodules` content.
-    *   **Related:** See @`system.md` for multi-method verification requirements.
-4.  **Update Submodule:**
-    *   You **MUST** execute the command `git submodule update --init --recursive`.
-    *   **Verify:** You **MUST** list the contents of `.cursor/rules`. Confirm critical rule files (e.g., `@system.md`) are present. If verification fails, you **MUST** retry the `git submodule update --init --recursive` command **ONCE**. If it still fails, you **MUST HALT & REPORT** the failure.
-    *   GOTO Phase 3.
-    *   **Example:** Run update command via `mcp_desktop-commander_execute_command` and check `.cursor/rules` with `mcp_desktop-commander_list_directory` for key files.
-    *   **Related:** See @`system.md` for error handling and retry protocols.
+➡️ **Scenario A: Git Repository (`isGitRepo`)**
+1.  **Handle Existing `.cursor`:** IF `cursorDirExists`: `git submodule status .cursor`. IF valid submodule, GOTO A.4. ELSE (not submodule/errors): Log warning, `rm -rf .cursor` (verify). IF remove fails, HALT. GOTO A.2.
+2.  **Root `.gitignore`:** `rootGitignoreModified = false`. Read `.gitignore`. Search `.cursor/`. IF found: Edit to `# .cursor/`. Log. `rootGitignoreModified = true`. Verify edit. IF fails, HALT.
+3.  **Add Submodule:** `git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`. Verify `.cursor` & `.gitmodules` exist; read `.gitmodules` for `[submodule ".cursor"]`. IF fails (conflict): `git submodule add --force ...` ONCE. IF still fails, HALT.
+4.  **Update Submodule:** `git submodule update --init --recursive`. Verify `.cursor/rules` (e.g., @`system.mdc` exists). IF fails: Retry ONCE. IF still fails, HALT. GOTO Phase 3.
 
-➡️ **Scenario B: Non-Git, Empty Directory (`isGitRepo` is false, `isNotEmpty` is false)**
-1.  **Handle Existing `.cursor` Directory:**
-    *   IF `cursorDirExists` is true: You will log a warning internally. You **MUST** execute the command `rm -rf .cursor` (or `Remove-Item -Recurse -Force .cursor`). You **MUST** verify removal by listing the contents of `.`. IF verification fails, **HALT & REPORT**.
-    *   GOTO Step B.2.
-    *   **Example:** Remove existing `.cursor` using `mcp_desktop-commander_execute_command` and confirm with `mcp_desktop-commander_list_directory`.
-    *   **Related:** See @`system.md` for safe deletion verification.
-2.  **Direct Clone:**
-    *   You **MUST** execute the command `git clone https://github.com/m0st4f4-hub/.cursor .cursor`.
-    *   **Verify:** You **MUST** list the contents of `.cursor/rules`. Confirm critical rule files exist. If verification fails, **HALT & REPORT**.
-    *   GOTO Phase 3.
-    *   **Example:** Clone repository with `mcp_desktop-commander_execute_command` and verify rules directory content using `mcp_desktop-commander_list_directory`.
-    *   **Related:** See @`system.md` for command execution and verification steps.
+➡️ **Scenario B: Non-Git, Empty (`!isGitRepo`, `!isNotEmpty`)**
+1.  **Handle Existing `.cursor`:** IF `cursorDirExists`: Log warning, `rm -rf .cursor`. Verify. IF fails, HALT.
+2.  **Direct Clone:** `git clone https://github.com/m0st4f4-hub/.cursor .cursor`. Verify `.cursor/rules` (critical files exist). IF fails, HALT. GOTO Phase 3.
 
-➡️ **Scenario C: Non-Git, Not Empty Directory (`isGitRepo` is false, `isNotEmpty` is true)**
-*   **WARNING:** This scenario likely requires manual user intervention if `.cursor` already exists.
-1.  **Handle Existing `.cursor` Directory:**
-    *   IF `cursorDirExists` is true: You **MUST HALT & REPORT**. Your report state should be: "Non-Git project contains an unexpected `.cursor` directory that was not placed by this procedure. Manual intervention is required."
-    *   ELSE (`cursorDirExists` is false): You **MUST HALT & REPORT**. Your report state should be: "Cannot automatically clone rules into a non-empty directory that is not a Git repository. Please initialize Git first or clean the target directory."
-    *   **Example:** Use `mcp_project-manager_update_task_tasks__task_id__put` to report the halt state with detailed context for `Overmind` review.
-    *   **Related:** See @`system.md` for error reporting and escalation protocols.
+➡️ **Scenario C: Non-Git, Not Empty (`!isGitRepo`, `isNotEmpty`)**
+*   **WARNING:** Manual intervention likely.
+1.  IF `cursorDirExists`: HALT. Report: "Non-Git project has unexpected `.cursor` dir. Manual intervention needed."
+2.  ELSE (`!cursorDirExists`): HALT. Report: "Cannot auto clone to non-empty, non-Git dir. Init Git or clean."
 
 ### Phase 3: Final Verification & Reporting
+1.  **Final Check:** List `.cursor/rules`. Read key rule file (e.g., `.cursor/rules/system.mdc`) to confirm population.
+2.  **Report Outcome:** Report success/failure (phase/step/reason, verification details) to `Overmind`.
 
-1.  **Final Check:** You **MUST** list the contents of `.cursor/rules`. You **MUST** also read the contents of a key rule file (e.g., `.cursor/rules/system.md`) to confirm the rules directory was populated correctly.
-    *   **Example:** Verify with `mcp_desktop-commander_list_directory` for `.cursor/rules` and `mcp_desktop-commander_read_file` to check content of `system.md`.
-    *   **Related:** See @`system.md` for multi-method verification mandates.
-2.  **Report Outcome:** You **MUST** report the final outcome (success, or failure including the specific phase/step/reason and verification details) to `Overmind` using the appropriate mechanism (Chat Trigger or MCP Task Update).
-    *   **Example:** Update MCP task with `mcp_project-manager_update_task_tasks__task_id__put` to include success status, actions taken, and verification results.
-    *   **Related:** See @`system.md` for mandatory task status update requirements.
-
-**Error Handling Summary:** Any verification failure marked with **MUST HALT & REPORT** triggers an immediate stop of this procedure and reporting the failure details as described in Phase 3, Step 2.
-
-## TROUBLESHOOTING GUIDE FOR INITIALIZATION ISSUES
-
-*   **Issue: Git command fails or Git is not detected.**
-    *   **Solution:** Verify Git installation using `mcp_desktop-commander_execute_command` with `git --version`. If not installed, escalate to `Overmind` via MCP task update to request user intervention for Git setup. Log the issue in the task update.
-*   **Issue: Unable to remove existing `.cursor` directory due to permissions or other errors.**
-    *   **Solution:** Attempt removal with elevated permissions if possible using `mcp_desktop-commander_execute_command`. If unsuccessful, halt and report to `Overmind` with error details (e.g., permission denied) via MCP task update for manual intervention.
-*   **Issue: Submodule addition or update fails repeatedly even with force option.**
-    *   **Solution:** Check network connectivity with `mcp_desktop-commander_execute_command` (e.g., `ping github.com`). If connectivity is fine, log detailed error output from Git commands and escalate to `Overmind` via MCP task update. Review Git error messages for repository conflicts or authentication issues.
-*   **Issue: Verification of `.cursor/rules` content fails after clone or update.**
-    *   **Solution:** Retry the clone or update command once using `mcp_desktop-commander_execute_command`. If still failing, check disk space or write permissions with `mcp_desktop-commander_get_file_info` on parent directory. Halt and report to `Overmind` with specific failure details via MCP task update.
-*   **Issue: Scenario C encountered (Non-Git, Not Empty) requiring manual intervention.**
-    *   **Solution:** Ensure the halt report is detailed in the MCP task update using `mcp_project-manager_update_task_tasks__task_id__put`, specifying whether `.cursor` exists or directory is non-empty. Await `Overmind` or user instructions for next steps.
+**Error Handling:** Verification failure marked HALT triggers immediate stop & report.
 
 ## REFERENCES
-
-*   [`initialization-agent.md`](./agents/initialization-agent.md)
-*   [System Prompt & Mandates](mdc:system.mdc)
-*   Git Submodule Documentation (External)
-*   **Related Documents:** See @`entrypoint.md` for a central index of framework rules and @`system.md` for global mandates and tool usage guidelines.
-
-## VERSION HISTORY
-
-| Version | Date       | Author      | Notes                       |
-|---------|------------|-------------|-----------------------------|
-| 1.0     | 2024-06-01 | Framework   | Initial version             |
-| 1.1     | 2024-06-10 | DocsAgent   | Added phase summary, changelog, expanded troubleshooting |
-
-## CHANGE LOG
-
-- 2024-06-10: Added phase summary table at the top.
-- 2024-06-10: Converted all @file.md references to markdown links.
-- 2024-06-10: Added Version History and Change Log sections.
-- 2024-06-10: Expanded troubleshooting with more scenarios.
-- 2024-06-10: Added workflow diagram for phases.
-
----
-
-## Related Core Framework Documents
-
-This document is part of a set of core framework rules. For a complete understanding, please refer to the other core documents:
-
-- **System Overview & Global Mandates:** [system.md](system.md)
-- **Core Agent Execution Loop:** [loop.md](loop.md)
-- **Core Concepts & Glossary:** [concepts.md](concepts.md)
-- **Agent Roles & Responsibilities Registry:** [roles.md](roles.md)
-- **Initialization Procedure:** [init.md](init.md)
-- **Ultra-Deep Thinking Protocol:** [protocol.md](protocol.md)
-- **Framework Entrypoint & Core Rule Index:** [entrypoint.md](entrypoint.md)
+*   `initialization-agent.mdc`
+*   @`system.mdc`
+*   @`entrypoint.mdc`

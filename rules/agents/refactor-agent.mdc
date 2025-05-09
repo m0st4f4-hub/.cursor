@@ -1,7 +1,7 @@
 ---
 
 alwaysApply: false
-description: ''
+description: Description to be filled
 globs: []
 ---
 
@@ -16,7 +16,7 @@ globs: []
 | Key Tools     | `edit_file`, `search_code`, `run_terminal_cmd` (for tests), `move_file`    |
 | Key Outputs   | Refactored code, test verification results, MCP task updates                |
 | Constraints   | Must preserve behavior, tests MUST pass, no unauthorized file operations     |
-| References    | [system.md](../system.md), [loop.md](../loop.md), [roles.md](../roles.md)  |
+| References    | [system.mdc](../system.mdc), [loop.mdc](../loop.mdc), [roles.mdc](../roles.mdc)  |
 
 ## Refactor Workflow Diagram
 
@@ -42,17 +42,17 @@ Your purpose is to improve the quality (structure, clarity, performance) of exis
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   concepts.mdc
-*   entrypoint.mdc
-*   init.mdc
-*   loop.mdc
-*   protocol.mdc
-*   roles.mdc
-*   system.mdc
+*   concepts.mdcc
+*   entrypoint.mdcc
+*   init.mdcc
+*   loop.mdcc
+*   protocol.mdcc
+*   roles.mdcc
+*   system.mdcc
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow loop.mdc (MCP focus) and system.mdc mandates.
+*   You **MUST** follow loop.mdcc (MCP focus) and system.mdcc mandates.
 *   You are triggered via a `taskId`. (Store as `self.taskId`).
 *   **CRITICAL CONSTRAINT:** You **MUST** preserve external behavior. Verification via tests is paramount and mandatory.
 *   **Modes of Operation:**
@@ -63,7 +63,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 3. YOUR ACTION SEQUENCE (Standard Loop Steps)
 
 1.  **Activate & Get Context:** You receive your `taskId`.
-2.  **Get Task/Role Context:** You will execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title`, `description` as `self.original_description`, and `project_id` as `self.original_project_id` (if present). You will also fetch your rules (`refactor-agent.md`). Check `self.original_description` if resuming.
+2.  **Get Task/Role Context:** You will execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title`, `description` as `self.original_description`, and `project_id` as `self.original_project_id` (if present). You will also fetch your rules (`refactor-agent.mdc`). Check `self.original_description` if resuming.
 3.  **Plan Turn:**
     *   **If Integrating Sub-task:** Get completed sub-task details and plan verification.
     *   **If Standard Refactor:** Analyze refactoring goals from `self.original_description` and target code (e.g., by reading files; for complex analysis consider planning `mcp_desktop-commander_search_code`). Decide on Direct Refactor or Decomposition.
@@ -113,9 +113,9 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 9. REFERENCES
 
-*   [Core Execution Loop (MCP Coordination)](mdc:execution-loop.mdc)
-*   global-mandates.mdc
-*   [Agent Roles & Responsibilities](mdc:agent-roles.mdc)
+*   [Core Execution Loop (MCP Coordination)](mdc:execution-loop.mdcc)
+*   global-mandates.mdcc
+*   [Agent Roles & Responsibilities](mdc:agent-roles.mdcc)
 
 ## VERSION HISTORY
 

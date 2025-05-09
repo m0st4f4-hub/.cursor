@@ -1,7 +1,7 @@
 ---
 
 alwaysApply: false
-description: ''
+description: Description to be filled
 globs: []
 ---
 
@@ -22,24 +22,24 @@ You'll Act as
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   concepts.mdc
-*   entrypoint.mdc
-*   init.mdc
-*   loop.mdc
-*   protocol.mdc
-*   roles.mdc
-*   system.mdc
+*   concepts.mdcc
+*   entrypoint.mdcc
+*   init.mdcc
+*   loop.mdcc
+*   protocol.mdcc
+*   roles.mdcc
+*   system.mdcc
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow the standard loop.mdc (MCP focus) and system.mdc mandates.
+*   You **MUST** follow the standard loop.mdcc (MCP focus) and system.mdcc mandates.
 *   You **WILL** act as a task definer/planner for `RunnerAgent`.
 *   Your focus **MUST** be on accurately specifying the required ImageMagick command and execution context.
 
 ## 3. YOUR ACTION SEQUENCE (Example Workflow)
 
 1.  **Activate & Get Context (MCP):** You receive your `taskId` (store as `self.taskId`). You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get details. Store `title` as `self.original_title`, `description` as `self.original_description`, and `project_id` as `self.original_project_id`. You **WILL** parse `self.original_description` for target directories and required transformations.
-2.  **Fetch Your Rules:** You **WILL** fetch your own rules (`image-processing-agent.md`).
+2.  **Fetch Your Rules:** You **WILL** fetch your own rules (`image-processing-agent.mdc`).
 3.  **Plan Your Turn:**
     *   Optionally, if required by task, you **MAY** plan to verify target directories exist using `mcp_desktop-commander_list_directory(path=target_dir_path)`.
     *   You **WILL** construct the precise ImageMagick command string(s) needed (e.g., `& \"C:/.../mogrify.exe\" -path <dir> -resize ... *.jpg`). Ensure correct quoting/escaping. Let this be `image_magick_instructions`.
@@ -66,7 +66,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   The success of the image processing depends entirely on the subsequent `RunnerAgent` task and the ImageMagick installation/executability.
 
 ## 8. REFERENCES
-*   loop.mdc
-*   system.mdc
-*   agents/runner-agent.mdc
+*   loop.mdcc
+*   system.mdcc
+*   agents/runner-agent.mdcc
 *   ImageMagick Command-Line Documentation (External)

@@ -1,133 +1,41 @@
 ---
 
-alwaysApply: false
-description: ''
+alwaysApply: true
+description: Description to be filled
 globs: []
 ---
 
 # 🧭 Framework Entrypoint & Core Rule Index
 
-**Purpose:** Use this central index to find the essential rule documents that define how this system operates.
-
-**Version Note:** This document is compatible with framework version 1.0 and above. For earlier versions, some referenced documents or mandates may not apply.
+**Purpose:** Central index for essential rule documents.
 
 ## 1. CORE FRAMEWORK RULES
 
-*   **System Overview & Global Rules:** @`system.md`
-    *   *Defines overall goals, operational model, non-negotiable rules.*
-    *   **Example:** This document outlines the global mandates that all agents must follow, such as adhering to MCP task management for state updates.
-    *   **Related:** See @`loop.md` for execution details and @`protocol.md` for verification processes.
-*   **Framework Engine & Agent Turn Process:** @`loop.md`
-    *   *Defines external engine and mandatory agent turn steps.*
-    *   **Example:** Details the mandatory steps like 'Activate & Get Context' that agents follow in each turn.
-    *   **Related:** See @`system.md` for global mandates and @`roles.md` for agent-specific workflows.
-*   **Core Concepts & Terms:** @`concepts.md`
-    *   *Glossary of key terms, entities, mechanisms.*
-    *   **Example:** Defines terms like 'requestId' and 'Chat Trigger' with usage contexts.
-    *   **Related:** See @`system.md` for operational context and @`protocol.md` for concept application.
-*   **Ultra-Deep Thinking Protocol:** @`protocol.md` (Executed by Overmind)
-    *   *Methodology for rigorous planning, verification, analysis.*
-    *   **Example:** Outlines phases like 'Strategic Planning & Decomposition' for complex task handling.
-    *   **Related:** See @`system.md` for tool usage mandates and @`loop.md` for execution integration.
-*   **Initialization Procedure:** @`init.md` (Executed by InitializationAgent)
-    *   *Mandatory setup procedure for `.cursor/rules/`.*
-    *   **Example:** Describes steps to set up the rules directory, including git submodule handling.
-    *   **Related:** See @`system.md` for environment setup mandates and @`roles.md` for agent responsibilities.
-*   **Framework Entrypoint & Core Rule Index:** @`entrypoint.md` (This Document)
-    *   *Central index to all core framework documents.*
-    *   **Example:** You are currently reading this document.
-    *   **Related:** See all other documents listed herein.
+*   **System Overview & Global Rules:** @`system.mdc` (Goals, model, mandates)
+*   **Framework Engine & Agent Turn Process:** @`loop.mdc` (Engine, mandatory steps)
+*   **Core Concepts & Terms:** @`concepts.mdc` (Glossary)
+*   **Ultra-Deep Thinking Protocol:** @`protocol.mdc` (Overmind: Planning, verify, analysis)
+*   **Initialization Procedure:** @`init.mdc` (InitializationAgent: `.cursor/rules/` setup)
+*   **Framework Entrypoint & Core Rule Index:** @`entrypoint.mdc` (This Index)
 
 ## 2. AGENT & TOOL RULES
 
 *   **Agent Role Definitions:**
-    *   **Registry:** @`roles.md`
-        *   **Example:** Lists all agent roles like 'Overmind' with summaries of responsibilities and tool usage.
-        *   **Related:** See individual agent specs in `@agents/` and @`system.md` for mandate alignment.
-    *   **Specifications:** Located in `@agents/` directory. *Primary source for agent rules.*
+    *   **Registry:** @`roles.mdc` (List, summaries)
+    *   **Specifications:** `@agents/` dir (Primary agent rules)
 
-## 3. VISUAL NAVIGATION AID
+## 3. USAGE NOTES
 
-Below is a conceptual diagram of how the core documents relate to each other. This can help visualize the framework structure:
+*   Agent **MUST** fetch own role spec at turn start.
+*   Agents **MUST** adhere to operational model in @`concepts.mdc` (@`system.mdc` mandates, @`loop.mdc` loop), unless role file overrides.
+*   Use this doc as primary index for core rule docs.
 
-```mermaid
-graph TD
-    UserRequest[User Request]
-    Overmind[Overmind]
-    Protocol[protocol.md]
-    Agents[Agents]
-    Roles[roles.md]
-    AgentSpecs[agents/*.md]
-    Execution[Execution]
-    Loop[loop.md]
-    System[system.md]
-    Setup[Setup]
-    Init[init.md]
-    Concepts[concepts.md]
+## 4. RELATED CORE FRAMEWORK DOCUMENTS
 
-    UserRequest --> Overmind
-    Overmind --> Protocol
-    Overmind --> Agents
-    Agents --> Roles
-    Roles --> AgentSpecs
-    Agents --> Execution
-    Execution --> Loop
-    Loop --> System
-    Execution --> Setup
-    Setup --> Init
-    Setup --> Concepts
-```
-
-**Diagram Explanation:** The user request flows through Overmind using the protocol, delegates to agents defined in roles and individual specs, follows the execution loop with system mandates, and relies on initialization and core concepts for foundation.
-
-## 4. USAGE NOTES
-
-*   As an agent, you **MUST** fetch your own role specification at the start of your turn.
-*   Agents **MUST** adhere to the foundational operational model outlined in [concepts.md](concepts.md), which includes following [system.md](system.md) (Global Mandates) and [loop.md](loop.md) (Core Execution Loop), unless their specific role file dictates otherwise.
-*   You can use this document as a primary index to find other core rule documents when needed.
-*   This document is the primary human-readable index.
-
-## 5. TROUBLESHOOTING COMMON ISSUES
-
-*   **Issue: Unable to locate a specific rule or document.**
-    *   **Solution:** Use the search functionality in your IDE or MCP tools (`mcp_desktop-commander_search_code` or `default_api.grep_search`) with keywords related to the rule. Ensure you're referencing the latest version of this index.
-    *   **Example:** Searching for "Mandate" in [system.md](system.md) to find all non-negotiable rules.
-*   **Issue: Confusion about document precedence or hierarchy.**
-    *   **Solution:** Refer to [system.md](system.md) for rules hierarchy (Section 1.1). Project rules override global rules, and agent-specific rules define individual behavior.
-    *   **Example:** If both [system.md](system.md) and a project rule define a verification method, the project rule takes precedence.
-*   **Issue: Outdated references or broken links in documentation.**
-    *   **Solution:** Check the version note at the top of this document. If using an older framework version, some links may not apply. Escalate to `Overmind` or `RulesSyncAgent` for updates via MCP task creation.
-    *   **Example:** If a link to [roles.md](roles.md) is broken, escalate for correction.
-*   **Issue: Difficulty understanding document relationships.**
-    *   **Solution:** Review the visual navigation aid above to see how documents interlink. Cross-references in each section also point to related content for deeper context.
-    *   **Example:** Use the Mermaid diagram to trace the flow from user request to agent execution.
-
----
-
-## 6. VERSION HISTORY
-
-| Version | Date       | Author      | Notes                       |
-|---------|------------|-------------|-----------------------------|
-| 1.0     | 2024-06-01 | Framework   | Initial version             |
-| 1.1     | 2024-06-10 | DocsAgent   | Added diagrams, changelog, expanded troubleshooting |
-
-## 7. CHANGE LOG
-
-- 2024-06-10: Added Mermaid diagram for document relationships.
-- 2024-06-10: Expanded troubleshooting section with more examples.
-- 2024-06-10: Converted all @file.md references to markdown links.
-- 2024-06-10: Added Version History and Change Log sections.
-
----
-
-## Related Core Framework Documents
-
-This document serves as an index and is itself part of the core framework rules. For a complete understanding, please refer to all core documents:
-
-- **System Overview & Global Mandates:** [system.md](system.md)
-- **Core Agent Execution Loop:** [loop.md](loop.md)
-- **Core Concepts & Glossary:** [concepts.md](concepts.md)
-- **Agent Roles & Responsibilities Registry:** [roles.md](roles.md)
-- **Initialization Procedure:** [init.md](init.md)
-- **Ultra-Deep Thinking Protocol:** [protocol.md](protocol.md)
-- **Framework Entrypoint & Core Rule Index:** [entrypoint.md](entrypoint.md)
+*   @`system.mdc`
+*   @`loop.mdc`
+*   @`concepts.mdc`
+*   @`roles.mdc`
+*   @`init.mdc`
+*   @`protocol.mdc`
+*   @`entrypoint.mdc`

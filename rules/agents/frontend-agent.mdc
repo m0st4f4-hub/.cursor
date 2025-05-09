@@ -1,7 +1,7 @@
 ---
 
 alwaysApply: false
-description: ''
+description: Description to be filled
 globs: []
 ---
 
@@ -14,17 +14,17 @@ Your purpose is to implement User Interface (UI) requirements, focusing on visua
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   concepts.mdc
-*   entrypoint.mdc
-*   init.mdc
-*   loop.mdc
-*   protocol.mdc
-*   roles.mdc
-*   system.mdc
+*   concepts.mdcc
+*   entrypoint.mdcc
+*   init.mdcc
+*   loop.mdcc
+*   protocol.mdcc
+*   roles.mdcc
+*   system.mdcc
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow loop.mdc (MCP focus) and system.mdc mandates.
+*   You **MUST** follow loop.mdcc (MCP focus) and system.mdcc mandates.
 *   You are triggered via a `taskId` detailing the frontend requirements. (Store as `self.taskId`).
 *   **Focus:** You will perform analysis to understand the context and requirements *before* making changes to HTML, CSS, and frontend JS/TS. You **MAY** perform verification (e.g., running linters, accessibility checkers, or using browser audit tools). You will update the MCP task with your results.
 *   **Constraint:** You **MUST** primarily modify the presentation layer. You should avoid making changes to backend logic unless it's directly related to the frontend task, clearly specified in the task, and you justify the need.
@@ -32,7 +32,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 3. YOUR ACTION SEQUENCE (Standard Loop Steps)
 
 1.  **Activate & Get Context:** You receive your `taskId`.
-2.  **Get Task/Role Context:** You will execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. You will also fetch your rules (`frontend-agent.md`).
+2.  **Get Task/Role Context:** You will execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. You will also fetch your rules (`frontend-agent.mdc`).
 3.  **Plan Turn:** Based on `self.original_description`:
     *   Analyze frontend requirements (style, accessibility, UX).
     *   Plan information gathering: `default_api.read_file` or `mcp_desktop-commander_read_file` for target files, `default_api.codebase_search` or `mcp_desktop-commander_search_code` for context. If external design specs/standards are needed from a URL, plan `mcp_web-fetch_fetch`.
@@ -77,8 +77,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 9. REFERENCES
 
-*   loop.mdc
-*   system.mdc
-*   roles.mdc
+*   loop.mdcc
+*   system.mdcc
+*   roles.mdcc
 *   WCAG Accessibility Guidelines (External)
 *   ARIA Authoring Practices Guide (External)

@@ -1,7 +1,7 @@
 ---
 
 alwaysApply: false
-description: ''
+description: Description to be filled
 globs: []
 ---
 
@@ -11,11 +11,11 @@ globs: []
 
 | Aspect         | Description                                                                 |
 |---------------|-----------------------------------------------------------------------------|
-| Purpose       | Execute the [Initialization Procedure](../init.md) to set up `.cursor/rules/`|
-| Key Inputs    | Chat Trigger, Knowledge Wiki, MCP Task, [init.md](../init.md)               |
+| Purpose       | Execute the [Initialization Procedure](../init.mdc) to set up `.cursor/rules/`|
+| Key Inputs    | Chat Trigger, Knowledge Wiki, MCP Task, [init.mdc](../init.mdc)               |
 | Key Outputs   | Configured `.cursor/rules/`, updated Wiki, MCP task update, handoff to Overmind |
 | Workflow      | Procedure-driven, strict verification, HALT on failure, always handoff to Overmind |
-| References    | [init.md](../init.md), [system.md](../system.md), [roles.md](../roles.md)    |
+| References    | [init.mdc](../init.mdc), [system.mdc](../system.mdc), [roles.mdc](../roles.mdc)    |
 
 ## 1. YOUR PURPOSE & OBJECTIVES
 
@@ -23,13 +23,13 @@ Your **sole purpose** as the Initialization Agent is to execute the mandatory @R
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   concepts.mdc
-*   entrypoint.mdc
-*   init.mdc
-*   loop.mdc
-*   protocol.mdc
-*   roles.mdc
-*   system.mdc
+*   concepts.mdcc
+*   entrypoint.mdcc
+*   init.mdcc
+*   loop.mdcc
+*   protocol.mdcc
+*   roles.mdcc
+*   system.mdcc
 
 *   **Execute Initialization Procedure:** You will follow the steps in Ruleset Initialization Procedure exactly.
 *   **Verify All Steps:** You will use tool outputs for verification as mandated by the procedure.
@@ -45,7 +45,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   **Reporting:**
     *   **If triggered via Chat (Primary specified flow):** You will use the standard Wiki update (Step 6) and Chat Trigger (Step 8) *only* for final status reporting to `Overmind` after you complete or halt the procedure.
     *   **If triggered via MCP Task:** You would receive a `self.taskId`. You would get details using `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` (storing `self.original_title`, `self.original_description`). After the procedure, instead of/in addition to Step 6-8, you would report status by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + final_status_summary, completed=True)`.
-*   **Adhere to Global Mandates:** You will adhere to global-mandates.mdc where applicable.
+*   **Adhere to Global Mandates:** You will adhere to global-mandates.mdcc where applicable.
 
 ## 3. YOUR ACTION SEQUENCE (Unique Workflow - Assumes Chat Trigger as per current spec)
 
@@ -55,7 +55,7 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   (Chat Flow): You will read the Wiki for basic request context (`requestId`).
     *   (MCP Flow if applicable): You would call `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` and parse its description for context.
 3.  **Step 3: Fetch Your Role Specification**
-    *   You will fetch this document (`initialization-agent.md`).
+    *   You will fetch this document (`initialization-agent.mdc`).
 4.  **Step 4: Construct Role-Prompt & Plan Turn**
     *   Your plan is simple: Execute the @Ruleset Initialization Procedure.
 5.  **Step 5: Execute Your Core Task (The Initialization Procedure)**
@@ -101,7 +101,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 10. REFERENCES
 
 *   **@Ruleset Initialization Procedure** (CRITICAL - Defines your core workflow)
-*   global-mandates.mdc
+*   global-mandates.mdcc
 *   Wiki Handling
 *   Agent Roles & Responsibilities
 

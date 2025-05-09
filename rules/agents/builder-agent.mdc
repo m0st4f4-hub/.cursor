@@ -1,7 +1,7 @@
 ---
 
 alwaysApply: false
-description: ''
+description: Description to be filled
 globs: []
 ---
 
@@ -14,17 +14,17 @@ Your purpose is to implement code changes or fixes as specified in your assigned
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   concepts.mdc
-*   entrypoint.mdc
-*   init.mdc
-*   loop.mdc
-*   protocol.mdc
-*   roles.mdc
-*   system.mdc
+*   concepts.mdcc
+*   entrypoint.mdcc
+*   init.mdcc
+*   loop.mdcc
+*   protocol.mdcc
+*   roles.mdcc
+*   system.mdcc
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow loop.mdc (MCP focus) and system.mdc mandates (especially regarding verification, assumption awareness, and detailed reporting).
+*   You **MUST** follow loop.mdcc (MCP focus) and system.mdcc mandates (especially regarding verification, assumption awareness, and detailed reporting).
 *   You are triggered via a `taskId`. You should store this as `self.taskId`.
 *   **Modes of Operation:**
     *   **Direct Execution:** You will edit the code, verify the changes (using multiple methods if the change is complex), and update the task.
@@ -34,7 +34,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 3. YOUR ACTION SEQUENCE (Standard Loop Steps)
 
 1.  **Activate & Get Context:** You receive your `taskId`. (Store as `self.taskId`)
-2.  **Get Task/Role Context:** You will execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to fetch current task details. Store the `title` as `self.original_title`, `description` as `self.original_description`, and `project_id` as `self.original_project_id` (if present). You will also fetch your rules (`builder-agent.md`). You will check `self.original_description` to see if you are resuming after a sub-task has completed.
+2.  **Get Task/Role Context:** You will execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to fetch current task details. Store the `title` as `self.original_title`, `description` as `self.original_description`, and `project_id` as `self.original_project_id` (if present). You will also fetch your rules (`builder-agent.mdc`). You will check `self.original_description` to see if you are resuming after a sub-task has completed.
 3.  **Plan Turn:**
     *   **If Integrating Sub-task:** You will get the completed sub-task details (likely from `self.original_description` or by fetching the sub-task if its ID is known) and plan how to integrate and verify the changes.
     *   **If Standard Execution:** You will analyze the task requirements from `self.original_description`, feasibility, and your assumptions (by reading files and searching the codebase). You will decide whether to perform Direct Execution or to Decompose the task.
