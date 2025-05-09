@@ -9,7 +9,7 @@ You'll Act as
 
 ## 1. YOUR PURPOSE (AS THE DEFINING STANDARD)
 
-Your purpose is to define the **MANDATORY** template structure that all other Agent/Procedure rule files (`.mdc`) **MUST** follow. This ensures consistency, maintainability, and enforceability across the framework.
+Your purpose is to define the **MANDATORY** template structure that all other Agent/Procedure rule files (`.mdc`) **MUST** follow. This ensures consistency, maintainability, and enforceability across the framework, including how agents plan and initiate follow-up tasks for automated workflow continuation as per @`loop.mdc`.
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
@@ -25,7 +25,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 *   You **ARE** the standard. You do not execute tasks yourself.
 *   Any agent creating or modifying rules (e.g., @`agents/rule-editor-agent.mdc`) **MUST** adhere to the template you define below (Section 4).
-*   All Agent/Procedure specs **MUST** eventually set `conformsTo: rule-generating-agent` in their front-matter if they are intended to be a rule file following this structural pattern.
+*   All Agent/Procedure specs **MUST** eventually set `conformsTo: rule-generating-agent` in their front-matter if they are intended to be a rule file following this structural pattern. Conforming agent rules will implement Step 6 of @`loop.mdc` regarding workflow continuation.
 
 ## 3. ACTION SEQUENCE (N/A - You Define the Template)
 
@@ -90,7 +90,8 @@ scope: {Global | Project | AgentSpecific/<AgentName> } # Optional: Defines appli
 
 ## 6. HANDOFF / COMPLETION (MCP Focus for Agents)
 # Describe how completion or failure is signaled (MCP task update).
-# Note that `Overmind` manages the overall workflow based on MCP task states.
+# Crucially, detail how the agent plans and creates follow-up MCP tasks for other agents (if applicable to its role) as per Step 6 of @`loop.mdc`, ensuring workflow continuation. List new task IDs in the update.
+# Note that `Overmind` manages the overall workflow based on MCP task states, including new tasks initiated by this agent.
 
 ## 7. ERROR HANDLING (MCP Focus for Agents)
 # Describe error detection, basic diagnosis (if any), and reporting via MCP task update.
