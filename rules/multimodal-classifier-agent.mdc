@@ -45,9 +45,9 @@ You **MUST** recall and integrate the following foundational rules before procee
 2.  **Fetch Your Rules:** You **WILL** fetch your own rules (`multimodal-classifier-agent.mdc`) using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file` if path known and in MCP-only context).
 3.  **Plan Your Turn:**
     *   You **WILL** define `wrapper_script_name` (e.g., `run_vision_loop.ps1` or `run_vision_loop.py`) and its `wrapper_script_path`. You **MAY** consider using `mcp_desktop-commander_create_directory` if a specific temp path needs to be ensured.
-    *   You **WILL** construct the `wrapper_script_content` that `RunnerAgent` will execute (logic described in YOUR OBJECTIVES).
+    *   You **WILL** construct the `wrapper_script_content` that `RunnerAgent` will execute (logic described in YOUR OBJECTIVES). This content **MAY** be partly derived from a template read using `mcp_desktop-commander_read_file(path=template_path)` or parameterized using values from a config file also read via `mcp_desktop-commander_read_file`.
     *   You **WILL** plan to write this script using `mcp_desktop-commander_write_file(path=wrapper_script_path, content=wrapper_script_content)`.
-    *   You **WILL** formulate the `runner_instructions` (the command for `RunnerAgent` to execute the `wrapper_script_path`).
+    *   You **WILL** formulate the `runner_instructions` (the command for `RunnerAgent` to execute the `wrapper_script_path`, including any necessary parameters obtained from config or task description).
     *   You **WILL** decide whether to update an existing `RunnerAgent` task or create a new one based on `self.original_description`.
     *   If creating: You **WILL** plan `mcp_project-manager_create_task_tasks__post(title="RunnerAgent: Vision Script for " + self.original_title, description=runner_instructions, agent_name="RunnerAgent", project_id=self.original_project_id)`.
     *   If updating: You **WILL** plan `mcp_project-manager_update_task_tasks__task_id__put(task_id=runner_task_id, description=new_runner_task_description_with_instructions, completed=False)`.
@@ -56,14 +56,14 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   You **MUST** verify script creation, e.g., using `mcp_desktop-commander_get_file_info(path=wrapper_script_path)`.
     *   You **WILL** execute the planned `mcp_project-manager_create_task_tasks__post` or `mcp_project-manager_update_task_tasks__task_id__put` call for the `RunnerAgent` task.
 5.  **Update Your State / Handoff (MCP):**
-    *   Let `handoff_message` = "RunnerAgent task defined to execute vision classification script: " + wrapper_script_name + ". Tools used: mcp_desktop-commander_write_file, mcp_desktop-commander_get_file_info, mcp_project-manager_*";
+    *   Let `handoff_message` = "RunnerAgent task defined to execute vision classification script: " + wrapper_script_name + ". Tools used: mcp_desktop-commander_write_file, mcp_desktop-commander_get_file_info, mcp_desktop-commander_read_file (optional), mcp_project-manager_*";
     *   You **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\n---\\n" + handoff_message, completed=True)`.
 6.  **Terminate Turn:** Your execution ends here.
 
 ## 4. YOUR TOOLS
 
 *   **Loop/MCP:** `default_api.fetch_rules` (IDE), `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`, `mcp_project-manager_create_task_tasks__post`.
-*   **File & Directory Operations (MCP):** `mcp_desktop-commander_write_file`, `mcp_desktop-commander_get_file_info`, `mcp_desktop-commander_create_directory` (optional).
+*   **File & Directory Operations (MCP):** `mcp_desktop-commander_write_file`, `mcp_desktop-commander_get_file_info`, `mcp_desktop-commander_create_directory` (optional), `mcp_desktop-commander_read_file`.
 
 ## 5. HANDOFF CONDITIONS (MCP Focus)
 
