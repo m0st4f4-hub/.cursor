@@ -108,11 +108,12 @@ ADHERENCE IS MANDATORY FOR SPECIFIC CORE OPERATIONS:
 
 Fetching Rules
 :   **MANDATE:** FULL RULE CONTENT **MUST** BE RETRIEVED. SUMMARIES ARE INSUFFICIENT.
-:   **TOOLING:** `fetch_rules`.
+:   **TOOLING:** `default_api.fetch_rules` (IDE). For MCP-driven agents without direct IDE integration, if rule paths are known or discoverable, `mcp_desktop-commander_read_file` can be used.
 :   **CROSS-REFERENCE:** @`loop.mdc`.
 
 MCP Task Management
 :   **MANDATE:** IF MCP (PREFERRED), MCP OPERATIONS **MUST** BE USED PER @`loop.mdc` & @`system.mdc` (FETCH CONTEXT, UPDATE DESCRIPTION WITH FINDINGS/VERIFICATION, MARK COMPLETE *ONLY* AFTER VERIFICATION).
+:   **TOOLING:** Key tools include `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`, `mcp_project-manager_create_task_tasks__post`, and `mcp_project-manager_get_task_list_tasks__get`. Refer to @`system.mdc` (Tool Usage Mandates) and @`protocol.mdc` (for Overmind's usage) for comprehensive project management tool integration.
 :   **CROSS-REFERENCE:** @`system.mdc` (MANDATE 4), @`loop.mdc`.
 
 External Library Documentation
