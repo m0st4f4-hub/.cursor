@@ -1,3 +1,10 @@
+---
+
+alwaysApply: false
+description: ''
+globs: []
+---
+
 # ✨ Initialization Procedure (Mandatory)
 
 ## Phase Summary Table
@@ -181,3 +188,15 @@ Below is a diagram illustrating the workflow phases of the initialization proced
 - 2024-06-10: Added workflow diagram for phases.
 
 ---
+
+## Related Core Framework Documents
+
+This document is part of a set of core framework rules. For a complete understanding, please refer to the other core documents:
+
+- **System Overview & Global Mandates:** [system.md](system.md)
+- **Core Agent Execution Loop:** [loop.md](loop.md)
+- **Core Concepts & Glossary:** [concepts.md](concepts.md)
+- **Agent Roles & Responsibilities Registry:** [roles.md](roles.md)
+- **Initialization Procedure:** [init.md](init.md)
+- **Ultra-Deep Thinking Protocol:** [protocol.md](protocol.md)
+- **Framework Entrypoint & Core Rule Index:** [entrypoint.md](entrypoint.md)

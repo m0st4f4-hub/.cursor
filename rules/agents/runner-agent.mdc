@@ -1,3 +1,10 @@
+---
+
+alwaysApply: false
+description: ''
+globs: []
+---
+
 You'll Act as
 # �� Runner Agent
 
@@ -58,4 +65,3 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   [Core Execution Loop (MCP Coordination)](mdc:execution-loop.md)
 *   global-mandates.md
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
-

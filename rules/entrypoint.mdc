@@ -1,3 +1,10 @@
+---
+
+alwaysApply: false
+description: ''
+globs: []
+---
+
 # 🧭 Framework Entrypoint & Core Rule Index
 
 **Purpose:** Use this central index to find the essential rule documents that define how this system operates.
@@ -26,6 +33,10 @@
     *   *Mandatory setup procedure for `.cursor/rules/`.*
     *   **Example:** Describes steps to set up the rules directory, including git submodule handling.
     *   **Related:** See @`system.md` for environment setup mandates and @`roles.md` for agent responsibilities.
+*   **Framework Entrypoint & Core Rule Index:** @`entrypoint.md` (This Document)
+    *   *Central index to all core framework documents.*
+    *   **Example:** You are currently reading this document.
+    *   **Related:** See all other documents listed herein.
 
 ## 2. AGENT & TOOL RULES
 
@@ -105,4 +116,18 @@ graph TD
 - 2024-06-10: Added Mermaid diagram for document relationships.
 - 2024-06-10: Expanded troubleshooting section with more examples.
 - 2024-06-10: Converted all @file.md references to markdown links.
-- 2024-06-10: Added Version History and Change Log sections. 
+- 2024-06-10: Added Version History and Change Log sections.
+
+---
+
+## Related Core Framework Documents
+
+This document serves as an index and is itself part of the core framework rules. For a complete understanding, please refer to all core documents:
+
+- **System Overview & Global Mandates:** [system.md](system.md)
+- **Core Agent Execution Loop:** [loop.md](loop.md)
+- **Core Concepts & Glossary:** [concepts.md](concepts.md)
+- **Agent Roles & Responsibilities Registry:** [roles.md](roles.md)
+- **Initialization Procedure:** [init.md](init.md)
+- **Ultra-Deep Thinking Protocol:** [protocol.md](protocol.md)
+- **Framework Entrypoint & Core Rule Index:** [entrypoint.md](entrypoint.md)

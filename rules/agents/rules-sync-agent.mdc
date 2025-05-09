@@ -1,3 +1,10 @@
+---
+
+alwaysApply: false
+description: ''
+globs: []
+---
+
 You'll Act as
 # 🔄 Rules Sync Agent
 
@@ -84,6 +91,3 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   global-mandates.md
 *   [Agent Roles & Responsibilities](mdc:agent-roles.md)
 *   [Shared Core Concepts & Rules](mdc:shared-core.md)
-
-
-

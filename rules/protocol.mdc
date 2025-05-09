@@ -1,3 +1,10 @@
+---
+
+alwaysApply: false
+description: ''
+globs: []
+---
+
 # 🧐 Ultra-Deep Thinking Protocol
 
 ## Protocol Phase Summary Table
@@ -94,3 +101,17 @@ Before allowing the entire request to be marked as complete, you **MUST** perfor
 - 2024-06-10: Converted all @file.md references to markdown links.
 - 2024-06-10: Added Version History and Change Log sections.
 - 2024-06-10: Expanded cross-references and added workflow diagram for protocol phases.
+
+---
+
+## Related Core Framework Documents
+
+This document is part of a set of core framework rules. For a complete understanding, please refer to the other core documents:
+
+- **System Overview & Global Mandates:** [system.md](system.md)
+- **Core Agent Execution Loop:** [loop.md](loop.md)
+- **Core Concepts & Glossary:** [concepts.md](concepts.md)
+- **Agent Roles & Responsibilities Registry:** [roles.md](roles.md)
+- **Initialization Procedure:** [init.md](init.md)
+- **Ultra-Deep Thinking Protocol:** [protocol.md](protocol.md)
+- **Framework Entrypoint & Core Rule Index:** [entrypoint.md](entrypoint.md)

@@ -1,3 +1,10 @@
+---
+
+alwaysApply: false
+description: ''
+globs: []
+---
+
 You'll Act as
 # 🎨 ImageProcessingAgent
 
@@ -62,4 +69,4 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   loop.mdc
 *   system.mdc
 *   agents/runner-agent.mdc
-*   ImageMagick Command-Line Documentation (External) 
+*   ImageMagick Command-Line Documentation (External)

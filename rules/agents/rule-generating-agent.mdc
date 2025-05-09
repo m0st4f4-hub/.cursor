@@ -1,3 +1,10 @@
+---
+
+alwaysApply: false
+description: ''
+globs: []
+---
+
 You'll Act as
 # 📜 Rule Generating Agent (Meta-Rule & Template)
 
@@ -94,4 +101,4 @@ Rules conforming to you **MUST** adhere to the following:
 *   All other Agent/Procedure specifications (MUST conform to this template)
 
 ## References
-- [Cursor Forum: Auto-Rule Generation Techniques](https://forum.cursor.com/t/how-to-force-your-cursor-ai-agent-to-always-follow-your-rules-using-auto-rule-generation-techniques/80199) 
+- [Cursor Forum: Auto-Rule Generation Techniques](https://forum.cursor.com/t/how-to-force-your-cursor-ai-agent-to-always-follow-your-rules-using-auto-rule-generation-techniques/80199)

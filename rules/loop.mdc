@@ -1,3 +1,10 @@
+---
+
+alwaysApply: false
+description: ''
+globs: []
+---
+
 # ⚙️ Framework & Core Agent Execution Loop
 
 ## Core Agent Execution Loop Summary Table
@@ -55,21 +62,27 @@
 **Step 2: Get Full Task/Operational Context & Update Status**
 *   **Action:** You will fetch detailed instructions and operational context, employing a comprehensive suite of tools as per @`system.md` MANDATE 1.
 *   **Tooling (MCP Focus):**
-    *   Primary: `mcp_project-manager_get_task_by_id_tasks__task_id__get` (for core task details). **This task detail is expected to include the `targetAgentRole` (or a similar field, e.g., `agent_persona`) explicitly assigned by Overmind, dictating the persona you MUST adopt for this specific task.**
+    *   Primary: `mcp_project-manager_get_task_by_id_tasks__task_id__get` (for core task details). **This task detail MUST include a `targetAgentRole` field (or a clearly defined equivalent, e.g., `agent_persona`) explicitly assigned by Overmind. This field is non-negotiable and dictates the persona you MUST adopt for this specific task. Absence or ambiguity of this field constitutes a critical misconfiguration requiring escalation.**
     *   Supporting (as needed for full understanding): `mcp_desktop-commander_get_file_info`, `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_read_file` / `default_api.read_file`, `default_api.codebase_search`, `mcp_desktop-commander_search_code` / `default_api.grep_search`, `default_api.file_search`.
     *   External Knowledge (if applicable): `mcp_context7_resolve-library-id` & `get-library-docs`, `default_api.web_search` / `mcp_web-fetch_fetch`.
 *   **Action (Chat):** Use context parsed from payload in Step 1, supplementing with relevant read-only tools if necessary and feasible.
 *   **Critical Evaluation (Both):** You **MUST** critically evaluate all gathered context according to principles in @`system.md`. Identify assumptions and verify task feasibility.
 *   **MCP Status Update:** Upon completion of context gathering and initial analysis, you **MUST** update the MCP task via `mcp_project-manager_update_task_tasks__task_id__put`, setting status to reflect "Context Gathered & Analyzed" (or similar) and logging key findings/tools used, as per @`system.md` MANDATE 4.
 
-**Step 3: Fetch Your Role Specification**
-*   **Action:** You will retrieve the rules that define the **target role specified in the task context obtained in Step 2**. This allows for dynamic persona adoption as directed by Overmind for the current task.
-*   **Method:** You will fetch the agent rule file corresponding to the `targetAgentRole` (e.g., `builder-agent.md`, `research-agent.md`) identified from the task details.
+**Step 3: Fetch Your Role Specification & Validate Persona**
+*   **Action:** You will identify the `targetAgentRole` from the task context obtained in Step 2 and retrieve the corresponding role specification file.
+*   **Validation & Method:**
+    1.  You **MUST** verify that the `targetAgentRole` is present and clearly defined in the task details.
+    2.  If `targetAgentRole` is missing or ambiguous, you **MUST HALT** execution for this turn, update the MCP task with an error specifying "Critical Error: `targetAgentRole` not provided by Overmind or is ambiguous," and escalate to Overmind.
+    3.  If `targetAgentRole` is present, you will fetch the agent rule file (e.g., `<targetAgentRole>.md`).
+    4.  If the corresponding rule file cannot be fetched (e.g., file not found, invalid role name), you **MUST HALT** execution, update the MCP task with an error specifying "Critical Error: Cannot fetch rule file for `targetAgentRole`: [RoleName]," and escalate to Overmind.
+*   **Outcome:** Successful completion of this step means you have loaded the rules for the precise persona Overmind has assigned for this task.
 
 **Step 4: Plan Your Turn (Internal)**
 *   **Action:** You will internally prepare your plan of action for the current turn.
 *   **Input:** Your rules (from Step 3) and the full task context (from Step 2).
 *   **Process:** You will construct your internal reasoning or prompt. You will plan the specific operations needed for Step 5, ensuring you include **mandatory verification** steps and checks for any **assumptions** you identified, as required by @`system.md`.
+    *   **Note on Continuous Chat Sequences:** If the task context (e.g., as set by `Overmind`) indicates you are part of a designated "Continuous Chat Sequence," your plan for Step 5 MAY involve more comprehensive execution to make substantial progress on your allocated part of the sequence. This could involve multiple tool calls if strictly necessary and efficient for your sub-task, but always aligned with your role and verification mandates.
 
 **Step 5: Execute Your Core Task(s), Verify Rigorously & Update Status**
 *   **Action:** Perform the primary function(s) defined by your role and the current task, using authorized capabilities.
@@ -96,8 +109,10 @@
 *   **Process (Chat):**
     1.  **Determine Next Agent:** You will determine the `<NextAgentRole>` based on your rules and the task outcome.
     2.  **Construct Handoff:** You will create a concise payload containing your **comprehensive findings** (as described for MCP above).
+        *   **Continuous Chat Sequence Context:** If operating within an `Overmind`-defined "Continuous Chat Sequence," this payload MAY also include sequence-specific context provided by the previous agent or updated by you (e.g., overall sequence goal, progress, remaining depth/iterations, aggregate tool call count for the sequence). The decision to continue the sequence by handing off to another operational agent or to return/escalate to `Overmind` (e.g., sequence goal met, issues, depth limit reached) **MUST** be guided by `Overmind`'s initial parameters for the sequence and your agent rules.
     3.  **Trigger:** You will send the Chat Trigger: "Hey `<NextAgentRole>`, [Handoff Payload]".
     4.  **Terminate:** You **MUST** end your execution turn now.
+    *   **Clarification on Tool Usage in Sequences:** While a "Continuous Chat Sequence" orchestrated by `Overmind` might collectively involve a significant number of tool calls (e.g., aiming for a cumulative **up to approximately** 25 tool calls to resolve a complex sub-problem), individual agents within the sequence **MUST** still prioritize efficient, role-appropriate, and verifiable execution of their specific sub-task. The focus is on effective problem decomposition and resolution by the sequence, not on forcing individual agents to meet arbitrary tool call quotas per turn.
 
 **Error Handling:**
 *   **Step 2 Failure (Cannot get context):** You will HALT.
@@ -117,3 +132,17 @@
 - 2024-06-10: Converted all @file.md references to markdown links.
 - 2024-06-10: Added Version History and Change Log sections.
 - 2024-06-10: Expanded workflow notes and added execution loop diagram.
+
+---
+
+## Related Core Framework Documents
+
+This document is part of a set of core framework rules. For a complete understanding, please refer to the other core documents:
+
+- **System Overview & Global Mandates:** [system.md](system.md)
+- **Core Agent Execution Loop:** [loop.md](loop.md)
+- **Core Concepts & Glossary:** [concepts.md](concepts.md)
+- **Agent Roles & Responsibilities Registry:** [roles.md](roles.md)
+- **Initialization Procedure:** [init.md](init.md)
+- **Ultra-Deep Thinking Protocol:** [protocol.md](protocol.md)
+- **Framework Entrypoint & Core Rule Index:** [entrypoint.md](entrypoint.md)

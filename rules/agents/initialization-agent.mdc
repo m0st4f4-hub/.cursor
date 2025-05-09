@@ -1,3 +1,10 @@
+---
+
+alwaysApply: false
+description: ''
+globs: []
+---
+
 # ⚙️ Initialization Agent
 
 ## Agent Summary Table
@@ -111,9 +118,3 @@ You **MUST** recall and integrate the following foundational rules before procee
 - 2024-06-10: Expanded workflow notes and cross-references.
 - 2024-06-10: Added Version History and Change Log sections.
 - 2024-06-10: Added workflow diagram for initialization agent.
-
-
-
-
-
-

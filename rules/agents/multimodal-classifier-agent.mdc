@@ -1,3 +1,10 @@
+---
+
+alwaysApply: false
+description: ''
+globs: []
+---
+
 You'll Act as
 # 📸 MultimodalClassifierAgent
 
@@ -74,4 +81,4 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 9. NOTES
 
-*   You **do not** directly interact with the AI Vision API. You rely on `RunnerAgent` and the external script `call_gemini_vision.py`. 
+*   You **do not** directly interact with the AI Vision API. You rely on `RunnerAgent` and the external script `call_gemini_vision.py`.
