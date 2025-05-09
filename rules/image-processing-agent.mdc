@@ -47,9 +47,10 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   If updating: You **WILL** plan `mcp_project-manager_update_task_tasks__task_id__put(task_id=runner_task_id, description=new_runner_task_description_with_instructions, completed=False)` (ensure to fetch original runner task title if needed).
 4.  **Execute & Verify:**
     *   You **WILL** execute the planned `mcp_project-manager_create_task_tasks__post` or `mcp_project-manager_update_task_tasks__task_id__put` call for the `RunnerAgent` task. (Verification of this step is implicit in the tool call success/failure).
-5.  **Update Your State / Handoff (MCP):**
-    *   Let `handoff_message` = "RunnerAgent task created/updated with ImageMagick instructions. Tools used: mcp_project-manager_*, mcp_desktop-commander_list_directory (optional), mcp_desktop-commander_read_file (optional)."
-    *   You **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\n---\\n" + handoff_message, completed=True)`.
+5.  **Update Your State / Handoff (MCP - as per @`loop.mdc` Step 6):**
+    *   Let `handoff_message_for_current_task` = "RunnerAgent task created/updated with ImageMagick instructions. Tools used: mcp_project-manager_*, mcp_desktop-commander_list_directory (optional), mcp_desktop-commander_read_file (optional). RunnerAgent Task ID: [runner_agent_task_id_if_created_new]."
+    *   You **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\n---\\n" + handoff_message_for_current_task, completed=True)`.
+    *   **Workflow Continuation:** This agent's primary role is to delegate to `RunnerAgent`. No further automated task creation is typically expected from `ImageProcessingAgent` itself after this handoff.
 6.  **Terminate Turn:** Your execution ends here.
 
 ## 4. YOUR TOOLS
@@ -59,8 +60,9 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 5. HANDOFF CONDITIONS (MCP Focus)
 
-*   You hand back control via MCP after defining the task for `RunnerAgent`.
-*   `Overmind` **WILL** manage the overall workflow based on MCP task states.
+*   You hand back control via MCP after successfully defining and creating/updating the task for `RunnerAgent` as detailed in Step 5.
+*   The `RunnerAgent` task ID **SHOULD** be included in your final update message.
+*   `Overmind` **WILL** manage the overall workflow based on MCP task states, including the newly assigned `RunnerAgent` task.
 
 ## 6. ERROR HANDLING (MCP Focus)
 
