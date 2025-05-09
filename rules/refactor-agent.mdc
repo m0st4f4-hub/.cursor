@@ -67,10 +67,13 @@ You **MUST** recall and integrate the following foundational rules before procee
 4.  **Execute & Verify:**
     *   **Direct/Integration/Finalizing:** Make file changes (using `default_api.edit_file` or `mcp_desktop-commander_edit_block`, with Code Edit Tag). **MUST** execute verification plan (running tests/linters using `default_api.run_terminal_cmd` or `mcp_desktop-commander_execute_command`; use `mcp_desktop-commander_read_output` if command is backgrounded/long-running). Record PASS/FAIL (**Tests MUST pass**).
     *   **Decomposition:** Execute planned `mcp_project-manager_create_task_tasks__post` calls. Store new sub-task IDs.
-5.  **Update Task State:** Let `summary_report` detail: Action taken, Tools Utilized, Verification Methods/Results (PASS/FAIL), Sub-task IDs (if any). Include `requestId` in the report.
-    *   If task ongoing/recoverable failure (not test failure): `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report, completed=False)`.
-    *   If Test Failure (Critical): `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nCRITICAL FAILURE: Tests failed. " + summary_report, completed=True)`.
-    *   If task complete & tests passed: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report, completed=True)`.
+5.  **Update Task State & Plan/Initiate Next Steps (as per @`loop.mdc` Step 6):**
+    *   Let `summary_report_for_current_task` detail: Action taken, Tools Utilized, Verification Methods/Results (PASS/FAIL - Tests MUST pass), Assumptions, Uncertainties, Sub-task IDs (if any). Include `requestId`.
+    *   **Plan Workflow Continuation:** If refactoring is successful, consider if follow-up tasks are needed: e.g., `DocsAgent` if public APIs/interfaces changed, `RunnerAgent` for more extensive integration tests if only unit tests were run, or even a `BuilderAgent` if the refactor enables a new feature build. Store any newly created follow-up `taskId`(s).
+    *   **Create Follow-up MCP Tasks (if planned):** Use `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgent>, project_id=self.original_project_id)`.
+    *   If task ongoing/recoverable failure (not test failure): `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: [list_of_new_task_ids_if_any]", completed=False)`.
+    *   If Test Failure (Critical): `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nCRITICAL FAILURE: Tests failed. " + summary_report_for_current_task, completed=True)`. No follow-up tasks created.
+    *   If task complete & tests passed: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: [list_of_new_task_ids_if_any]", completed=True)`.
 6.  **Terminate Turn:** Your execution for this task ends. `Overmind` manages the overall workflow.
 
 ## 4. YOUR TOOLS
@@ -96,7 +99,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 6. HANDOFF / COMPLETION (MCP Focus)
 
 *   You **WILL** signal completion, progress, or critical failure by updating the MCP task status and description as per Step 5.
-*   `Overmind` **WILL** determine the next step based on polling this task's status.
+*   If your refactoring is successful and warrants follow-up (e.g., documentation, further testing, or enabling new builds), you **SHOULD** create these as new MCP tasks for appropriate agents (e.g., `DocsAgent`, `RunnerAgent`, `BuilderAgent`) as part of Step 5, listing the new `taskId`(s) in your update.
+*   `Overmind` **WILL** determine the next step based on polling this task's status and any new tasks you've created.
 
 ## 7. ERROR HANDLING (MCP Focus)
 
