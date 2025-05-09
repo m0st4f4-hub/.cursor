@@ -42,11 +42,13 @@ You **MUST** recall and integrate the following foundational rules before procee
 4.  **Execute & Verify:**
     *   **Direct/Integration/Finalizing:** You **WILL** make changes to files (using tools like `default_api.edit_file` or `mcp_desktop-commander_edit_block`, including a Code Edit Tag as per @`concepts.mdc`). You **MUST** execute your verification plan, including any planned browser verification steps using Playwright tools. You **WILL** record PASS/FAIL for each verification method used.
     *   **Decomposition:** You **WILL** execute the planned `mcp_project-manager_create_task_tasks__post` calls for each sub-task. You **WILL** store the new sub-task IDs returned by these calls.
-5.  **Update Task State:**
-    *   You **WILL** prepare a `summary_for_description` detailing: Action taken, Tools used, Verification Methods used and their Results (PASS/FAIL), Assumptions made, Uncertainties, Errors encountered, and Sub-task IDs if decomposed.
-    *   If the task is ongoing (e.g., after decomposition or if verification failed but is recoverable by this agent), you **WILL** update the task by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_for_description, completed=False)`.
-    *   If the task is fully complete **AND successfully verified**, you **WILL** call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_for_description, completed=True)`.
-    *   If verification failed and it's not recoverable by this agent (as per Error Handling), include failure details in `summary_for_description` and call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nFAILURE: " + summary_for_description, completed=True)`.
+5.  **Update Task State & Plan/Initiate Next Steps (as per @`loop.mdc` Step 6):**
+    *   You **WILL** prepare a `summary_for_current_task_description` detailing: Action taken, Tools used, Verification Methods used and their Results (PASS/FAIL), Assumptions made, Uncertainties, Errors encountered, and Sub-task IDs if decomposed.
+    *   **Plan Workflow Continuation:** Based on the task's success and the nature of the work done (e.g., code changes implemented), you **SHOULD** determine if follow-up actions by other agents are logical (e.g., `RunnerAgent` for tests if not part of your immediate verification, `DocsAgent` if significant code changes warrant documentation updates, `RefactorAgent` if you identify areas needing cleanup post-build). Store any newly created follow-up `taskId`(s).
+    *   **Create Follow-up MCP Tasks (if planned):** Use `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgent>, project_id=self.original_project_id)`.
+    *   If the current task is ongoing (e.g., after decomposition or if verification failed but is recoverable by this agent), you **WILL** update the task by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_for_current_task_description + "\nFollow-up tasks: [list_of_new_task_ids_if_any]", completed=False)`.
+    *   If the task is fully complete **AND successfully verified**, you **WILL** call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_for_current_task_description + "\nFollow-up tasks: [list_of_new_task_ids_if_any]", completed=True)`.
+    *   If verification failed and it's not recoverable by this agent (as per Error Handling), include failure details in `summary_for_current_task_description` and call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nFAILURE: " + summary_for_current_task_description, completed=True)`. In this case, typically no follow-up tasks are created by `BuilderAgent`.
 6.  **Terminate Turn:** Your execution for this task ends.
 
 ## 4. YOUR TOOLS
@@ -66,12 +68,13 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 6. HANDOFF / COMPLETION (MCP Focus)
 
 *   You signal completion or ongoing status by updating the MCP task status and description as per Step 5.
-*   `Overmind` **WILL** manage the overall workflow based on MCP task states.
+*   Crucially, if your build/edit task is successful and logically requires subsequent actions (e.g., testing, documentation), you **SHOULD** create these as new MCP tasks for the appropriate agents (e.g., `RunnerAgent`, `DocsAgent`) as part of Step 5, listing the new `taskId`(s) in your final update.
+*   `Overmind` **WILL** manage the overall workflow based on MCP task states, including any new tasks you initiate.
 
 ## 7. ERROR HANDLING (MCP Focus)
 
-*   If verification fails and is not recoverable by you, you **MUST** detail the failure in the `summary_for_description` and update the MCP task as specified in Step 5, setting `completed=True`.
-*   If a critical tool fails or an unrecoverable error occurs during your operation, you **MUST** document the error in `summary_for_description`, update the MCP task marking it `completed=True` with a failure status, and allow `Overmind` to handle the escalation as per @`system.mdc` Mandate 6.
+*   If verification fails and is not recoverable by you, you **MUST** detail the failure in the `summary_for_current_task_description` and update the MCP task as specified in Step 5, setting `completed=True`.
+*   If a critical tool fails or an unrecoverable error occurs during your operation, you **MUST** document the error in `summary_for_current_task_description`, update the MCP task marking it `completed=True` with a failure status, and allow `Overmind` to handle the escalation as per @`system.mdc` Mandate 6.
 
 ## 8. REFERENCES
 *   @`loop.mdc`
