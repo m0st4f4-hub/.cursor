@@ -9,10 +9,12 @@ sys.path.append(SCRIPT_DIR) # Add tools dir itself if sync_rules is treated as a
 
 # Attempt to import the parser from sync_rules.py
 try:
-    from sync_rules import parse_md_metadata_and_content, SOURCE_DIR as RULE_SOURCE_DIR
+    # from sync_rules import parse_md_metadata_and_content, SOURCE_DIR as RULE_SOURCE_DIR # Old
+    from tools.rules_sync_lib.parser import parse_md_metadata_and_content
+    from tools.rules_sync_lib.config import SOURCE_DIR as RULE_SOURCE_DIR
 except ImportError as e:
-    print(f"Error importing from sync_rules.py: {e}")
-    print("Please ensure sync_rules.py is in the same directory or accessible in PYTHONPATH.")
+    print(f"Error importing from tools.rules_sync_lib: {e}")
+    print("Please ensure tools.rules_sync_lib is accessible in PYTHONPATH.")
     print(f"Current SCRIPT_DIR: {SCRIPT_DIR}")
     print(f"Current sys.path: {sys.path}")
     sys.exit(1)

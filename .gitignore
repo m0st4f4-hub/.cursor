@@ -1,6 +1,7 @@
 # Ignore everything
 *
 !.gitignore
+!.gitattributes
 !README.md
 !tools/
 !tools/*
