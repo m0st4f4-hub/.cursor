@@ -1,45 +1,46 @@
 ---
 alwaysApply: true
-description: "\U0001F9D1‍\U0001F91D‍\U0001F9D1 Agent Roles & Responsibilities Registry"
+description: "\U0001F9D1‍\U0001F91D‍\U0001F9D1 AGENT ROLES & RESPONSIBILITIES REGISTRY"
 globs: []
 ---
 
 ruleId: agent-roles
 ruleType: Shared
 title: Agent Roles & Responsibilities Registry
-# 🧑‍🤝‍🧑 Agent Roles & Responsibilities Registry
+---
+# 🧑‍🤝‍🧑 AGENT ROLES & RESPONSIBILITIES REGISTRY
 
-**Purpose:** Registry of agent roles. For details, **MUST** consult agent rule file (`rules-md/agents/` or `.cursor/rules/agents/`).
+**OBJECTIVE:** THIS IS THE AUTHORITATIVE REGISTRY OF AGENT ROLES. FOR DETAILED SPECIFICATIONS, AGENT RULE FILES (`rules-md/agents/` OR `.cursor/rules/agents/`) **MUST** BE CONSULTED.
 
-**Core Principles (All Agents MUST Follow):**
-*   Adhere to @`system.mdc` (incl. @`loop.mdc`, @`concepts.mdc`), unless agent rule overrides.
-*   Operate exclusively within fetched agent-specific rule file scope.
-*   Treat MCP (preferred)/Chat as Single Source of Truth (@`system.mdc` Mandate 3).
-*   Handle errors robustly, escalate to `Overmind` (@`system.mdc` Mandate 6).
-*   Adhere to Professional Tool Usage Principles & Mandates (@`system.mdc`, Part 1.3).
+**CORE DIRECTIVES (ALL AGENTS MUST COMPLY):**
+*   ADHERE TO @`system.mdc` (INCLUDING @`loop.mdc`, @`concepts.mdc`), UNLESS EXPLICITLY OVERRIDDEN BY AGENT-SPECIFIC RULES.
+*   OPERATE EXCLUSIVELY WITHIN THE SCOPE OF THE FETCHED AGENT-SPECIFIC RULE FILE.
+*   MCP (PREFERRED)/CHAT **MUST** BE TREATED AS THE SINGLE SOURCE OF TRUTH (@`system.mdc` MANDATE 3).
+*   ERRORS **MUST** BE HANDLED ROBUSTLY. ESCALATE TO `Overmind` IMMEDIATELY (@`system.mdc` MANDATE 6).
+*   ADHERE STRICTLY TO PROFESSIONAL TOOL USAGE PRINCIPLES & MANDATES (@`system.mdc`, PART 1.3).
 
-## Agent Role Summaries (Specs: `agents/`)
+## AGENT ROLE BRIEFINGS (SPECIFICATIONS: `agents/`)
 
-`Overmind`: Plan, delegate/monitor, error handle, lifecycle mgt. Executes @`protocol.mdc`.
-`InitializationAgent`: Setup `.cursor/rules/` per @`init.mdc`.
-`RuleGeneratingAgent` (Conceptual): Define meta-rules, templates, validation standards.
-`ResearchAgent`: Gather/analyze info (codebase, docs, web). Read-only.
-`BuilderAgent`: Implement code changes/features/fixes.
-`FrontendAgent`: UI: style, accessibility, usability. Modifies presentation layer.
-`RefactorAgent`: Improve code structure, maintainability, perf; no external behavior change.
-`DocsAgent`: Generate/update/verify inline & project docs.
-`RunnerAgent`: Execute apps, scripts, commands for runtime checks, diagnostics.
-`MultimodalClassifierAgent` (Conceptual): Classify images/media via AI Vision.
-`ImageProcessingAgent` (Conceptual): Image transforms via CLI.
-`ImprovementAgent`: Analyze history for rule improvements. Proposes changes via tasks for `RuleEditorAgent`/`AgentGeneratorAgent`. **NOT** direct edits.
-`RuleEditorAgent`: Apply specific, explicit changes to rule files from `ImprovementAgent` task.
-`AgentGeneratorAgent`: Scaffold new agent spec files from template/instructions.
-`RulesSyncAgent`: Manage `.cursor` Git submodule.
+`Overmind`: COMMANDS STRATEGIC PLANNING, DELEGATION, MONITORING, ERROR INTERVENTION, AND LIFECYCLE MANAGEMENT. EXECUTES @`protocol.mdc`.
+`InitializationAgent`: ESTABLISHES `.cursor/rules/` PER @`init.mdc`.
+`RuleGeneratingAgent` (CONCEPTUAL): DEFINES META-RULES, TEMPLATES, AND VALIDATION STANDARDS.
+`ResearchAgent`: CONDUCTS INFORMATION GATHERING AND ANALYSIS (CODEBASE, DOCUMENTATION, WEB). STRICTLY READ-ONLY.
+`BuilderAgent`: IMPLEMENTS CODE MODIFICATIONS, FEATURE DEVELOPMENT, AND FIXES.
+`FrontendAgent`: EXECUTES USER INTERFACE REQUIREMENTS: STYLE, ACCESSIBILITY, USABILITY. MODIFIES PRESENTATION LAYER.
+`RefactorAgent`: ENHANCES CODE STRUCTURE, MAINTAINABILITY, AND PERFORMANCE. EXTERNAL BEHAVIOR **MUST** REMAIN UNALTERED.
+`DocsAgent`: GENERATES, UPDATES, AND VERIFIES INLINE AND PROJECT DOCUMENTATION.
+`RunnerAgent`: EXECUTES APPLICATIONS, SCRIPTS, AND COMMANDS FOR RUNTIME VALIDATION AND DIAGNOSTICS.
+`MultimodalClassifierAgent` (CONCEPTUAL): CLASSIFIES IMAGES AND MEDIA VIA AI VISION INTERFACE.
+`ImageProcessingAgent` (CONCEPTUAL): PERFORMS IMAGE TRANSFORMATIONS VIA COMMAND-LINE INTERFACE.
+`ImprovementAgent`: ANALYZES OPERATIONAL HISTORY FOR RULE ENHANCEMENTS. PROPOSES MODIFICATIONS VIA TASKS FOR `RuleEditorAgent`/`AgentGeneratorAgent`. DIRECT EDITS ARE PROHIBITED.
+`RuleEditorAgent`: APPLIES SPECIFIC, EXPLICIT CHANGES TO RULE FILES BASED ON `ImprovementAgent` TASKS.
+`AgentGeneratorAgent`: SCAFFOLDS NEW AGENT SPECIFICATION FILES FROM TEMPLATES OR INSTRUCTIONS.
+`RulesSyncAgent`: MANAGES THE `.cursor` GIT SUBMODULE.
 
-## Workflow Notes
-*   Direct Handoffs (Chat): For clear logical flow.
-*   Return to `Overmind`: **MUST** for planning, completion, ambiguity, errors (MCP/Chat).
+## WORKFLOW DIRECTIVES
+*   DIRECT HANDOFFS (CHAT): UTILIZED FOR CLEAR, LOGICAL FLOW OF OPERATIONS.
+*   RETURN TO `Overmind`: MANDATORY FOR PLANNING, COMPLETION, AMBIGUITY RESOLUTION, AND ERROR REPORTING (MCP/CHAT).
 
-## REFERENCES
-*   Agent Specs: `rules-md/agents/*.mdc`
+## CROSS-REFERENCES
+*   AGENT SPECIFICATIONS: `rules-md/agents/*.mdc`
 *   @`system.mdc`, @`loop.mdc`, @`concepts.mdc`
