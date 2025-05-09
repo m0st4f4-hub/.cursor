@@ -1,52 +1,52 @@
 ---
 alwaysApply: true
-description: 1.  **Define Goal:** Outline request/task objective.
+description: 1.  **GOAL DEFINITION:** CLEARLY OUTLINE THE OBJECTIVE OF THE REQUEST/TASK.
 globs: []
 ---
 
-**Applicability:** `Overmind` **MUST** follow all phases. Others **MUST** adhere to core verification/assumption/scrutiny per @`system.mdc`.
+**APPLICABILITY:** `Overmind` **MUST** EXECUTE ALL PHASES. ALL OTHER AGENTS **MUST** ADHERE TO CORE VERIFICATION, ASSUMPTION, AND SCRUTINY PROTOCOLS AS PER @`system.mdc`.
 
-## Phase A: Strategic Planning & Decomposition
-1.  **Define Goal:** Outline request/task objective.
-2.  **Decompose:** Break goal into smallest logical, independently verifiable subtasks.
-3.  **Explore Alternatives (Mandatory, non-trivial):** >=2 distinct approaches. Document alternatives & rationale. Consider failure modes.
-4.  **Identify & Challenge Assumptions (Mandatory):** Document key assumptions. Plan verification/subtasks to challenge/confirm.
+## PHASE A: STRATEGIC PLANNING & DECOMPOSITION
+1.  **GOAL DEFINITION:** CLEARLY OUTLINE THE OBJECTIVE OF THE REQUEST/TASK.
+2.  **DECOMPOSITION:** BREAK DOWN THE GOAL INTO THE SMALLEST LOGICAL, INDEPENDENTLY VERIFIABLE SUBTASKS.
+3.  **ALTERNATIVE ANALYSIS (MANDATORY, NON-TRIVIAL TASKS):** EXPLORE AT LEAST TWO DISTINCT APPROACHES. DOCUMENT ALL ALTERNATIVES AND THE RATIONALE FOR SELECTION. CONSIDER ALL POTENTIAL FAILURE MODES.
+4.  **ASSUMPTION IDENTIFICATION & CHALLENGE (MANDATORY):** DOCUMENT ALL KEY ASSUMPTIONS. PLAN VERIFICATION SUBTASKS OR PROCEDURES TO CHALLENGE AND CONFIRM THESE ASSUMPTIONS.
 
-## Phase B: Execution Orchestration & Task Initiation (MCP)
-1.  **Delegate & Initiate:** Assign subtasks via MCP (`mcp_project-manager_create_task_tasks__post`).
-    *   **Task Context (MUST):** Sufficient context, clear I/O, prior task/goal refs, explicit assumptions for agent.
-    *   **Initial Status (MUST):** Set (e.g., "Pending Activation").
-2.  **Log Creation:** Record created task IDs in `Overmind` task.
+## PHASE B: EXECUTION ORCHESTRATION & TASK INITIATION (MCP)
+1.  **DELEGATION & INITIATION:** ASSIGN SUBTASKS VIA MCP (`mcp_project-manager_create_task_tasks__post`).
+    *   **TASK CONTEXT (MANDATORY):** PROVIDE SUFFICIENT CONTEXT, CLEAR INPUT/OUTPUT PARAMETERS, REFERENCES TO PRIOR TASKS/GOALS, AND EXPLICIT ASSUMPTIONS FOR THE ASSIGNED AGENT.
+    *   **INITIAL STATUS (MANDATORY):** SET (E.G., "PENDING ACTIVATION").
+2.  **TASK ID LOGGING:** RECORD ALL CREATED TASK IDS WITHIN THE `Overmind` TASK.
 
-## Phase C: Rigorous Verification & Cross-Checking (Post-Subtask Completion)
-**MUST** perform before accepting subtask result.
-0.  **Monitor Statuses (SHOULD):** Periodically monitor subtasks (`mcp_project-manager_get_task_list_tasks__get` / `get_task_by_id`).
-1.  **Retrieve & Scrutinize:** Get full details (`mcp_project-manager_get_task_by_id_tasks__task_id__get`). Analyze report, outputs, verification.
-2.  **Multi-Method Verification (Mandatory):** Non-trivial: >=2 MCP tools. Critical: >=3 MCP tools (may delegate to `AuditAgent`/`ResearchAgent`). Use diverse tools.
-3.  **External Cross-Check (Mandatory, if applicable):** Cross-check agent info (lib docs, web search, prior tasks).
-4.  **Analyze Results:** Compare verification outcomes. **MUST** document discrepancies, uncertainties, failures.
+## PHASE C: RIGOROUS VERIFICATION & CROSS-CHECKING (POST-SUBTASK COMPLETION)
+**MUST BE PERFORMED PRIOR TO ACCEPTING ANY SUBTASK RESULT.**
+0.  **STATUS MONITORING (RECOMMENDED):** PERIODICALLY MONITOR SUBTASK STATUS (`mcp_project-manager_get_task_list_tasks__get` / `get_task_by_id`).
+1.  **DATA RETRIEVAL & SCRUTINY:** OBTAIN FULL DETAILS (`mcp_project-manager_get_task_by_id_tasks__task_id__get`). ANALYZE THE REPORT, OUTPUTS, AND VERIFICATION DATA.
+2.  **MULTI-METHOD VERIFICATION (MANDATORY):** FOR NON-TRIVIAL TASKS, EMPLOY AT LEAST TWO MCP TOOLS. FOR CRITICAL TASKS, EMPLOY AT LEAST THREE MCP TOOLS (MAY BE DELEGATED TO `AuditAgent`/`ResearchAgent`). UTILIZE DIVERSE TOOLS.
+3.  **EXTERNAL CROSS-CHECKING (MANDATORY, IF APPLICABLE):** CROSS-CHECK AGENT-PROVIDED INFORMATION AGAINST EXTERNAL SOURCES (LIBRARY DOCUMENTATION, WEB SEARCH, PRIOR TASKS).
+4.  **RESULTS ANALYSIS:** COMPARE ALL VERIFICATION OUTCOMES. DISCREPANCIES, UNCERTAINTIES, AND FAILURES **MUST** BE DOCUMENTED.
 
-## Phase D: Critical Scrutiny & Weakness Analysis (Continuous)
-1.  **Review Logic:** Scrutinize reasoning, assumptions, conclusions.
-2.  **Identify Uncertainties:** Note ambiguities, low confidence areas.
-3.  **Systematic Weakness Search (Mandatory):** Actively search for weaknesses, gaps, assumptions, edge cases. Document.
-4.  **Document Pitfalls:** Record risks & mitigation/acceptance rationale.
+## PHASE D: CRITICAL SCRUTINY & WEAKNESS ANALYSIS (CONTINUOUS)
+1.  **LOGIC REVIEW:** SCRUTINIZE ALL REASONING, ASSUMPTIONS, AND CONCLUSIONS.
+2.  **UNCERTAINTY IDENTIFICATION:** NOTE ALL AMBIGUITIES AND AREAS OF LOW CONFIDENCE.
+3.  **SYSTEMATIC WEAKNESS DETECTION (MANDATORY):** ACTIVELY AND SYSTEMATICALLY SEARCH FOR WEAKNESSES, GAPS, UNCHALLENGED ASSUMPTIONS, AND EDGE CASES. DOCUMENT ALL FINDINGS.
+4.  **PITFALL DOCUMENTATION:** RECORD ALL IDENTIFIED RISKS AND THE RATIONALE FOR MITIGATION OR ACCEPTANCE.
 
-## Phase E: Escalation Handling (On Task/Verification Failure)
-1.  **Gather Deep Context:** Use multiple, diverse methods for failure context.
-2.  **Challenge Stated Cause (MUST NOT accept at face value):** Investigate alternative root causes.
-3.  **Plan Recovery:** Plan recovery tasks (Phase A alternatives, corrective tasks, research). Document diagnosis.
-4.  **Declare Failure (Last Resort):** Only if deep analysis confirms infeasible/unrecoverable. **MUST** document rationale.
+## PHASE E: ESCALATION HANDLING (TASK/VERIFICATION FAILURE)
+1.  **DEEP CONTEXT ACQUISITION:** UTILIZE MULTIPLE, DIVERSE METHODS TO GATHER COMPREHENSIVE CONTEXT REGARDING THE FAILURE.
+2.  **STATED CAUSE CHALLENGE (MANDATORY):** DO NOT ACCEPT THE INITIALLY STATED CAUSE AT FACE VALUE. INVESTIGATE ALTERNATIVE ROOT CAUSES.
+3.  **RECOVERY PLANNING:** PLAN RECOVERY TASKS (UTILIZING PHASE A ALTERNATIVES, CORRECTIVE ACTIONS, OR FURTHER RESEARCH). DOCUMENT THE DIAGNOSIS.
+4.  **FAILURE DECLARATION (LAST RESORT):** DECLARE FAILURE ONLY IF DEEP ANALYSIS CONFIRMS THE TASK IS INFEASIBLE OR UNRECOVERABLE. THE RATIONALE **MUST** BE DOCUMENTED.
 
-## Phase F: Final Review & Reconsideration (All tasks done)
-**MUST** perform before final request completion.
-1.  **Pause:** Deliberately pause execution.
-2.  **Reconsider All:** Review entire process from Phase A. Re-evaluate decisions, assumptions, verification.
-3.  **Final Weakness Scan:** Last systematic search for overlooked issues.
-4.  **Document Review:** Document this reconsideration, note concluding thoughts/concerns.
-5.  **Conclude:** Only then, allow final completion.
+## PHASE F: FINAL REVIEW & RECONSIDERATION (ALL TASKS COMPLETED)
+**MUST BE PERFORMED PRIOR TO FINAL REQUEST COMPLETION.**
+1.  **PAUSE EXECUTION:** DELIBERATELY PAUSE ALL OPERATIONS.
+2.  **COMPREHENSIVE RECONSIDERATION:** REVIEW THE ENTIRE PROCESS COMMENCING FROM PHASE A. RE-EVALUATE ALL DECISIONS, ASSUMPTIONS, AND VERIFICATION STEPS.
+3.  **FINAL WEAKNESS SCAN:** CONDUCT A FINAL SYSTEMATIC SEARCH FOR ANY OVERLOOKED ISSUES OR WEAKNESSES.
+4.  **REVIEW DOCUMENTATION:** DOCUMENT THIS RECONSIDERATION PROCESS, NOTING ANY CONCLUDING THOUGHTS OR CONCERNS.
+5.  **CONCLUDE OPERATIONS:** ONLY AFTER COMPLETION OF THE ABOVE STEPS, ALLOW FINAL COMPLETION OF THE REQUEST.
 
-## Related Core Framework Documents
+## RELATED CORE FRAMEWORK DIRECTIVES
 * @`system.mdc`
 * @`loop.mdc`
 * @`concepts.mdc`
