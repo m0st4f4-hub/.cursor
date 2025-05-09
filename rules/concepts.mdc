@@ -1,123 +1,121 @@
 ---
-
 alwaysApply: true
-description: Rule Definition Metadata (V1)
+description: "\U0001F4D6 CORE CONCEPTS & GLOSSARY"
 globs: []
 ---
 
-# Rule Definition Metadata (V1)
 ruleId: core-concepts
 ruleType: Framework
 title: Core Framework Concepts & Glossary
-# 📖 Core Concepts & Glossary
+# 📖 CORE CONCEPTS & GLOSSARY
 
-**Purpose:** Understand foundational concepts, terms, mechanisms. **MUST** refer for clarification.
+**DIRECTIVE:** MASTER ALL CONCEPTS, TERMINOLOGY, AND MECHANISMS. IMMEDIATE REFERRAL FOR CLARIFICATION IS MANDATORY.
 
-## 1. Core Entities & Identifiers
+## 1. CORE ENTITIES & IDENTIFIERS
 
 `requestId`
-:   **Definition:** Unique ID for task sequence/workflow; correlates actions/logs.
-:   **Format:** String.
-:   **Usage:** MCP calls, Code Edit Tags, logging, inter-agent context.
-:   **Origin:** `Overmind` / External Trigger.
-:   **Related:** @`system.mdc` (Mandate 10), @`loop.mdc` (Context Fetching).
+:   **DEFINITION:** UNIQUE IDENTIFIER FOR TASK SEQUENCE/WORKFLOW; CORRELATES ALL ACTIONS AND LOGS.
+:   **FORMAT:** STRING.
+:   **APPLICATION:** MCP CALLS, CODE EDIT TAGS, LOGGING, INTER-AGENT CONTEXT.
+:   **ISSUANCE:** `Overmind` / EXTERNAL TRIGGER.
+:   **CROSS-REFERENCE:** @`system.mdc` (MANDATE 10), @`loop.mdc` (CONTEXT FETCHING).
 
 Agent Role
-:   **Definition:** Specialized unit for specific tasks. Behavior/capabilities/rules in its `.mdc` file.
-:   **Reference:** @`roles.mdc`, `@agents/`.
-:   **Related:** @`system.mdc` (Mandate 1), @`loop.mdc` (Fetching Role Spec).
+:   **DEFINITION:** SPECIALIZED UNIT FOR DESIGNATED TASKS. BEHAVIOR, CAPABILITIES, AND DIRECTIVES ARE SPECIFIED IN ITS `.mdc` FILE.
+:   **CROSS-REFERENCE:** @`roles.mdc`, `@agents/`.
+:   **CROSS-REFERENCE:** @`system.mdc` (MANDATE 1), @`loop.mdc` (FETCHING ROLE SPECIFICATION).
 
 Framework
-:   **Definition:** External engine managing agent lifecycle per rules & coordination. **Not an agent.**
-:   **Responsibilities:** Agent Activation, Tool Provisioning, Rule Management, Lifecycle Control, Mandate adherence.
-:   **Reference:** @`loop.mdc`, @`system.mdc`.
+:   **DEFINITION:** EXTERNAL ENGINE EXECUTING AGENT LIFECYCLE ACCORDING TO ESTABLISHED RULES AND COORDINATION PROTOCOLS. **NOT AN AGENT.**
+:   **DUTIES:** AGENT ACTIVATION, TOOL PROVISIONING, RULE MANAGEMENT, LIFECYCLE CONTROL, MANDATE ENFORCEMENT.
+:   **CROSS-REFERENCE:** @`loop.mdc`, @`system.mdc`.
 
 Rules
-:   **Definition:** `.mdc`/`.mdcc` files defining behavior, standards, workflows, constraints. Processed by Framework, interpreted by Agents.
-:   **Location:** `.cursor/rules/` (Runtime), `rules-md/` (Source).
-:   **Reference:** @`system.mdc` (Hierarchy, Mandates), @`init.mdc`.
+:   **DEFINITION:** `.mdc`/`.mdcc` FILES STIPULATING BEHAVIOR, STANDARDS, WORKFLOWS, AND CONSTRAINTS. PROCESSED BY FRAMEWORK, EXECUTED BY AGENTS.
+:   **DESIGNATION:** `.cursor/rules/` (RUNTIME), `rules-md/` (SOURCE).
+:   **CROSS-REFERENCE:** @`system.mdc` (HIERARCHY, MANDATES), @`init.mdc`.
 
-## 2. Operational Concepts
+## 2. OPERATIONAL DIRECTIVES
 
 Autonomous Execution
-:   **Definition:** Agents operate independently once activated, driven by rules & task context.
-:   **Mandate:** **MUST** ignore user input (except approved diagnostics).
-:   **Reference:** @`system.mdc` (Mandate 7), @`loop.mdc` (Activation).
+:   **DEFINITION:** AGENTS EXECUTE INDEPENDENTLY UPON ACTIVATION, GOVERNED BY RULES AND TASK CONTEXT.
+:   **MANDATE:** USER INPUT **MUST** BE IGNORED (APPROVED DIAGNOSTICS EXCEPTED).
+:   **CROSS-REFERENCE:** @`system.mdc` (MANDATE 7), @`loop.mdc` (ACTIVATION).
 
 Coordination Mechanisms
-:   **Definition:** Methods for task assignment, management, state tracking.
-:   **MCP Task Manager (Preferred):** Primary. `Overmind` typically polls. Context/status/results in MCP tasks.
-:   **Chat-Driven (Legacy/Fallback):** Control via direct Chat Triggers. Context/results in payload.
+:   **DEFINITION:** PROTOCOLS FOR TASK ASSIGNMENT, MANAGEMENT, AND STATE TRACKING.
+:   **MCP TASK MANAGER (PRIMARY):** PREFERRED METHOD. `Overmind` POLLING IS STANDARD. CONTEXT, STATUS, AND RESULTS RESIDE IN MCP TASKS.
+:   **CHAT-DRIVEN (LEGACY/FALLBACK):** CONTROL VIA DIRECT CHAT TRIGGERS. CONTEXT AND RESULTS RESIDE IN PAYLOAD.
 
 Sequential Activation
-:   **Mandate:** One agent active per `requestId` at a time. Parallel forbidden.
-:   **Reference:** @`system.mdc`.
+:   **MANDATE:** ONLY ONE AGENT ACTIVE PER `requestId`. PARALLEL OPERATIONS ARE PROHIBITED.
+:   **CROSS-REFERENCE:** @`system.mdc`.
 
 Self-Improvement Loop
-:   **Definition:** `ImprovementAgent`/`RuleWriterAgent` refine ruleset from experience.
-:   **Mandate:** Process **MUST** be via MCP tasks/Chat Triggers per @`system.mdc`.
-:   **Reference:** @`system.mdc`, @`roles.mdc`.
+:   **DEFINITION:** `ImprovementAgent`/`RuleWriterAgent` SHALL REFINE THE RULESET BASED ON OPERATIONAL EXPERIENCE.
+:   **MANDATE:** THIS PROCESS **MUST** BE CONDUCTED VIA MCP TASKS/CHAT TRIGGERS AS PER @`system.mdc`.
+:   **CROSS-REFERENCE:** @`system.mdc`, @`roles.mdc`.
 
 Rules Hierarchy
-:   **Definition:** Precedence for rule conflicts.
-:   **Mandate:** **MUST** follow: 1. Project (`.cursor/rules/project/`) overrides Global. 2. Global (`.cursor/rules/global/`) apply generally. 3. Agent-specific overrides Global for that agent.
-:   **Reference:** @`system.mdc`, @`init.mdc`.
+:   **DEFINITION:** ESTABLISHED PRECEDENCE FOR RESOLVING RULE CONFLICTS.
+:   **MANDATE:** ADHERENCE IS MANDATORY: 1. PROJECT (`.cursor/rules/project/`) DIRECTIVES OVERRIDE GLOBAL DIRECTIVES. 2. GLOBAL (`.cursor/rules/global/`) DIRECTIVES APPLY UNLESS OVERRIDDEN. 3. AGENT-SPECIFIC DIRECTIVES OVERRIDE GLOBAL DIRECTIVES FOR THAT AGENT.
+:   **CROSS-REFERENCE:** @`system.mdc`, @`init.mdc`.
 
-## 3. Mandatory Mechanisms
+## 3. MANDATORY MECHANISMS
 
 Global Mandates
-:   **Definition:** Non-negotiable principles/constraints all agents **MUST** always adhere to.
-:   **Reference:** @`system.mdc` (Part 2). Supreme unless narrowly overridden.
+:   **DEFINITION:** NON-NEGOTIABLE DIRECTIVES AND CONSTRAINTS. ALL AGENTS **MUST** ADHERE WITHOUT EXCEPTION.
+:   **CROSS-REFERENCE:** @`system.mdc` (PART 2). SUPREME AUTHORITY UNLESS SPECIFICALLY OVERRIDDEN BY AUTHORIZED DIRECTIVE.
 
 Code Edit Tag
-:   **Definition:** Standardized comment block **MUST** be at start of edited code file. Provides metadata.
-:   **Mandate:** Use language-appropriate comment style.
-:   **Format:**
+:   **DEFINITION:** STANDARDIZED COMMENT BLOCK. **MUST** BE PLACED AT THE COMMENCEMENT OF ANY EDITED CODE FILE. PROVIDES CRITICAL METADATA.
+:   **MANDATE:** EMPLOY LANGUAGE-APPROPRIATE COMMENT STYLE.
+:   **FORMAT:**
     ```
-    COMMENT_START Task ID: <taskId> // Optional, recommended for MCP
+    COMMENT_START Task ID: <taskId> // OPTIONAL, RECOMMENDED FOR MCP
     COMMENT_START Agent Role: <agent_role>
     COMMENT_START Request ID: <requestId>
-    COMMENT_START Project: <projectName> // Optional
+    COMMENT_START Project: <projectName> // OPTIONAL
     COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
-    COMMENT_END // Optional
+    COMMENT_END // OPTIONAL
     ```
-:   **Related:** @`loop.mdc`.
+:   **CROSS-REFERENCE:** @`loop.mdc`.
 
-## 4. Core Agent Behavior Summary (Ref: @`loop.mdc`)
+## 4. CORE AGENT OPERATIONAL SEQUENCE (CROSS-REFERENCE: @`loop.mdc`)
 
-Active agents follow sequence (details @`loop.mdc`):
-1.  **Activate:** Framework activates (trigger/MCP state).
-2.  **Get Context:** Receive `taskId` (MCP) / payload (Chat).
-3.  **Fetch Rules:** Fetch own role spec.
-4.  **Plan Turn:** Internally determine steps (rules/context).
-5.  **Execute & Verify:** Perform role actions, verify results.
-6.  **Update/Handoff/Finalize:** Report status (MCP/Chat), incl. verification/assumptions, terminate turn.
-:   **Reference:** @`system.mdc` (Mandates 4, 10).
+ACTIVE AGENTS SHALL EXECUTE THE FOLLOWING SEQUENCE (Refer to @`loop.mdc` for detailed specifications):
+1.  **ACTIVATION:** FRAMEWORK INITIATES ACTIVATION (TRIGGER/MCP STATE).
+2.  **CONTEXT ACQUISITION:** RECEIVE `taskId` (MCP) / PAYLOAD (CHAT).
+3.  **RULE FETCHING:** RETRIEVE OWN ROLE SPECIFICATION.
+4.  **TURN PLANNING:** INTERNAL DETERMINATION OF ACTIONS (BASED ON RULES/CONTEXT).
+5.  **EXECUTION & VERIFICATION:** PERFORM ROLE-ASSIGNED ACTIONS; VERIFY ALL RESULTS.
+6.  **STATE UPDATE/HANDOFF/FINALIZATION:** REPORT STATUS (MCP/CHAT), INCLUDING VERIFICATION AND ASSUMPTIONS. TERMINATE TURN.
+:   **CROSS-REFERENCE:** @`system.mdc` (MANDATES 4, 10).
 
-## 5. Key Rule Directories (Runtime: `.cursor/rules/`)
+## 5. KEY RULE DIRECTORIES (RUNTIME DESIGNATION: `.cursor/rules/`)
 
 `global/`
-:   **Definition:** Base ruleset (e.g., @`system.mdc`, @`loop.mdc`). Apply generally unless overridden.
-:   **Reference:** @`init.mdc`.
+:   **DEFINITION:** BASE RULESET (E.G., @`system.mdc`, @`loop.mdc`). APPLIES UNIVERSALLY UNLESS OVERRIDDEN.
+:   **CROSS-REFERENCE:** @`init.mdc`.
 
 `project/`
-:   **Definition:** Rules for current project/workspace.
-:   **Mandate:** **MUST** override conflicting `global/` rules.
-:   **Reference:** @`init.mdc`, @`system.mdc`.
+:   **DEFINITION:** DIRECTIVES FOR CURRENT PROJECT/WORKSPACE.
+:   **MANDATE:** **MUST** OVERRIDE CONFLICTING `global/` DIRECTIVES.
+:   **CROSS-REFERENCE:** @`init.mdc`, @`system.mdc`.
 
-## 6. Core Integration Rules
+## 6. CORE INTEGRATION DIRECTIVES
 
-**MUST** follow for specific core operations:
+ADHERENCE IS MANDATORY FOR SPECIFIC CORE OPERATIONS:
 
 Fetching Rules
-:   **Mandate:** **MUST** get full rule content for more detail than summaries.
-:   **Tooling:** `fetch_rules`.
-:   **Related:** @`loop.mdc`.
+:   **MANDATE:** FULL RULE CONTENT **MUST** BE RETRIEVED. SUMMARIES ARE INSUFFICIENT.
+:   **TOOLING:** `fetch_rules`.
+:   **CROSS-REFERENCE:** @`loop.mdc`.
 
 MCP Task Management
-:   **Mandate:** If MCP (preferred), **MUST** use MCP ops per @`loop.mdc` & @`system.mdc` (fetch context, update desc w/ findings/verify, mark done only post-verify).
-:   **Reference:** @`system.mdc` (Mandate 4), @`loop.mdc`.
+:   **MANDATE:** IF MCP (PREFERRED), MCP OPERATIONS **MUST** BE USED PER @`loop.mdc` & @`system.mdc` (FETCH CONTEXT, UPDATE DESCRIPTION WITH FINDINGS/VERIFICATION, MARK COMPLETE *ONLY* AFTER VERIFICATION).
+:   **CROSS-REFERENCE:** @`system.mdc` (MANDATE 4), @`loop.mdc`.
 
 External Library Documentation
-:   **Mandate:** For external docs, **MUST** first resolve ID (`mcp_context7_resolve-library-id`), then get docs (`mcp_context7_get-library-docs`) *before* using info.
-:   **Reference:** @`system.mdc` (Mandate 5).
+:   **MANDATE:** FOR EXTERNAL DOCUMENTATION, ID RESOLUTION (`mcp_context7_resolve-library-id`) **MUST** PRECEDE DOCUMENT RETRIEVAL (`mcp_context7_get-library-docs`). INFORMATION USE IS PROHIBITED PRIOR TO THIS SEQUENCE.
+:   **CROSS-REFERENCE:** @`system.mdc` (MANDATE 5).

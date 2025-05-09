@@ -1,11 +1,8 @@
 ---
-
 alwaysApply: true
-description: "\U0001F9D0 Ultra-Deep Thinking Protocol"
+description: 1.  **Define Goal:** Outline request/task objective.
 globs: []
 ---
-
-# 🧐 Ultra-Deep Thinking Protocol
 
 **Applicability:** `Overmind` **MUST** follow all phases. Others **MUST** adhere to core verification/assumption/scrutiny per @`system.mdc`.
 

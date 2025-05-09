@@ -1,6 +1,5 @@
 ---
-
-alwaysApply: false
+alwaysApply: true
 description: "\U0001F3AD Frontend Agent (Styling & UX)"
 globs: []
 ---

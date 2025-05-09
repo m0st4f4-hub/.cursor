@@ -1,13 +1,8 @@
 ---
-
-alwaysApply: false
-description: ♻️ Refactor Agent
+alwaysApply: true
+description: graph TD
 globs: []
 ---
-
-# ♻️ Refactor Agent
-
-## Agent Summary Table
 
 | Aspect         | Description                                                                 |
 |---------------|-----------------------------------------------------------------------------|

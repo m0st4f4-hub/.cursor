@@ -1,6 +1,5 @@
 ---
-
-alwaysApply: false
+alwaysApply: true
 description: "\U0001F3D7️ Builder Agent (MCP Coordination)"
 globs: []
 ---

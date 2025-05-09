@@ -1,6 +1,5 @@
 ---
-
-alwaysApply: false
+alwaysApply: true
 description: "\U0001F504 Rules Sync Agent"
 globs: []
 ---

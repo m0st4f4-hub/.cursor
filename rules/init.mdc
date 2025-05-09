@@ -1,58 +1,55 @@
 ---
-
 alwaysApply: true
-description: ✨ Initialization Procedure (Mandatory)
+description: '1.  **RULE FETCH:** EXECUTE `fetch_rules(rule_names: [''agents/initialization-agent''])`.'
 globs: []
 ---
 
-# ✨ Initialization Procedure (Mandatory)
+**OBJECTIVE:** `InitializationAgent` **MUST** EXECUTE THIS PROCEDURE TO ENSURE THE `.cursor/` RULESET DIRECTORY EXISTS AND IS CORRECTLY CONFIGURED.
+**EXECUTOR:** `InitializationAgent` ONLY.
+**ACTIVATION:** TRIGGERED BY `Overmind`. `InitializationAgent` **MUST** FETCH OWN RULES (`initialization-agent.mdc`) PRIOR TO EXECUTION.
 
-**Purpose:** `InitializationAgent` **MUST** use to ensure `.cursor/` ruleset dir exists & is correctly configured.
-**Executor:** **MUST** be `InitializationAgent`.
-**Context:** Triggered by `Overmind`. **MUST** fetch own rules (`initialization-agent.mdc`) first.
+**GOVERNING PRINCIPLES (ADHERENCE IS MANDATORY):**
+*   **IDEMPOTENCY:** REPEATED EXECUTION **MUST** YIELD THE IDENTICAL VALID END STATE.
+*   **VERIFICATION:** ALL CRITICAL STEPS **MUST** BE VERIFIED FOR SUCCESS OR FAILURE (NOT MERELY EXIT CODES). OUTCOMES **MUST** BE DOCUMENTED.
+*   **ERROR PROTOCOL:** IF VERIFICATION FAILS, OPERATIONS **MUST HALT** IMMEDIATELY. REPORT TO `Overmind` IS MANDATORY.
+*   **AUTHORIZED ACTIONS:** EXECUTE ONLY SPECIFIED STANDARD OPERATIONS AND GIT COMMANDS. DEVIATION IS PROHIBITED.
+*   **REPORTING:** FINAL REPORT TO `Overmind` **MUST** CONTAIN: SUMMARY, WARNINGS, VERIFICATION DETAILS, AND STATUS.
 
-**Principles (MUST Follow):**
-*   **Idempotency:** Repeated execution yields same valid end state.
-*   **Verification:** Confirm critical step success/failure (not just exit codes). Document outcomes.
-*   **Error Handling:** If verification fails, **MUST HALT** immediately, report to `Overmind`.
-*   **Actions:** Use only specified standard ops & Git commands.
-*   **Reporting:** Final report to `Overmind` **MUST** include summary, warnings, verification, status.
+## WORKFLOW (MANDATORY EXECUTION SEQUENCE)
 
-## Workflow (Mandatory Steps)
+### PHASE 0: CONTEXT ACQUISITION
+1.  **RULE FETCH:** EXECUTE `fetch_rules(rule_names: ['agents/initialization-agent'])`.
+2.  **CONTEXT PARSING:** EXTRACT `requestId` AND OTHER NECESSARY DATA FROM TRIGGER/MCP TASK.
 
-### Phase 0: Get Context
-1.  **Fetch Rules:** `fetch_rules(rule_names: ['agents/initialization-agent'])`.
-2.  **Parse Context:** Extract `requestId` etc. from Trigger/MCP Task.
+### PHASE 1: PROJECT STATE ASSESSMENT
+1.  **GIT STATUS VALIDATION:** VERIFY GIT AVAILABILITY. DETERMINE IF OPERATING WITHIN A GIT REPOSITORY (`isGitRepo`).
+2.  **`.cursor` DIRECTORY VERIFICATION:** LIST `.` CONTENTS TO CONFIRM EXISTENCE OF `.cursor` (`cursorDirExists`).
+3.  **EMPTY DIRECTORY CHECK (NON-GIT):** IF `!isGitRepo`, LIST `.` CONTENTS TO IDENTIFY OTHER FILES/FOLDERS (`isNotEmpty`).
 
-### Phase 1: Determine Project State
-1.  **Git Status:** Verify Git available. Check if in Git repo (`isGitRepo`).
-2.  **`.cursor` Existence:** List `.` for `.cursor` (`cursorDirExists`).
-3.  **Empty Dir (if not Git):** If `!isGitRepo`, list `.` for other files/folders (`isNotEmpty`).
+### PHASE 2: SCENARIO-BASED WORKFLOW EXECUTION
 
-### Phase 2: Execute Scenario Workflow
+➡️ **SCENARIO A: GIT REPOSITORY (`isGitRepo`)**
+1.  **EXISTING `.cursor` PROTOCOL:** IF `cursorDirExists`: EXECUTE `git submodule status .cursor`. IF VALID SUBMODULE, PROCEED TO A.4. ELSE (NOT SUBMODULE/ERRORS): LOG WARNING, EXECUTE `rm -rf .cursor` (VERIFY). IF REMOVAL FAILS, HALT. PROCEED TO A.2.
+2.  **ROOT `.gitignore` MODIFICATION:** SET `rootGitignoreModified = false`. READ `.gitignore`. SEARCH FOR `.cursor/`. IF FOUND: MODIFY TO `# .cursor/`. LOG ACTION. SET `rootGitignoreModified = true`. VERIFY MODIFICATION. IF VERIFICATION FAILS, HALT.
+3.  **SUBMODULE ADDITION:** EXECUTE `git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`. VERIFY CREATION OF `.cursor` AND `.gitmodules`. READ `.gitmodules` TO CONFIRM `[submodule ".cursor"]`. IF FAILS (CONFLICT): EXECUTE `git submodule add --force ...` ONCE. IF FAILURE PERSISTS, HALT.
+4.  **SUBMODULE UPDATE:** EXECUTE `git submodule update --init --recursive`. VERIFY PRESENCE OF `.cursor/rules` (E.G., @`system.mdc` EXISTS). IF FAILS: RETRY ONCE. IF FAILURE PERSISTS, HALT. PROCEED TO PHASE 3.
 
-➡️ **Scenario A: Git Repository (`isGitRepo`)**
-1.  **Handle Existing `.cursor`:** IF `cursorDirExists`: `git submodule status .cursor`. IF valid submodule, GOTO A.4. ELSE (not submodule/errors): Log warning, `rm -rf .cursor` (verify). IF remove fails, HALT. GOTO A.2.
-2.  **Root `.gitignore`:** `rootGitignoreModified = false`. Read `.gitignore`. Search `.cursor/`. IF found: Edit to `# .cursor/`. Log. `rootGitignoreModified = true`. Verify edit. IF fails, HALT.
-3.  **Add Submodule:** `git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`. Verify `.cursor` & `.gitmodules` exist; read `.gitmodules` for `[submodule ".cursor"]`. IF fails (conflict): `git submodule add --force ...` ONCE. IF still fails, HALT.
-4.  **Update Submodule:** `git submodule update --init --recursive`. Verify `.cursor/rules` (e.g., @`system.mdc` exists). IF fails: Retry ONCE. IF still fails, HALT. GOTO Phase 3.
+➡️ **SCENARIO B: NON-GIT, EMPTY REPOSITORY (`!isGitRepo`, `!isNotEmpty`)**
+1.  **EXISTING `.cursor` PROTOCOL:** IF `cursorDirExists`: LOG WARNING, EXECUTE `rm -rf .cursor`. VERIFY. IF REMOVAL FAILS, HALT.
+2.  **DIRECT CLONE OPERATION:** EXECUTE `git clone https://github.com/m0st4f4-hub/.cursor .cursor`. VERIFY PRESENCE OF `.cursor/rules` (CRITICAL FILES EXIST). IF CLONE FAILS, HALT. PROCEED TO PHASE 3.
 
-➡️ **Scenario B: Non-Git, Empty (`!isGitRepo`, `!isNotEmpty`)**
-1.  **Handle Existing `.cursor`:** IF `cursorDirExists`: Log warning, `rm -rf .cursor`. Verify. IF fails, HALT.
-2.  **Direct Clone:** `git clone https://github.com/m0st4f4-hub/.cursor .cursor`. Verify `.cursor/rules` (critical files exist). IF fails, HALT. GOTO Phase 3.
+➡️ **SCENARIO C: NON-GIT, NON-EMPTY REPOSITORY (`!isGitRepo`, `isNotEmpty`)**
+*   **WARNING:** MANUAL INTERVENTION REQUIRED.
+1.  IF `cursorDirExists`: HALT. REPORT: "NON-GIT PROJECT CONTAINS UNEXPECTED `.cursor` DIRECTORY. MANUAL INTERVENTION MANDATORY."
+2.  ELSE (`!cursorDirExists`): HALT. REPORT: "AUTOMATED CLONE TO NON-EMPTY, NON-GIT DIRECTORY PROHIBITED. INITIALIZE GIT OR CLEAR DIRECTORY."
 
-➡️ **Scenario C: Non-Git, Not Empty (`!isGitRepo`, `isNotEmpty`)**
-*   **WARNING:** Manual intervention likely.
-1.  IF `cursorDirExists`: HALT. Report: "Non-Git project has unexpected `.cursor` dir. Manual intervention needed."
-2.  ELSE (`!cursorDirExists`): HALT. Report: "Cannot auto clone to non-empty, non-Git dir. Init Git or clean."
+### PHASE 3: FINAL VERIFICATION & REPORTING
+1.  **FINAL SYSTEM CHECK:** LIST `.cursor/rules` CONTENTS. READ KEY RULE FILE (E.G., `.cursor/rules/system.mdc`) TO CONFIRM POPULATION.
+2.  **OUTCOME REPORTING:** REPORT SUCCESS/FAILURE (INCLUDING PHASE/STEP OF FAILURE, REASON, AND VERIFICATION DETAILS) TO `Overmind`.
 
-### Phase 3: Final Verification & Reporting
-1.  **Final Check:** List `.cursor/rules`. Read key rule file (e.g., `.cursor/rules/system.mdc`) to confirm population.
-2.  **Report Outcome:** Report success/failure (phase/step/reason, verification details) to `Overmind`.
+**ERROR PROTOCOL:** ANY VERIFICATION FAILURE DESIGNATED "HALT" **MUST** TRIGGER IMMEDIATE CESSATION OF OPERATIONS AND SUBMISSION OF A REPORT.
 
-**Error Handling:** Verification failure marked HALT triggers immediate stop & report.
-
-## REFERENCES
+## CROSS-REFERENCES
 *   `initialization-agent.mdc`
 *   @`system.mdc`
 *   @`entrypoint.mdc`

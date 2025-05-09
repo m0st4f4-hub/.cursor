@@ -1,7 +1,7 @@
 ---
-
-alwaysApply: false
-description: "\U0001F52C Research Agent"
+alwaysApply: true
+description: "\U0001F50D Research Agent: Gathers and analyzes information from codebase,
+  documentation, and the web."
 globs: []
 ---
 

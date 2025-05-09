@@ -1,6 +1,5 @@
 ---
-
-alwaysApply: false
+alwaysApply: true
 description: �� Runner Agent
 globs: []
 ---

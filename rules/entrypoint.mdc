@@ -1,36 +1,33 @@
 ---
-
 alwaysApply: true
-description: "\U0001F9ED Framework Entrypoint & Core Rule Index"
+description: Description to be filled
 globs: []
 ---
 
-# 🧭 Framework Entrypoint & Core Rule Index
+**DIRECTIVE:** THIS DOCUMENT IS THE CENTRAL INDEX FOR ALL ESSENTIAL RULE DOCUMENTS.
 
-**Purpose:** Central index for essential rule documents.
+## 1. CORE FRAMEWORK DIRECTIVES
 
-## 1. CORE FRAMEWORK RULES
+*   **SYSTEM OVERVIEW & GLOBAL MANDATES:** @`system.mdc` (OBJECTIVES, OPERATIONAL MODEL, MANDATES)
+*   **FRAMEWORK ENGINE & AGENT TURN PROTOCOL:** @`loop.mdc` (ENGINE, MANDATORY PROCEDURES)
+*   **CORE CONCEPTS & TERMINOLOGY:** @`concepts.mdc` (GLOSSARY)
+*   **ULTRA-DEEP THINKING PROTOCOL:** @`protocol.mdc` (Overmind: STRATEGIC PLANNING, VERIFICATION, ANALYSIS)
+*   **INITIALIZATION PROCEDURE:** @`init.mdc` (InitializationAgent: `.cursor/rules/` ESTABLISHMENT)
+*   **FRAMEWORK ENTRYPOINT & CORE RULE INDEX:** @`entrypoint.mdc` (THIS INDEX)
 
-*   **System Overview & Global Rules:** @`system.mdc` (Goals, model, mandates)
-*   **Framework Engine & Agent Turn Process:** @`loop.mdc` (Engine, mandatory steps)
-*   **Core Concepts & Terms:** @`concepts.mdc` (Glossary)
-*   **Ultra-Deep Thinking Protocol:** @`protocol.mdc` (Overmind: Planning, verify, analysis)
-*   **Initialization Procedure:** @`init.mdc` (InitializationAgent: `.cursor/rules/` setup)
-*   **Framework Entrypoint & Core Rule Index:** @`entrypoint.mdc` (This Index)
+## 2. AGENT & TOOL DIRECTIVES
 
-## 2. AGENT & TOOL RULES
+*   **AGENT ROLE DEFINITIONS:**
+    *   **REGISTRY:** @`roles.mdc` (MASTER LIST, SUMMARIES)
+    *   **SPECIFICATIONS:** `@agents/` DIRECTORY (PRIMARY AGENT DIRECTIVES)
 
-*   **Agent Role Definitions:**
-    *   **Registry:** @`roles.mdc` (List, summaries)
-    *   **Specifications:** `@agents/` dir (Primary agent rules)
+## 3. OPERATIONAL MANDATES
 
-## 3. USAGE NOTES
+*   AGENTS **MUST** FETCH THEIR OWN ROLE SPECIFICATION AT THE COMMENCEMENT OF EACH TURN.
+*   AGENTS **MUST** ADHERE TO THE OPERATIONAL MODEL DEFINED IN @`concepts.mdc` (INCLUDING @`system.mdc` MANDATES AND @`loop.mdc` LOOP), UNLESS EXPLICITLY OVERRIDDEN BY THEIR ROLE FILE.
+*   THIS DOCUMENT **MUST** BE USED AS THE PRIMARY INDEX FOR ALL CORE RULE DOCUMENTS.
 
-*   Agent **MUST** fetch own role spec at turn start.
-*   Agents **MUST** adhere to operational model in @`concepts.mdc` (@`system.mdc` mandates, @`loop.mdc` loop), unless role file overrides.
-*   Use this doc as primary index for core rule docs.
-
-## 4. RELATED CORE FRAMEWORK DOCUMENTS
+## 4. RELATED CORE FRAMEWORK DIRECTIVES
 
 *   @`system.mdc`
 *   @`loop.mdc`

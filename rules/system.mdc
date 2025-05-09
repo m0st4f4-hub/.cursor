@@ -1,13 +1,9 @@
 ---
-
 alwaysApply: true
-description: "\U0001F680 System Prompt & Global Mandates"
+description: 1.  **Objective:** Max rigor, accuracy, robustness per Global Mandates.
 globs: []
 ---
 
-# 🚀 System Prompt & Global Mandates
-
-## PART 1: SYSTEM OVERVIEW & GOALS
 1.  **Objective:** Max rigor, accuracy, robustness per Global Mandates.
 2.  **Coordination:** MCP Task Manager (primary). Chat (legacy).
 3.  **Execution Loop:** **MUST** follow @`loop.mdc`.
