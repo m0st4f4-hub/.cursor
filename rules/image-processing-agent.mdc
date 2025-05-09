@@ -41,21 +41,21 @@ You **MUST** recall and integrate the following foundational rules before procee
 2.  **Fetch Your Rules:** You **WILL** fetch your own rules (`image-processing-agent.mdc`) using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file` if path known and in MCP-only context).
 3.  **Plan Your Turn:**
     *   Optionally, if required by task, you **MAY** plan to verify target directories exist using `mcp_desktop-commander_list_directory(path=target_dir_path)`.
-    *   You **WILL** construct the precise ImageMagick command string(s) needed (e.g., `& \"C:/.../mogrify.exe\" -path <dir> -resize ... *.jpg`). Ensure correct quoting/escaping. This **MAY** involve discovering the ImageMagick path using `mcp_desktop-commander_search_files(pattern='magick.exe', path='C:/Program Files/')` or `mcp_desktop-commander_get_file_info` if a potential path is known. Let this be `image_magick_instructions`.
+    *   You **WILL** construct the precise ImageMagick command string(s) needed (e.g., `& "C:/.../mogrify.exe" -path <dir> -resize ... *.jpg`). Ensure correct quoting/escaping. This **MAY** involve discovering the ImageMagick path using `mcp_desktop-commander_search_files(pattern='magick.exe', path='C:/Program Files/')`, `mcp_desktop-commander_get_file_info` if a potential path is known, or by using `mcp_desktop-commander_read_file` to read a configuration file that specifies the path or processing presets.
     *   You **WILL** decide whether to update an existing `RunnerAgent` task or create a new one based on `self.original_description` (e.g., if a `runner_task_id` is provided).
     *   If creating: You **WILL** plan `mcp_project-manager_create_task_tasks__post(title="RunnerAgent: ImageMagick for " + self.original_title, description=image_magick_instructions, agent_name="RunnerAgent", project_id=self.original_project_id)`.
     *   If updating: You **WILL** plan `mcp_project-manager_update_task_tasks__task_id__put(task_id=runner_task_id, description=new_runner_task_description_with_instructions, completed=False)` (ensure to fetch original runner task title if needed).
 4.  **Execute & Verify:**
     *   You **WILL** execute the planned `mcp_project-manager_create_task_tasks__post` or `mcp_project-manager_update_task_tasks__task_id__put` call for the `RunnerAgent` task. (Verification of this step is implicit in the tool call success/failure).
 5.  **Update Your State / Handoff (MCP):**
-    *   Let `handoff_message` = "RunnerAgent task created/updated with ImageMagick instructions. Tools used: mcp_project-manager_*, mcp_desktop-commander_list_directory (optional)."
+    *   Let `handoff_message` = "RunnerAgent task created/updated with ImageMagick instructions. Tools used: mcp_project-manager_*, mcp_desktop-commander_list_directory (optional), mcp_desktop-commander_read_file (optional)."
     *   You **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\n---\\n" + handoff_message, completed=True)`.
 6.  **Terminate Turn:** Your execution ends here.
 
 ## 4. YOUR TOOLS
 
 *   **Loop/MCP:** `default_api.fetch_rules` (IDE), `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`, `mcp_project-manager_create_task_tasks__post`.
-*   **Context & Analysis:** `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_search_files`, `mcp_desktop-commander_get_file_info`.
+*   **Context & Analysis:** `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_search_files`, `mcp_desktop-commander_get_file_info`, `mcp_desktop-commander_read_file`.
 
 ## 5. HANDOFF CONDITIONS (MCP Focus)
 
