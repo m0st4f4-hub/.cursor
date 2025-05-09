@@ -34,13 +34,14 @@ You **MUST** recall and integrate the following foundational rules before procee
 2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. You **WILL** also fetch your rules (`frontend-agent.mdc`) using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file` if path known and in MCP-only context).
 3.  **Plan Turn:** Based on `self.original_description`:
     *   Analyze frontend requirements (style, accessibility, UX).
-    *   Plan information gathering: `default_api.read_file` or `mcp_desktop-commander_read_file` for target files, `default_api.codebase_search` or `mcp_desktop-commander_search_code` for context. If external design specs/standards are needed from a URL, plan `mcp_web-fetch_fetch`.
+    *   Plan information gathering: `default_api.read_file` or `mcp_desktop-commander_read_file` for target files, `default_api.codebase_search` or `mcp_desktop-commander_search_code` for context. If external design specs/standards are needed from a URL, plan `mcp_web-fetch_fetch`. If working with specific frontend frameworks/libraries where official documentation is key, you **SHOULD** plan to use `mcp_context7_resolve-library-id(libraryName=...)` followed by `mcp_context7_get-library-docs(context7CompatibleLibraryID=...)`.
     *   Plan specific file edits using `default_api.edit_file` or `mcp_desktop-commander_edit_block`.
     *   Plan verification steps: e.g., run linters using `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command`, use browser tools like `mcp_browser-tools_runAccessibilityAudit`, `mcp_playwright_browser_snapshot`, `mcp_playwright_browser_take_screenshot`.
 4.  **Execute & Verify:**
+    *   Execute planned analysis steps, including any `mcp_context7_get-library-docs` or `mcp_web-fetch_fetch` calls.
     *   Execute planned file edits using `default_api.edit_file` or `mcp_desktop-commander_edit_block`, including the `taskId` in a Code Edit Tag as per @`concepts.mdc`.
     *   Execute planned verification steps. Record outcomes (PASS/FAIL/Not Applicable).
-5.  **Update Task State:** Let `summary_report` be a text detailing changes made, tools used, and results of verification checks.
+5.  **Update Task State:** Let `summary_report` be a text detailing changes made, tools used (including any library docs consulted), and results of verification checks.
     *   If task is completed and verified: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report, completed=True)`.
     *   If further work by this agent is not possible or verification failed, set `completed=True` but ensure `summary_report` details the issue.
     *   For interim updates if task is progressing: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report, completed=False)`.
@@ -49,7 +50,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 4. YOUR TOOLS
 
 *   **Loop/MCP:** `default_api.fetch_rules` (IDE), `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
-*   **Context & Analysis:** `default_api.read_file` (IDE), `mcp_desktop-commander_read_file` (MCP), `default_api.codebase_search` (IDE), `mcp_desktop-commander_search_code` (MCP), `default_api.grep_search` (IDE), `mcp_web-fetch_fetch` (MCP), `mcp_desktop-commander_list_directory` (MCP).
+*   **Context & Analysis:** `default_api.read_file` (IDE), `mcp_desktop-commander_read_file` (MCP), `default_api.codebase_search` (IDE), `mcp_desktop-commander_search_code` (MCP), `default_api.grep_search` (IDE), `mcp_web-fetch_fetch` (MCP), `mcp_desktop-commander_list_directory` (MCP), `mcp_context7_resolve-library-id` (MCP), `mcp_context7_get-library-docs` (MCP).
 *   **Modification:** `default_api.edit_file` (IDE), `mcp_desktop-commander_edit_block` (MCP).
 *   **Verification (IDE & MCP Shell):** `default_api.run_terminal_cmd` (IDE), `mcp_desktop-commander_execute_command` (MCP, for linters), `mcp_desktop-commander_read_output` (MCP).
 *   **Verification (Browser Tools - MCP):** `mcp_browser-tools_runAccessibilityAudit`, `mcp_browser-tools_takeScreenshot`, `mcp_browser-tools_getSelectedElement`, `mcp_browser-tools_getConsoleErrors`, `mcp_browser-tools_runBestPracticesAudit`, `mcp_playwright_browser_snapshot`, `mcp_playwright_browser_take_screenshot`, `mcp_playwright_browser_navigate`, `mcp_playwright_browser_click`, `mcp_playwright_browser_type`.
