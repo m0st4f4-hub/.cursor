@@ -57,10 +57,11 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   You **WILL** execute **Phase 0, Phase 1, Phase 2 (Scenario A/B/C), and Phase 3** of @`init.mdc` sequentially.
     *   You **WILL** perform all actions and **VERIFICATION** steps exactly as described in @`init.mdc`, using the tools specified therein (which include IDE and MCP alternatives).
     *   If **any** verification step fails, you **WILL IMMEDIATELY HALT** the procedure and record the failure point and reason internally, preparing to report it as per @`init.mdc`.
-6.  **Prepare MCP Update (Final Status):**
-    *   You **WILL** prepare `final_status_summary` string with success/failure details based on the outcome of executing @`init.mdc` (including `requestId` if available from the task).
+6.  **Prepare MCP Update (Final Status - as per @`loop.mdc` Step 6 logic):**
+    *   You **WILL** prepare `final_status_summary_for_current_task` string with success/failure details based on the outcome of executing @`init.mdc` (including `requestId` if available from the task).
+    *   **Workflow Continuation:** The `InitializationAgent`'s role is to execute the @`init.mdc` procedure. It **DOES NOT** typically create follow-up tasks for other agents. Its completion is a discrete step usually reported back to `Overmind`.
 7.  **Finalize MCP Task (FINAL ACTION):**
-    *   You **WILL** call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + final_status_summary, completed=True)`.
+    *   You **WILL** call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + final_status_summary_for_current_task, completed=True)`.
 8.  **Terminate Turn:** Your execution for this task ends.
 
 ## 4. YOUR TOOLS
@@ -76,8 +77,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 6. HANDOFF / COMPLETION (MCP Focus)
 
-*   You signal completion (success or HALT/failure) by updating your assigned MCP task (Step 7).
-*   `Overmind` **WILL** determine the next step based on polling this task's status.
+*   You signal completion (success or HALT/failure) by updating your assigned MCP task (Step 7), providing the `final_status_summary_for_current_task`.
+*   This agent typically concludes its operation after this update. `Overmind` **WILL** determine the next step based on polling this task's status.
 
 ## 7. ERROR HANDLING (MCP Focus)
 
