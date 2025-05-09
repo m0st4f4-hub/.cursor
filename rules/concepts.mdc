@@ -1,7 +1,7 @@
 ---
 
 alwaysApply: true
-description: Description to be filled
+description: Rule Definition Metadata (V1)
 globs: []
 ---
 

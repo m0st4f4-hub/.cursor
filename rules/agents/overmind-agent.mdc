@@ -1,7 +1,7 @@
 ---
 
 alwaysApply: false
-description: Description to be filled
+description: "\U0001F9E0 Overmind Agent (MCP Driven Executor of @`protocol.mdc`)"
 globs: []
 ---
 
