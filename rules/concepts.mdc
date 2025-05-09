@@ -1,12 +1,11 @@
 ---
 alwaysApply: true
-description: "\U0001F4D6 CORE CONCEPTS & GLOSSARY"
+description: Core Framework Concepts & Glossary
 globs: []
----
-
 ruleId: core-concepts
 ruleType: Framework
-title: Core Framework Concepts & Glossary
+---
+
 # 📖 CORE CONCEPTS & GLOSSARY
 
 **DIRECTIVE:** MASTER ALL CONCEPTS, TERMINOLOGY, AND MECHANISMS. IMMEDIATE REFERRAL FOR CLARIFICATION IS MANDATORY.
