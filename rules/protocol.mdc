@@ -23,6 +23,11 @@ globs: []
 0.  **STATUS MONITORING (RECOMMENDED):** PERIODICALLY MONITOR SUBTASK STATUS (`mcp_project-manager_get_task_list_tasks__get` / `get_task_by_id`).
 1.  **DATA RETRIEVAL & SCRUTINY:** OBTAIN FULL DETAILS (`mcp_project-manager_get_task_by_id_tasks__task_id__get`). ANALYZE THE REPORT, OUTPUTS, AND VERIFICATION DATA.
 2.  **MULTI-METHOD VERIFICATION (MANDATORY):** FOR NON-TRIVIAL TASKS, EMPLOY AT LEAST TWO MCP TOOLS. FOR CRITICAL TASKS, EMPLOY AT LEAST THREE MCP TOOLS (MAY BE DELEGATED TO `AuditAgent`/`ResearchAgent`). UTILIZE DIVERSE TOOLS.
+    *   **Examples of diverse MCP tools for verification:**
+        *   File content/state: `mcp_desktop-commander_read_file`, `mcp_desktop-commander_get_file_info`, `mcp_desktop-commander_list_directory`.
+        *   Code patterns/presence: `mcp_desktop-commander_search_code`.
+        *   External data: `mcp_web-fetch_fetch`, (`mcp_context7_resolve-library-id` + `mcp_context7_get-library-docs`).
+        *   Runtime behavior (if applicable, via `RunnerAgent`): `mcp_desktop-commander_execute_command` (for tests/scripts), relevant browser tools (`mcp_browser-tools_*`, `mcp_playwright_browser_*`).
 3.  **EXTERNAL CROSS-CHECKING (MANDATORY, IF APPLICABLE):** CROSS-CHECK AGENT-PROVIDED INFORMATION AGAINST EXTERNAL SOURCES (LIBRARY DOCUMENTATION, WEB SEARCH, PRIOR TASKS).
 4.  **RESULTS ANALYSIS:** COMPARE ALL VERIFICATION OUTCOMES. DISCREPANCIES, UNCERTAINTIES, AND FAILURES **MUST** BE DOCUMENTED.
 
@@ -34,6 +39,11 @@ globs: []
 
 ## PHASE E: ESCALATION HANDLING (TASK/VERIFICATION FAILURE)
 1.  **DEEP CONTEXT ACQUISITION:** UTILIZE MULTIPLE, DIVERSE METHODS TO GATHER COMPREHENSIVE CONTEXT REGARDING THE FAILURE.
+    *   **Examples of MCP tools for context acquisition:**
+        *   Task history/details: `mcp_project-manager_get_task_by_id_tasks__task_id__get` (for the failed task and related tasks).
+        *   File system state: `mcp_desktop-commander_read_file`, `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_get_file_info` (for relevant files).
+        *   Code analysis: `mcp_desktop-commander_search_code` (for related code patterns or error messages).
+        *   External information: `mcp_web-fetch_fetch` or `default_api.web_search` (for error messages or external dependencies).
 2.  **STATED CAUSE CHALLENGE (MANDATORY):** DO NOT ACCEPT THE INITIALLY STATED CAUSE AT FACE VALUE. INVESTIGATE ALTERNATIVE ROOT CAUSES.
 3.  **RECOVERY PLANNING:** PLAN RECOVERY TASKS (UTILIZING PHASE A ALTERNATIVES, CORRECTIVE ACTIONS, OR FURTHER RESEARCH). DOCUMENT THE DIAGNOSIS.
 4.  **FAILURE DECLARATION (LAST RESORT):** DECLARE FAILURE ONLY IF DEEP ANALYSIS CONFIRMS THE TASK IS INFEASIBLE OR UNRECOVERABLE. THE RATIONALE **MUST** BE DOCUMENTED.
