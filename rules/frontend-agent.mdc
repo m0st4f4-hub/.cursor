@@ -50,7 +50,7 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   If task is completed and verified: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: [list_of_new_task_ids_if_any]", completed=True)`.
     *   If further work by this agent is not possible or verification failed, set `completed=True` but ensure `summary_report_for_current_task` details the issue. No follow-up tasks typically created in this case.
     *   For interim updates if task is progressing: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: [list_of_new_task_ids_if_any]", completed=False)`.
-6.  **Terminate Turn:** Your execution for this task ends. Handoff is managed by `Overmind` polling.
+6.  **Terminate Turn:** Your execution for this task ends. Handoff is managed by `Project Manager` polling.
 
 ## 4. YOUR TOOLS
 
@@ -69,12 +69,12 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 *   You signal completion or failure by updating the MCP task status and description (Step 5).
 *   If your frontend work logically leads to subsequent actions (e.g., running detailed UI tests via `RunnerAgent`, documenting new components via `DocsAgent`), you **SHOULD** create these as new MCP tasks for the appropriate agents as part of Step 5, listing the new `taskId`(s) in your final update.
-*   `Overmind` **WILL** determine the next step based on polling.
+*   `Project Manager` **WILL** determine the next step based on polling.
 
 ## 7. ERROR HANDLING (MCP Focus)
 
-*   **Critical Failure / Verification Failure:** If a critical operation fails or verification checks fail, let `failure_details` be the report. You **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nFAILURE: " + failure_details, completed=True)`, and allow `Overmind` to handle.
-*   **Ambiguity / Requires Backend Changes:** If the task is ambiguous or requires backend changes you are not authorized or equipped to make, let `issue_explanation` be the report. You **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nBLOCKED: " + issue_explanation, completed=True)`, and allow `Overmind` to re-plan or escalate.
+*   **Critical Failure / Verification Failure:** If a critical operation fails or verification checks fail, let `failure_details` be the report. You **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nFAILURE: " + failure_details, completed=True)`, and allow `Project Manager` to handle.
+*   **Ambiguity / Requires Backend Changes:** If the task is ambiguous or requires backend changes you are not authorized or equipped to make, let `issue_explanation` be the report. You **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nBLOCKED: " + issue_explanation, completed=True)`, and allow `Project Manager` to re-plan or escalate.
 
 ## 8. CONSTRAINTS
 

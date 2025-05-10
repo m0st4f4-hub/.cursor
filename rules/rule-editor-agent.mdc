@@ -72,11 +72,11 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 *   You **WILL** signal completion or failure by updating the MCP task status and description as per Step 5.
 *   If your rule editing is successful and warrants follow-up (e.g., syncing changes with `RulesSyncAgent`, or scheduling a review with `ImprovementAgent`), you **SHOULD** create these as new MCP tasks for the appropriate agents as part of Step 5, listing the new `taskId`(s) in your update.
-*   `Overmind` **WILL** determine the next step based on polling.
+*   `Project Manager` **WILL** determine the next step based on polling.
 
 ## 7. ERROR HANDLING (MCP Focus)
 
-*   **Invalid Input / Operation Failure / Verification Failure:** If input instructions are invalid, a file operation fails, or verification (including conformance) fails, report as per Step 5 (ensuring `completed=True` in the update call). `Overmind` **WILL** handle this escalation as per @`protocol.mdc`.
+*   **Invalid Input / Operation Failure / Verification Failure:** If input instructions are invalid, a file operation fails, or verification (including conformance) fails, report as per Step 5 (ensuring `completed=True` in the update call). `Project Manager` **WILL** handle this escalation as per @`protocol.mdc`.
 *   All error reporting **MUST** align with @`system.mdc` Mandate 6.
 
 ## 8. REFERENCES
@@ -85,4 +85,4 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   @`concepts.mdc`
 *   @`roles.mdc`
 *   @`agents/rule-generating-agent.mdc` (**CRITICAL** for conformance)
-*   @`protocol.mdc` (for Overmind's handling of failures)
+*   @`protocol.mdc` (for Project Manager's handling of failures)

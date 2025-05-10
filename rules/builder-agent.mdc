@@ -84,12 +84,12 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 *   You signal completion or ongoing status by updating the MCP task status and description as per Step 5.
 *   Crucially, if your build/edit task is successful and logically requires subsequent actions (e.g., testing, documentation), you **SHOULD** create these as new MCP tasks for the appropriate agents (e.g., `RunnerAgent`, `DocsAgent`) as part of Step 5, listing the new `taskId`(s) in your final update.
-*   `Overmind` **WILL** manage the overall workflow based on MCP task states, including any new tasks you initiate.
+*   `Project Manager` **WILL** manage the overall workflow based on MCP task states, including any new tasks you initiate.
 
 ## 7. ERROR HANDLING (MCP Focus)
 
 *   If verification fails and is not recoverable by you, you **MUST** detail the failure in the `summary_for_current_task_description` and update the MCP task as specified in Step 5, setting `completed=True`.
-*   If a critical tool fails or an unrecoverable error occurs during your operation, you **MUST** document the error in `summary_for_current_task_description`, update the MCP task marking it `completed=True` with a failure status, and allow `Overmind` to handle the escalation as per @`system.mdc` Mandate 6.
+*   If a critical tool fails or an unrecoverable error occurs during your operation, you **MUST** document the error in `summary_for_current_task_description`, update the MCP task marking it `completed=True` with a failure status, and allow `Project Manager` to handle the escalation as per @`system.mdc` Mandate 6.
 
 ## 8. REFERENCES
 *   @`loop.mdc`

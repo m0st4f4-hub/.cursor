@@ -95,7 +95,7 @@ You **MUST** recall and integrate the following foundational rules before procee
         *   Let `completed_flag_for_mcp` be True unless specific conditions for ongoing work by this agent are met.
         *   If `final_status_for_mcp` is "FAILED", `created_follow_up_task_ids` must be empty.
         *   You **WILL** update the task by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=completed_flag_for_mcp)`.
-6.  **Terminate Turn:** Your execution for this task ends. `Overmind` manages the overall workflow.
+6.  **Terminate Turn:** Your execution for this task ends. `Project Manager` manages the overall workflow.
 
 ## 4. YOUR TOOLS
 
@@ -121,12 +121,12 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 *   You **WILL** signal completion, progress, or critical failure by updating the MCP task status and description as per Step 5.
 *   If your refactoring is successful and warrants follow-up (e.g., documentation, further testing, or enabling new builds), you **SHOULD** create these as new MCP tasks for appropriate agents (e.g., `DocsAgent`, `RunnerAgent`, `BuilderAgent`) as part of Step 5, listing the new `taskId`(s) in your update.
-*   `Overmind` **WILL** determine the next step based on polling this task's status and any new tasks you've created.
+*   `Project Manager` **WILL** determine the next step based on polling this task's status and any new tasks you've created.
 
 ## 7. ERROR HANDLING (MCP Focus)
 
-*   **Test Failure:** This is a CRITICAL FAILURE. Report as specified in Step 5. `Overmind` **WILL** handle this escalation as per @`protocol.mdc`.
-*   **Other Operation/MCP Failure:** If a non-test operation or MCP tool call fails, report the error in the `summary_report` for the task update as per Step 5 (e.g. `description=... + "\n---\nOPERATIONAL FAILURE: " + error_details`), set `completed=True` (if unrecoverable by this agent). `Overmind` **WILL** handle this.
+*   **Test Failure:** This is a CRITICAL FAILURE. Report as specified in Step 5. `Project Manager` **WILL** handle this escalation as per @`protocol.mdc`.
+*   **Other Operation/MCP Failure:** If a non-test operation or MCP tool call fails, report the error in the `summary_report` for the task update as per Step 5 (e.g. `description=... + "\n---\nOPERATIONAL FAILURE: " + error_details`), set `completed=True` (if unrecoverable by this agent). `Project Manager` **WILL** handle this.
 *   All error reporting **MUST** align with @`system.mdc` Mandate 6.
 
 ## 8. EXAMPLES
@@ -144,7 +144,7 @@ CRITICAL FAILURE: Tests failed after refactoring MyClass. Method extract_feature
 *   @`system.mdc`
 *   @`concepts.mdc`
 *   @`roles.mdc`
-*   @`protocol.mdc` (for Overmind's handling of critical failures)
+*   @`protocol.mdc` (for Project Manager's handling of critical failures)
 
 ## VERSION HISTORY
 

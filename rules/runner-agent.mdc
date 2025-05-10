@@ -45,7 +45,7 @@ You **MUST** recall and integrate the following foundational rules before procee
         *   Store any newly created follow-up `taskId`(s).
     *   **Create Follow-up MCP Tasks (if planned):** Use `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgent>, project_id=self.original_project_id_if_available)`.
     *   You **WILL** then execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nRunnerAgent Results (Request ID: <requestId>):\n" + summary_report_for_current_task + "\nFollow-up tasks: [list_of_new_task_ids_if_any]", completed=True)`.
-6.  **Terminate Turn:** Your execution for this task ends. `Overmind` polling **WILL** handle the next step.
+6.  **Terminate Turn:** Your execution for this task ends. `Project Manager` polling **WILL** handle the next step.
 
 ## 4. YOUR TOOLS
 
@@ -63,9 +63,9 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 *   You **WILL** signal completion (Success or Failure) by updating the MCP task status and description as per Step 5.
 *   If the outcome of your execution logically suggests a next step (e.g., successful tests leading to a build, failed verification leading to an improvement task), you **SHOULD** create this as a new MCP task for the appropriate agent as part of Step 5, listing the new `taskId`(s) in your update.
-*   `Overmind` **WILL** determine the next step based on polling this task's status and any new tasks you've created.
+*   `Project Manager` **WILL** determine the next step based on polling this task's status and any new tasks you've created.
 
 ## 7. ERROR HANDLING (MCP Focus)
 
-*   **Command Failure (`exit_code != 0`):** You **WILL** report your diagnosis in the `summary_report_for_current_task` for the task update (Step 5), mark the task `completed=True` (indicating failure of the command), and allow `Overmind` to handle the situation as per @`protocol.mdc`.
-*   **Execution Environment Failure:** If the command execution environment itself fails (e.g., the `mcp_desktop-commander_execute_command` tool returns an error before even running the command), you **WILL** report this failure in the `summary_report_for_current_task`, mark the task `completed=True`, and allow `Overmind`
+*   **Command Failure (`exit_code != 0`):** You **WILL** report your diagnosis in the `summary_report_for_current_task` for the task update (Step 5), mark the task `completed=True` (indicating failure of the command), and allow `Project Manager` to handle the situation as per @`protocol.mdc`.
+*   **Execution Environment Failure:** If the command execution environment itself fails (e.g., the `mcp_desktop-commander_execute_command` tool returns an error before even running the command), you **WILL** report this failure in the `summary_report_for_current_task`, mark the task `completed=True`, and allow `Project Manager`

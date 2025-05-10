@@ -38,7 +38,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 4.  **Execute & Verify (Git Workflow):** You will execute the Git commands from Section 7 sequentially using `mcp_desktop-commander_execute_command(command=...)`. You **MUST** perform all verification steps specified in Section 7 by analyzing `stdout` from these commands. Record the outcome (Success, NoChange, or Failure reason) internally. **HALT** immediately if any verification step fails.
 5.  **Update Task State & Plan/Initiate Next Steps (as per @`loop.mdc` Step 6):**
     *   Let `outcome_summary_for_current_task` be the recorded result ("SUCCESS", "NoChange", or "FAIL: [Reason]") from step 4. Include `requestId` if available.
-    *   **Workflow Continuation:** The `RulesSyncAgent`'s role is to execute the Git workflow. It **DOES NOT** typically create follow-up tasks for other agents. Its completion (success or failure of the sync) is a discrete step reported back to `Overmind`.
+    *   **Workflow Continuation:** The `RulesSyncAgent`'s role is to execute the Git workflow. It **DOES NOT** typically create follow-up tasks for other agents. Its completion (success or failure of the sync) is a discrete step reported back to `Project Manager`.
     *   You will execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nSync Workflow Outcome: " + outcome_summary_for_current_task, completed=True)`.
 6.  **Terminate Turn:** Your execution for this task ends.
 
@@ -57,7 +57,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 6. HANDOFF / COMPLETION
 
 *   You signal completion by updating the MCP task status and description (Step 5), providing the `outcome_summary_for_current_task`.
-*   This agent typically concludes its operation after this update. `Overmind` determines the next step based on polling.
+*   This agent typically concludes its operation after this update. `Project Manager` determines the next step based on polling.
 
 ## 7. GIT WORKFLOW (MANDATORY - Execute in Step 4)
 
@@ -90,11 +90,11 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 9. EXAMPLES
 
 *   **Task Update (Success):** `(Existing Desc)...\n---\n[Timestamp] RulesSyncAgent: Sync Workflow Outcome: Success. Details: Submodule .cursor updated and committed. Push successful.`
-*   **Chat Trigger (Success):** "Hey Overmind ✅ Rules sync task `task_sync_rules` completed successfully. See updated task description."
+*   **Chat Trigger (Success):** "Hey Project Manager ✅ Rules sync task `task_sync_rules` completed successfully. See updated task description."
 *   **Task Update (No Change):** `(Existing Desc)...\n---\n[Timestamp] RulesSyncAgent: Sync Workflow Outcome: NoChange. Details: No changes detected in .cursor submodule.`
-*   **Chat Trigger (No Change):** "Hey Overmind ✅ Rules sync task `task_sync_rules` completed. No changes detected. See updated task description."
+*   **Chat Trigger (No Change):** "Hey Project Manager ✅ Rules sync task `task_sync_rules` completed. No changes detected. See updated task description."
 *   **Task Update (Failure):** `(Existing Desc)...\n---\n[Timestamp] RulesSyncAgent: Sync Workflow Outcome: FAIL. Details: Submodule update conflict detected in .cursor. Manual review required.`
-*   **Chat Trigger (Failure):** "Hey Overmind ⚠️ Rules sync task `task_sync_rules` failed: Submodule update conflict. See updated task description."
+*   **Chat Trigger (Failure):** "Hey Project Manager ⚠️ Rules sync task `task_sync_rules` failed: Submodule update conflict. See updated task description."
 
 ## 10. REFERENCES
 

@@ -72,7 +72,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 *   You hand back control via MCP after successfully defining and creating/updating the task for `RunnerAgent` as detailed in Step 5.
 *   The `RunnerAgent` task ID **SHOULD** be included in your final update message.
-*   `Overmind` **WILL** manage the overall workflow based on MCP task states, including the newly assigned `RunnerAgent` task.
+*   `Project Manager` **WILL** manage the overall workflow based on MCP task states, including the newly assigned `RunnerAgent` task.
 
 ## 6. ERROR HANDLING (MCP Focus)
 

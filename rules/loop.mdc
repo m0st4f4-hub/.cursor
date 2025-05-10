@@ -38,7 +38,7 @@ ruleType: Framework
 
 **STEP 2: ACQUIRE FULL TASK/OPERATIONAL CONTEXT & UPDATE STATUS**
 *   **ACTION:** FETCH DETAILED INSTRUCTIONS/CONTEXT PER @`system.mdc` MANDATE 1.
-*   **TOOLING (MCP):** `mcp_project-manager_get_task_by_id_tasks__task_id__get` (TASK DETAIL **MUST** INCLUDE `targetAgentRole` FROM Overmind. ABSENCE/AMBIGUITY INVOKES HALT).
+*   **TOOLING (MCP):** `mcp_project-manager_get_task_by_id_tasks__task_id__get` (TASK DETAIL **MUST** INCLUDE `targetAgentRole` FROM Project Manager. ABSENCE/AMBIGUITY INVOKES HALT).
     *   **SUPPORTED OPERATIONS FOR CONTEXT GATHERING (MCP Preferred for Automation):**
         *   File/Directory Info: `mcp_desktop-commander_read_file`, `mcp_desktop-commander_read_multiple_files`, `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_get_file_info`.
         *   Code/File Search: `mcp_desktop-commander_search_code` (regex), `mcp_desktop-commander_search_files` (name pattern).
@@ -56,7 +56,7 @@ ruleType: Framework
 **STEP 4: PLAN TURN (INTERNAL)**
 *   **ACTION:** PREPARE INTERNAL ACTION PLAN.
 *   **INPUT:** RULES (STEP 3), CONTEXT (STEP 2).
-*   **PROCESS:** CONSTRUCT INTERNAL REASONING/PROMPT. PLAN STEP 5 OPERATIONS, INCLUDING **MANDATORY VERIFICATION** AND **ASSUMPTION CHECKS** PER @`system.mdc`. (NOTE: "CONTINUOUS CHAT SEQUENCE" BY Overmind MAY REQUIRE MORE COMPREHENSIVE EXECUTION).
+*   **PROCESS:** CONSTRUCT INTERNAL REASONING/PROMPT. PLAN STEP 5 OPERATIONS, INCLUDING **MANDATORY VERIFICATION** AND **ASSUMPTION CHECKS** PER @`system.mdc`. (NOTE: "CONTINUOUS CHAT SEQUENCE" BY Project Manager MAY REQUIRE MORE COMPREHENSIVE EXECUTION).
 
 **STEP 5: EXECUTE CORE TASK(S), RIGOROUSLY VERIFY & UPDATE STATUS**
 *   **ACTION:** PERFORM PRIMARY ROLE/TASK FUNCTIONS.
@@ -69,14 +69,14 @@ ruleType: Framework
         *   Its verified output is a direct, unambiguous input for a *specific known successor agent*.
         *   The continuation represents a clear, logical next step explicitly defined or strongly implied by its own role and rules for this outcome (e.g., `BuilderAgent` successfully completing code might trigger `RunnerAgent` for standard unit tests if not already done).
         *   The type of handoff is an integral part of its designed workflow (e.g., `ImageProcessingAgent` preparing instructions for `RunnerAgent`).
-        IF NONE OF THESE ARE MET, THE AGENT **MUST NOT** CREATE A FOLLOW-UP TASK; `Overmind` WILL DIRECT THE NEXT STRATEGIC STEP.
+        IF NONE OF THESE ARE MET, THE AGENT **MUST NOT** CREATE A FOLLOW-UP TASK; `Project Manager` WILL DIRECT THE NEXT STRATEGIC STEP.
     2.  **CREATE FOLLOW-UP TASKS (IF JUSTIFIED IN STEP 6.1):** IF CONTINUATION IS JUSTIFIED, USE `mcp_project-manager_create_task_tasks__post` TO CREATE THE NEW TASK(S). THE `description` FOR THE NEW TASK **MUST** INCLUDE: RELEVANT CONTEXT FROM THE CURRENT TASK (E.G., `requestId`, CURRENT `taskId` AS PARENT, KEY FINDINGS, ARTIFACTS PRODUCED) AND CLEAR INSTRUCTIONS FOR THE NEXT AGENT. THE `agent_name` **MUST** BE SET TO THE APPROPRIATE SPECIALIZED AGENT. LOG THE NEWLY CREATED `taskId`(S).
     3.  **DETERMINE FINAL STATUS OF CURRENT TASK:** 
         *   If a follow-up task was created in 6.2: `final_status` = "COMPLETED_HANDOFF_TO_[NewTaskID(s)]"
         *   If current task is complete and no follow-up task was created by this agent: `final_status` = "COMPLETED_AWAITING_OVERMIND"
         *   If task is blocked: `final_status` = "BLOCKED"
         *   If task failed unrecoverably: `final_status` = "FAILED"
-        *   (Other statuses like "COMPLETED_PARTIAL" can be used if defined by agent rules for specific scenarios where `Overmind` needs to review partial work before further agent assignment).
+        *   (Other statuses like "COMPLETED_PARTIAL" can be used if defined by agent rules for specific scenarios where `Project Manager` needs to review partial work before further agent assignment).
     4.  **COMPREHENSIVE UPDATE & FINALIZATION OF CURRENT TASK:** UPDATE THE *CURRENT* MCP TASK (`mcp_project-manager_update_task_tasks__task_id__put`) **MUST** BE UPDATED. **MUST** INCLUDE FINDINGS SUMMARY (@`system.mdc` MANDATE 4: ACTIONS, TOOLS, VERIFICATION METHODS/RESULTS, ASSUMPTIONS, ERRORS), ANY NEWLY CREATED FOLLOW-UP `taskId`(S) (if applicable), AND THE `final_status` DETERMINED IN 6.3. SET `completed` FLAG TO `True`.
     5.  **TERMINATE.**
 *   **PROCESS (CHAT - LEGACY):** 
@@ -87,5 +87,5 @@ ruleType: Framework
 
 **ERROR HANDLING PROTOCOL:**
 *   **STEP 2 FAILURE (NO CONTEXT):** HALT.
-*   **STEP 6 FAILURE (TASK CREATION / FINAL UPDATE):** IF CREATING A FOLLOW-UP TASK OR THE FINAL UPDATE TO THE CURRENT TASK FAILS, RETRY ONCE. IF FAILURE PERSISTS: THIS IS A CRITICAL ERROR. THE AGENT **MUST** ATTEMPT TO UPDATE ITS CURRENT TASK TO REFLECT THIS FAILURE (E.G., STATUS "ERROR_FINALIZING"). ESCALATE TO `Overmind` AS PER @`system.mdc` MANDATE 6. ATTEMPT LOCAL LOGGING. 
-*   **STEP 5 ERRORS:** DETAILED ERROR ANALYSIS (@`system.mdc` MANDATE 6) **MUST** BE LOGGED IN STEP 6 UPDATE BEFORE CONTINUING (IF RECOVERABLE) OR HALTING. ERRORS **MUST** BE REPORTED TO `Overmind`.
+*   **STEP 6 FAILURE (TASK CREATION / FINAL UPDATE):** IF CREATING A FOLLOW-UP TASK OR THE FINAL UPDATE TO THE CURRENT TASK FAILS, RETRY ONCE. IF FAILURE PERSISTS: THIS IS A CRITICAL ERROR. THE AGENT **MUST** ATTEMPT TO UPDATE ITS CURRENT TASK TO REFLECT THIS FAILURE (E.G., STATUS "ERROR_FINALIZING"). ESCALATE TO `Project Manager` AS PER @`system.mdc` MANDATE 6. ATTEMPT LOCAL LOGGING. 
+*   **STEP 5 ERRORS:** DETAILED ERROR ANALYSIS (@`system.mdc` MANDATE 6) **MUST** BE LOGGED IN STEP 6 UPDATE BEFORE CONTINUING (IF RECOVERABLE) OR HALTING. ERRORS **MUST** BE REPORTED TO `Project Manager`.

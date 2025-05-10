@@ -92,11 +92,11 @@ scope: {Global | Project | AgentSpecific/<AgentName> } # Optional: Defines appli
 ## 6. HANDOFF / COMPLETION (MCP Focus for Agents)
 # Describe how completion or failure is signaled (MCP task update).
 # Crucially, detail how the agent plans and creates follow-up MCP tasks for other agents (if applicable to its role) as per Step 6 of @`loop.mdc`, ensuring workflow continuation. List new task IDs in the update.
-# Note that `Overmind` manages the overall workflow based on MCP task states, including new tasks initiated by this agent.
+# Note that `Project Manager` manages the overall workflow based on MCP task states, including new tasks initiated by this agent.
 
 ## 7. ERROR HANDLING (MCP Focus for Agents)
 # Describe error detection, basic diagnosis (if any), and reporting via MCP task update.
-# Refer to @`system.mdc` Mandate 6 for escalation to `Overmind`.
+# Refer to @`system.mdc` Mandate 6 for escalation to `Project Manager`.
 
 ## 8. CONSTRAINTS (Recommended)
 # Strict limitations or MUST conditions not covered elsewhere.
