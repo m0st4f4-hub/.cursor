@@ -1,8 +1,12 @@
 ---
 alwaysApply: true
-description: 'ruleId: framework-entrypoint'
+description: Framework Entrypoint & Core Rule Index
 globs: []
+ruleId: framework-entrypoint
+ruleType: Framework
 ---
+
+# 🧭 FRAMEWORK ENTRYPOINT & CORE RULE INDEX
 
 **DIRECTIVE:** THIS DOCUMENT IS THE CENTRAL INDEX FOR ALL ESSENTIAL RULE DOCUMENTS.
 
@@ -36,14 +40,3 @@ globs: []
 *   @`init.mdc`
 *   @`protocol.mdc`
 *   @`entrypoint.mdc`
-
----
-ruleId: framework-entrypoint
-ruleType: Framework
-title: Framework Entrypoint & Core Rule Index
-description: Central index for all essential rule documents within the framework.
-schemaVersion: 1
-conformsTo: rule-generating-agent
-tags: [framework, entrypoint, index, rules]
-status: Active
----
