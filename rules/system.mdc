@@ -20,7 +20,7 @@ This document consolidates the System Prompt & Global Mandates, Core Concepts & 
 - **Coordination:** Task coordination and state management are handled via the **MCP Task Manager**. Chat Triggers are a legacy/fallback mechanism.
 - **Operational Protocol:** All agents **MUST** follow the Core Agent Execution Loop defined in [loop.mdc](loop.mdc).
 - **User Interaction Protocol:** Ignore all user input during execution except for approved diagnostic interactions.
-- **Adaptive Refinement Mechanism:** The framework supports self-improvement via the `ImprovementAgent`, `RuleWriterAgent`, and `Overmind` roles, managed as MCP tasks.
+- **Adaptive Refinement Mechanism:** The framework supports self-improvement via the `EvolutionaryAnalyst`, `DirectiveImplementer`, and `StrategicCoordinator` roles, managed as MCP tasks.
 - **Directive Precedence:**  
   1. Project rules (`.cursor/rules/project/`) override global rules.  
   2. Global rules (`.cursor/rules/global/`) apply unless overridden.  
@@ -31,7 +31,7 @@ This document consolidates the System Prompt & Global Mandates, Core Concepts & 
   - [concepts.mdc](concepts.mdc)  
   - [roles.mdc](roles.mdc)  
   - [init.mdc](init.mdc)  
-  - [protocol.mdc](protocol.mdc) (for Overmind)
+  - [protocol.mdc](protocol.mdc) (for StrategicCoordinator)
 
 ### 1.2 GLOBAL MANDATES (NON-NEGOTIABLE)
 
@@ -114,6 +114,68 @@ All non-trivial outputs must be verified using at least **TWO** distinct methods
 
 ### 1.4 MCP TOOL SERVER CONFIGURATION
 
+For the Model Context Protocol (MCP) tools to function correctly, ensure the necessary MCP servers are configured and running. The MCP client typically loads its server configuration from a `mcp.json` file located in your user's `.cursor` directory (e.g., `~/.cursor/mcp.json` or `C:\Users\YourUser\.cursor\mcp.json`).
+
+**Instructions:**
+1. Create a file named `mcp.json` in your `.cursor` directory.
+2. Copy and paste the following JSON content into the `mcp.json` file:
+
+```json
+{
+  "mcpServers": {
+    "mcp-server-time": {
+      "command": "uvx",
+      "args": ["mcp-server-time", "--local-timezone=Africa/Cairo"],
+      "enabled": true
+    },
+    "web-fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"],
+      "enabled": true
+    },
+    "server-memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "enabled": true
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "enabled": true
+    },
+    "browser-tools": {
+      "command": "cmd",
+      "type": "stdio",
+      "args": ["/c", "npx", "-y", "@agentdeskai/browser-tools-mcp"],
+      "enabled": true
+    },
+    "desktop-commander": {
+      "command": "npx",
+      "args": [
+          "-y",
+          "@wonderwhy-er/desktop-commander"
+        ]
+      },
+      "project-manager": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "mcp-remote",
+          "http://localhost:8000/mcp"
+        ],
+        "enabled": true
+      },
+  "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    }
+  }
+}
+```
+3. Ensure the commands specified (e.g., `uvx`, `npx`) are available in your system's PATH and the specified packages/tools can be executed. Some servers might be started automatically by the MCP client, while others might need to be running persistently.
+
 ---
 
 ## PART 2: FUNDAMENTAL CONSTRUCTS & LEXICON
@@ -135,13 +197,24 @@ All non-trivial outputs must be verified using at least **TWO** distinct methods
 
 ## PART 3: FRAMEWORK SEEDING PROTOCOL
 
-**Executed by InitializationAgent to set up `.cursor/rules/`.**  
+**Executed by SeedingAgent to set up `.cursor/rules/`.**  
 **See [init.mdc](init.mdc) for full details.**
 
 - **Repeatable Efficacy:** Initialization must be repeatable with the same result.
 - **Verification:** Use `list_dir`, `read_file`, `git status`, `parse_git_status.py`.
 - **Failure Response:** Halt and report to StrategicCoordinator on failure.
 - **Reporting:** Log all actions and outcomes.
+
+**Workflow:**
+1. Fetch rules for SeedingAgent.
+   - The core rules are sourced from: `https://github.com/m0st4f4-hub/.cursor`
+2. Parse `requestId` from trigger/MCP task.
+3. Check if in a git repo; check `.cursor` directory; check if non-empty.
+4. Scenario workflows:
+   - **Git repo:** Handle `.cursor` submodule (ensure it points to `https://github.com/m0st4f4-hub/.cursor`), update `.gitignore`, verify.
+   - **Non-git empty:** Remove `.cursor` if it exists, then clone the rules repository (e.g., `git clone https://github.com/m0st4f4-hub/.cursor .cursor/rules`), verify.
+   - **Non-git non-empty:** Manual intervention required.
+5. Final verification and reporting.
 
 ---
 
@@ -214,5 +287,20 @@ All non-trivial outputs must be verified using at least **TWO** distinct methods
 **Workflow Patterns:**  
 - Direct Chat Handoffs in Chat Mode.  
 - Return to StrategicCoordinator for MCP planning, escalation, or final reporting.
+
+---
+
+**End of Unified Framework Specification.**
+
+---
+
+**References:**
+- [system.mdc](system.mdc)
+- [loop.mdc](loop.mdc)
+- [concepts.mdc](concepts.mdc)
+- [roles.mdc](roles.mdc)
+- [init.mdc](init.mdc)
+- [protocol.mdc](protocol.mdc)
+- Individual agent rules in `rules-md/agents/`
 
 ---
