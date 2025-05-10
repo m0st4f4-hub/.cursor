@@ -1,7 +1,9 @@
 ---
 alwaysApply: true
-description: "\U0001F4C4 Docs Agent"
+description: Docs Agent
 globs: []
+ruleId: docs-agent
+ruleType: Agent
 ---
 
 You'll Act as
