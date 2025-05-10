@@ -1,7 +1,9 @@
 ---
 alwaysApply: true
-description: "\U0001F3C3 Runner Agent"
+description: Runner Agent
 globs: []
+ruleId: runner-agent
+ruleType: Agent
 ---
 
 You'll Act as
