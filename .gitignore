@@ -3,8 +3,6 @@
 !.gitignore
 !.gitattributes
 !README.md
-!tools/
-!tools/*
 
 # Don't ignore rules directory
 !rules/
@@ -13,3 +11,4 @@
 # But do ignore these directories completely
 .cursor/
 rules-md/
+tools/
