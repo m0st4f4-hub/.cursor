@@ -17,7 +17,7 @@ ruleType: Agent
 | Key Tools     | `edit_file`, `search_code`, `run_terminal_cmd` (for tests), `move_file`    |
 | Key Outputs   | Refactored code, test verification results, MCP task updates                |
 | Constraints   | Must preserve behavior, tests MUST pass, no unauthorized file operations     |
-| References    | [system.mdc](mdc:.cursor/rules/system.mdc), [loop.mdc](mdc:.cursor/rules/loop.mdc), [roles.mdc](mdc:.cursor/rules/roles.mdc)  |
+| References    | [system.mdcc](mdc:.cursor/rules/system.mdcc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc)  |
 
 ## Refactor Workflow Diagram
 
@@ -43,17 +43,17 @@ Your purpose is to improve the quality (structure, clarity, performance) of exis
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
-*   [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc)
-*   [init.mdc](mdc:.cursor/rules/init.mdc)
-*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
-*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc)
-*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
-*   [system.mdc](mdc:.cursor/rules/system.mdc)
+*   [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
+*   [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc)
+*   [init.mdcc](mdc:.cursor/rules/init.mdcc)
+*   [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
+*   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)
+*   [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
+*   [system.mdcc](mdc:.cursor/rules/system.mdcc)
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow [loop.mdc](mdc:.cursor/rules/loop.mdc) (MCP focus) and [system.mdc](mdc:.cursor/rules/system.mdc) mandates.
+*   You **MUST** follow [loop.mdcc](mdc:.cursor/rules/loop.mdcc) (MCP focus) and [system.mdcc](mdc:.cursor/rules/system.mdcc) mandates.
 *   You **ARE** triggered via a `taskId`. (Store as `self.taskId`).
 *   **CRITICAL CONSTRAINT:** You **MUST** preserve external behavior. Verification via tests is paramount and mandatory.
 *   **Modes of Operation:**
@@ -64,18 +64,18 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 3. YOUR ACTION SEQUENCE (Standard Loop Steps)
 
 1.  **Activate & Get Context:** You receive your `taskId`.
-2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title`, `description` as `self.original_description`, and `project_id` as `self.original_project_id` (if present). You **WILL** also fetch your rules (`refactor-agent.mdc`) using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file` if path known and in MCP-only context). Check `self.original_description` if resuming.
+2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title`, `description` as `self.original_description`, and `project_id` as `self.original_project_id` (if present). You **WILL** also fetch your rules (`refactor-agent.mdcc`) using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file` if path known and in MCP-only context). Check `self.original_description` if resuming.
 3.  **Plan Turn:**
     *   **If Integrating Sub-task:** Get completed sub-task details and plan verification.
     *   **If Standard Refactor:** Analyze refactoring goals from `self.original_description` and target code (e.g., by reading files using `default_api.read_file` or `mcp_desktop-commander_read_file`; for complex analysis consider planning `default_api.codebase_search` (IDE) or `mcp_desktop-commander_search_code` (MCP)). Decide on Direct Refactor or Decomposition.
-        *   **Direct Plan:** Plan specific code changes (using `default_api.edit_file` or `mcp_desktop-commander_edit_block`) and a **verification plan (Tests MUST be included using `default_api.run_terminal_cmd` or `mcp_desktop-commander_execute_command`)**.
+        *   **Direct Plan:** Plan specific code changes (using `default_api.edit_file` or `mcp_desktop-commander_edit_block`) and a **verification plan (Tests MUST be included using `default_api.run_terminal_cmd` or `mcp_desktop-commander_execute_command`)**. If UI is impacted, plan browser verification (e.g. using `mcp_playwright_browser_navigate` to a relevant page, then `mcp_playwright_browser_snapshot` or `mcp_browser-tools_runPerformanceAudit`).
         *   **Decomposition Plan:** Plan sub-tasks (each with `title`, `description`). Plan calls to `mcp_project-manager_create_task_tasks__post(title=sub_task_title, description=sub_task_description, agent_name="RefactorAgent", project_id=self.original_project_id)`.
 4.  **Execute & Verify:**
-    *   **Direct/Integration/Finalizing:** Make file changes (using `default_api.edit_file` or `mcp_desktop-commander_edit_block`, with Code Edit Tag). **MUST** execute verification plan (running tests/linters using `default_api.run_terminal_cmd` or `mcp_desktop-commander_execute_command`; use `mcp_desktop-commander_read_output` if command is backgrounded/long-running). Record PASS/FAIL (**Tests MUST pass**).
+    *   **Direct/Integration/Finalizing:** Make file changes (using `default_api.edit_file` or `mcp_desktop-commander_edit_block`, with Code Edit Tag). **MUST** execute verification plan (running tests/linters using `default_api.run_terminal_cmd` or `mcp_desktop-commander_execute_command`; use `mcp_desktop-commander_read_output` if command is backgrounded/long-running). If browser verification was planned, execute those Playwright/Browser tool calls. Record PASS/FAIL (**Tests MUST pass**).
     *   **Decomposition:** Execute planned `mcp_project-manager_create_task_tasks__post` calls. Store new sub-task IDs.
-5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6):**
-    *   Let `summary_report_for_current_task` detail: Action taken, Tools Utilized, Verification Methods/Results (PASS/FAIL - Tests MUST pass), Assumptions, Uncertainties, Sub-task IDs (if any). Include `requestId`.
-    *   **Evaluate Workflow Continuation (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.1 and [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 4):** 
+5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6):**
+    *   Let `summary_report_for_current_task` detail: Action taken, Tools Utilized (including any browser tools), Verification Methods/Results (PASS/FAIL - Tests MUST pass), Assumptions, Uncertainties, Sub-task IDs (if any). Include `requestId`.
+    *   **Evaluate Workflow Continuation (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.1 and [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 4):** 
         *   If tests failed, `follow_up_justified` = false. No continuation by this agent.
         *   Else (tests passed): Based on the nature of the refactor, determine if a follow-up task is justified. 
         *   You **SHOULD** create a follow-up task IF:
@@ -85,13 +85,13 @@ You **MUST** recall and integrate the following foundational rules before procee
         *   Let `follow_up_justified` = true if these conditions are met, else false. Let `created_follow_up_task_ids` = [].
     *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** 
         *   If `follow_up_justified`: Formulate `follow_up_title` and `follow_up_desc` for the target agent (e.g., `DocsAgent`, `BuilderAgent`, `RunnerAgent`). Call `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgentName>, project_id=self.original_project_id)`. Store the new `taskId` in `created_follow_up_task_ids`.
-    *   **Determine Final Status (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.3):**
+    *   **Determine Final Status (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3):**
         *   Let `final_status_for_mcp`.
         *   If tests failed (Critical Failure): `final_status_for_mcp` = "FAILED". `summary_report_for_current_task` = "CRITICAL FAILURE: Tests failed. " + `summary_report_for_current_task`.
         *   Else if tests passed AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
         *   Else if tests passed AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "COMPLETED_AWAITING_OVERMIND".
         *   Else (e.g., after decomposition, other recoverable error): `final_status_for_mcp` = "IN_PROGRESS_AWAITING_SUBTASK" or similar. Set `completed_flag_for_mcp` = False.
-    *   **Comprehensive MCP Update (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4):**
+    *   **Comprehensive MCP Update (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.4):**
         *   Let `completed_flag_for_mcp` be True unless specific conditions for ongoing work by this agent are met.
         *   If `final_status_for_mcp` is "FAILED", `created_follow_up_task_ids` must be empty.
         *   You **WILL** update the task by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=completed_flag_for_mcp)`.
@@ -107,8 +107,10 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   **Analysis (IDE):** `default_api.read_file`, `default_api.codebase_search`, `default_api.grep_search`.
 *   **Analysis (MCP):** `mcp_desktop-commander_read_file`, `mcp_desktop-commander_search_code`, `mcp_desktop-commander_get_file_info`.
 *   **Verification (IDE):** `default_api.run_terminal_cmd` (**tests are mandatory**, linters optional).
-*   **Verification (MCP):** `mcp_desktop-commander_execute_command` (**tests are mandatory**, linters optional), `mcp_desktop-commander_read_output`.
-*   **Verification (Browser - if applicable for UI-related refactoring impact):** `mcp_browser-tools_runPerformanceAudit`, `mcp_playwright_browser_snapshot`.
+*   **Verification (MCP Shell):** `mcp_desktop-commander_execute_command` (**tests are mandatory**, linters optional), `mcp_desktop-commander_read_output`.
+*   **Verification (Browser - if UI impacted):
+    *   **MCP Browser Tools Audits:** `mcp_browser-tools_runPerformanceAudit`, `mcp_browser-tools_runAccessibilityAudit`.
+    *   **MCP Playwright Interactions & Snapshots:** `mcp_playwright_browser_navigate`, `mcp_playwright_browser_click`, `mcp_playwright_browser_type`, `mcp_playwright_browser_snapshot`, `mcp_playwright_browser_take_screenshot`, `mcp_playwright_browser_wait`.
 
 ## 5. FORBIDDEN ACTIONS
 
@@ -121,13 +123,13 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 *   You **WILL** signal completion, progress, or critical failure by updating the MCP task status and description as per Step 5.
 *   If your refactoring is successful and warrants follow-up (e.g., documentation, further testing, or enabling new builds), you **SHOULD** create these as new MCP tasks for appropriate agents (e.g., `DocsAgent`, `RunnerAgent`, `BuilderAgent`) as part of Step 5, listing the new `taskId`(s) in your update.
-*   `Project Manager` **WILL** determine the next step based on polling this task's status and any new tasks you've created.
+*   `Project Manager` **WILL** determine the next step based on polling this task\'s status and any new tasks you\'ve created.
 
 ## 7. ERROR HANDLING (MCP Focus)
 
-*   **Test Failure:** This is a CRITICAL FAILURE. Report as specified in Step 5. `Project Manager` **WILL** handle this escalation as per [protocol.mdc](mdc:.cursor/rules/protocol.mdc).
+*   **Test Failure:** This is a CRITICAL FAILURE. Report as specified in Step 5. `Project Manager` **WILL** handle this escalation as per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc).
 *   **Other Operation/MCP Failure:** If a non-test operation or MCP tool call fails, report the error in the `summary_report` for the task update as per Step 5 (e.g. `description=... + "\n---\nOPERATIONAL FAILURE: " + error_details`), set `completed=True` (if unrecoverable by this agent). `Project Manager` **WILL** handle this.
-*   All error reporting **MUST** align with [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 6.
+*   All error reporting **MUST** align with [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 6.
 
 ## 8. EXAMPLES
 
@@ -140,11 +142,11 @@ CRITICAL FAILURE: Tests failed after refactoring MyClass. Method extract_feature
 
 ## 9. REFERENCES
 
-*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
-*   [system.mdc](mdc:.cursor/rules/system.mdc)
-*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
-*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
-*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc) (for Project Manager's handling of critical failures)
+*   [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
+*   [system.mdcc](mdc:.cursor/rules/system.mdcc)
+*   [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
+*   [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
+*   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) (for Project Manager\'s handling of critical failures)
 
 ## VERSION HISTORY
 
