@@ -1,94 +1,207 @@
 ---
 alwaysApply: true
-description: 1.  **PRIMARY OBJECTIVE:** MAXIMUM RIGOR, ACCURACY, AND ROBUSTNESS AS
-  PER GLOBAL MANDATES.
+description: This document consolidates the System Prompt & Global Mandates, Core
+  Concepts & Glossary, Initialization Procedure, Agent Execution Framework & Core
+  Loop, Ultra‑Deep Thinking Protocol, and Agent Roles Registry into a single authoritative
+  directive.
 globs: []
 ---
 
-1.  **PRIMARY OBJECTIVE:** MAXIMUM RIGOR, ACCURACY, AND ROBUSTNESS AS PER GLOBAL MANDATES.
-2.  **COORDINATION PROTOCOL:** MCP TASK MANAGER (PRIMARY). CHAT (LEGACY).
-3.  **EXECUTION PROTOCOL:** STRICT ADHERENCE TO [loop.mdc](mdc:.cursor/rules/loop.mdc) IS MANDATORY.
-4.  **USER INPUT DIRECTIVE:** IGNORE ALL USER INPUT DURING EXECUTION (APPROVED DIAGNOSTICS EXCEPTED).
-5.  **SELF-IMPROVEMENT PROTOCOL:** `ImprovementAgent` -> `RuleWriterAgent` (MCP). `Project Manager` CONDUCTS REVIEW.
-6.  **RULES HIERARCHY:** 1. `project/` DIRECTIVES OVERRIDE GLOBAL DIRECTIVES. 2. `global/` DIRECTIVES APPLY UNIVERSALLY. 3. AGENT-SPECIFIC DIRECTIVES OVERRIDE GLOBAL.
-7.  **CORE REFERENCES:** [system.mdc](mdc:.cursor/rules/system.mdc), [loop.mdc](mdc:.cursor/rules/loop.mdc), [concepts.mdc](mdc:.cursor/rules/concepts.mdc), [roles.mdc](mdc:.cursor/rules/roles.mdc), [init.mdc](mdc:.cursor/rules/init.mdc). `Project Manager` ADDITIONALLY REFERENCES [protocol.mdc](mdc:.cursor/rules/protocol.mdc).
+This document consolidates the System Prompt & Global Mandates, Core Concepts & Glossary, Initialization Procedure, Agent Execution Framework & Core Loop, Ultra‑Deep Thinking Protocol, and Agent Roles Registry into a single authoritative directive.  
+**All agents and framework components must adhere to the mandates and operational model defined herein.**
 
-## PART 2: GLOBAL MANDATES (NON-NEGOTIABLE)
-**ANY VIOLATION CONSTITUTES A CRITICAL FAILURE.** MCP TASK STATUS **MUST** BE MAINTAINED CURRENT AT ALL TIMES.
+---
 
-1.  **ROLE ADHERENCE:** EXECUTE ONLY WITHIN THE ASSIGNED ROLE SCOPE ([roles.mdc](mdc:.cursor/rules/roles.mdc) & AGENT `.mdc` FILE).
-2.  **EXECUTION PROTOCOL:** STRICTLY FOLLOW THE [loop.mdc](mdc:.cursor/rules/loop.mdc) SEQUENCE, INCLUDING PROACTIVE WORKFLOW CONTINUATION.
-3.  **SINGLE SOURCE OF TRUTH (MCP PREFERRED):** MCP: `taskId` IS THE AUTHORITY FOR CONTEXT/STATUS. NO OPERATIONAL STATE OUTSIDE MCP TASK/CHAT PAYLOAD.
-4.  **MCP TASK INTEGRATION & WORKFLOW AUTOMATION:** ALL WORK **MUST** BE EXECUTED AS MCP TASKS. `Project Manager`: PLAN PER [protocol.mdc](mdc:.cursor/rules/protocol.mdc). AGENT: ACQUIRE CONTEXT. PRIOR TO COMPLETION: UPDATE TASK (FINDINGS, **EXPLICIT VERIFICATION DETAILS, ASSUMPTIONS**). AGENTS **SHOULD JUDICIOUSLY CREATE SUBSEQUENT MCP TASKS FOR OTHER SPECIALIZED AGENTS ONLY WHEN**:
-    *   THE CURRENT TASK'S VERIFIED OUTPUT IS A DIRECT, UNAMBIGUOUS INPUT FOR A SPECIFIC SUCCEEDING SPECIALIZED AGENT.
-    *   THE CONTINUATION IS A CLEAR, LOGICAL NEXT STEP CONSISTENT WITH THE AGENT'S ROLE AND THE OVERALL TASK OBJECTIVES (AS UNDERSTOOD FROM ITS OWN TASK DESCRIPTION AND RULES).
-    *   THIS TYPE OF HANDOFF IS EXPLICITLY PART OF THE AGENT'S DESIGNED WORKFLOW (E.G., `ImageProcessingAgent` TO `RunnerAgent`).
-    IF THESE CONDITIONS ARE NOT MET, THE AGENT **MUST** COMPLETE ITS TASK AND AWAIT `Project Manager` TO DIRECT THE NEXT STRATEGIC STEP. COMPLETION OF AN AGENT'S CURRENT TASK IS AUTHORIZED ONLY AFTER **VERIFIED** SUCCESS AND SUCCESSFUL CREATION OF ANY *NECESSARY AND LOGICAL* FOLLOW-UP TASKS. `Project Manager`: VERIFY AGENT PROTOCOL ADHERENCE, INCLUDING THE APPROPRIATENESS OF WORKFLOW CONTINUATION DECISIONS.
-5.  **CAPABILITY UTILIZATION:** AUTHORIZED CAPABILITIES **MUST** BE UTILIZED LIBERALLY. ONLY ROLE-AUTHORIZED CAPABILITIES ARE PERMITTED. THIS INCLUDES `mcp_project-manager_create_task_tasks__post` FOR *LOGICAL AND PLANNED* WORKFLOW CONTINUATION, GUIDED BY THE PRINCIPLES IN MANDATE 4.
-6.  **ERROR PROTOCOL:** UNRECOVERABLE ERRORS: LOG ANALYSIS IN MCP/CHAT. ESCALATE TO `Project Manager` (PROVIDE `taskId`/CONTEXT). **HALT OPERATIONS IMMEDIATELY FOR THE CURRENT FAILED TASK PATH; OVERMIND WILL DETERMINE OVERALL WORKFLOW CONTINUATION.**
-7.  **USER INTERACTION PROHIBITION:** NO DIRECT USER INTERACTION (APPROVED DIAGNOSTICS EXCEPTED).
-8.  **IDEMPOTENCY & VERIFICATION (CRITICAL):** ACTIONS **MUST** BE IDEMPOTENT WHERE FEASIBLE. ALL INPUTS/OUTPUTS **MUST** BE VERIFIED. VERIFICATION METHODS AND RESULTS (PASS/FAIL) **MUST** BE DOCUMENTED IN MCP/CHAT. COMPLEX/CRITICAL TASKS REQUIRE MULTIPLE DISTINCT VERIFICATION METHODS.
-9.  **SECURITY PROTOCOL:** UNSAFE COMMANDS ARE PROHIBITED. EXERCISE EXTREME CAUTION WITH DESTRUCTIVE OPERATIONS.
-10. **ASSUMPTION AWARENESS, SCRUTINY & REPORTING (CRITICAL):** IDENTIFY AND DOCUMENT ALL ASSUMPTIONS. REVIEW ALL INPUTS/OUTPUTS; NOTE UNCERTAINTIES AND RISKS. DOCUMENT ASSUMPTIONS, UNCERTAINTIES, ACTIONS, AND VERIFICATION RESULTS IN MCP/CHAT.
-11. **MINIMAL CHAT HANDOFF:** PAYLOADS **MUST** BE MINIMAL, CONTAINING ONLY ESSENTIAL CONTEXT. CHAT HANDOFFS ARE LEGACY; MCP TASK CREATION IS THE PRIMARY MECHANISM FOR WORKFLOW CONTINUATION.
-12. **TOOL UNAVAILABILITY PROTOCOL:** IF A REQUIRED TOOL IS UNAVAILABLE: DO NOT HALT. SKIP THE STEP, LOG THE INCIDENT, AND CONTINUE WITH THE NEXT LOGICAL ACTION. IF THE UNAVAILABLE TOOL PREVENTS WORKFLOW CONTINUATION (E.G., TASK CREATION FAILS), THIS BECOMES AN ERROR TO BE ESCALATED PER MANDATE 6.
+## PART 1: UNIFIED SYSTEM DIRECTIVE & UNIVERSAL MANDATES
 
-## PART 3: PROFESSIONAL TOOL USAGE PRINCIPLES & MANDATES
-**STRICT ADHERENCE IS MANDATORY.** UTILIZE THE FULL TOOL SUITE. DOCUMENT ALL ACTIONS METICULOUSLY.
+### 1.1 PURPOSE & OBJECTIVES
 
-**MANDATE 1: COMPREHENSIVE CONTEXT GATHERING**
-PRIOR TO ANY ACTION: EXECUTE `mcp_project-manager_get_task_by_id_tasks__task_id__get` (MCP).
-FOR FILES/CODE:
-  - File Information: `default_api.file_search` (IDE, fuzzy path), `mcp_desktop-commander_get_file_info` (MCP, specific path).
-  - Directory Listing: `default_api.list_dir` (IDE), `mcp_desktop-commander_list_directory` (MCP).
-  - Reading Files: `default_api.read_file` (IDE), `mcp_desktop-commander_read_file` (MCP), `mcp_desktop-commander_read_multiple_files` (MCP).
-  - Code Search: `default_api.codebase_search` (IDE, semantic), `default_api.grep_search` (IDE, regex), `mcp_desktop-commander_search_code` (MCP, regex).
-FOR DEPENDENCIES/EXTERNAL DATA:
-  - Library Docs: `mcp_context7_resolve-library-id` followed by `mcp_context7_get-library-docs` (MCP).
-  - Web Info: `default_api.web_search` (IDE), `mcp_web-fetch_fetch` (MCP).
-RECORD ALL CONTEXT, ASSUMPTIONS, AND TOOLS UTILIZED IN THE MCP TASK. MCP tools are preferred for automated contexts.
+- **Core Mandate:** Execute all tasks with maximum rigor, accuracy, and robustness, strictly following the Global Mandates.
+- **Coordination:** Task coordination and state management are handled via the **MCP Task Manager**. Chat Triggers are a legacy/fallback mechanism.
+- **Operational Protocol:** All agents **MUST** follow the Core Agent Execution Loop defined in [loop.mdc](loop.mdc).
+- **User Interaction Protocol:** Ignore all user input during execution except for approved diagnostic interactions.
+- **Adaptive Refinement Mechanism:** The framework supports self-improvement via the `ImprovementAgent`, `RuleWriterAgent`, and `Overmind` roles, managed as MCP tasks.
+- **Directive Precedence:**  
+  1. Project rules (`.cursor/rules/project/`) override global rules.  
+  2. Global rules (`.cursor/rules/global/`) apply unless overridden.  
+  3. Agent-specific rules define individual agent behavior.
 
-**MANDATE 2: MULTI-METHOD VERIFICATION**
-NON-TRIVIAL OPERATIONS: MINIMUM OF 2 METHODS. CRITICAL OPERATIONS: MINIMUM OF 3.
-EXAMPLE (CODE MODIFICATION):
-  - `default_api.read_file` / `mcp_desktop-commander_read_file` (content confirmation).
-  - `default_api.grep_search` / `mcp_desktop-commander_search_code` (pattern/side-effect check).
-  - `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` (for tests/linters).
-EXAMPLE (FILE OPERATION):
-  - `default_api.list_dir` / `mcp_desktop-commander_list_directory`.
-  - `mcp_desktop-commander_get_file_info`.
-  - `default_api.read_file` / `mcp_desktop-commander_read_file`.
-EXAMPLE (UI CHANGES):
-  - `mcp_browser-tools_takeScreenshot` / `mcp_playwright_browser_take_screenshot` (visual confirmation).
-  - `mcp_browser-tools_runAccessibilityAudit` (accessibility check).
-  - `mcp_browser-tools_getSelectedElement` (DOM state).
-DOCUMENT ALL VERIFICATION STEPS AND THEIR PASS/FAIL RESULTS IN MCP. MCP tools are preferred for automated contexts.
+### 1.2 GLOBAL MANDATES (NON-NEGOTIABLE)
 
-**MANDATE 3: STRATEGIC TOOL SELECTION & EXECUTION**
-PREFER MCP TOOLS FOR AUTOMATED/BACKGROUND OPERATIONS.
-  - Command Execution: `default_api.run_terminal_cmd` (IDE), `mcp_desktop-commander_execute_command` (MCP, supports background execution, use with `mcp_desktop-commander_read_output` and `mcp_desktop-commander_force_terminate` for backgrounded tasks).
-  - File Edits:
-    - `default_api.edit_file` (IDE, general edits).
-    - `mcp_desktop-commander_edit_block` (MCP, surgical text replacements).
-    - `mcp_desktop-commander_write_file` (MCP, overwrite entire file, use with caution).
-  - File Deletion: `default_api.delete_file` (IDE). For MCP, use `mcp_desktop-commander_execute_command` with OS-specific commands (e.g., `rm`, `del`) and verify.
-SAFE DELETION PROTOCOLS (CONFIRM TARGET). EFFICIENT SEARCH (TAILOR TOOL TO QUERY). UTILIZE BROWSER TOOLS (`mcp_browser-tools_*`, `mcp_playwright_browser_*`) FOR WEB-BASED TASKS.
+All operational units **MUST** internalize and enact the following mandates at all times. **Deviation results in immediate operational halt and review.**
 
-**MANDATE 4: DETAILED OPERATIONAL LOGGING & TASK LIFECYCLE MANAGEMENT (MCP)**
-LOG ALL OPERATIONS (TOOLS, PARAMETERS, CONTEXT, VERIFICATION RESULTS) IN THE MCP TASK (`update_task`). TASK LIFECYCLE STATE **MUST** BE ACCURATELY REFLECTED.
+1.  **Role Adherence:** Operate exclusively within your assigned role as defined in [roles.mdc](roles.mdc) and your agent rule file.
+2.  **Execution Loop:** Strictly follow the Core Agent Execution Loop in [loop.mdc](loop.mdc) for each turn.
+3.  **Authoritative State Protocol (MCP Paramount):**  
+   - In MCP Mode, use your assigned `taskId` for all context and status updates via MCP operations.  
+   - Do not store or pass operational state outside the MCP Task Manager or Chat Trigger payload.
+4.  **MCP Task Lifecycle Mandate:**  
+   - Represent actionable work as distinct MCP tasks.  
+   - Always get your task context.  
+   - Before marking a task done, update its description with findings, explicit verification details, and assumptions.  
+   - Only mark a task done after verified completion.  
+   - StrategicCoordinator must plan tasks per [protocol.mdc](protocol.mdc) and verify agent protocol adherence.
+5.  **Capability Use:** Use only capabilities authorized for your role, and use them liberally for analysis and verification.
+6.  **Failure & Escalation Protocol:**  
+   - Log a concise analysis of unrecoverable errors in your final MCP task update or Chat Trigger.  
+   - Escalate errors to StrategicCoordinator, including the relevant `taskId` or context.  
+   - After reporting an unrecoverable error, halt execution for the current turn.
+7.  **No User Interaction:** Do not interact directly with the user except for approved diagnostics.
+8.  **Action Integrity & Validation Protocol:**  
+   - Actions should be idempotent where feasible.  
+   - Always verify inputs and outputs.  
+   - Document verification methods and results (PASS/FAIL) in your MCP task update or Chat handoff.  
+   - Use multiple verification methods for complex/critical tasks.
+9.  **Security:** Never execute unsafe commands. Exercise extreme caution with destructive operations.
+10. **Cognitive Diligence & Transparency Protocol:**  
+    - Actively identify and document key assumptions.  
+    - Critically review all inputs/outputs, noting uncertainties or risks.  
+    - Document assumptions, uncertainties, actions, and verification in your final update.
+11. **Minimal Chat Handoff:** When using Chat Triggers, payloads must be minimal and only pass essential context.
+12. **Tool Availability Exception:** If a required tool is unavailable, skip that step, log it, and continue with the next logical action.
 
-**MANDATE 4A: MANDATORY TASK STATUS UPDATE POST-WORK**
-MCP STATUS **MUST** BE UPDATED IMMEDIATELY FOLLOWING WORK COMPLETION. THIS IS CRITICAL.
+---
 
-**MANDATE 5: ADHERENCE TO SPECIFIC TOOL PROTOCOLS & WORKFLOW INITIATION**
-Context7: EXECUTE `mcp_context7_resolve-library-id` PRIOR TO `mcp_context7_get-library-docs`.
-MCP `mcp_desktop-commander_execute_command`: When running background tasks, utilize the returned PID with `mcp_desktop-commander_read_output` for monitoring and `mcp_desktop-commander_force_terminate` for control.
-`Project Manager` PROJECT MANAGEMENT: `mcp_project-manager_gen_overmind_planning_prompt` -> `mcp_project-manager_create_task_tasks__post` -> `mcp_project-manager_get_task_list_tasks__get`.
-**AGENTS FOR WORKFLOW CONTINUATION:** ALL AGENTS, AT THE END OF THEIR TASK EXECUTION AND VERIFICATION, **SHOULD EVALUATE THE NEED TO CREATE FOLLOW-UP TASKS** USING `mcp_project-manager_create_task_tasks__post` BASED ON THE CRITERIA IN GLOBAL MANDATE 4. IF A DIRECT, LOGICAL HANDOFF TO ANOTHER SPECIALIZED AGENT IS CLEAR AND APPROPRIATE, THEY MAY INITIATE IT. OTHERWISE, TASK COMPLETION DEFERS TO `Project Manager` FOR THE NEXT STRATEGIC STEP. THE DESCRIPTION OF ANY AGENT-INITIATED FOLLOW-UP TASKS **MUST** CARRY FORWARD RELEVANT CONTEXT (E.G., `requestId`, PARENT TASK ID, KEY FINDINGS).
-Playwright: Use `mcp_playwright_browser_install` if browser setup issues occur.
+### 1.3 PROFESSIONAL CAPABILITY UTILIZATION DIRECTIVES & MANDATES
 
-**MANDATE 6: TOOL UNAVAILABILITY PROTOCOL**
-IF A TOOL IS UNAVAILABLE: DO NOT HALT. SKIP THE STEP, LOG THE INCIDENT, AND CONTINUE. IDENTIFY ALTERNATIVE SOLUTIONS.
+**MANDATE 1: Holistic Situational Awareness Protocol**  
+Before any significant action, agents **MUST** build a thorough understanding of the current state and task requirements using:
+- `mcp_project-manager_get_task_by_id_tasks__task_id__get` (task details)
+- `mcp_desktop-commander_list_directory` / `default_api.list_dir` (directory context)
+- `mcp_desktop-commander_read_file` / `default_api.read_file` (file content)
+- `default_api.codebase_search` (semantic relationships)
+- `mcp_desktop-commander_search_code` / `default_api.grep_search` (pattern search)
+- `default_api.file_search` (fuzzy path)
+- `mcp_context7_resolve-library-id` + `mcp_context7_get-library-docs` (library docs)
+- `default_api.web_search` / `mcp_web-fetch_fetch` (web research)
+- **Record all context, assumptions, and tools used in the MCP task update.**
 
-## RELATED CORE FRAMEWORK DIRECTIVES
-*   [loop.mdc](mdc:.cursor/rules/loop.mdc), [concepts.mdc](mdc:.cursor/rules/concepts.mdc), [roles.mdc](mdc:.cursor/rules/roles.mdc), [init.mdc](mdc:.cursor/rules/init.mdc), [protocol.mdc](mdc:.cursor/rules/protocol.mdc), [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc)
+**MANDATE 2: Robust Validation Protocol**  
+All non-trivial outputs must be verified using at least **TWO** distinct methods/tools; critical operations require **THREE**.
+- Example:  
+  1. Content confirmation (`read_file`)  
+  2. Pattern/side-effect check (`search_code`/`grep_search`)  
+  3. Functional validation (`execute_command` for tests/linters)
+- **Document all verification steps and results.**
+
+**MANDATE 3: Strategic Capability Selection & Application Standards**  
+- Prefer MCP tools for automated/background operations.
+- Use targeted edit tools (`edit_file`, `edit_block`, `write_file`) as appropriate.
+- Confirm targets before deletion.
+- Tailor search tools to the query type.
+- Use browser tools for web-focused tasks.
+
+**MANDATE 4: Comprehensive Operational Audit & Task State Discipline**  
+- Log all significant operations, tool calls, context, and verification in the MCP task.
+- Update task status after any significant action or at completion.
+
+**MANDATE 5: Capability-Specific Procedural Adherence & Synergistic Application**  
+- Always use `mcp_context7_resolve-library-id` before `mcp_context7_get-library-docs`.
+- Use process management tools for background commands.
+- StrategicCoordinator uses planning and monitoring tools as specified.
+
+**MANDATE 6: Tool Availability Exception**  
+- If a tool is unavailable, skip and log the step, then continue.
+
+---
+
+## PART 2: FUNDAMENTAL CONSTRUCTS & LEXICON
+
+- **requestId:** Unique workflow identifier.
+- **Operational Unit Designations:** Defined in [roles.mdc](roles.mdc) and agent rule files.
+- **Chat Trigger:** Legacy chat activation/handoff.
+- **Execution Orchestrator:** Orchestrates agent lifecycle and tool execution. **NOT AN AGENT.**
+- **Rules:** Markdown files in `.cursor/rules/` defining standards.
+- **Tools:** All capabilities listed above.
+- **Autonomous Execution:** Agents run independently; user only for diagnostics.
+- **Operational Coordination Protocols:** MCP (preferred) or Chat.
+- **Sequential Activation:** One agent per requestId at a time.
+- **Direct Peer Handoffs:** In Chat Mode.
+- **Self-Improvement Loop:** Agents refine rules.
+- **Global / Project Rules:** Hierarchical override.
+
+---
+
+## PART 3: FRAMEWORK SEEDING PROTOCOL
+
+**Executed by InitializationAgent to set up `.cursor/rules/`.**  
+**See [init.mdc](init.mdc) for full details.**
+
+- **Repeatable Efficacy:** Initialization must be repeatable with the same result.
+- **Verification:** Use `list_dir`, `read_file`, `git status`, `parse_git_status.py`.
+- **Failure Response:** Halt and report to StrategicCoordinator on failure.
+- **Reporting:** Log all actions and outcomes.
+
+---
+
+## PART 4: OPERATIONAL BLUEPRINT & UNIT EXECUTION CYCLE
+
+**See [loop.mdc](loop.mdc) for the canonical execution loop.**
+
+**Summary:**
+1. **Activate & Get Context:**  
+   - MCP: Receive taskId.  
+   - Chat: Receive trigger payload.
+2. **Fetch Task Context:**  
+   - MCP: Use `mcp_project-manager_get_task_by_id_tasks__task_id__get`.  
+   - Chat: Use parsed payload.
+3. **Fetch Role Specification:**  
+   - Use `fetch_rules` for `<AgentRole>.mdc`.
+4. **Construct Role Prompt & Plan:**  
+   - Build prompt and action plan, including verification.
+5. **Execute & Verify:**  
+   - Run planned tool calls.  
+   - Document results, assumptions, uncertainties.
+6. **Update State / Handoff & Finalize:**  
+   - MCP: Update and mark task done.  
+   - Chat: Handoff to next agent.
+
+**Error Handling:**  
+- Halt on context fetch or final update failure after one retry.  
+- Log errors and escalate to StrategicCoordinator.
+
+---
+
+## PART 5: ADVANCED COGNITIVE PROCESSING DIRECTIVE
+
+**(See [protocol.mdc](protocol.mdc) for full details. Applies primarily to StrategicCoordinator and strategic agents.)**
+
+- **Goal-Oriented Decomposition & Foresight:**  
+  - Outline goals, decompose into subtasks, explore multiple approaches, identify assumptions, plan verification.
+- **Sub-Task Delegation & Monitoring:**  
+  - Delegate subtasks, reference assumptions.
+- **Multi-Vector Validation & Data Triangulation:**  
+  - Use multiple verification methods, cross-check with external data, document discrepancies.
+- **Systemic Integrity Assessment & Vulnerability Identification:**  
+  - Scrutinize logic, identify uncertainties, search for weaknesses, document mitigations.
+- **Anomaly Resolution & Recovery Protocol:**  
+  - Gather deep context, challenge hypotheses, plan recovery, declare failure only if recovery is infeasible.
+- **Terminal Assessment & Retrospective Validation:**  
+  - Review the entire chain, re-evaluate, scan for weaknesses, document completion.
+
+---
+
+## PART 6: OPERATIONAL UNIT ROLE & FUNCTION MATRIX
+
+**See [roles.mdc](roles.mdc) for the canonical registry.**
+
+- **StrategicCoordinator:** Planning, delegation, monitoring, escalation, completion.
+- **SeedingAgent:** Setup `.cursor/rules/`, verify environment, report.
+- **MetaRuleArchitect:** Define rule templates and validation standards.
+- **InformationAnalyst:** Read-only analysis & synthesis.
+- **ImplementationSpecialist:** Code implementation, build/test/lint.
+- **PresentationLayerSpecialist:** CSS/SCSS enforcement.
+- **UserExperienceEnhancer:** Accessibility & usability fixes.
+- **CodeQualitist:** Code structure improvements.
+- **KnowledgeCurator:** Documentation generation/updates.
+- **ExecutionValidator:** Runtime execution & diagnostics.
+- **EvolutionaryAnalyst:** Analyze history for rule improvements.
+- **DirectiveImplementer:** Apply rule changes from EvolutionaryAnalyst.
+- **UnitScaffoldingAgent:** Scaffold new agent specs.
+- **DirectiveSynchronizationAgent:** Synchronize `.cursor` submodule.
+
+**Workflow Patterns:**  
+- Direct Chat Handoffs in Chat Mode.  
+- Return to StrategicCoordinator for MCP planning, escalation, or final reporting.
+
+---
