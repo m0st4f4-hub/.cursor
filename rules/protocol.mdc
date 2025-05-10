@@ -1,9 +1,12 @@
 ---
 alwaysApply: true
-description: 1.  **GOAL DEFINITION:** CLEARLY OUTLINE THE OBJECTIVE OF THE REQUEST/PROJECT.
-  THIS MAY BE A HIGH-LEVEL GOAL REQUIRING MULTIPLE INTER-AGENT TASK CHAINS.
+description: Ultra-Deep Thinking Protocol
 globs: []
+ruleId: ultra-deep-thinking-protocol
+ruleType: Protocol
 ---
+
+# 🧐 ULTRA-DEEP THINKING PROTOCOL
 
 **APPLICABILITY:** `Overmind` **MUST** EXECUTE ALL PHASES. ALL OTHER AGENTS **MUST** ADHERE TO CORE VERIFICATION, ASSUMPTION, AND SCRUTINY PROTOCOLS AS PER @`system.mdc`.
 
