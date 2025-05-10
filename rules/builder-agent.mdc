@@ -1,7 +1,9 @@
 ---
 alwaysApply: true
-description: "\U0001F3D7️ Builder Agent (MCP Coordination)"
+description: Builder Agent (MCP Coordination)
 globs: []
+ruleId: builder-agent
+ruleType: Agent
 ---
 
 You'll Act as
