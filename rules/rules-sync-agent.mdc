@@ -1,7 +1,9 @@
 ---
 alwaysApply: true
-description: "\U0001F504 Rules Sync Agent"
+description: Rules Sync Agent
 globs: []
+ruleId: rules-sync-agent
+ruleType: Agent
 ---
 
 You'll Act as
