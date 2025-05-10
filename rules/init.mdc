@@ -8,36 +8,36 @@ ruleType: Procedure
 
 # ✨ INITIALIZATION PROCEDURE (MANDATORY)
 
-**OBJECTIVE:** `InitializationAgent` **MUST** EXECUTE THIS PROCEDURE TO ENSURE THE `.cursor/` RULESET DIRECTORY EXISTS AND IS CORRECTLY CONFIGURED.
-**EXECUTOR:** `InitializationAgent` ONLY.
-**ACTIVATION:** TRIGGERED BY `Project Manager`. `InitializationAgent` **MUST** FETCH OWN RULES (`initialization-agent.mdc`) PRIOR TO EXECUTION.
+**OBJECTIVE:** SeedingAgent **MUST** EXECUTE THIS PROCEDURE TO ENSURE THE `.cursor/` RULESET DIRECTORY EXISTS AND IS CORRECTLY CONFIGURED.
+**EXECUTOR:** SeedingAgent ONLY.
+**ACTIVATION:** TRIGGERED BY StrategicCoordinator. SeedingAgent **MUST** FETCH OWN RULES (`seeding-agent.mdcc`) PRIOR TO EXECUTION.
 
 **GOVERNING PRINCIPLES (ADHERENCE IS MANDATORY):**
 *   **IDEMPOTENCY:** REPEATED EXECUTION **MUST** YIELD THE IDENTICAL VALID END STATE.
 *   **VERIFICATION:** ALL CRITICAL STEPS **MUST** BE VERIFIED FOR SUCCESS OR FAILURE (NOT MERELY EXIT CODES). OUTCOMES **MUST** BE DOCUMENTED.
-*   **ERROR PROTOCOL:** IF VERIFICATION FAILS, OPERATIONS **MUST HALT** IMMEDIATELY. REPORT TO `Project Manager` IS MANDATORY.
+*   **ERROR PROTOCOL:** IF VERIFICATION FAILS, OPERATIONS **MUST HALT** IMMEDIATELY. REPORT TO StrategicCoordinator IS MANDATORY.
 *   **AUTHORIZED ACTIONS:** EXECUTE ONLY SPECIFIED STANDARD OPERATIONS AND GIT COMMANDS. DEVIATION IS PROHIBITED.
-*   **REPORTING:** FINAL REPORT TO `Project Manager` **MUST** CONTAIN: SUMMARY, WARNINGS, VERIFICATION DETAILS, AND STATUS.
+*   **REPORTING:** FINAL REPORT TO StrategicCoordinator **MUST** CONTAIN: SUMMARY, WARNINGS, VERIFICATION DETAILS, AND STATUS.
 
 ## WORKFLOW (MANDATORY EXECUTION SEQUENCE)
 
-### PHASE 0: CONTEXT ACQUISITION
-1.  **RULE FETCH:** EXECUTE `default_api.fetch_rules(rule_names: ['agents/initialization-agent'])` (IDE). If operating in a pure MCP context and path is known, `mcp_desktop-commander_read_file` could be an alternative for the agent's own rule.
+### PHASE 0: DIRECTIVE ASSIMILATION
+1.  **RULE FETCH:** EXECUTE `default_api.fetch_rules(rule_names: ['agents/seeding-agent'])` (IDE). If operating in a pure MCP context and path is known, `mcp_desktop-commander_read_file` could be an alternative for the agent's own rule.
 2.  **CONTEXT PARSING:** EXTRACT `requestId` AND OTHER NECESSARY DATA FROM TRIGGER/MCP TASK.
 
-### PHASE 1: PROJECT STATE ASSESSMENT
+### PHASE 1: WORKSPACE INTEGRITY VALIDATION
 1.  **GIT STATUS VALIDATION:** VERIFY GIT AVAILABILITY. DETERMINE IF OPERATING WITHIN A GIT REPOSITORY (`isGitRepo`). (Likely uses `default_api.run_terminal_cmd` or `mcp_desktop-commander_execute_command` with `git status`).
 2.  **`.cursor` DIRECTORY VERIFICATION:** LIST `.` CONTENTS (e.g., using `default_api.list_dir(relative_workspace_path='.')` (IDE) or `mcp_desktop-commander_list_directory(path='.')` (MCP)) TO CONFIRM EXISTENCE OF `.cursor` (`cursorDirExists`).
 3.  **EMPTY DIRECTORY CHECK (NON-GIT):** IF `!isGitRepo`, LIST `.` CONTENTS (as above) TO IDENTIFY OTHER FILES/FOLDERS (`isNotEmpty`).
 
-### PHASE 2: SCENARIO-BASED WORKFLOW EXECUTION
+### PHASE 2: RULESET DEPLOYMENT PROTOCOL
 *Standard git/shell commands below would be executed via `default_api.run_terminal_cmd` (IDE context) or preferably `mcp_desktop-commander_execute_command` (MCP context for automation). File reading/listing would use corresponding IDE or MCP tools.*
 
 ➡️ **SCENARIO A: GIT REPOSITORY (`isGitRepo`)**
 1.  **EXISTING `.cursor` PROTOCOL:** IF `cursorDirExists`: EXECUTE `git submodule status .cursor`. IF VALID SUBMODULE, PROCEED TO A.4. ELSE (NOT SUBMODULE/ERRORS): LOG WARNING, EXECUTE `rm -rf .cursor` (VERIFY). IF REMOVAL FAILS, HALT. PROCEED TO A.2.
 2.  **ROOT `.gitignore` MODIFICATION:** SET `rootGitignoreModified = false`. READ `.gitignore` (e.g., `default_api.read_file` or `mcp_desktop-commander_read_file`). SEARCH FOR `.cursor/`. IF FOUND: MODIFY TO `# .cursor/` (e.g., using `default_api.edit_file` or `mcp_desktop-commander_edit_block`). LOG ACTION. SET `rootGitignoreModified = true`. VERIFY MODIFICATION. IF VERIFICATION FAILS, HALT.
 3.  **SUBMODULE ADDITION:** EXECUTE `git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`. VERIFY CREATION OF `.cursor` AND `.gitmodules`. READ `.gitmodules` (e.g., `default_api.read_file` or `mcp_desktop-commander_read_file`) TO CONFIRM `[submodule ".cursor"]`. IF FAILS (CONFLICT): EXECUTE `git submodule add --force ...` ONCE. IF FAILURE PERSISTS, HALT.
-4.  **SUBMODULE UPDATE:** EXECUTE `git submodule update --init --recursive`. VERIFY PRESENCE OF `.cursor/rules` (E.G., [system.mdc](mdc:.cursor/rules/system.mdc) EXISTS, check with `default_api.list_dir` or `mcp_desktop-commander_list_directory`). IF FAILS: RETRY ONCE. IF FAILURE PERSISTS, HALT. PROCEED TO PHASE 3.
+4.  **SUBMODULE UPDATE:** EXECUTE `git submodule update --init --recursive`. VERIFY PRESENCE OF `.cursor/rules` (E.G., [system.mdcc](mdc:.cursor/rules/system.mdcc) EXISTS, check with `default_api.list_dir` or `mcp_desktop-commander_list_directory`). IF FAILS: RETRY ONCE. IF FAILURE PERSISTS, HALT. PROCEED TO PHASE 3.
 
 ➡️ **SCENARIO B: NON-GIT, EMPTY REPOSITORY (`!isGitRepo`, `!isNotEmpty`)**
 1.  **EXISTING `.cursor` PROTOCOL:** IF `cursorDirExists`: LOG WARNING, EXECUTE `rm -rf .cursor`. VERIFY. IF REMOVAL FAILS, HALT.
@@ -48,13 +48,13 @@ ruleType: Procedure
 1.  IF `cursorDirExists`: HALT. REPORT: "NON-GIT PROJECT CONTAINS UNEXPECTED `.cursor` DIRECTORY. MANUAL INTERVENTION MANDATORY."
 2.  ELSE (`!cursorDirExists`): HALT. REPORT: "AUTOMATED CLONE TO NON-EMPTY, NON-GIT DIRECTORY PROHIBITED. INITIALIZE GIT OR CLEAR DIRECTORY."
 
-### PHASE 3: FINAL VERIFICATION & REPORTING
-1.  **FINAL SYSTEM CHECK:** LIST `.cursor/rules` CONTENTS (e.g., `default_api.list_dir` or `mcp_desktop-commander_list_directory`). READ KEY RULE FILE (E.G., `.cursor/rules/system.mdc` using `default_api.read_file` or `mcp_desktop-commander_read_file`) TO CONFIRM POPULATION.
-2.  **OUTCOME REPORTING:** REPORT SUCCESS/FAILURE (INCLUDING PHASE/STEP OF FAILURE, REASON, AND VERIFICATION DETAILS) TO `Project Manager`.
+### PHASE 3: OPERATIONAL READINESS CONFIRMATION & REPORTING
+1.  **FINAL SYSTEM CHECK:** LIST `.cursor/rules` CONTENTS (e.g., `default_api.list_dir` or `mcp_desktop-commander_list_directory`). READ KEY RULE FILE (E.G., `.cursor/rules/system.mdcc` using `default_api.read_file` or `mcp_desktop-commander_read_file`) TO CONFIRM POPULATION.
+2.  **OUTCOME REPORTING:** REPORT SUCCESS/FAILURE (INCLUDING PHASE/STEP OF FAILURE, REASON, AND VERIFICATION DETAILS) TO StrategicCoordinator.
 
 **ERROR PROTOCOL:** ANY VERIFICATION FAILURE DESIGNATED "HALT" **MUST** TRIGGER IMMEDIATE CESSATION OF OPERATIONS AND SUBMISSION OF A REPORT.
 
 ## CROSS-REFERENCES
-*   `initialization-agent.mdc`
-*   [system.mdc](mdc:.cursor/rules/system.mdc)
-*   [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc)
+*   `seeding-agent.mdcc`
+*   [system.mdcc](mdc:.cursor/rules/system.mdcc)
+*   [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc)
