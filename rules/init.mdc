@@ -1,10 +1,12 @@
 ---
 alwaysApply: true
-description: '1.  **RULE FETCH:** EXECUTE `default_api.fetch_rules(rule_names: [''agents/initialization-agent''])`
-  (IDE). If operating in a pure MCP context and path is known, `mcp_desktop-commander_read_file`
-  could be an alternative for the agent''s own rule.'
+description: Initialization Procedure (Mandatory)
 globs: []
+ruleId: initialization-procedure
+ruleType: Procedure
 ---
+
+# ✨ INITIALIZATION PROCEDURE (MANDATORY)
 
 **OBJECTIVE:** `InitializationAgent` **MUST** EXECUTE THIS PROCEDURE TO ENSURE THE `.cursor/` RULESET DIRECTORY EXISTS AND IS CORRECTLY CONFIGURED.
 **EXECUTOR:** `InitializationAgent` ONLY.
