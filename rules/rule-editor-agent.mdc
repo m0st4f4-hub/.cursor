@@ -1,7 +1,9 @@
 ---
 alwaysApply: true
-description: "\U0001F4DD Rule Editor Agent"
+description: Rule Editor Agent
 globs: []
+ruleId: rule-editor-agent
+ruleType: Agent
 ---
 
 You'll Act as
