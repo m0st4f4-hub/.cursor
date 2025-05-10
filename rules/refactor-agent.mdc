@@ -69,11 +69,26 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   **Decomposition:** Execute planned `mcp_project-manager_create_task_tasks__post` calls. Store new sub-task IDs.
 5.  **Update Task State & Plan/Initiate Next Steps (as per @`loop.mdc` Step 6):**
     *   Let `summary_report_for_current_task` detail: Action taken, Tools Utilized, Verification Methods/Results (PASS/FAIL - Tests MUST pass), Assumptions, Uncertainties, Sub-task IDs (if any). Include `requestId`.
-    *   **Plan Workflow Continuation:** If refactoring is successful, consider if follow-up tasks are needed: e.g., `DocsAgent` if public APIs/interfaces changed, `RunnerAgent` for more extensive integration tests if only unit tests were run, or even a `BuilderAgent` if the refactor enables a new feature build. Store any newly created follow-up `taskId`(s).
-    *   **Create Follow-up MCP Tasks (if planned):** Use `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgent>, project_id=self.original_project_id)`.
-    *   If task ongoing/recoverable failure (not test failure): `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: [list_of_new_task_ids_if_any]", completed=False)`.
-    *   If Test Failure (Critical): `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nCRITICAL FAILURE: Tests failed. " + summary_report_for_current_task, completed=True)`. No follow-up tasks created.
-    *   If task complete & tests passed: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: [list_of_new_task_ids_if_any]", completed=True)`.
+    *   **Evaluate Workflow Continuation (as per @`loop.mdc` Step 6.1 and @`system.mdc` Mandate 4):** 
+        *   If tests failed, `follow_up_justified` = false. No continuation by this agent.
+        *   Else (tests passed): Based on the nature of the refactor, determine if a follow-up task is justified. 
+        *   You **SHOULD** create a follow-up task IF:
+            *   The refactor had significant implications for documentation (e.g., changed public APIs) which are best handled by `DocsAgent`.
+            *   The refactor enables a specific new feature or build step that `BuilderAgent` should now tackle.
+            *   More extensive integration tests (beyond unit tests run by `RefactorAgent`) are a standard next step for `RunnerAgent`.
+        *   Let `follow_up_justified` = true if these conditions are met, else false. Let `created_follow_up_task_ids` = [].
+    *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** 
+        *   If `follow_up_justified`: Formulate `follow_up_title` and `follow_up_desc` for the target agent (e.g., `DocsAgent`, `BuilderAgent`, `RunnerAgent`). Call `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgentName>, project_id=self.original_project_id)`. Store the new `taskId` in `created_follow_up_task_ids`.
+    *   **Determine Final Status (as per @`loop.mdc` Step 6.3):**
+        *   Let `final_status_for_mcp`.
+        *   If tests failed (Critical Failure): `final_status_for_mcp` = "FAILED". `summary_report_for_current_task` = "CRITICAL FAILURE: Tests failed. " + `summary_report_for_current_task`.
+        *   Else if tests passed AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
+        *   Else if tests passed AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "COMPLETED_AWAITING_OVERMIND".
+        *   Else (e.g., after decomposition, other recoverable error): `final_status_for_mcp` = "IN_PROGRESS_AWAITING_SUBTASK" or similar. Set `completed_flag_for_mcp` = False.
+    *   **Comprehensive MCP Update (as per @`loop.mdc` Step 6.4):**
+        *   Let `completed_flag_for_mcp` be True unless specific conditions for ongoing work by this agent are met.
+        *   If `final_status_for_mcp` is "FAILED", `created_follow_up_task_ids` must be empty.
+        *   You **WILL** update the task by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=completed_flag_for_mcp)`.
 6.  **Terminate Turn:** Your execution for this task ends. `Overmind` manages the overall workflow.
 
 ## 4. YOUR TOOLS
