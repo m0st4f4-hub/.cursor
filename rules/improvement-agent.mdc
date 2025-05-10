@@ -41,10 +41,18 @@ You **MUST** recall and integrate the following foundational rules before procee
 4.  **Execute & Verify:** You **WILL** execute your planned analysis (e.g., reading files, searching codebase, fetching other task details, executing browser audits, potentially executing read-only analysis scripts or fetching web content). You **WILL** synthesize and verify your findings. Based on your analysis, you **WILL** formulate specific, justified improvement proposals (Problem, Solution, Justification, Risks). If authorized in `self.original_description`, you **WILL** also plan calls to `mcp_project-manager_create_task_tasks__post(title=new_task_title, description=new_task_desc, agent_name=<appropriate_agent>, project_id=self.original_project_id_if_available)` to create implementation tasks.
 5.  **Update Task State & Plan/Initiate Next Steps (as per @`loop.mdc` Step 6):**
     *   Let `detailed_analysis_summary_for_current_task` be a text including: Scope of Analysis, Data Sources Used, Tools Utilized (including any browser audits), Methods Applied, Key Findings, Assumptions Made, Your Improvement Proposals.
-    *   **Workflow Continuation (Implementation Task Creation):** If you were authorized AND planned to create implementation tasks in Step 4, you **WILL** now execute the planned `mcp_project-manager_create_task_tasks__post(...)` calls. Store the new `taskId`(s).
-    *   Append the list of any Implementation Task IDs you created (or state "None Created") to `detailed_analysis_summary_for_current_task`.
-    *   Finally, you **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + detailed_analysis_summary_for_current_task, completed=True)` for *your current* analysis task.
-    *   **Note on Further Continuation:** The `ImprovementAgent`'s role is primarily analysis and proposal, optionally initiating implementation. Further automated chaining beyond the tasks it directly creates for implementation is typically managed by `Overmind` based on the outcomes of those implementation tasks.
+    *   Let `created_implementation_task_ids` = [].
+    *   **Workflow Continuation (Implementation Task Creation - if authorized and planned):** 
+        *   If you were authorized in `self.original_description` AND planned to create implementation tasks in Step 4, you **WILL** now execute the planned `mcp_project-manager_create_task_tasks__post(...)` calls. Store the new `taskId`(s) in `created_implementation_task_ids`.
+    *   Append the list of `created_implementation_task_ids` (or state "None Created if not authorized/planned/successful") to `detailed_analysis_summary_for_current_task`.
+    *   **Determine Final Status (as per @`loop.mdc` Step 6.3):**
+        *   Let `final_status_for_mcp`.
+        *   If implementation tasks were created successfully (`created_implementation_task_ids` is not empty): `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_implementation_task_ids).
+        *   Else (no implementation tasks were created, either because not authorized, not planned, or creation failed - assuming analysis itself was successful): `final_status_for_mcp` = "COMPLETED_AWAITING_OVERMIND". (This means proposals are ready for Overmind to review and decide on implementation.)
+        *   If the analysis phase itself failed critically (e.g., couldn't access core data): `final_status_for_mcp` = "FAILED". `detailed_analysis_summary_for_current_task` = "FAILURE: Analysis could not be completed. " + `detailed_analysis_summary_for_current_task`.
+    *   **Comprehensive MCP Update (as per @`loop.mdc` Step 6.4):**
+        *   You **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + detailed_analysis_summary_for_current_task, status=final_status_for_mcp, completed=True)` for *your current* analysis task.
+    *   **Note on Further Continuation:** The `ImprovementAgent`'s role is primarily analysis and proposal. If it creates implementation tasks, further automated chaining beyond those is typically managed by `Overmind` based on the outcomes of those implementation tasks.
 6.  **Terminate Turn:** Your execution for this task ends. `Overmind` polling handles the next step.
 
 ## 4. YOUR TOOLS
