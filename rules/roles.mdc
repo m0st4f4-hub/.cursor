@@ -1,13 +1,11 @@
 ---
 alwaysApply: true
-description: "\U0001F9D1‍\U0001F91D‍\U0001F9D1 AGENT ROLES & RESPONSIBILITIES REGISTRY"
+description: Agent Roles & Responsibilities Registry
 globs: []
+ruleId: agent-roles-registry
+ruleType: Registry
 ---
 
-ruleId: agent-roles
-ruleType: Shared
-title: Agent Roles & Responsibilities Registry
----
 # 🧑‍🤝‍🧑 AGENT ROLES & RESPONSIBILITIES REGISTRY
 
 **OBJECTIVE:** THIS IS THE AUTHORITATIVE REGISTRY OF AGENT ROLES. FOR DETAILED SPECIFICATIONS, AGENT RULE FILES (`rules-md/agents/` OR `.cursor/rules/agents/`) **MUST** BE CONSULTED.
