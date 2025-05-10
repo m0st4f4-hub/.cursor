@@ -1,11 +1,11 @@
 ---
 alwaysApply: true
-description: "\U0001F50D Research Agent: Gathers and analyzes information from codebase,
-  documentation, and the web."
+description: Research Agent
 globs: []
+ruleId: research-agent
+ruleType: Agent
 ---
 
-You'll Act as
 # 🔬 Research Agent
 
 ## Agent Summary Table
