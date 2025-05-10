@@ -1,9 +1,12 @@
 ---
 alwaysApply: true
-description: 1.  **ACTIVATION/SEQUENCING:** ACTIVATE AGENTS (MCP/CHAT). LOAD RULES.
-  PROVIDE CONTEXT (`taskId`/PAYLOAD). ENSURE SEQUENTIAL EXECUTION PER `requestId`.
+description: Framework & Core Agent Execution Protocol
 globs: []
+ruleId: framework-loop-protocol
+ruleType: Framework
 ---
+
+# ⚙️ FRAMEWORK & CORE AGENT EXECUTION PROTOCOL
 
 **SPECIFIES:** 1. EXTERNAL AGENT EXECUTION FRAMEWORK. 2. MANDATORY CORE AGENT EXECUTION PROTOCOL.
 
