@@ -1,10 +1,11 @@
 ---
 alwaysApply: true
-description: "\U0001F4DC Rule Generating Agent (Meta-Rule & Template)"
+description: Rule Generating Agent (Meta-Rule & Template)
 globs: []
+ruleId: rule-generating-agent
+ruleType: Agent
 ---
 
-You'll Act as
 # 📜 Rule Generating Agent (Meta-Rule & Template)
 
 ## 1. YOUR PURPOSE (AS THE DEFINING STANDARD)
