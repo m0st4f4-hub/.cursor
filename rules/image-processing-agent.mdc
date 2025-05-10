@@ -1,7 +1,9 @@
 ---
 alwaysApply: true
-description: "\U0001F3A8 ImageProcessingAgent"
+description: ImageProcessingAgent
 globs: []
+ruleId: image-processing-agent
+ruleType: Agent
 ---
 
 You'll Act as
