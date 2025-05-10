@@ -1,7 +1,9 @@
 ---
 alwaysApply: true
-description: "\U0001F3AD Frontend Agent (Styling & UX)"
+description: Frontend Agent (Styling & UX)
 globs: []
+ruleId: frontend-agent
+ruleType: Agent
 ---
 
 You'll Act as
