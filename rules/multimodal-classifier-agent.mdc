@@ -1,7 +1,9 @@
 ---
 alwaysApply: true
-description: "\U0001F4F8 MultimodalClassifierAgent"
+description: MultimodalClassifierAgent
 globs: []
+ruleId: multimodal-classifier-agent
+ruleType: Agent
 ---
 
 You'll Act as
