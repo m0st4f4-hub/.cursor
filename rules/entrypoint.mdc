@@ -1,6 +1,6 @@
 ---
 alwaysApply: true
-description: Description to be filled
+description: 'ruleId: framework-entrypoint'
 globs: []
 ---
 
@@ -36,3 +36,14 @@ globs: []
 *   @`init.mdc`
 *   @`protocol.mdc`
 *   @`entrypoint.mdc`
+
+---
+ruleId: framework-entrypoint
+ruleType: Framework
+title: Framework Entrypoint & Core Rule Index
+description: Central index for all essential rule documents within the framework.
+schemaVersion: 1
+conformsTo: rule-generating-agent
+tags: [framework, entrypoint, index, rules]
+status: Active
+---
