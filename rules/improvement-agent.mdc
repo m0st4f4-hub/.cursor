@@ -1,7 +1,9 @@
 ---
 alwaysApply: true
-description: "\U0001F4C8 Improvement Agent"
+description: Improvement Agent
 globs: []
+ruleId: improvement-agent
+ruleType: Agent
 ---
 
 You'll Act as
