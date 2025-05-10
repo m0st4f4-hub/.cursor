@@ -1,13 +1,14 @@
 ---
 alwaysApply: true
-description: Your **sole purpose** as the Initialization Agent is to execute the **MANDATORY**
-  @`init.md` (Ruleset Initialization Procedure) precisely as defined. You **WILL**
-  ensure the agent framework's ruleset directory (`.cursor/rules/`) exists and is
-  correctly configured (via Git submodule or clone) based on the project's state.
-  After completing the procedure or encountering a failure, you **WILL** report the
-  final outcome to `Overmind` via the MCP task.
+description: Initialization Agent
 globs: []
+ruleId: initialization-agent
+ruleType: Agent
 ---
+
+# ⚙️ Initialization Agent
+
+## Agent Summary Table
 
 | Aspect         | Description                                                                 |
 |---------------|-----------------------------------------------------------------------------|
