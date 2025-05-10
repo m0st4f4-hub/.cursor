@@ -60,14 +60,24 @@ globs: []
 *   **PROCESS:** 1. **MCP UPDATE (EXECUTION START):** STATUS "EXECUTION IN PROGRESS". 2. **EXECUTE:** IMPLEMENT PLAN (Refer to agent-specific rules for tool selection, adhering to @`system.mdc` tool mandates). 3. **MCP UPDATE (VERIFICATION START):** STATUS "PENDING VERIFICATION". 4. **VERIFY RIGOROUSLY:** PER @`system.mdc` MANDATE 2 (MULTI-METHOD VERIFICATION). This may involve tools like `mcp_desktop-commander_execute_command` (for tests, linters), `mcp_desktop-commander_read_file`, `mcp_desktop-commander_search_code`, or browser audit tools (e.g., `mcp_browser-tools_runAccessibilityAudit`, `mcp_playwright_browser_snapshot`). 5. **ANALYZE/RECORD:** CONSOLIDATE RESULTS, VERIFICATION DATA, ASSUMPTIONS, UNCERTAINTIES. 6. **MCP UPDATE (POST-VERIFICATION):** STATUS REFLECTING OUTCOME (E.G., "VERIFICATION SUCCEEDED/FAILED").
 
 **STEP 6: UPDATE STATE / PLAN & INITIATE WORKFLOW CONTINUATION / FINALIZE TURN (FINAL ACTION)**
-*   **ACTION:** PERSIST RESULTS, PLAN AND INITIATE NECESSARY FOLLOW-UP TASKS, UPDATE FINAL TASK STATUS, THEN TERMINATE TURN.
+*   **ACTION:** PERSIST RESULTS, PLAN AND POTENTIALLY INITIATE NECESSARY FOLLOW-UP TASKS, UPDATE FINAL TASK STATUS, THEN TERMINATE TURN.
 *   **PROCESS (MCP):** 
-    1.  **PLAN WORKFLOW CONTINUATION:** BASED ON THE CURRENT TASK'S OUTCOME, THE AGENT'S ROLE, AND THE OVERALL GOAL, DETERMINE IF A FOLLOW-UP TASK BY ANOTHER (OR THE SAME) SPECIALIZED AGENT IS REQUIRED. THIS IS A CRITICAL STEP FOR ENSURING AUTOMATED, NON-STOP WORKFLOWS. 
-    2.  **CREATE FOLLOW-UP TASKS (IF PLANNED):** IF CONTINUATION IS NEEDED, USE `mcp_project-manager_create_task_tasks__post` TO CREATE THE NEW TASK(S). THE `description` FOR THE NEW TASK **MUST** INCLUDE: RELEVANT CONTEXT FROM THE CURRENT TASK (E.G., `requestId`, CURRENT `taskId` AS PARENT, KEY FINDINGS, ARTIFACTS PRODUCED) AND CLEAR INSTRUCTIONS FOR THE NEXT AGENT. THE `agent_name` **MUST** BE SET TO THE APPROPRIATE SPECIALIZED AGENT. LOG THE NEWLY CREATED `taskId`(S).
-    3.  **COMPREHENSIVE UPDATE & FINAL STATUS OF CURRENT TASK:** UPDATE THE *CURRENT* MCP TASK (`mcp_project-manager_update_task_tasks__task_id__put`) **MUST** BE UPDATED. **MUST** INCLUDE FINDINGS SUMMARY (@`system.mdc` MANDATE 4: ACTIONS, TOOLS, VERIFICATION METHODS/RESULTS, ASSUMPTIONS, ERRORS), ANY NEWLY CREATED FOLLOW-UP `taskId`(S), AND FINAL STATUS (E.G., "COMPLETED_CONTINUED", "COMPLETED_HALTED", "BLOCKED", "FAILED"). SET `completed` FLAG TO `True`.
-    4.  **TERMINATE.**
+    1.  **EVALUATE WORKFLOW CONTINUATION (PER @`system.mdc` MANDATE 4):** BASED ON THE CURRENT TASK'S VERIFIED OUTCOME, THE AGENT'S ROLE, ITS SPECIFIC RULES, AND THE OVERALL GOAL (AS UNDERSTOOD FROM THE TASK DESCRIPTION), THE AGENT **MUST** DETERMINE IF A FOLLOW-UP TASK BY ANOTHER SPECIALIZED AGENT IS JUSTIFIED AND APPROPRIATE. AN AGENT **SHOULD** CREATE A FOLLOW-UP TASK IF:
+        *   Its verified output is a direct, unambiguous input for a *specific known successor agent*.
+        *   The continuation represents a clear, logical next step explicitly defined or strongly implied by its own role and rules for this outcome (e.g., `BuilderAgent` successfully completing code might trigger `RunnerAgent` for standard unit tests if not already done).
+        *   The type of handoff is an integral part of its designed workflow (e.g., `ImageProcessingAgent` preparing instructions for `RunnerAgent`).
+        IF NONE OF THESE ARE MET, THE AGENT **MUST NOT** CREATE A FOLLOW-UP TASK; `Overmind` WILL DIRECT THE NEXT STRATEGIC STEP.
+    2.  **CREATE FOLLOW-UP TASKS (IF JUSTIFIED IN STEP 6.1):** IF CONTINUATION IS JUSTIFIED, USE `mcp_project-manager_create_task_tasks__post` TO CREATE THE NEW TASK(S). THE `description` FOR THE NEW TASK **MUST** INCLUDE: RELEVANT CONTEXT FROM THE CURRENT TASK (E.G., `requestId`, CURRENT `taskId` AS PARENT, KEY FINDINGS, ARTIFACTS PRODUCED) AND CLEAR INSTRUCTIONS FOR THE NEXT AGENT. THE `agent_name` **MUST** BE SET TO THE APPROPRIATE SPECIALIZED AGENT. LOG THE NEWLY CREATED `taskId`(S).
+    3.  **DETERMINE FINAL STATUS OF CURRENT TASK:** 
+        *   If a follow-up task was created in 6.2: `final_status` = "COMPLETED_HANDOFF_TO_[NewTaskID(s)]"
+        *   If current task is complete and no follow-up task was created by this agent: `final_status` = "COMPLETED_AWAITING_OVERMIND"
+        *   If task is blocked: `final_status` = "BLOCKED"
+        *   If task failed unrecoverably: `final_status` = "FAILED"
+        *   (Other statuses like "COMPLETED_PARTIAL" can be used if defined by agent rules for specific scenarios where `Overmind` needs to review partial work before further agent assignment).
+    4.  **COMPREHENSIVE UPDATE & FINALIZATION OF CURRENT TASK:** UPDATE THE *CURRENT* MCP TASK (`mcp_project-manager_update_task_tasks__task_id__put`) **MUST** BE UPDATED. **MUST** INCLUDE FINDINGS SUMMARY (@`system.mdc` MANDATE 4: ACTIONS, TOOLS, VERIFICATION METHODS/RESULTS, ASSUMPTIONS, ERRORS), ANY NEWLY CREATED FOLLOW-UP `taskId`(S) (if applicable), AND THE `final_status` DETERMINED IN 6.3. SET `completed` FLAG TO `True`.
+    5.  **TERMINATE.**
 *   **PROCESS (CHAT - LEGACY):** 
-    1.  **DETERMINE NEXT AGENT.**
+    1.  **DETERMINE NEXT AGENT (IF APPLICABLE).**
     2.  **CONSTRUCT HANDOFF:** CONCISE PAYLOAD CONTAINING COMPREHENSIVE FINDINGS. (NOTE: "CONTINUOUS CHAT SEQUENCE" PAYLOAD MAY INCLUDE SEQUENCE CONTEXT).
     3.  **TRIGGER:** "Hey `<NextAgentRole>`, [Payload]".
     4.  **TERMINATE.**
