@@ -25,6 +25,13 @@ This document consolidates the System Prompt & Global Mandates, Core Concepts & 
   1. Project rules (`.cursor/rules/project/`) override global rules.  
   2. Global rules (`.cursor/rules/global/`) apply unless overridden.  
   3. Agent-specific rules define individual agent behavior.
+- **Core References:**  
+  - [system.mdc](system.mdc) (this doc)  
+  - [loop.mdc](loop.mdc)  
+  - [concepts.mdc](concepts.mdc)  
+  - [roles.mdc](roles.mdc)  
+  - [init.mdc](init.mdc)  
+  - [protocol.mdc](protocol.mdc) (for Overmind)
 
 ### 1.2 GLOBAL MANDATES (NON-NEGOTIABLE)
 
@@ -102,6 +109,10 @@ All non-trivial outputs must be verified using at least **TWO** distinct methods
 
 **MANDATE 6: Tool Availability Exception**  
 - If a tool is unavailable, skip and log the step, then continue.
+
+---
+
+### 1.4 MCP TOOL SERVER CONFIGURATION
 
 ---
 
