@@ -12,31 +12,31 @@ ruleType: Framework
 
 ## 1. CORE FRAMEWORK DIRECTIVES
 
-*   **SYSTEM OVERVIEW & GLOBAL MANDATES:** @`system.mdc` (OBJECTIVES, OPERATIONAL MODEL, MANDATES)
-*   **FRAMEWORK ENGINE & AGENT TURN PROTOCOL:** @`loop.mdc` (ENGINE, MANDATORY PROCEDURES)
-*   **CORE CONCEPTS & TERMINOLOGY:** @`concepts.mdc` (GLOSSARY)
-*   **ULTRA-DEEP THINKING PROTOCOL:** @`protocol.mdc` (Project Manager: STRATEGIC PLANNING, VERIFICATION, ANALYSIS)
-*   **INITIALIZATION PROCEDURE:** @`init.mdc` (InitializationAgent: `.cursor/rules/` ESTABLISHMENT)
-*   **FRAMEWORK ENTRYPOINT & CORE RULE INDEX:** @`entrypoint.mdc` (THIS INDEX)
+*   **SYSTEM OVERVIEW & GLOBAL MANDATES:** [system.mdc](mdc:.cursor/rules/system.mdc) (OBJECTIVES, OPERATIONAL MODEL, MANDATES)
+*   **FRAMEWORK ENGINE & AGENT TURN PROTOCOL:** [loop.mdc](mdc:.cursor/rules/loop.mdc) (ENGINE, MANDATORY PROCEDURES)
+*   **CORE CONCEPTS & TERMINOLOGY:** [concepts.mdc](mdc:.cursor/rules/concepts.mdc) (GLOSSARY)
+*   **ULTRA-DEEP THINKING PROTOCOL:** [protocol.mdc](mdc:.cursor/rules/protocol.mdc) (Project Manager: STRATEGIC PLANNING, VERIFICATION, ANALYSIS)
+*   **INITIALIZATION PROCEDURE:** [init.mdc](mdc:.cursor/rules/init.mdc) (InitializationAgent: `.cursor/rules/` ESTABLISHMENT)
+*   **FRAMEWORK ENTRYPOINT & CORE RULE INDEX:** [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc) (THIS INDEX)
 
 ## 2. AGENT & TOOL DIRECTIVES
 
 *   **AGENT ROLE DEFINITIONS:**
-    *   **REGISTRY:** @`roles.mdc` (MASTER LIST, SUMMARIES)
+    *   **REGISTRY:** [roles.mdc](mdc:.cursor/rules/roles.mdc) (MASTER LIST, SUMMARIES)
     *   **SPECIFICATIONS:** `@agents/` DIRECTORY (PRIMARY AGENT DIRECTIVES)
 
 ## 3. OPERATIONAL MANDATES
 
 *   AGENTS **MUST** FETCH THEIR OWN ROLE SPECIFICATION AT THE COMMENCEMENT OF EACH TURN.
-*   AGENTS **MUST** ADHERE TO THE OPERATIONAL MODEL DEFINED IN @`concepts.mdc` (INCLUDING @`system.mdc` MANDATES AND @`loop.mdc` LOOP), UNLESS EXPLICITLY OVERRIDDEN BY THEIR ROLE FILE.
+*   AGENTS **MUST** ADHERE TO THE OPERATIONAL MODEL DEFINED IN [concepts.mdc](mdc:.cursor/rules/concepts.mdc) (INCLUDING [system.mdc](mdc:.cursor/rules/system.mdc) MANDATES AND [loop.mdc](mdc:.cursor/rules/loop.mdc) LOOP), UNLESS EXPLICITLY OVERRIDDEN BY THEIR ROLE FILE.
 *   THIS DOCUMENT **MUST** BE USED AS THE PRIMARY INDEX FOR ALL CORE RULE DOCUMENTS.
 
 ## 4. RELATED CORE FRAMEWORK DIRECTIVES
 
-*   @`system.mdc`
-*   @`loop.mdc`
-*   @`concepts.mdc`
-*   @`roles.mdc`
-*   @`init.mdc`
-*   @`protocol.mdc`
-*   @`entrypoint.mdc`
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
+*   [init.mdc](mdc:.cursor/rules/init.mdc)
+*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc)
+*   [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc)

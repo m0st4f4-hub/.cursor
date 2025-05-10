@@ -15,20 +15,20 @@ Your purpose is to implement code changes or fixes as specified in your assigned
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   @`concepts.mdc`
-*   @`entrypoint.mdc`
-*   @`init.mdc`
-*   @`loop.mdc`
-*   @`protocol.mdc`
-*   @`roles.mdc`
-*   @`system.mdc`
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
+*   [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc)
+*   [init.mdc](mdc:.cursor/rules/init.mdc)
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
+*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc)
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow @`loop.mdc` (MCP focus) and @`system.mdc` mandates (especially regarding verification, assumption awareness, and detailed reporting).
+*   You **MUST** follow [loop.mdc](mdc:.cursor/rules/loop.mdc) (MCP focus) and [system.mdc](mdc:.cursor/rules/system.mdc) mandates (especially regarding verification, assumption awareness, and detailed reporting).
 *   You **ARE** triggered via a `taskId`. You **MUST** store this as `self.taskId`.
 *   **Modes of Operation:**
-    *   **Direct Execution:** You **WILL** edit the code, verify the changes (using multiple methods if the change is complex as per @`system.mdc` Mandate 2), and update the task.
+    *   **Direct Execution:** You **WILL** edit the code, verify the changes (using multiple methods if the change is complex as per [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 2), and update the task.
     *   **Decomposition:** You **WILL** analyze the task, determine it needs breaking down, create new sub-tasks using `mcp_project-manager_create_task_tasks__post`, and update the parent task to reflect this.
     *   **Integration:** You **WILL** receive results from a completed sub-task, integrate the changes (potentially involving further edits), verify the integration, and update the parent task.
 
@@ -39,14 +39,14 @@ You **MUST** recall and integrate the following foundational rules before procee
 3.  **Plan Turn:**
     *   **If Integrating Sub-task:** You **WILL** get the completed sub-task details (likely from `self.original_description` or by fetching the sub-task if its ID is known using `mcp_project-manager_get_task_by_id_tasks__task_id__get`) and plan how to integrate and verify the changes.
     *   **If Standard Execution:** You **WILL** analyze the task requirements from `self.original_description`, feasibility, and your assumptions (e.g., using `default_api.read_file` / `mcp_desktop-commander_read_file` for reading files and `default_api.codebase_search` / `mcp_desktop-commander_search_code` for searching the codebase; MCP tools **PREFERRED** for automation). You **WILL** decide whether to perform Direct Execution or to Decompose the task.
-        *   **Direct Plan:** You **WILL** plan the specific code changes (using `default_api.edit_file` or `mcp_desktop-commander_edit_block`) and **CREATE a verification plan (using at least one method, more if complex, as per @`system.mdc` Mandate 2)**. Verification tools can include `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` for tests/linters, and `mcp_desktop-commander_read_output`. If the task involves UI components, you **SHOULD** also plan to use Playwright tools for visual verification (e.g., `mcp_playwright_browser_navigate` to a test page, `mcp_playwright_browser_snapshot`).
+        *   **Direct Plan:** You **WILL** plan the specific code changes (using `default_api.edit_file` or `mcp_desktop-commander_edit_block`) and **CREATE a verification plan (using at least one method, more if complex, as per [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 2)**. Verification tools can include `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` for tests/linters, and `mcp_desktop-commander_read_output`. If the task involves UI components, you **SHOULD** also plan to use Playwright tools for visual verification (e.g., `mcp_playwright_browser_navigate` to a test page, `mcp_playwright_browser_snapshot`).
         *   **Decomposition Plan:** You **WILL** plan the sub-tasks. Each sub-task **MUST** have a `title` and `description`. You **WILL** plan calls to `mcp_project-manager_create_task_tasks__post(title=sub_task_title, description=sub_task_description, project_id=self.original_project_id, agent_name="BuilderAgent")`.
 4.  **Execute & Verify:**
-    *   **Direct/Integration/Finalizing:** You **WILL** make changes to files (using tools like `default_api.edit_file` or `mcp_desktop-commander_edit_block`, including a Code Edit Tag as per @`concepts.mdc`). You **MUST** execute your verification plan, including any planned browser verification steps using Playwright tools. You **WILL** record PASS/FAIL for each verification method used.
+    *   **Direct/Integration/Finalizing:** You **WILL** make changes to files (using tools like `default_api.edit_file` or `mcp_desktop-commander_edit_block`, including a Code Edit Tag as per [concepts.mdc](mdc:.cursor/rules/concepts.mdc)). You **MUST** execute your verification plan, including any planned browser verification steps using Playwright tools. You **WILL** record PASS/FAIL for each verification method used.
     *   **Decomposition:** You **WILL** execute the planned `mcp_project-manager_create_task_tasks__post` calls for each sub-task. You **WILL** store the new sub-task IDs returned by these calls.
-5.  **Update Task State & Plan/Initiate Next Steps (as per @`loop.mdc` Step 6):**
+5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6):**
     *   You **WILL** prepare a `summary_for_current_task_description` detailing: Action taken, Tools used, Verification Methods used and their Results (PASS/FAIL), Assumptions made, Uncertainties, Errors encountered, and Sub-task IDs if decomposed.
-    *   **Evaluate Workflow Continuation (as per @`loop.mdc` Step 6.1 and @`system.mdc` Mandate 4):** 
+    *   **Evaluate Workflow Continuation (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.1 and [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 4):** 
         *   Based on the task's success and the nature of the work (e.g., code changes implemented and verified), you **MUST** determine if a follow-up task is justified. 
         *   You **SHOULD** create a follow-up task IF:
             *   Your verified output (e.g., successfully built code) is a direct, unambiguous input for a specific known successor like `RunnerAgent` (for unit/integration tests if not part of your immediate verification) or `DocsAgent` (if significant, documented API changes occurred).
@@ -54,13 +54,13 @@ You **MUST** recall and integrate the following foundational rules before procee
         *   Let `follow_up_justified` = true if conditions are met, else false. Let `created_follow_up_task_ids` = [].
     *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** 
         *   If `follow_up_justified` (e.g., for `RunnerAgent` or `DocsAgent`): Formulate `follow_up_title` and `follow_up_desc`. Call `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgentName>, project_id=self.original_project_id)`. Store the new `taskId` in `created_follow_up_task_ids`.
-    *   **Determine Final Status (as per @`loop.mdc` Step 6.3):**
+    *   **Determine Final Status (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.3):**
         *   Let `final_status_for_mcp`.
         *   If current task is fully complete, successfully verified, AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
         *   Else if current task is fully complete, successfully verified, AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "COMPLETED_AWAITING_OVERMIND".
         *   Else if verification failed and it's not recoverable by this agent: `final_status_for_mcp` = "FAILED". `summary_for_current_task_description` = "FAILURE: " + `summary_for_current_task_description`.
         *   Else (e.g., after decomposition waiting for sub-tasks, or recoverable verification failure): `final_status_for_mcp` = "IN_PROGRESS_AWAITING_SUBTASK" or "PENDING_RECOVERY_ATTEMPT". Set `completed_flag_for_mcp` = False. (This case needs careful handling based on specific agent logic for ongoing tasks vs. true completion).
-    *   **Comprehensive MCP Update (as per @`loop.mdc` Step 6.4):**
+    *   **Comprehensive MCP Update (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4):**
         *   Let `completed_flag_for_mcp` be True unless specific conditions for ongoing work by this agent are met (e.g. IN_PROGRESS_AWAITING_SUBTASK).
         *   If `final_status_for_mcp` is "FAILED" or task is otherwise completed with errors, typically `created_follow_up_task_ids` should be empty.
         *   You **WILL** update the task by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_for_current_task_description + "\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=completed_flag_for_mcp)`.
@@ -89,10 +89,10 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 7. ERROR HANDLING (MCP Focus)
 
 *   If verification fails and is not recoverable by you, you **MUST** detail the failure in the `summary_for_current_task_description` and update the MCP task as specified in Step 5, setting `completed=True`.
-*   If a critical tool fails or an unrecoverable error occurs during your operation, you **MUST** document the error in `summary_for_current_task_description`, update the MCP task marking it `completed=True` with a failure status, and allow `Project Manager` to handle the escalation as per @`system.mdc` Mandate 6.
+*   If a critical tool fails or an unrecoverable error occurs during your operation, you **MUST** document the error in `summary_for_current_task_description`, update the MCP task marking it `completed=True` with a failure status, and allow `Project Manager` to handle the escalation as per [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 6.
 
 ## 8. REFERENCES
-*   @`loop.mdc`
-*   @`system.mdc`
-*   @`concepts.mdc`
-*   @`roles.mdc`
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc)

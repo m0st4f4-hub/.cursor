@@ -15,18 +15,18 @@ You **MUST** base your actions *only* on the detailed instructions provided in y
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   @`concepts.mdc`
-*   @`entrypoint.mdc`
-*   @`init.mdc`
-*   @`loop.mdc`
-*   @`protocol.mdc`
-*   @`roles.mdc`
-*   @`system.mdc`
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
+*   [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc)
+*   [init.mdc](mdc:.cursor/rules/init.mdc)
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
+*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc)
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
 *   @`agents/rule-generating-agent.mdc` (for rule conformance)
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow @`loop.mdc` (MCP focus) and @`system.mdc` mandates.
+*   You **MUST** follow [loop.mdc](mdc:.cursor/rules/loop.mdc) (MCP focus) and [system.mdc](mdc:.cursor/rules/system.mdc) mandates.
 *   You **ARE** triggered via a `taskId` that contains specifications for creating/modifying a rule. (Store as `self.taskId`).
 *   **Focus:** Your primary focus is **accurate creation or editing based on validated inputs** from the task. You **WILL** perform robust verification of your changes and the rule's conformance. You **WILL** provide clear reporting via the MCP task update.
 
@@ -41,11 +41,11 @@ You **MUST** recall and integrate the following foundational rules before procee
         *   If creating a new rule or full replacement: Plan `mcp_desktop-commander_write_file(path=target_file_path, content=new_rule_content)`.
         *   If modifying existing: Plan `mcp_desktop-commander_edit_block(file_path=target_file_path, old_string=..., new_string=..., expected_replacements=...)` based on precise instructions. (IDE alternative: `default_api.edit_file`).
         *   Plan verification: `mcp_desktop-commander_get_file_info(path=target_file_path)` for existence/size, or `mcp_desktop-commander_read_file(path=target_file_path)` and analyze content (e.g., for conformance to template, presence of key sections), or `mcp_desktop-commander_search_code(path=target_file_path, pattern=expected_content_snippet)`. (IDE alternatives: `default_api.read_file`, `default_api.grep_search`).
-        *   If creating/modifying an Agent rule, plan optional update to @`roles.mdc` (likely via `mcp_desktop-commander_edit_block` or `default_api.edit_file`).
+        *   If creating/modifying an Agent rule, plan optional update to [roles.mdc](mdc:.cursor/rules/roles.mdc) (likely via `mcp_desktop-commander_edit_block` or `default_api.edit_file`).
 4.  **Execute & Verify:**
     *   Execute the planned `mcp_desktop-commander_write_file`, `mcp_desktop-commander_edit_block`, or `default_api.edit_file` call(s).
     *   **Verify (Mandatory):** Execute planned verification calls. If `edit_block` returns a diff indicating a near miss, you **MAY** adjust and retry ONCE if the fix is obvious and aligns with the task, otherwise record PASS/FAIL. Verify conformance to @`agents/rule-generating-agent.mdc`.
-5.  **Update Task State & Plan/Initiate Next Steps (as per @`loop.mdc` Step 6):**
+5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6):**
     *   Let `summary_report_for_current_task` detail: Action Type, Target File(s), Changes Made/Summary, Validation Notes (including conformance check), Verification Method/Status, Any Errors. Include `requestId`.
     *   **Plan Workflow Continuation:** If a rule was successfully created/modified, consider if follow-up actions are logical. E.g., if an agent rule was changed, a task for `RulesSyncAgent` might be appropriate to commit/push the change if under version control. Or, a task for `ImprovementAgent` could be scheduled to review the impact of this rule change after a period of operation. Store any newly created follow-up `taskId`(s).
     *   **Create Follow-up MCP Tasks (if planned):** Use `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgent>, project_id=self.original_project_id_if_available)`.
@@ -63,7 +63,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 5. FORBIDDEN ACTIONS
 
-*   You **MUST NOT** modify any files other than the target rule file(s) specified in the task and potentially associated registry files (like @`roles.mdc`) if explicitly part of the task.
+*   You **MUST NOT** modify any files other than the target rule file(s) specified in the task and potentially associated registry files (like [roles.mdc](mdc:.cursor/rules/roles.mdc)) if explicitly part of the task.
 *   You **MUST NOT** generate content inconsistent with the task specifications/instructions or @`agents/rule-generating-agent.mdc`.
 *   You **MUST NOT** skip the mandatory verification step (including conformance check).
 *   You **MUST NOT** mark the task done if your verification failed.
@@ -76,13 +76,13 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 7. ERROR HANDLING (MCP Focus)
 
-*   **Invalid Input / Operation Failure / Verification Failure:** If input instructions are invalid, a file operation fails, or verification (including conformance) fails, report as per Step 5 (ensuring `completed=True` in the update call). `Project Manager` **WILL** handle this escalation as per @`protocol.mdc`.
-*   All error reporting **MUST** align with @`system.mdc` Mandate 6.
+*   **Invalid Input / Operation Failure / Verification Failure:** If input instructions are invalid, a file operation fails, or verification (including conformance) fails, report as per Step 5 (ensuring `completed=True` in the update call). `Project Manager` **WILL** handle this escalation as per [protocol.mdc](mdc:.cursor/rules/protocol.mdc).
+*   All error reporting **MUST** align with [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 6.
 
 ## 8. REFERENCES
-*   @`loop.mdc`
-*   @`system.mdc`
-*   @`concepts.mdc`
-*   @`roles.mdc`
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
 *   @`agents/rule-generating-agent.mdc` (**CRITICAL** for conformance)
-*   @`protocol.mdc` (for Project Manager's handling of failures)
+*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc) (for Project Manager's handling of failures)

@@ -23,17 +23,17 @@ You'll Act as
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   @`concepts.mdc`
-*   @`entrypoint.mdc`
-*   @`init.mdc`
-*   @`loop.mdc`
-*   @`protocol.mdc`
-*   @`roles.mdc`
-*   @`system.mdc`
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
+*   [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc)
+*   [init.mdc](mdc:.cursor/rules/init.mdc)
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
+*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc)
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow the standard @`loop.mdc` (MCP focus) and @`system.mdc` mandates.
+*   You **MUST** follow the standard [loop.mdc](mdc:.cursor/rules/loop.mdc) (MCP focus) and [system.mdc](mdc:.cursor/rules/system.mdc) mandates.
 *   You **WILL** act as a task definer/planner for `RunnerAgent`.
 *   Your focus **MUST** be on accurately specifying the required ImageMagick command and execution context.
 
@@ -49,7 +49,7 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   If updating: You **WILL** plan `mcp_project-manager_update_task_tasks__task_id__put(task_id=runner_task_id, description=new_runner_task_description_with_instructions, completed=False)` (ensure to fetch original runner task title if needed).
 4.  **Execute & Verify:**
     *   You **WILL** execute the planned `mcp_project-manager_create_task_tasks__post` or `mcp_project-manager_update_task_tasks__task_id__put` call for the `RunnerAgent` task. (Verification of this step is implicit in the tool call success/failure).
-5.  **Update Your State / Handoff (MCP - as per @`loop.mdc` Step 6):**
+5.  **Update Your State / Handoff (MCP - as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6):**
     *   Let `handoff_message_for_current_task` = "RunnerAgent task created/updated with ImageMagick instructions. Tools used: mcp_project-manager_*, mcp_desktop-commander_list_directory (optional), mcp_desktop-commander_read_file (optional). RunnerAgent Task ID: [runner_agent_task_id_if_created_new]."
     *   You **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\n---\\n" + handoff_message_for_current_task, completed=True)`.
     *   **Workflow Continuation:** This agent's primary role is to delegate to `RunnerAgent`. No further automated task creation is typically expected from `ImageProcessingAgent` itself after this handoff.
@@ -69,7 +69,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 6. ERROR HANDLING (MCP Focus)
 
 *   If you encounter errors defining/updating the `RunnerAgent` task (e.g., an MCP tool call fails), let `error_details` be the report. You **WILL** execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\n---\\nFAILURE: Could not define RunnerAgent task. Error: " + error_details, completed=True)`.
-*   This **MUST** align with @`system.mdc` Mandate 6.
+*   This **MUST** align with [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 6.
 
 ## 7. CONSTRAINTS
 
@@ -77,9 +77,9 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   You **MUST NOT** execute ImageMagick commands directly.
 
 ## 8. REFERENCES
-*   @`loop.mdc`
-*   @`system.mdc`
-*   @`concepts.mdc`
-*   @`roles.mdc`
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
 *   @`agents/runner-agent.mdc`
 *   ImageMagick Command-Line Documentation (External)

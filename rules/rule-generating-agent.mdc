@@ -10,23 +10,23 @@ ruleType: Agent
 
 ## 1. YOUR PURPOSE (AS THE DEFINING STANDARD)
 
-Your purpose is to define the **MANDATORY** template structure that all other Agent/Procedure rule files (`.mdc`) **MUST** follow. This ensures consistency, maintainability, and enforceability across the framework, including how agents plan and initiate follow-up tasks for automated workflow continuation as per @`loop.mdc`.
+Your purpose is to define the **MANDATORY** template structure that all other Agent/Procedure rule files (`.mdc`) **MUST** follow. This ensures consistency, maintainability, and enforceability across the framework, including how agents plan and initiate follow-up tasks for automated workflow continuation as per [loop.mdc](mdc:.cursor/rules/loop.mdc).
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   @`concepts.mdc`
-*   @`entrypoint.mdc`
-*   @`init.mdc`
-*   @`loop.mdc`
-*   @`protocol.mdc`
-*   @`roles.mdc`
-*   @`system.mdc`
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
+*   [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc)
+*   [init.mdc](mdc:.cursor/rules/init.mdc)
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
+*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc)
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
 
 ## 2. CORE BEHAVIOR (OF THIS SPECIFICATION)
 
 *   You **ARE** the standard. You do not execute tasks yourself.
 *   Any agent creating or modifying rules (e.g., @`agents/rule-editor-agent.mdc`) **MUST** adhere to the template you define below (Section 4).
-*   All Agent/Procedure specs **MUST** eventually set `conformsTo: rule-generating-agent` in their front-matter if they are intended to be a rule file following this structural pattern. Conforming agent rules will implement Step 6 of @`loop.mdc` regarding workflow continuation.
+*   All Agent/Procedure specs **MUST** eventually set `conformsTo: rule-generating-agent` in their front-matter if they are intended to be a rule file following this structural pattern. Conforming agent rules will implement Step 6 of [loop.mdc](mdc:.cursor/rules/loop.mdc) regarding workflow continuation.
 
 ## 3. ACTION SEQUENCE (N/A - You Define the Template)
 
@@ -38,7 +38,7 @@ All Agent/Procedure `.mdc` files that are intended to be processed as rules **MU
 ---
 # Rule Definition Metadata (V1)
 ruleId: {unique-id-lowercase-hyphenated}
-ruleType: {Agent | Procedure | Shared | Configuration | ... } # See @`concepts.mdc`
+ruleType: {Agent | Procedure | Shared | Configuration | ... } # See [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
 title: {Human Readable Title}
 description: {Brief description of the rule's purpose and scope}
 schemaVersion: 1
@@ -59,18 +59,18 @@ scope: {Global | Project | AgentSpecific/<AgentName> } # Optional: Defines appli
 
 ## 1.1. INITIAL RULE RECALL (Mandatory for Agents that orchestrate or have complex dependencies)
 # You **MUST** recall and integrate the following foundational rules before proceeding:
-# *   @`concepts.mdc`
-# *   @`system.mdc`
+# *   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
+# *   [system.mdc](mdc:.cursor/rules/system.mdc)
 # *   (other critical global rules as needed)
 # *   (self, if recursive logic might apply, e.g. @`agents/this-agent-name.mdc`)
 
 ## 2. YOUR CORE BEHAVIOR (or KEY PRINCIPLES for non-Agent rules)
 # High-level summary of operation or the core tenets of the rule.
 # Key principles, constraints, and operational philosophy.
-# Reference @`loop.mdc` and @`system.mdc` if an Agent rule.
+# Reference [loop.mdc](mdc:.cursor/rules/loop.mdc) and [system.mdc](mdc:.cursor/rules/system.mdc) if an Agent rule.
 
 ## 3. YOUR ACTION SEQUENCE (Standard Loop Steps for Agents / Procedure Steps for Procedures)
-# Detail actions per @`loop.mdc` step (Agents) or sequential steps (Procedures).
+# Detail actions per [loop.mdc](mdc:.cursor/rules/loop.mdc) step (Agents) or sequential steps (Procedures).
 # Specify tool usage (IDE and MCP alternatives), decision logic, inputs, and outputs for each step.
 # Be explicit. Example for an Agent:
 # 1.  **Activate & Get Context:** You receive your `taskId`.
@@ -91,12 +91,12 @@ scope: {Global | Project | AgentSpecific/<AgentName> } # Optional: Defines appli
 
 ## 6. HANDOFF / COMPLETION (MCP Focus for Agents)
 # Describe how completion or failure is signaled (MCP task update).
-# Crucially, detail how the agent plans and creates follow-up MCP tasks for other agents (if applicable to its role) as per Step 6 of @`loop.mdc`, ensuring workflow continuation. List new task IDs in the update.
+# Crucially, detail how the agent plans and creates follow-up MCP tasks for other agents (if applicable to its role) as per Step 6 of [loop.mdc](mdc:.cursor/rules/loop.mdc), ensuring workflow continuation. List new task IDs in the update.
 # Note that `Project Manager` manages the overall workflow based on MCP task states, including new tasks initiated by this agent.
 
 ## 7. ERROR HANDLING (MCP Focus for Agents)
 # Describe error detection, basic diagnosis (if any), and reporting via MCP task update.
-# Refer to @`system.mdc` Mandate 6 for escalation to `Project Manager`.
+# Refer to [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 6 for escalation to `Project Manager`.
 
 ## 8. CONSTRAINTS (Recommended)
 # Strict limitations or MUST conditions not covered elsewhere.
@@ -105,7 +105,7 @@ scope: {Global | Project | AgentSpecific/<AgentName> } # Optional: Defines appli
 # Concrete examples of MCP Task Updates, critical logic, input/output formats, etc.
 
 ## 10. REFERENCES (Recommended)
-# Links to other relevant rules using `@` syntax (e.g., @`system.mdc`, @`agents/other-agent.mdc`).
+# Links to other relevant rules using `@` syntax (e.g., [system.mdc](mdc:.cursor/rules/system.mdc), @`agents/other-agent.mdc`).
 # List any external documentation critical to this rule.
 
 ## VERSION HISTORY (Optional but Recommended)
@@ -126,8 +126,8 @@ Rules claiming conformance via `conformsTo: rule-generating-agent` **MUST** adhe
 *   **YAML Front-Matter:** **MUST** start with the `---` block; all `REQUIRED` fields from the template **MUST** be present.
 *   **Sections:** Core sections from the template (e.g., 1. YOUR PURPOSE, 2. YOUR CORE BEHAVIOR, etc., up to 7. ERROR HANDLING for agents) **MUST** be present and in order (Level 2 headers `##`). Others are optional but recommended if they add clarity.
 *   **Language:** **MUST** use clear, imperative, and unambiguous language (e.g., "You **WILL**...", "You **MUST**...", "**MUST NOT**...", "**REQUIRED**", "**FORBIDDEN**", "**SHOULD**", "**MAY**"). *This is the style you are reading now.*
-*   **References:** **MUST** use `@` syntax for rule references (e.g., @`loop.mdc`, @`agents/builder-agent.mdc`).
-*   **Agent Registry:** When creating/modifying Agent specs, the responsible agent (e.g., @`agents/rule-editor-agent.mdc`) **MUST** ensure @`roles.mdc` is updated to reflect the new or changed agent's purpose and core function if it impacts the registry summary.
+*   **References:** **MUST** use `@` syntax for rule references (e.g., [loop.mdc](mdc:.cursor/rules/loop.mdc), @`agents/builder-agent.mdc`).
+*   **Agent Registry:** When creating/modifying Agent specs, the responsible agent (e.g., @`agents/rule-editor-agent.mdc`) **MUST** ensure [roles.mdc](mdc:.cursor/rules/roles.mdc) is updated to reflect the new or changed agent's purpose and core function if it impacts the registry summary.
 
 ## 6. ENFORCEMENT (OF THIS STANDARD)
 
@@ -138,9 +138,9 @@ Rules claiming conformance via `conformsTo: rule-generating-agent` **MUST** adhe
 
 *   @`agents/rule-editor-agent.mdc` (Uses this template for its own definition and enforces it for others)
 *   All other Agent/Procedure specifications (those that specify `conformsTo: rule-generating-agent` **MUST** conform to this template)
-*   @`concepts.mdc` (for `ruleType` definitions)
-*   @`system.mdc`
-*   @`loop.mdc`
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc) (for `ruleType` definitions)
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
 
 ---
 _This `rule-generating-agent.mdc` itself attempts to conform to its own defined structure where applicable, serving as an example._

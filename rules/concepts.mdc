@@ -17,29 +17,29 @@ ruleType: Framework
 :   **FORMAT:** STRING.
 :   **APPLICATION:** MCP CALLS, CODE EDIT TAGS, LOGGING, INTER-AGENT CONTEXT.
 :   **ISSUANCE:** `Project Manager` / EXTERNAL TRIGGER.
-:   **CROSS-REFERENCE:** @`system.mdc` (MANDATE 10), @`loop.mdc` (CONTEXT FETCHING).
+:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc) (MANDATE 10), [loop.mdc](mdc:.cursor/rules/loop.mdc) (CONTEXT FETCHING).
 
 Agent Role
 :   **DEFINITION:** SPECIALIZED UNIT FOR DESIGNATED TASKS. BEHAVIOR, CAPABILITIES, AND DIRECTIVES ARE SPECIFIED IN ITS `.mdc` FILE.
-:   **CROSS-REFERENCE:** @`roles.mdc`, `@agents/`.
-:   **CROSS-REFERENCE:** @`system.mdc` (MANDATE 1), @`loop.mdc` (FETCHING ROLE SPECIFICATION).
+:   **CROSS-REFERENCE:** [roles.mdc](mdc:.cursor/rules/roles.mdc), `@agents/`.
+:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc) (MANDATE 1), [loop.mdc](mdc:.cursor/rules/loop.mdc) (FETCHING ROLE SPECIFICATION).
 
 Framework
 :   **DEFINITION:** EXTERNAL ENGINE EXECUTING AGENT LIFECYCLE ACCORDING TO ESTABLISHED RULES AND COORDINATION PROTOCOLS. **NOT AN AGENT.**
 :   **DUTIES:** AGENT ACTIVATION, TOOL PROVISIONING, RULE MANAGEMENT, LIFECYCLE CONTROL, MANDATE ENFORCEMENT.
-:   **CROSS-REFERENCE:** @`loop.mdc`, @`system.mdc`.
+:   **CROSS-REFERENCE:** [loop.mdc](mdc:.cursor/rules/loop.mdc), [system.mdc](mdc:.cursor/rules/system.mdc).
 
 Rules
 :   **DEFINITION:** `.mdc`/`.mdcc` FILES STIPULATING BEHAVIOR, STANDARDS, WORKFLOWS, AND CONSTRAINTS. PROCESSED BY FRAMEWORK, EXECUTED BY AGENTS.
 :   **DESIGNATION:** `.cursor/rules/` (RUNTIME), `rules-md/` (SOURCE).
-:   **CROSS-REFERENCE:** @`system.mdc` (HIERARCHY, MANDATES), @`init.mdc`.
+:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc) (HIERARCHY, MANDATES), [init.mdc](mdc:.cursor/rules/init.mdc).
 
 ## 2. OPERATIONAL DIRECTIVES
 
 Autonomous Execution
 :   **DEFINITION:** AGENTS EXECUTE INDEPENDENTLY UPON ACTIVATION, GOVERNED BY RULES AND TASK CONTEXT.
 :   **MANDATE:** USER INPUT **MUST** BE IGNORED (APPROVED DIAGNOSTICS EXCEPTED).
-:   **CROSS-REFERENCE:** @`system.mdc` (MANDATE 7), @`loop.mdc` (ACTIVATION).
+:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc) (MANDATE 7), [loop.mdc](mdc:.cursor/rules/loop.mdc) (ACTIVATION).
 
 Coordination Mechanisms
 :   **DEFINITION:** PROTOCOLS FOR TASK ASSIGNMENT, MANAGEMENT, AND STATE TRACKING.
@@ -48,23 +48,23 @@ Coordination Mechanisms
 
 Sequential Activation
 :   **MANDATE:** ONLY ONE AGENT ACTIVE PER `requestId`. PARALLEL OPERATIONS ARE PROHIBITED.
-:   **CROSS-REFERENCE:** @`system.mdc`.
+:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc).
 
 Self-Improvement Loop
 :   **DEFINITION:** `ImprovementAgent`/`RuleWriterAgent` SHALL REFINE THE RULESET BASED ON OPERATIONAL EXPERIENCE.
-:   **MANDATE:** THIS PROCESS **MUST** BE CONDUCTED VIA MCP TASKS/CHAT TRIGGERS AS PER @`system.mdc`.
-:   **CROSS-REFERENCE:** @`system.mdc`, @`roles.mdc`.
+:   **MANDATE:** THIS PROCESS **MUST** BE CONDUCTED VIA MCP TASKS/CHAT TRIGGERS AS PER [system.mdc](mdc:.cursor/rules/system.mdc).
+:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc), [roles.mdc](mdc:.cursor/rules/roles.mdc).
 
 Rules Hierarchy
 :   **DEFINITION:** ESTABLISHED PRECEDENCE FOR RESOLVING RULE CONFLICTS.
 :   **MANDATE:** ADHERENCE IS MANDATORY: 1. PROJECT (`.cursor/rules/project/`) DIRECTIVES OVERRIDE GLOBAL DIRECTIVES. 2. GLOBAL (`.cursor/rules/global/`) DIRECTIVES APPLY UNLESS OVERRIDDEN. 3. AGENT-SPECIFIC DIRECTIVES OVERRIDE GLOBAL DIRECTIVES FOR THAT AGENT.
-:   **CROSS-REFERENCE:** @`system.mdc`, @`init.mdc`.
+:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc), [init.mdc](mdc:.cursor/rules/init.mdc).
 
 ## 3. MANDATORY MECHANISMS
 
 Global Mandates
 :   **DEFINITION:** NON-NEGOTIABLE DIRECTIVES AND CONSTRAINTS. ALL AGENTS **MUST** ADHERE WITHOUT EXCEPTION.
-:   **CROSS-REFERENCE:** @`system.mdc` (PART 2). SUPREME AUTHORITY UNLESS SPECIFICALLY OVERRIDDEN BY AUTHORIZED DIRECTIVE.
+:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc) (PART 2). SUPREME AUTHORITY UNLESS SPECIFICALLY OVERRIDDEN BY AUTHORIZED DIRECTIVE.
 
 Code Edit Tag
 :   **DEFINITION:** STANDARDIZED COMMENT BLOCK. **MUST** BE PLACED AT THE COMMENCEMENT OF ANY EDITED CODE FILE. PROVIDES CRITICAL METADATA.
@@ -78,29 +78,29 @@ Code Edit Tag
     COMMENT_START Timestamp: <UTC timestamp> // ISO 8601 Z
     COMMENT_END // OPTIONAL
     ```
-:   **CROSS-REFERENCE:** @`loop.mdc`.
+:   **CROSS-REFERENCE:** [loop.mdc](mdc:.cursor/rules/loop.mdc).
 
-## 4. CORE AGENT OPERATIONAL SEQUENCE (CROSS-REFERENCE: @`loop.mdc`)
+## 4. CORE AGENT OPERATIONAL SEQUENCE (CROSS-REFERENCE: [loop.mdc](mdc:.cursor/rules/loop.mdc))
 
-ACTIVE AGENTS SHALL EXECUTE THE FOLLOWING SEQUENCE (Refer to @`loop.mdc` for detailed specifications):
+ACTIVE AGENTS SHALL EXECUTE THE FOLLOWING SEQUENCE (Refer to [loop.mdc](mdc:.cursor/rules/loop.mdc) for detailed specifications):
 1.  **ACTIVATION:** FRAMEWORK INITIATES ACTIVATION (TRIGGER/MCP STATE).
 2.  **CONTEXT ACQUISITION:** RECEIVE `taskId` (MCP) / PAYLOAD (CHAT).
 3.  **RULE FETCHING:** RETRIEVE OWN ROLE SPECIFICATION.
 4.  **TURN PLANNING:** INTERNAL DETERMINATION OF ACTIONS (BASED ON RULES/CONTEXT).
 5.  **EXECUTION & VERIFICATION:** PERFORM ROLE-ASSIGNED ACTIONS; VERIFY ALL RESULTS.
 6.  **STATE UPDATE/HANDOFF/FINALIZATION:** REPORT STATUS (MCP/CHAT), INCLUDING VERIFICATION AND ASSUMPTIONS. TERMINATE TURN.
-:   **CROSS-REFERENCE:** @`system.mdc` (MANDATES 4, 10).
+:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc) (MANDATES 4, 10).
 
 ## 5. KEY RULE DIRECTORIES (RUNTIME DESIGNATION: `.cursor/rules/`)
 
 `global/`
-:   **DEFINITION:** BASE RULESET (E.G., @`system.mdc`, @`loop.mdc`). APPLIES UNIVERSALLY UNLESS OVERRIDDEN.
-:   **CROSS-REFERENCE:** @`init.mdc`.
+:   **DEFINITION:** BASE RULESET (E.G., [system.mdc](mdc:.cursor/rules/system.mdc), [loop.mdc](mdc:.cursor/rules/loop.mdc)). APPLIES UNIVERSALLY UNLESS OVERRIDDEN.
+:   **CROSS-REFERENCE:** [init.mdc](mdc:.cursor/rules/init.mdc).
 
 `project/`
 :   **DEFINITION:** DIRECTIVES FOR CURRENT PROJECT/WORKSPACE.
 :   **MANDATE:** **MUST** OVERRIDE CONFLICTING `global/` DIRECTIVES.
-:   **CROSS-REFERENCE:** @`init.mdc`, @`system.mdc`.
+:   **CROSS-REFERENCE:** [init.mdc](mdc:.cursor/rules/init.mdc), [system.mdc](mdc:.cursor/rules/system.mdc).
 
 ## 6. CORE INTEGRATION DIRECTIVES
 
@@ -109,13 +109,13 @@ ADHERENCE IS MANDATORY FOR SPECIFIC CORE OPERATIONS:
 Fetching Rules
 :   **MANDATE:** FULL RULE CONTENT **MUST** BE RETRIEVED. SUMMARIES ARE INSUFFICIENT.
 :   **TOOLING:** `default_api.fetch_rules` (IDE). For MCP-driven agents without direct IDE integration, if rule paths are known or discoverable, `mcp_desktop-commander_read_file` can be used.
-:   **CROSS-REFERENCE:** @`loop.mdc`.
+:   **CROSS-REFERENCE:** [loop.mdc](mdc:.cursor/rules/loop.mdc).
 
 MCP Task Management
-:   **MANDATE:** IF MCP (PREFERRED), MCP OPERATIONS **MUST** BE USED PER @`loop.mdc` & @`system.mdc` (FETCH CONTEXT, UPDATE DESCRIPTION WITH FINDINGS/VERIFICATION, MARK COMPLETE *ONLY* AFTER VERIFICATION).
-:   **TOOLING:** Key tools include `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`, `mcp_project-manager_create_task_tasks__post`, and `mcp_project-manager_get_task_list_tasks__get`. Refer to @`system.mdc` (Tool Usage Mandates) and @`protocol.mdc` (for Project Manager's usage) for comprehensive project management tool integration.
-:   **CROSS-REFERENCE:** @`system.mdc` (MANDATE 4), @`loop.mdc`.
+:   **MANDATE:** IF MCP (PREFERRED), MCP OPERATIONS **MUST** BE USED PER [loop.mdc](mdc:.cursor/rules/loop.mdc) & [system.mdc](mdc:.cursor/rules/system.mdc) (FETCH CONTEXT, UPDATE DESCRIPTION WITH FINDINGS/VERIFICATION, MARK COMPLETE *ONLY* AFTER VERIFICATION).
+:   **TOOLING:** Key tools include `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`, `mcp_project-manager_create_task_tasks__post`, and `mcp_project-manager_get_task_list_tasks__get`. Refer to [system.mdc](mdc:.cursor/rules/system.mdc) (Tool Usage Mandates) and [protocol.mdc](mdc:.cursor/rules/protocol.mdc) (for Project Manager's usage) for comprehensive project management tool integration.
+:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc) (MANDATE 4), [loop.mdc](mdc:.cursor/rules/loop.mdc).
 
 External Library Documentation
 :   **MANDATE:** FOR EXTERNAL DOCUMENTATION, ID RESOLUTION (`mcp_context7_resolve-library-id`) **MUST** PRECEDE DOCUMENT RETRIEVAL (`mcp_context7_get-library-docs`). INFORMATION USE IS PROHIBITED PRIOR TO THIS SEQUENCE.
-:   **CROSS-REFERENCE:** @`system.mdc` (MANDATE 5).
+:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc) (MANDATE 5).

@@ -37,7 +37,7 @@ ruleType: Procedure
 1.  **EXISTING `.cursor` PROTOCOL:** IF `cursorDirExists`: EXECUTE `git submodule status .cursor`. IF VALID SUBMODULE, PROCEED TO A.4. ELSE (NOT SUBMODULE/ERRORS): LOG WARNING, EXECUTE `rm -rf .cursor` (VERIFY). IF REMOVAL FAILS, HALT. PROCEED TO A.2.
 2.  **ROOT `.gitignore` MODIFICATION:** SET `rootGitignoreModified = false`. READ `.gitignore` (e.g., `default_api.read_file` or `mcp_desktop-commander_read_file`). SEARCH FOR `.cursor/`. IF FOUND: MODIFY TO `# .cursor/` (e.g., using `default_api.edit_file` or `mcp_desktop-commander_edit_block`). LOG ACTION. SET `rootGitignoreModified = true`. VERIFY MODIFICATION. IF VERIFICATION FAILS, HALT.
 3.  **SUBMODULE ADDITION:** EXECUTE `git submodule add https://github.com/m0st4f4-hub/.cursor .cursor`. VERIFY CREATION OF `.cursor` AND `.gitmodules`. READ `.gitmodules` (e.g., `default_api.read_file` or `mcp_desktop-commander_read_file`) TO CONFIRM `[submodule ".cursor"]`. IF FAILS (CONFLICT): EXECUTE `git submodule add --force ...` ONCE. IF FAILURE PERSISTS, HALT.
-4.  **SUBMODULE UPDATE:** EXECUTE `git submodule update --init --recursive`. VERIFY PRESENCE OF `.cursor/rules` (E.G., @`system.mdc` EXISTS, check with `default_api.list_dir` or `mcp_desktop-commander_list_directory`). IF FAILS: RETRY ONCE. IF FAILURE PERSISTS, HALT. PROCEED TO PHASE 3.
+4.  **SUBMODULE UPDATE:** EXECUTE `git submodule update --init --recursive`. VERIFY PRESENCE OF `.cursor/rules` (E.G., [system.mdc](mdc:.cursor/rules/system.mdc) EXISTS, check with `default_api.list_dir` or `mcp_desktop-commander_list_directory`). IF FAILS: RETRY ONCE. IF FAILURE PERSISTS, HALT. PROCEED TO PHASE 3.
 
 ➡️ **SCENARIO B: NON-GIT, EMPTY REPOSITORY (`!isGitRepo`, `!isNotEmpty`)**
 1.  **EXISTING `.cursor` PROTOCOL:** IF `cursorDirExists`: LOG WARNING, EXECUTE `rm -rf .cursor`. VERIFY. IF REMOVAL FAILS, HALT.
@@ -56,5 +56,5 @@ ruleType: Procedure
 
 ## CROSS-REFERENCES
 *   `initialization-agent.mdc`
-*   @`system.mdc`
-*   @`entrypoint.mdc`
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
+*   [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc)
