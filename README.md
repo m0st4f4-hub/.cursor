@@ -1,28 +1,44 @@
-# Ruleset for Autonomous Agent Framework
+# Autonomous Agent Framework Ruleset
 
-This repository contains the Markdown source for rules (`rules-md/`) and the compiled runtime rules (`.cursor/rules/`) defining a framework for autonomous AI agent execution. The `.cursor/rules/` directory is typically managed by a Git submodule as detailed in `rules-md/init.mdc`.
+This repository defines the operational framework and rules for a system of autonomous AI agents. The core specification is detailed in `rules-md/system.md`.
 
 ## Overview
 
-The framework enables autonomous execution of tasks by specialized AI agents. Coordination is primarily managed by the `StrategicCoordinatorAgent` using an MCP (Multi-Capability Provider) task-based system, though initial requests may be triggered via chat. Each request typically involves a `requestId` and may utilize a knowledge wiki.
+The framework facilitates the execution of complex tasks by a coordinated collective of specialized AI agents. Task management and agent coordination are primarily handled via the MCP (Model Context Protocol) Task Manager, with Chat Triggers as a legacy fallback. The system is designed for robust, rigorous, and verifiable task execution, with a strong emphasis on adherence to defined protocols and mandates.
 
-Key framework documents (found in `rules-md/` and compiled to `.cursor/rules/`):
-*   `system.mdc`: Core system mandates and principles.
-*   `protocol.mdc`: Defines the high-level operational protocol executed by `StrategicCoordinatorAgent`.
-*   `loop.mdc`: Standard operational loop for most agents.
-*   `concepts.mdc`: Key definitions and conceptual framework.
-*   `roles.mdc`: Registry of defined agent roles.
-*   Individual agent rule files in `rules-md/agents/` (e.g., `rules-md/agents/implementation-specialist.mdc`).
+The central document, `rules-md/system.md` (Unified Framework Specification), consolidates:
+*   System Overview & Global Mandates
+*   Core Concepts & Glossary
+*   Initialization Procedure (`rules-md/init.md`)
+*   Agent Execution Framework & Core Loop (`rules-md/loop.md`)
+*   Ultra‑Deep Thinking Protocol (`rules-md/protocol.md`)
+*   Agent Roles Registry (`rules-md/roles.md`)
 
-## Structure
+Individual agent behaviors are defined by their respective rule files located in `rules-md/agents/`.
 
-*   `rules-md/`: Contains the Markdown source for all ruleset documents.
-    *   `agents/`: Source files for specific agent roles (e.g., `implementation-specialist.md`).
-    *   `templates/`: (Optional) Templates for new rule files.
-*   `.cursor/rules/`: The runtime directory for compiled `.mdc` rule files, typically managed as a Git submodule (see `rules-md/init.mdc`).
-    *   `agents/`: Compiled agent rule files (e.g., `implementation-specialist.mdc`).
-    *   `tools/`: Custom Python scripts and PowerShell scripts accessible to agents.
-*   `tools/`: Workspace-level tools, potentially including rule synchronization scripts.
-*   `.gitignore`: Specifies intentionally untracked files.
-*   `.gitattributes`: Defines attributes for pathnames (e.g., line endings).
-*   `.gitmodules`: (If `.cursor/rules/` is a submodule) Defines the submodule configuration. 
+## Repository Structure
+
+*   **`README.md`**: This file, providing an overview of the repository.
+*   **`rules-md/`**: Contains the Markdown source for all framework specifications and agent rules.
+    *   `system.md`: The primary Unified Framework Specification document.
+    *   `loop.md`: Defines the core agent execution loop.
+    *   `concepts.md`: Explains core concepts and terminology.
+    *   `roles.md`: Lists and describes available agent roles.
+    *   `init.md`: Details the framework initialization procedure.
+    *   `protocol.md`: Describes the Ultra‑Deep Thinking Protocol, mainly for strategic agents like Overmind.
+    *   `agents/`: Contains Markdown rule files for individual agent roles (e.g., `Overmind.md`, `InitializationAgent.md`).
+*   **`rules/`**: This directory is intended to hold the processed or runtime-effective rules derived from the `rules-md/` sources. (The `.gitignore` indicates this directory is tracked).
+*   **`tools/`**: Contains supporting tools and libraries for the framework.
+    *   `rules_sync_lib/`: Likely contains libraries or scripts related to synchronizing or managing the rules.
+*   **`.gitignore`**: Specifies intentionally untracked files and directories. Notably, it ignores `.cursor/` but tracks `rules/`.
+*   **`.gitattributes`**: Defines attributes for pathnames (e.g., line endings).
+
+## Key Principles
+
+*   **MCP Task Manager:** Preferred for task coordination and state management.
+*   **Role Adherence:** Agents operate strictly within their defined roles.
+*   **Global Mandates:** Non-negotiable rules outlined in `system.md` that all agents must follow.
+*   **Verification:** Emphasis on multi-method verification for all actions and outputs.
+*   **Self-Improvement:** The framework includes mechanisms for self-improvement via designated agents and processes.
+
+For detailed information on any aspect of the framework, please refer to `rules-md/system.md` and the other referenced documents within the `rules-md/` directory. 
