@@ -65,19 +65,28 @@ ruleType: Framework
 **STEP 6: UPDATE STATE / PLAN & INITIATE WORKFLOW CONTINUATION / FINALIZE TURN (FINAL ACTION)**
 *   **ACTION:** PERSIST RESULTS, PLAN AND POTENTIALLY INITIATE NECESSARY FOLLOW-UP TASKS, UPDATE FINAL TASK STATUS, THEN TERMINATE TURN.
 *   **PROCESS (MCP):** 
-    1.  **EVALUATE WORKFLOW CONTINUATION (PER [system.mdcc](mdc:.cursor/rules/system.mdcc) MANDATE 4):** BASED ON THE CURRENT TASK'S VERIFIED OUTCOME, THE AGENT'S ROLE, ITS SPECIFIC RULES, AND THE OVERALL GOAL (AS UNDERSTOOD FROM THE TASK DESCRIPTION), THE AGENT **MUST** DETERMINE IF A FOLLOW-UP TASK BY ANOTHER SPECIALIZED AGENT IS JUSTIFIED AND APPROPRIATE. AN AGENT **SHOULD** CREATE A FOLLOW-UP TASK IF:
-        *   Its verified output is a direct, unambiguous input for a *specific known successor agent*.
-        *   The continuation represents a clear, logical next step explicitly defined or strongly implied by its own role and rules for this outcome (e.g., `ImplementationSpecialist` successfully completing code might trigger `ExecutionValidator` for standard unit tests if not already done).
-        *   The type of handoff is an integral part of its designed workflow (e.g., `ImageManipulationSpecialist` preparing instructions for `ExecutionValidator`).
-        IF NONE OF THESE ARE MET, THE AGENT **MUST NOT** CREATE A FOLLOW-UP TASK; `ProjectManager` WILL DIRECT THE NEXT STRATEGIC STEP.
-    2.  **CREATE FOLLOW-UP TASKS (IF JUSTIFIED IN STEP 6.1):** IF CONTINUATION IS JUSTIFIED, USE `mcp_project-manager_create_task_tasks__post` TO CREATE THE NEW TASK(S). THE `description` FOR THE NEW TASK **MUST** INCLUDE: RELEVANT CONTEXT FROM THE CURRENT TASK (E.G., `requestId`, CURRENT `taskId` AS PARENT, KEY FINDINGS, ARTIFACTS PRODUCED) AND CLEAR INSTRUCTIONS FOR THE NEXT AGENT. THE `agent_name` **MUST** BE SET TO THE APPROPRIATE SPECIALIZED AGENT. LOG THE NEWLY CREATED `taskId`(S).
+    1.  **EVALUATE WORKFLOW CONTINUATION & IDENTIFY SUCCESSOR (PER [system.mdccc](mdc:.cursor/rules/system.mdccc) MANDATE 4):**
+        *   Based on the current task's *successfully verified* outcome, the agent's role, its specific rules, and the overall goal (from task description), the agent **MUST** evaluate if a direct handoff to a subsequent specialized agent is the logical next step.
+        *   A direct handoff **IS** the logical next step if:
+            *   The current task's primary objective is complete and verified.
+            *   The agent's rules or the current task description explicitly define or strongly imply a specific `targetSuccessorAgentName` or type of follow-up action for this outcome (e.g., `ImplementationSpecialist` completing code implies `ExecutionValidator` for tests; `ImageManipulationSpecialist` preparing instructions implies `ExecutionValidator` to run them).
+            *   The output of the current task forms a clear and sufficient input for the identified `targetSuccessorAgentName`.
+        *   If these conditions are met, the agent **MUST** identify the `targetSuccessorAgentName` and prepare to create a follow-up task. Let `created_follow_up_task_ids` = [].
+        *   If these conditions are *not* met (e.g., task failed, outcome is ambiguous, no clear `targetSuccessorAgentName` is defined for this specific outcome in the agent's rules or current task's description), the agent **MUST NOT** create a follow-up task. `created_follow_up_task_ids` remains empty.
+    2.  **CREATE DIRECT FOLLOW-UP TASK (IF `targetSuccessorAgentName` IDENTIFIED IN 6.1):**
+        *   If a `targetSuccessorAgentName` was identified in Step 6.1:
+            *   The agent **MUST** formulate a `follow_up_title` and `follow_up_description` for the new task. The `follow_up_description` **MUST** include: relevant context from the current task (e.g., `requestId`, current `taskId` as parent, key findings, artifacts produced) and clear instructions for the `targetSuccessorAgentName`.
+            *   The agent **MUST** then execute `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_description, agent_name=targetSuccessorAgentName, project_id=<current_project_id_if_available>)`.
+            *   The new `taskId`(s) returned by the creation call **MUST** be logged into `created_follow_up_task_ids`.
+        *   If no `targetSuccessorAgentName` was identified in Step 6.1, this step is skipped, and `created_follow_up_task_ids` remains empty.
     3.  **DETERMINE FINAL STATUS OF CURRENT TASK:** 
-        *   If a follow-up task was created in 6.2: `final_status` = "COMPLETED_HANDOFF_TO_[NewTaskID(s)]"
-        *   If current task is complete and no follow-up task was created by this agent: `final_status` = "COMPLETED_AWAITING_PROJECT_MANAGER"
-        *   If task is blocked: `final_status` = "BLOCKED"
-        *   If task failed unrecoverably: `final_status` = "FAILED"
+        *   Let `final_status`.
+        *   If `created_follow_up_task_ids` is not empty (meaning a follow-up task was successfully created in 6.2): `final_status` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids)
+        *   Else if the current task is complete and successfully verified (and no follow-up task was created): `final_status` = "COMPLETED_AWAITING_PROJECT_MANAGER"
+        *   Else if task is blocked (and no follow-up): `final_status` = "BLOCKED"
+        *   Else if task failed unrecoverably (and no follow-up): `final_status` = "FAILED"
         *   (Other statuses like "COMPLETED_PARTIAL" can be used if defined by agent rules for specific scenarios where `ProjectManager` needs to review partial work before further agent assignment).
-    4.  **COMPREHENSIVE UPDATE & FINALIZATION OF CURRENT TASK:** UPDATE THE *CURRENT* MCP TASK (`mcp_project-manager_update_task_tasks__task_id__put`) **MUST** BE UPDATED. **MUST** INCLUDE FINDINGS SUMMARY ([system.mdcc](mdc:.cursor/rules/system.mdcc) MANDATE 4: ACTIONS, TOOLS, VERIFICATION METHODS/RESULTS, ASSUMPTIONS, ERRORS), ANY NEWLY CREATED FOLLOW-UP `taskId`(S) (if applicable), AND THE `final_status` DETERMINED IN 6.3. SET `completed` FLAG TO `True`.
+    4.  **COMPREHENSIVE UPDATE & FINALIZATION OF CURRENT TASK:** UPDATE THE *CURRENT* MCP TASK (`mcp_project-manager_update_task_tasks__task_id__put`) **MUST** BE UPDATED. **MUST** INCLUDE FINDINGS SUMMARY ([system.mdccc](mdc:.cursor/rules/system.mdccc) MANDATE 4: ACTIONS, TOOLS, VERIFICATION METHODS/RESULTS, ASSUMPTIONS, ERRORS), the `created_follow_up_task_ids` (if applicable), AND THE `final_status` DETERMINED IN 6.3. SET `completed` FLAG TO `True`.
     5.  **TERMINATE.**
 *   **PROCESS (CHAT - LEGACY):** 
     1.  **DETERMINE NEXT AGENT (IF APPLICABLE).**

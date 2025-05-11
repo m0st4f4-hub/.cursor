@@ -58,3 +58,76 @@ ruleType: Procedure
 *   `seeding.mdcc`
 *   [system.mdcc](mdc:.cursor/rules/system.mdcc)
 *   [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc)
+
+## MCP INSTALLATION INSTRUCTIONS
+
+These instructions are for the `ChatAgent` to set up the MCP (Mission Control Protocol) servers.
+
+### Server Installation Commands
+
+1. **MCP Server Time**
+   ```powershell
+   npm install -g uvx
+   & uvx mcp-server-time --local-timezone=Africa/Cairo
+   ```
+
+2. **Web Fetch Server**
+   ```powershell
+   npm install -g uvx
+   & uvx mcp-server-fetch
+   ```
+
+3. **Server Memory**
+   ```powershell
+   npm install -g @modelcontextprotocol/server-memory
+   & npx -y @modelcontextprotocol/server-memory
+   ```
+
+4. **Context7**
+   ```powershell
+   npm install -g @upstash/context7-mcp
+   & npx -y @upstash/context7-mcp
+   ```
+
+5. **Browser Tools**
+   ```powershell
+   npm install -g @agentdeskai/browser-tools-mcp
+   Start-Process cmd -ArgumentList "/c","npx","-y","@agentdeskai/browser-tools-mcp" -NoNewWindow
+   ```
+
+6. **Desktop Commander**
+   ```powershell
+   npm install -g @wonderwhy-er/desktop-commander
+   & npx -y @wonderwhy-er/desktop-commander
+   ```
+
+7. **Project Manager**
+   ```powershell
+   npm install -g mcp-remote
+   & npx -y mcp-remote http://localhost:8000/mcp
+   ```
+
+8. **Playwright**
+   ```powershell
+   npm install -g @playwright/mcp
+   & npx @playwright/mcp@latest
+   ```
+
+### Verification Steps
+
+After installing each server:
+1. Check if the service is running: `Get-Process | Where-Object { $_.ProcessName -like "*mcp*" }`
+2. Verify network endpoints: `Test-NetConnection -ComputerName localhost -Port 8000`
+3. Check logs: `Get-Content -Path "$env:APPDATA\.mcp\logs\*.log" -Tail 20`
+4. Test basic functionality before proceeding to the next service
+
+### Troubleshooting
+
+If a service fails to start:
+1. Check port usage: `Get-NetTCPConnection | Where-Object { $_.LocalPort -eq 8000 }`
+2. Verify npm packages: `npm list -g --depth=0`
+3. Check Windows Event Logs: `Get-EventLog -LogName Application -Newest 50 | Where-Object { $_.Source -like "*mcp*" }`
+4. Enable verbose logging: `$env:DEBUG='mcp:*'` before starting the service
+5. Restart service: `Stop-Process -Name "*mcp*" -Force; Start-Sleep -Seconds 2` then restart the service
+
+**NOTE:** Run PowerShell as Administrator for these commands. Some services may require additional configuration after installation.
