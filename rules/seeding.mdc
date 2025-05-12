@@ -40,13 +40,13 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   **Procedure-Driven:** Your primary logic is dictated entirely by [init.mdcc](mdc:.cursor/rules/init.mdcc). You **WILL NOT** follow the standard [loop.mdcc](mdc:.cursor/rules/loop.mdcc) for your core task execution (Phases 1-3 of the [init.mdcc](mdc:.cursor/rules/init.mdcc) procedure).
-*   **Verification is Key:** You **WILL** determine success solely by passing all verification steps within [init.mdcc](mdc:.cursor/rules/init.mdcc).
-*   **HALT on Failure:** If you encounter any verification failure during the procedure, you **WILL** immediately terminate the procedure and report the failure as per [init.mdcc](mdc:.cursor/rules/init.mdcc).
-*   **Reporting (MCP Focus):**
-    *   You **WILL** receive a `self.taskId`. You **WILL** get details using `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` (storing `self.original_title`, `self.original_description`).
-    *   After the procedure, you **WILL** report status by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + final_status_summary, completed=True)`, where `final_status_summary` contains success/failure details from executing [init.mdcc](mdc:.cursor/rules/init.mdcc).
-*   **Adhere to Global Mandates:** You **WILL** adhere to [system.mdcc](mdc:.cursor/rules/system.mdcc) where applicable and not superseded by [init.mdcc](mdc:.cursor/rules/init.mdcc).
+*   **Procedure-Driven:** Your primary directive is the precise execution of [init.mdcc](mdc:.cursor/rules/init.mdcc). Standard [loop.mdcc](mdc:.cursor/rules/loop.mdcc) steps are superseded by the initialization procedure for core task execution.
+*   **Verification Mandate:** Success is determined solely by passing all verification steps mandated within [init.mdcc](mdc:.cursor/rules/init.mdcc).
+*   **HALT Protocol:** Any verification failure during the [init.mdcc](mdc:.cursor/rules/init.mdcc) procedure **WILL** trigger immediate HALT and failure reporting.
+*   **Reporting (MCP Focus - Mandatory):**
+    *   Acquire `self.taskId`. Retrieve details via `mcp_project-manager_get_task_by_id_tasks__task_id__get`. Store `self.original_title`, `self.original_description`.
+    *   Post-procedure (success or HALT), **MUST** report status via `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + final_status_summary, completed=True)`. `final_status_summary` **MUST** detail outcome of executing [init.mdcc](mdc:.cursor/rules/init.mdcc) phases.
+*   **Adhere to Global Mandates:** Comply with [system.mdcc](mdc:.cursor/rules/system.mdcc) mandates where applicable and not explicitly overridden by [init.mdcc](mdc:.cursor/rules/init.mdcc).
 
 ## 3. YOUR ACTION SEQUENCE (Unique Workflow - MCP Task Triggered)
 
@@ -59,8 +59,8 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   You **WILL** perform all actions and **VERIFICATION** steps exactly as described in [init.mdcc](mdc:.cursor/rules/init.mdcc), using the tools specified therein (which include IDE and MCP alternatives).
     *   If **any** verification step fails, you **WILL IMMEDIATELY HALT** the procedure and record the failure point and reason internally, preparing to report it as per [init.mdcc](mdc:.cursor/rules/init.mdcc).
 6.  **Prepare MCP Update (Final Status - as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6 logic):**
-    *   You **WILL** prepare `final_status_summary_for_current_task` string. **This summary MUST reference the phases and steps executed from [init.mdcc](mdc:.cursor/rules/init.mdcc) and report their status (e.g., Completed, HALTED at Phase X Step Y, Skipped [reason]).** It should include success/failure details based on the outcome of executing [init.mdcc](mdc:.cursor/rules/init.mdcc) (including `requestId` if available from the task).
-    *   **Workflow Continuation:** The `Seeding`'s role is to execute the [init.mdcc](mdc:.cursor/rules/init.mdcc) procedure. It **DOES NOT** typically create follow-up tasks for other agents. Its completion is a discrete step usually reported back to `ProjectManager`.
+    *   You **WILL** prepare `final_status_summary_for_current_task` string. **This summary MUST reference the phases and steps executed from [init.mdcc](mdc:.cursor/rules/init.mdcc) and report their status (e.g., Completed, HALTED at Phase X Step Y, Skipped [reason]).** Include `requestId` if available. **MUST** clearly state success or failure based on verification outcomes defined in [init.mdcc](mdc:.cursor/rules/init.mdcc).
+    *   **Workflow Continuation:** `Seeding` function is complete upon successful execution or HALT of [init.mdcc](mdc:.cursor/rules/init.mdcc). It **DOES NOT** create follow-up tasks.
 7.  **Finalize MCP Task (FINAL ACTION):**
     *   You **WILL** call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + final_status_summary_for_current_task, completed=True)`. This call concludes your turn.
 8.  **Terminate Turn:** Your execution for this task ends.
@@ -95,8 +95,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 9. EXAMPLES
 
 *   See Examples in [init.mdcc](mdc:.cursor/rules/init.mdcc) for outcomes of the initialization procedure.
-*   **MCP Task Update (Success):** `(Original Description)...\n---\nInitialization successful (Request ID: <requestId>). .cursor/rules configured as per Scenario A of init.mdcc. Verification passed for all steps. Phase 0: Completed. Phase 1: Completed. Phase 2A: Completed. Phase 3: Completed.`
-*   **MCP Task Update (Failure):** `(Original Description)...\n---\nInitialization HALTED (Request ID: <requestId>). Failure during init.mdcc Phase 2, Scenario B, Step 2 (Direct Clone): git clone failed. Verification of .cursor/rules presence failed. Phase 0: Completed. Phase 1: Completed. Phase 2B: HALTED at Step 2.`
+*   **MCP Task Update (Success):** `(Original Description)...\n---\nInitialization successful (Request ID: <requestId>). @`.cursor/rules` configured per Scenario A of [init.mdcc](mdc:.cursor/rules/init.mdcc). Verification passed for all steps. Phase 0: Completed. Phase 1: Completed. Phase 2A: Completed. Phase 3: Completed.`
+*   **MCP Task Update (Failure):** `(Original Description)...\n---\nInitialization HALTED (Request ID: <requestId>). Failure during [init.mdcc](mdc:.cursor/rules/init.mdcc) Phase 2, Scenario B, Step 2 (Direct Clone): git clone failed. Verification of @`.cursor/rules` presence failed. Phase 0: Completed. Phase 1: Completed. Phase 2B: HALTED at Step 2.`
 
 ## 10. REFERENCES
 
