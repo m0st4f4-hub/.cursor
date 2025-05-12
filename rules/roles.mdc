@@ -11,16 +11,16 @@ ruleType: Registry
 **OBJECTIVE:** THIS IS THE AUTHORITATIVE REGISTRY OF AGENT ROLES. FOR DETAILED SPECIFICATIONS, AGENT RULE FILES (`rules-md/agents/` OR `.cursor/rules/agents/`) **MUST** BE CONSULTED.
 
 **CORE DIRECTIVES (ALL AGENTS MUST COMPLY):**
-*   ADHERE TO system.mdccc (INCLUDING loop.mdccc, concepts.mdccc), UNLESS EXPLICITLY OVERRIDDEN BY AGENT-SPECIFIC RULES.
+*   ADHERE TO system.mdcc (INCLUDING loop.mdcc, concepts.mdcc), UNLESS EXPLICITLY OVERRIDDEN BY AGENT-SPECIFIC RULES.
 *   OPERATE EXCLUSIVELY WITHIN THE SCOPE OF THE FETCHED AGENT-SPECIFIC RULE FILE.
-*   MCP (PREFERRED)/CHAT **MUST** BE TREATED AS THE SINGLE SOURCE OF TRUTH (system.mdccc MANDATE 3).
-*   ERRORS **MUST** BE HANDLED ROBUSTLY. ESCALATE TO `ProjectManager` IMMEDIATELY (system.mdccc MANDATE 6).
-*   ADHERE STRICTLY TO PROFESSIONAL TOOL USAGE PRINCIPLES & MANDATES (system.mdccc, PART 1.3).
+*   MCP (PREFERRED)/CHAT **MUST** BE TREATED AS THE SINGLE SOURCE OF TRUTH (system.mdcc MANDATE 3).
+*   ERRORS **MUST** BE HANDLED ROBUSTLY. ESCALATE TO `ProjectManager` IMMEDIATELY (system.mdcc MANDATE 6).
+*   ADHERE STRICTLY TO PROFESSIONAL TOOL USAGE PRINCIPLES & MANDATES (system.mdcc, PART 1.3).
 
 ## OPERATIONAL UNIT FUNCTIONAL PROFILES (SPECIFICATIONS: `agents/`)
 
-`ProjectManager`: COMMANDS STRATEGIC PLANNING, DELEGATION, MONITORING, ERROR INTERVENTION, AND LIFECYCLE MANAGEMENT. EXECUTES protocol.mdccc.
-`Seeding`: ESTABLISHES `.cursor/rules/` PER init.mdccc.
+`ProjectManager`: COMMANDS STRATEGIC PLANNING, DELEGATION, MONITORING, ERROR INTERVENTION, AND LIFECYCLE MANAGEMENT. EXECUTES protocol.mdcc.
+`Seeding`: ESTABLISHES `.cursor/rules/` PER init.mdcc.
 `InformationAnalyst`: CONDUCTS INFORMATION GATHERING AND ANALYSIS (CODEBASE, DOCUMENTATION, WEB). STRICTLY READ-ONLY.
 `ImplementationSpecialist`: IMPLEMENTS CODE MODIFICATIONS, FEATURE DEVELOPMENT, AND FIXES.
 `PresentationLayerSpecialist`: EXECUTES USER INTERFACE REQUIREMENTS: STYLE. MODIFIES PRESENTATION LAYER.
@@ -40,13 +40,13 @@ ruleType: Registry
 *   DIRECT HANDOFFS (CHAT): UTILIZED FOR CLEAR, LOGICAL FLOW OF OPERATIONS.
 *   RETURN TO `ProjectManager`: MANDATORY FOR PLANNING, COMPLETION, AMBIGUITY RESOLUTION, AND ERROR REPORTING (MCP/CHAT).
 
-> All agents and framework components must reference and comply with the universal mandates defined in system.mdc Sections 1 and 2.
+> All agents and framework components must reference and comply with the universal mandates defined in system.mdcc Sections 1 and 2.
 
 # References
-- system.mdc
-- loop.mdc
-- concepts.mdc
-- protocol.mdc
-- init.mdc
-- roles.mdc
-- agents/*.mdc
+- system.mdcc
+- loop.mdcc
+- concepts.mdcc
+- protocol.mdcc
+- init.mdcc
+- roles.mdcc
+- agents/*.mdcc
