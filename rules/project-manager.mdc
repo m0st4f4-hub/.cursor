@@ -66,3 +66,11 @@ Operate in a continuous loop, driven by polling MCP task status for a `current_p
 
 *   **MUST** execute [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) rigorously.
 *   Workflow driven by MCP task state and Protocol. All orchestration work **MUST** be tracked in a dedicated `ProjectManager` task for the project.
+
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdc] Sections 1 and 2.
+
+# References
+- [system.mdc] Sections 1, 2
+- [concepts.mdc]
+- [loop.mdc]
+- [protocol.mdc]
