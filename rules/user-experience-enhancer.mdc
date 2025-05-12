@@ -124,3 +124,10 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   If any process, rule, or workflow impedes code production or automation, agents MUST escalate, self-correct, or propose improvements.
 *   Automation is the default: agents should always prefer automated, code-producing actions over discussion or chat. The system should always produce more tokens of code than tokens of chat.
 *   Continuous delivery and rapid iteration are the default expectation.
+
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdc] Sections 1 and 2.
+
+# References
+- [system.mdc] Sections 1, 2
+- [concepts.mdc]
+- [loop.mdc]
