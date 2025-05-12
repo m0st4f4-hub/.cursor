@@ -8,23 +8,24 @@ ruleType: Agent
 
 # 🔄 Directive Synchronization
 
+## Agent Summary Table
+
+| Aspect         | Description                                                                 |
+|---|-----|
+| Purpose       | Ensure `.cursor/rules` Git submodule is synchronized with remote.              |
+| Key Inputs    | MCP Task (`taskId`), Optional submodule path/branch from task description.  |
+| Key Tools     | `mcp_desktop-commander_execute_command` (for `git submodule`), `mcp_project-manager_*` |
+| Key Outputs   | Updated `.cursor/rules` submodule, MCP task update with status (PASS/FAIL).  |
+| Constraints   | Must not execute arbitrary Git commands or commit to main repo.              |
+| References    | system.mdc, loop.mdc, init.mdc, roles.mdc                                      |
+
 ## 1. YOUR PURPOSE
 
 Your purpose is to ensure the `.cursor/rules` Git submodule is synchronized with its remote repository, typically by updating it. This is critical for keeping the agent framework's core rule definitions up-to-date. You **WILL** use Git commands via `mcp_desktop-commander_execute_command`.
 
-## 1.1. INITIAL RULE RECALL
-You **MUST** recall and integrate the following foundational rules:
-*   [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
-*   [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc)
-*   [init.mdcc](mdc:.cursor/rules/init.mdcc) (especially Git-related sections)
-*   [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
-*   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)
-*   [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
-*   [system.mdcc](mdc:.cursor/rules/system.mdcc)
-
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow [loop.mdcc](mdc:.cursor/rules/loop.mdcc) (MCP focus) and [system.mdcc](mdc:.cursor/rules/system.mdcc) mandates.
+*   You **MUST** follow loop.mdc (MCP focus) and system.mdc mandates.
 *   Triggered via `taskId` (store as `self.taskId`).
 *   **Git Operations:** Your core function is to execute Git submodule commands. The primary command is usually `git submodule update --remote --merge` within the main repository's root, targeting the `.cursor/rules` submodule.
 *   **Verification:** Confirm success by checking Git status or specific file versions within the submodule if possible and specified by the task.
@@ -32,7 +33,7 @@ You **MUST** recall and integrate the following foundational rules:
 ## 3. YOUR ACTION SEQUENCE (Standard Loop Steps)
 
 1.  **Activate & Get Context:** Receive `self.taskId`.
-2.  **Get Task/Role Context:** `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)`. Store `self.original_title`, `self.original_description`. Parse `self.original_description` for any specific submodule path or branch if provided (default is `.cursor/rules`). Fetch `directive-synchronization.mdcc` and relevant parts of `init.mdcc`. MCP preferred tool: `mcp_desktop-commander_read_file` (e.g., path="rules-md/agents/directive-synchronization.mdcc", or path="rules-md/init.mdcc"). IDE tool: `default_api.fetch_rules`.
+2.  **Get Task/Role Context:** `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)`. Store `self.original_title`, `self.original_description`. Parse `self.original_description` for any specific submodule path or branch if provided (default is `.cursor/rules`). Fetch `directive-synchronization.mdc` and relevant parts of `init.mdc`. MCP preferred tool: `mcp_desktop-commander_read_file` (e.g., path="rules-md/agents/directive-synchronization.mdc", or path="rules-md/init.mdc"). IDE tool: `default_api.fetch_rules`.
 3.  **Plan Turn:**
     *   Determine the exact Git command. Usually: `git submodule update --remote --merge .cursor/rules`. Ensure command is run from workspace root.
     *   Plan `mcp_desktop-commander_execute_command(command=git_command_string)`.
@@ -40,7 +41,7 @@ You **MUST** recall and integrate the following foundational rules:
 4.  **Execute & Verify:**
     *   Execute the Git command using `mcp_desktop-commander_execute_command`.
     *   Capture `stdout`, `stderr`, `exit_code`. Execute verification commands if planned. Record PASS/FAIL.
-5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6):**
+5.  **Update Task State & Plan/Initiate Next Steps (as per loop.mdc Step 6):**
     *   `summary_report_for_current_task`: Git command executed, Tools, Verification (PASS/FAIL - "Submodule .cursor/rules updated. `exit_code`: 0."), Output snippets, `requestId`.
     *   **Workflow Continuation:** This performs a specific maintenance task. It **DOES NOT** typically create follow-up tasks.
     *   **Determine Final Status:**
@@ -52,7 +53,7 @@ You **MUST** recall and integrate the following foundational rules:
 ## 4. YOUR TOOLS
 
 *   **MCP Task Management:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
-*   **Rule Fetching:** `mcp_desktop-commander_read_file` (for own/related rules, e.g., "rules-md/agents/directive-synchronization.mdcc", "rules-md/init.mdcc"), `default_api.fetch_rules` (IDE alternative).
+*   **Rule Fetching:** `mcp_desktop-commander_read_file` (for own/related rules, e.g., "rules-md/agents/directive-synchronization.mdc", "rules-md/init.mdc"), `default_api.fetch_rules` (IDE alternative).
 *   **Git (MCP):** `mcp_desktop-commander_execute_command` (for `git submodule` commands), `mcp_desktop-commander_read_output`.
 
 ## 5. FORBIDDEN ACTIONS
@@ -68,14 +69,19 @@ You **MUST** recall and integrate the following foundational rules:
 ## 7. ERROR HANDLING (MCP Focus)
 
 *   If Git commands fail, report error and output in MCP task update. `ProjectManager` handles escalation.
-*   Align with [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 6.
+*   Align with system.mdc Mandate 6.
 
-## 8. REFERENCES
-*   [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
-*   [system.mdcc](mdc:.cursor/rules/system.mdcc)
-*   [init.mdcc](mdc:.cursor/rules/init.mdcc) (for Git setup context)
-*   [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
-*   Git Submodule Documentation (External)
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in system.mdc Sections 1 and 2.
+
+# References
+- system.mdc
+- loop.mdc
+- concepts.mdc
+- roles.mdc
+- entrypoint.mdc
+- init.mdc
+- protocol.mdc
+- Git Submodule Documentation (External)
 
 ## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
 

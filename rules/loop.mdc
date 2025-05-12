@@ -37,71 +37,69 @@ ruleType: Framework
 *   **ACTION:** STORE `taskId` / PARSE PAYLOAD.
 
 **STEP 2: ACQUIRE FULL TASK/OPERATIONAL CONTEXT & UPDATE STATUS**
-*   **ACTION:** FETCH DETAILED INSTRUCTIONS/CONTEXT PER [system.mdcc](mdc:.cursor/rules/system.mdcc) MANDATE 1.
+*   **ACTION:** FETCH DETAILED INSTRUCTIONS/CONTEXT PER RELEVANT MANDATES.
 *   **TOOLING (MCP):** `mcp_project-manager_get_task_by_id_tasks__task_id__get` (TASK DETAIL **MUST** INCLUDE `targetAgentRole` FROM `ProjectManager`. ABSENCE/AMBIGUITY INVOKES HALT).
     *   **SUPPORTED OPERATIONS FOR CONTEXT GATHERING (MCP Preferred for Automation):**
         *   File/Directory Info: `mcp_desktop-commander_read_file`, `mcp_desktop-commander_read_multiple_files`, `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_get_file_info`.
         *   Code/File Search: `mcp_desktop-commander_search_code` (regex), `mcp_desktop-commander_search_files` (name pattern).
         *   Web Research: `mcp_web-fetch_fetch` (direct URL), `default_api.web_search` (general search).
         *   Library Documentation: `mcp_context7_resolve-library-id` followed by `mcp_context7_get-library-docs`.
-*   **ACTION (CHAT):** UTILIZE PAYLOAD. SUPPLEMENT WITH READ-ONLY TOOLS AS REQUIRED (e.g., `default_api.read_file`, `default_api.codebase_search`).
-*   **CRITICAL EVALUATION (BOTH):** CONTEXT **MUST** BE CRITICALLY EVALUATED PER [system.mdcc](mdc:.cursor/rules/system.mdcc). IDENTIFY ASSUMPTIONS, VERIFY FEASIBILITY.
-*   **MCP STATUS UPDATE:** POST-CONTEXT/ANALYSIS, MCP TASK (`mcp_project-manager_update_task_tasks__task_id__put`) **MUST** BE UPDATED WITH STATUS (E.G., "CONTEXT ACQUIRED"), FINDINGS, AND TOOLS UTILIZED, PER [system.mdcc](mdc:.cursor/rules/system.mdcc) MANDATE 4.
+*   **ACTION (CHAT):** UTILIZE PAYLOAD. SUPPLEMENT WITH READ-ONLY TOOLS AS REQUIRED.
+*   **CRITICAL EVALUATION (BOTH):** CONTEXT **MUST** BE CRITICALLY EVALUATED. IDENTIFY ASSUMPTIONS, VERIFY FEASIBILITY.
+*   **MCP STATUS UPDATE:** POST-CONTEXT/ANALYSIS, MCP TASK **MUST** BE UPDATED WITH STATUS (E.G., \'\'\'CONTEXT ACQUIRED\'\'\'), FINDINGS, AND TOOLS UTILIZED, PER RELEVANT MANDATES.
 
 **STEP 3: FETCH ROLE SPECIFICATION & VALIDATE PERSONA**
-*   **ACTION:** IDENTIFY `targetAgentRole` (FROM STEP 2). RETRIEVE ROLE SPECIFICATION FILE.
-*   **VALIDATION:** 1. `targetAgentRole` PRESENCE AND CLARITY **MUST** BE VERIFIED. 2. IF MISSING/AMBIGUOUS: HALT. UPDATE MCP (ERROR: "`targetAgentRole` MISSING/AMBIGUOUS IN TASK"). ESCALATE. 3. IF PRESENT: FETCH AGENT RULE (`<RoleName>.mdcc`). 4. IF UNFETCHABLE: HALT. UPDATE MCP (ERROR: "CANNOT FETCH RULE FOR `targetAgentRole`"). ESCALATE.
+*   **ACTION:** IDENTIFY `targetAgentRole` (FROM STEP 2). RETRIEVE ROLE SPECIFICATION FILE (`<RoleName>.mdcc`).
+*   **VALIDATION:** 1. `targetAgentRole` PRESENCE AND CLARITY **MUST** BE VERIFIED. 2. IF MISSING/AMBIGUOUS: HALT. UPDATE MCP (ERROR). ESCALATE. 3. IF PRESENT: FETCH AGENT RULE. 4. IF UNFETCHABLE: HALT. UPDATE MCP (ERROR). ESCALATE.
 *   **OUTCOME:** RULES FOR ASSIGNED PERSONA LOADED.
 
 **STEP 4: PLAN TURN (INTERNAL)**
 *   **ACTION:** PREPARE INTERNAL ACTION PLAN.
 *   **INPUT:** RULES (STEP 3), CONTEXT (STEP 2).
-*   **PROCESS:** CONSTRUCT INTERNAL REASONING/PROMPT. PLAN STEP 5 OPERATIONS, INCLUDING **MANDATORY VERIFICATION** AND **ASSUMPTION CHECKS** PER [system.mdcc](mdc:.cursor/rules/system.mdcc). (NOTE: "CONTINUOUS CHAT SEQUENCE" BY `ProjectManager` MAY REQUIRE MORE COMPREHENSIVE EXECUTION).
+*   **PROCESS:** CONSTRUCT INTERNAL REASONING/PROMPT. PLAN STEP 5 OPERATIONS, INCLUDING **MANDATORY VERIFICATION** AND **ASSUMPTION CHECKS**.
 
 **STEP 5: EXECUTE CORE TASK(S), RIGOROUSLY VERIFY & UPDATE STATUS**
 *   **ACTION:** PERFORM PRIMARY ROLE/TASK FUNCTIONS.
-*   **PROCESS:** 1. **MCP UPDATE (EXECUTION START):** STATUS "EXECUTION IN PROGRESS". 2. **EXECUTE:** IMPLEMENT PLAN (Refer to agent-specific rules for tool selection, adhering to [system.mdcc](mdc:.cursor/rules/system.mdcc) tool mandates). 3. **MCP UPDATE (VERIFICATION START):** STATUS "PENDING VERIFICATION". 4. **VERIFY RIGOROUSLY:** PER [system.mdcc](mdc:.cursor/rules/system.mdcc) MANDATE 2 (MULTI-METHOD VERIFICATION). This may involve tools like `mcp_desktop-commander_execute_command` (for tests, linters), `mcp_desktop-commander_read_file`, `mcp_desktop-commander_search_code`, or browser audit tools (e.g., `mcp_browser-tools_runAccessibilityAudit`, `mcp_playwright_browser_snapshot`). 5. **ANALYZE/RECORD:** CONSOLIDATE RESULTS, VERIFICATION DATA, ASSUMPTIONS, UNCERTAINTIES. 6. **MCP UPDATE (POST-VERIFICATION):** STATUS REFLECTING OUTCOME (E.G., "VERIFICATION SUCCEEDED/FAILED").
+*   **PROCESS:** 1. **MCP UPDATE (EXECUTION START):** STATUS \'\'\'EXECUTION IN PROGRESS\'\'\'. 2. **EXECUTE:** IMPLEMENT PLAN (Refer to agent-specific rules for tool selection, adhering to tool mandates). 3. **MCP UPDATE (VERIFICATION START):** STATUS \'\'\'PENDING VERIFICATION\'\'\'. 4. **VERIFY RIGOROUSLY:** PER RELEVANT MANDATES (MULTI-METHOD VERIFICATION). This may involve various MCP tools. 5. **ANALYZE/RECORD:** CONSOLIDATE RESULTS, VERIFICATION DATA, ASSUMPTIONS, UNCERTAINTIES. 6. **MCP UPDATE (POST-VERIFICATION):** STATUS REFLECTING OUTCOME (E.G., \'\'\'VERIFICATION SUCCEEDED/FAILED\'\'\').
 
 **STEP 6: UPDATE STATE / PLAN & INITIATE WORKFLOW CONTINUATION / FINALIZE TURN (FINAL ACTION)**
 *   **ACTION:** PERSIST RESULTS, PLAN AND POTENTIALLY INITIATE NECESSARY FOLLOW-UP TASKS, UPDATE FINAL TASK STATUS, THEN TERMINATE TURN.
 *   **PROCESS (MCP):** 
-    1.  **EVALUATE WORKFLOW CONTINUATION & IDENTIFY SUCCESSOR (PER [system.mdccc](mdc:.cursor/rules/system.mdccc) MANDATE 4):**
-        *   Based on the current task's *successfully verified* outcome, the agent's role, its specific rules, and the overall goal (from task description), the agent **MUST** evaluate if a direct handoff to a subsequent specialized agent is the logical next step.
-        *   A direct handoff **IS** the logical next step if:
-            *   The current task's primary objective is complete and verified.
-            *   The agent's rules or the current task description explicitly define or strongly imply a specific `targetSuccessorAgentName` or type of follow-up action for this outcome (e.g., `ImplementationSpecialist` completing code implies `ExecutionValidator` for tests; `ImageManipulationSpecialist` preparing instructions implies `ExecutionValidator` to run them).
-            *   The output of the current task forms a clear and sufficient input for the identified `targetSuccessorAgentName`.
-        *   If these conditions are met, the agent **MUST** identify the `targetSuccessorAgentName` and prepare to create a follow-up task. Let `created_follow_up_task_ids` = [].
-        *   If these conditions are *not* met (e.g., task failed, outcome is ambiguous, no clear `targetSuccessorAgentName` is defined for this specific outcome in the agent's rules or current task's description), the agent **MUST NOT** create a follow-up task. `created_follow_up_task_ids` remains empty.
-    2.  **CREATE DIRECT FOLLOW-UP TASK (IF `targetSuccessorAgentName` IDENTIFIED IN 6.1):**
-        *   If a `targetSuccessorAgentName` was identified in Step 6.1:
-            *   The agent **MUST** formulate a `follow_up_title` and `follow_up_description` for the new task. The `follow_up_description` **MUST** include: relevant context from the current task (e.g., `requestId`, current `taskId` as parent, key findings, artifacts produced) and clear instructions for the `targetSuccessorAgentName`.
-            *   The agent **MUST** then execute `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_description, agent_name=targetSuccessorAgentName, project_id=<current_project_id_if_available>)`.
-            *   The new `taskId`(s) returned by the creation call **MUST** be logged into `created_follow_up_task_ids`.
-        *   If no `targetSuccessorAgentName` was identified in Step 6.1, this step is skipped, and `created_follow_up_task_ids` remains empty.
+    1.  **EVALUATE WORKFLOW CONTINUATION & IDENTIFY SUCCESSOR:**
+        *   Based on the current task\'s *successfully verified* outcome, the agent\'s role, its specific rules, and the overall goal, the agent **MUST** evaluate if a direct handoff to a subsequent specialized agent is the logical next step.
+        *   A direct handoff **IS** logical if the current task is complete, verified, and rules/task imply a specific successor (`targetSuccessorAgentName`).
+        *   If conditions met, identify `targetSuccessorAgentName` and prepare follow-up task creation. Let `created_follow_up_task_ids` = [].
+        *   If conditions *not* met, **MUST NOT** create follow-up task. `created_follow_up_task_ids` remains empty.
+    2.  **CREATE DIRECT FOLLOW-UP TASK (IF `targetSuccessorAgentName` IDENTIFIED):**
+        *   If identified: Formulate `follow_up_title` and `follow_up_description`. Execute `mcp_project-manager_create_task_tasks__post`. Log new `taskId`(s) in `created_follow_up_task_ids`.
+        *   If not identified, skip this step.
     3.  **DETERMINE FINAL STATUS OF CURRENT TASK:** 
         *   Let `final_status`.
-        *   If `created_follow_up_task_ids` is not empty (meaning a follow-up task was successfully created in 6.2): `final_status` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids)
-        *   Else if the current task is complete and successfully verified (and no follow-up task was created): `final_status` = "COMPLETED_AWAITING_PROJECT_MANAGER"
-        *   Else if task is blocked (and no follow-up): `final_status` = "BLOCKED"
-        *   Else if task failed unrecoverably (and no follow-up): `final_status` = "FAILED"
-        *   (Other statuses like "COMPLETED_PARTIAL" can be used if defined by agent rules for specific scenarios where `ProjectManager` needs to review partial work before further agent assignment).
-    4.  **COMPREHENSIVE UPDATE & FINALIZATION OF CURRENT TASK:** UPDATE THE *CURRENT* MCP TASK (`mcp_project-manager_update_task_tasks__task_id__put`) **MUST** BE UPDATED. **MUST** INCLUDE FINDINGS SUMMARY ([system.mdccc](mdc:.cursor/rules/system.mdccc) MANDATE 4: ACTIONS, TOOLS, VERIFICATION METHODS/RESULTS, ASSUMPTIONS, ERRORS), the `created_follow_up_task_ids` (if applicable), AND THE `final_status` DETERMINED IN 6.3. SET `completed` FLAG TO `True`.
+        *   If `created_follow_up_task_ids` not empty: `final_status` = \'\'\'COMPLETED_HANDOFF_TO_\'\'\' + ",".join(created_follow_up_task_ids)
+        *   Else if complete and verified: `final_status` = \'\'\'COMPLETED_AWAITING_PROJECT_MANAGER\'\'\'
+        *   Else if blocked: `final_status` = \'\'\'BLOCKED\'\'\'
+        *   Else if failed unrecoverably: `final_status` = \'\'\'FAILED\'\'\'
+        *   (Other statuses possible if defined by agent rules).
+    4.  **COMPREHENSIVE UPDATE & FINALIZATION OF CURRENT TASK:** UPDATE THE *CURRENT* MCP TASK. **MUST** INCLUDE FINDINGS SUMMARY (ACTIONS, TOOLS, VERIFICATION, ASSUMPTIONS, ERRORS), `created_follow_up_task_ids` (if applicable), AND `final_status`. SET `completed` FLAG TO `True`.
     5.  **TERMINATE.**
 *   **PROCESS (CHAT - LEGACY):** 
-    1.  **DETERMINE NEXT AGENT (IF APPLICABLE).**
-    2.  **CONSTRUCT HANDOFF:** CONCISE PAYLOAD CONTAINING COMPREHENSIVE FINDINGS. (NOTE: "CONTINUOUS CHAT SEQUENCE" PAYLOAD MAY INCLUDE SEQUENCE CONTEXT).
-    3.  **TRIGGER:** "Hey `<NextRoleName>`, [Payload]".
+    1.  **DETERMINE NEXT AGENT.**
+    2.  **CONSTRUCT HANDOFF.**
+    3.  **TRIGGER.**
     4.  **TERMINATE.**
 
 **ERROR HANDLING PROTOCOL:**
 *   **STEP 2 FAILURE (NO CONTEXT):** HALT.
-*   **STEP 6 FAILURE (TASK CREATION / FINAL UPDATE):** IF CREATING A FOLLOW-UP TASK OR THE FINAL UPDATE TO THE CURRENT TASK FAILS, RETRY ONCE. IF FAILURE PERSISTS: THIS IS A CRITICAL ERROR. THE AGENT **MUST** ATTEMPT TO UPDATE ITS CURRENT TASK TO REFLECT THIS FAILURE (E.G., STATUS "ERROR_FINALIZING"). ESCALATE TO `ProjectManager` AS PER [system.mdcc](mdc:.cursor/rules/system.mdcc) MANDATE 6. ATTEMPT LOCAL LOGGING. 
-*   **STEP 5 ERRORS:** DETAILED ERROR ANALYSIS ([system.mdcc](mdc:.cursor/rules/system.mdcc) MANDATE 6) **MUST** BE LOGGED IN STEP 6 UPDATE BEFORE CONTINUING (IF RECOVERABLE) OR HALTING. ERRORS **MUST** BE REPORTED TO `ProjectManager`.
+*   **STEP 6 FAILURE (TASK CREATION / FINAL UPDATE):** RETRY ONCE. IF PERSISTS: CRITICAL ERROR. ATTEMPT TO UPDATE CURRENT TASK TO REFLECT FAILURE. ESCALATE TO `ProjectManager`. ATTEMPT LOCAL LOGGING.
+*   **STEP 5 ERRORS:** DETAILED ERROR ANALYSIS **MUST** BE LOGGED IN STEP 6 UPDATE BEFORE CONTINUING (IF RECOVERABLE) OR HALTING. ERRORS **MUST** BE REPORTED TO `ProjectManager`.
+
+> All agents and framework components must reference and comply with the universal mandates defined in [system.mdcc]. See Section 1 and 2 thereof.
 
 # References
 
-- [system.mdc] Section 1: CODE PRODUCTION FIRST PRINCIPLE
-- [system.mdc] Section 2: UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
-
-> All agents and framework components must comply with these universal mandates.
+- [loop.mdcc](loop.mdcc) (this document)
+- [system.mdcc](system.mdcc)
+- [concepts.mdcc](concepts.mdcc)
+- [roles.mdcc](roles.mdcc)
+- [protocol.mdcc](protocol.mdcc)
+- Agent rules (`agents/*.mdcc`)

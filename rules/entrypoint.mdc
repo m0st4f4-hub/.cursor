@@ -12,38 +12,33 @@ ruleType: Framework
 
 ## 1. CORE FRAMEWORK DIRECTIVES
 
-*   **SYSTEM OVERVIEW & GLOBAL MANDATES:** [system.mdcc](mdc:.cursor/rules/system.mdcc) (OBJECTIVES, OPERATIONAL MODEL, MANDATES)
-*   **FRAMEWORK ENGINE & AGENT TURN PROTOCOL:** [loop.mdcc](mdc:.cursor/rules/loop.mdcc) (ENGINE, MANDATORY PROCEDURES)
-*   **CORE CONCEPTS & TERMINOLOGY:** [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc) (GLOSSARY)
-*   **ULTRA-DEEP THINKING PROTOCOL:** [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) (StrategicCoordinator: STRATEGIC PLANNING, VERIFICATION, ANALYSIS)
-*   **INITIALIZATION PROCEDURE:** [init.mdcc](mdc:.cursor/rules/init.mdcc) (SeedingAgent: `.cursor/rules/` ESTABLISHMENT)
-*   **FRAMEWORK ENTRYPOINT & CORE RULE INDEX:** [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc) (THIS INDEX)
+*   **SYSTEM OVERVIEW & GLOBAL MANDATES:** system.mdc (OBJECTIVES, OPERATIONAL MODEL, MANDATES)
+*   **FRAMEWORK ENGINE & AGENT TURN PROTOCOL:** loop.mdc (ENGINE, MANDATORY PROCEDURES)
+*   **CORE CONCEPTS & TERMINOLOGY:** concepts.mdc (GLOSSARY)
+*   **ULTRA-DEEP THINKING PROTOCOL:** protocol.mdc (ProjectManager: STRATEGIC PLANNING, VERIFICATION, ANALYSIS)
+*   **INITIALIZATION PROCEDURE:** init.mdc (SeedingAgent: `.cursor/rules/` ESTABLISHMENT)
+*   **FRAMEWORK ENTRYPOINT & CORE RULE INDEX:** entrypoint.mdc (THIS INDEX)
 
 ## 2. AGENT & TOOL DIRECTIVES
 
 *   **AGENT ROLE DEFINITIONS:**
-    *   **REGISTRY:** [roles.mdcc](mdc:.cursor/rules/roles.mdcc) (MASTER LIST, SUMMARIES)
-    *   **SPECIFICATIONS:** `@agents/` DIRECTORY (PRIMARY AGENT DIRECTIVES)
+    *   **REGISTRY:** roles.mdc (MASTER LIST, SUMMARIES)
+    *   **SPECIFICATIONS:** agents/ DIRECTORY (PRIMARY AGENT DIRECTIVES)
 
 ## 3. OPERATIONAL MANDATES
 
 *   AGENTS **MUST** FETCH THEIR OWN ROLE SPECIFICATION AT THE COMMENCEMENT OF EACH TURN.
-*   AGENTS **MUST** ADHERE TO THE OPERATIONAL MODEL DEFINED IN [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc) (INCLUDING [system.mdcc](mdc:.cursor/rules/system.mdcc) MANDATES AND [loop.mdcc](mdc:.cursor/rules/loop.mdcc) LOOP), UNLESS EXPLICITLY OVERRIDDEN BY THEIR ROLE FILE.
+*   AGENTS **MUST** ADHERE TO THE OPERATIONAL MODEL DEFINED IN concepts.mdc (INCLUDING system.mdc MANDATES AND loop.mdc LOOP), UNLESS EXPLICITLY OVERRIDDEN BY THEIR ROLE FILE.
 *   THIS DOCUMENT **MUST** BE USED AS THE PRIMARY INDEX FOR ALL CORE RULE DOCUMENTS.
 
-## 4. RELATED CORE FRAMEWORK DIRECTIVES
-
-*   [system.mdcc](mdc:.cursor/rules/system.mdcc)
-*   [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
-*   [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
-*   [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
-*   [init.mdcc](mdc:.cursor/rules/init.mdcc)
-*   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)
-*   [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc)
+> All agents and framework components must reference and comply with the universal mandates defined in system.mdc Sections 1 and 2.
 
 # References
-
-- [system.mdc] Section 1: CODE PRODUCTION FIRST PRINCIPLE
-- [system.mdc] Section 2: UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
-
-> All agents and framework components must comply with these universal mandates.
+- system.mdc
+- loop.mdc
+- concepts.mdc
+- protocol.mdc
+- init.mdc
+- roles.mdc
+- entrypoint.mdc
+- agents/*.mdc
