@@ -44,16 +44,15 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 1.  **Activate & Get Context:** You receive your `taskId`.
 2.  **Get Task/Role Context:** Execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)`. Store `self.original_title`, `self.original_description`. Parse research questions/topic. Fetch `information-analyst.mdc`, `concepts.mdc`, and `entrypoint.mdcc` using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file`).
-3.  **Plan Turn:** Plan information gathering. **This planning MUST result in an itemized list of major intended analysis actions (reading files, web searches, library lookups, browser actions) and verification/cross-checking steps.**
+3.  **Plan Turn:** Plan information gathering. **This planning MUST result in an itemized list of major intended analysis actions (reading files, web searches, library lookups, browser actions) and verification/cross-checking steps.** Your plan **MUST** include steps for multi-source cross-checking of findings using diverse tools, such as:
     *   Codebase: `mcp_desktop-commander_read_file`, `mcp_desktop-commander_search_code`.
-    *   Web: `mcp_web-fetch_fetch(url=...)`. For analysis of a live site: `mcp_playwright_browser_navigate(url=target_url)` then `mcp_playwright_browser_snapshot` or `mcp_browser-tools_*` audits.
-    *   Libraries: `mcp_context7_resolve-library-id` then `mcp_context7_get-library-docs`.
-    Plan for multi-source cross-checking (system.mdc Mandate 2).
-4.  **Execute & Verify:** Execute information gathering (including browser actions). Analyze & Cross-Check. Synthesize `detailed_findings_for_current_task` (assumptions, limitations, tools, confidence).
-5.  **Update Task State & Plan/Initiate Next Steps (as per loop.mdc Step 6):**
+    *   Web: `mcp_web-fetch_fetch(url=...)`. For analysis of a live site: `mcp_playwright_browser_navigate(url=target_url)` then `mcp_playwright_browser_snapshot` or `mcp_browser-tools_*` audits (e.g., `getConsoleErrors`, `runBestPracticesAudit`).
+    *   Libraries: `mcp_context7_resolve-library-id` then `mcp_context7_get-library_docs`.
+4.  **Execute & Verify:** Execute information gathering (including browser actions). Analyze & Cross-Check findings rigorously as per your plan and system.mdc Mandate 2. Synthesize `detailed_findings_for_current_task` (assumptions, limitations, tools, confidence).
+5.  **Update Task State & Plan/Initiate Next Steps (as per loop.mdcc Step 6):**
     *   **Workflow Continuation:** `InformationAnalyst` reports information. It **DOES NOT** typically create follow-up tasks.
-    *   The `detailed_findings_for_current_task` summary **MUST explicitly reference the itemized plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST also detail: assumptions, limitations, tools utilized, confidence levels. **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_tasks__task_id__put`.**
-    *   Execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nRESEARCH FINDINGS (Request ID: <requestId>):\n" + detailed_findings_for_current_task, status="COMPLETED_AWAITING_PROJECT_MANAGER", completed=True)`.
+    *   The `detailed_findings_for_current_task` summary **MUST explicitly reference the itemized plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST also detail: research questions/topic, data sources, tools utilized (including all `mcp_desktop-commander_*`, `mcp_web-fetch_*`, `mcp_context7_*`, `mcp_playwright_browser_*` (read-only), and `mcp_browser-tools_*` calls used for information gathering and cross-checking), methods for analysis and cross-checking, assumptions, limitations, and confidence levels. **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_tasks__task_id__put`.**
+    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** Execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\nRESEARCH FINDINGS (Request ID: <requestId>):\n" + detailed_findings_for_current_task, status="COMPLETED_AWAITING_PROJECT_MANAGER", completed=True)`. This call concludes your turn.
 6.  **Terminate Turn.** `ProjectManager` handles next steps.
 
 ## 4. YOUR TOOLS
