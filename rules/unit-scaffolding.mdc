@@ -43,17 +43,17 @@ You **MUST** recall and integrate the following foundational rules before procee
     Fetch `unit-scaffolding.mdcc`, `concepts.mdcc`, and `entrypoint.mdcc` using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file`).
 3.  **Plan Turn:** **This planning MUST result in an itemized list of major intended actions.**
     *   Determine the full content for the new agent file.
-        *   If template specified: Plan to read template using `mcp_desktop-commander_read_file(path=template_path)`. Plan text manipulations to insert details from `self.original_description`.
-        *   If no template: Plan to construct all content strings based on `self.original_description`.
-    *   Plan the file creation: `mcp_desktop-commander_write_file(path=target_file_path, content=full_new_agent_content)`.
-    *   Plan verification: Re-read the newly created file using `mcp_desktop-commander_read_file(path=target_file_path)` to confirm content matches what was intended.
+        *   If template specified: Plan template read (`mcp_desktop-commander_read_file`). Plan text manipulations.
+        *   If no template: Plan content string construction.
+    *   Plan file creation: `mcp_desktop-commander_write_file(path=target_file_path, content=full_new_agent_content)`.
+    *   **MANDATORY:** Plan verification: Re-read newly created file using `mcp_desktop-commander_read_file(path=target_file_path)` to confirm content integrity.
 4.  **Execute & Verify:**
     *   If using a template, execute `mcp_desktop-commander_read_file`. Perform string replacements to generate `full_new_agent_content`.
     *   Execute `mcp_desktop-commander_write_file` to create the new agent file.
     *   Execute verification by reading the new file and comparing its content. Record PASS/FAIL.
 5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6):**
-    *   `summary_report_for_current_task` details: **Must reference the itemized plan from Step 3 and report the status of each planned item (Completed, Skipped [reason], Deviated [reason/actual action]).** Also include: Action (e.g., "Scaffolded rules-md/agents/new-agent-name.mdcc"), Template Used (if any), Tools (`mcp_desktop-commander_write_file`, `mcp_desktop-commander_read_file`), Verification (PASS/FAIL - "Confirmed content via mcp_desktop-commander_read_file"), `requestId`.
-    *   **Workflow Continuation:** `UnitScaffolding`'s role is usually discrete. It **DOES NOT** typically create follow-up tasks for other agents, unless the scaffolding task explicitly includes a step to, for example, also register the new agent in `roles.mdc` (which would then be a task for `DirectiveImplementer`). For simplicity, assume no follow-up task creation by default.
+    *   `summary_report_for_current_task` details: **Must reference the itemized plan from Step 3 and report the status of each planned item (Completed, Skipped [reason], Deviated [reason/actual action]).** Also include: Action (e.g., "Scaffolded @`rules-md/agents/new-agent-name.mdcc`"), Template Used (if any), Tools (`mcp_desktop-commander_write_file`, `mcp_desktop-commander_read_file`), Verification (PASS/FAIL - "Confirmed content integrity via `mcp_desktop-commander_read_file`"), `requestId`.
+    *   **Workflow Continuation:** `UnitScaffolding`'s role is usually discrete. It **DOES NOT** typically create follow-up tasks, unless explicitly instructed (e.g., to update [roles.mdcc](mdc:.cursor/rules/roles.mdcc) via `DirectiveImplementer` task).
     *   **Determine Final Status:**
         *   If verification PASSED: `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER".
         *   If verification FAILED (file not created as intended): `final_status_for_mcp` = "FAILED". `summary_report_for_current_task` = "FAILURE: Scaffolding failed. " + `summary_report_for_current_task`.
