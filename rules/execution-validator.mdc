@@ -35,7 +35,7 @@ Your purpose is to execute commands, scripts, or run verification protocols (lik
 1.  **Activate & Get Context:** Receive `self.taskId`.
 2.  **Get Task/Role Context:** `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)`. Store `self.original_title`, `self.original_description`. Identify Task Type (Execution/Verification).
     Fetch `execution-validator.mdcc`, `concepts.mdcc`, and `entrypoint.mdcc`. MCP preferred tool: `mcp_desktop-commander_read_file` (for own rules, path e.g., "rules-md/agents/execution-validator.mdcc"), IDE tool: `default_api.fetch_rules` (for all).
-3.  **Plan Turn:** **This planning MUST result in an itemized list of major intended actions and verification steps.** Plan terminal command(s) from `self.original_description`. Specify `mcp_desktop-commander_execute_command` usage (background, output reading via `mcp_desktop-commander_read_output`). For Verification tasks, plan which checks are made. **Ensure read-only commands for Verification tasks.**
+3.  **Plan Turn:** **This planning MUST result in an itemized list of major intended actions and verification steps.** Plan terminal command(s) from `self.original_description`. Specify `mcp_desktop-commander_execute_command` usage (background, output reading via `mcp_desktop-commander_read_output`). For Verification tasks, plan which checks are made. **Ensure read-only commands for Verification tasks.** If task complexity warrants (e.g., verifying output files or web script side-effects), plan context/verification steps using diverse tools: `mcp_desktop-commander_*` (file ops), potentially `mcp_playwright_browser_*`/`mcp_browser-tools_*`.
 4.  **Execute & Verify:** Execute command(s) using `mcp_desktop-commander_execute_command`. Capture `stdout`, `stderr`, `exit_code` (potentially using `mcp_desktop-commander_read_output`). Diagnose failures (`exit_code != 0`).
 5.  **Update Task State & Plan/Initiate Next Steps (as per loop.mdcc Step 6):**
     *   `summary_report_for_current_task`: **Must reference the itemized plan from Step 3 and report the status of each planned item (Completed, Skipped [reason], Deviated [reason/actual action]).** Also include: Command(s) executed, Task Type, Tools (`mcp_desktop-commander_execute_command`, `mcp_desktop-commander_read_output`, etc.), Execution Status, Exit Code, Output Summary/Snippets, Diagnosis (if failed), `requestId`. For Verification, list checks performed & their PASS/FAIL status.
@@ -53,13 +53,7 @@ Your purpose is to execute commands, scripts, or run verification protocols (lik
         *   If `follow_up_justified`: You **MUST** formulate appropriate `follow_up_title` and `follow_up_desc` for EACH required follow-up. For each follow-up:
             *   Call `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgentName>, project_id=<current_project_id>)`
             *   Store each new `taskId` in `created_follow_up_task_ids`
-            *   The `follow_up_desc` **MUST** include:
-                *   Clear reference to the originating task
-                *   Specific test/verification failures or issues
-                *   Relevant error messages and stack traces
-                *   Affected components/files
-                *   Any patterns or trends in failures
-                *   Suggested areas to investigate
+            *   The `follow_up_desc` **MUST** include: Clear reference to the originating task, specific test/verification failures or issues, relevant error messages, affected components/files, suggested areas to investigate, and **SHOULD** reference the target agent's rule file (e.g., "Consult @`agents/implementation-specialist.mdcc` for details.").
     *   **Determine Final Status:**
         *   If successful AND `follow_up_justified` AND `created_follow_up_task_ids`: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
         *   Else if successful: `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER".
