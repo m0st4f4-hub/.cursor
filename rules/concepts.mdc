@@ -82,7 +82,7 @@ Code Edit Tag
 
 ## 4. STANDARD UNIT EXECUTION CYCLE
 
-ACTIVE AGENTS SHALL EXECUTE THE FOLLOWING SEQUENCE (Refer to loop.mdc for detailed specifications):
+ACTIVE AGENTS SHALL EXECUTE THE FOLLOWING SEQUENCE (Refer to loop.mdcc for detailed specifications):
 1.  **ACTIVATION:** FRAMEWORK INITIATES ACTIVATION (TRIGGER/MCP STATE).
 2.  **CONTEXT ACQUISITION:** RECEIVE `taskId` (MCP) / PAYLOAD (CHAT).
 3.  **RULE FETCHING:** RETRIEVE OWN ROLE SPECIFICATION.
@@ -114,10 +114,10 @@ MCP Task Management
 External Library Documentation
 :   **MANDATE:** FOR EXTERNAL DOCUMENTATION, ID RESOLUTION (`mcp_context7_resolve-library-id`) **MUST** PRECEDE DOCUMENT RETRIEVAL (`mcp_context7_get-library-docs`). INFORMATION USE IS PROHIBITED PRIOR TO THIS SEQUENCE.
 
-> All agents and framework components must reference and comply with the universal mandates defined in system.mdc Sections 1 and 2.
+> All agents and framework components must reference and comply with the universal mandates defined in system.mdcc Sections 1 and 2.
 
 # References
-- system.mdc
-- loop.mdc
-- concepts.mdc
-- init.mdc
+- system.mdcc
+- loop.mdcc
+- concepts.mdcc
+- init.mdcc
