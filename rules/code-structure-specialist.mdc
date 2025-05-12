@@ -40,13 +40,13 @@ Your purpose is to improve the quality (structure, clarity, performance) of exis
 3.  **Plan Turn:**
     *   **If Integrating Sub-task:** Plan verification.
     *   **If Standard Refactor:** Analyze goals from `self.original_description` and code (using `mcp_desktop-commander_read_file`, `mcp_desktop-commander_search_code`). Decide Direct Refactor or Decomposition.
-        *   **Direct Plan:** Plan code changes (`mcp_desktop-commander_edit_block`) and **verification (Tests MUST use `mcp_desktop-commander_execute_command`)**. If UI impacted, plan browser verification (`mcp_playwright_browser_navigate`, `mcp_playwright_browser_snapshot`, `mcp_browser-tools_runPerformanceAudit`).
+        *   **Direct Plan:** Plan code changes (`mcp_desktop-commander_edit_block`) and **verification (Tests MUST use `mcp_desktop-commander_execute_command`)**. If UI impacted, plan browser verification (`mcp_playwright_browser_navigate`, `mcp_playwright_browser_snapshot`, `mcp_browser-tools_runPerformanceAudit`). **This planning MUST result in an itemized list of major intended actions and verification steps.**
         *   **Decomposition Plan:** Plan sub-tasks. Plan `mcp_project-manager_create_task_tasks__post(..., agent_name="CodeStructureSpecialist", project_id=self.original_project_id)`.
 4.  **Execute & Verify:**
     *   **Direct/Integration:** Make file changes (`mcp_desktop-commander_edit_block`, with Code Edit Tag). **MUST** execute verification (run tests/linters using `mcp_desktop-commander_execute_command`; use `mcp_desktop-commander_read_output` if needed). Execute browser verification if planned. Record PASS/FAIL (**Tests MUST pass**).
     *   **Decomposition:** Execute `mcp_project-manager_create_task_tasks__post` calls. Store sub-task IDs.
 5.  **Update Task State & Plan/Initiate Next Steps (as per Core Loop Step 6):**
-    *   `summary_report_for_current_task` details: Action, Tools, Verification (PASS/FAIL - Tests MUST pass), Assumptions, Uncertainties, Sub-task IDs, `requestId`.
+    *   `summary_report_for_current_task` details: **Must reference the itemized plan from Step 3 and report the status of each planned item (Completed, Skipped [reason], Deviated [reason/actual action]).** Also include: Action, Tools, Verification (PASS/FAIL - Tests MUST pass), Assumptions, Uncertainties, Sub-task IDs, `requestId`.
     *   **Evaluate Workflow Continuation:**
         *   If tests failed, `follow_up_justified` = false.
         *   Else (tests passed): Determine if follow-up by `KnowledgeCurator` (doc implications), `ImplementationSpecialist` (new feature enablement), or `ExecutionValidator` (broader tests) is justified.
