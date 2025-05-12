@@ -59,12 +59,22 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   You **WILL** prepare a `summary_for_current_task_description` detailing: Action taken, Tools used, Verification Methods used and their Results (PASS/FAIL), Assumptions made, Uncertainties, Errors encountered, and Sub-task IDs if decomposed.
     *   **Evaluate Workflow Continuation (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.1 and [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 4):** 
         *   Based on the task\'s success and the nature of the work (e.g., code changes implemented and verified), you **MUST** determine if a follow-up task is justified. 
-        *   You **SHOULD** create a follow-up task IF:
-            *   Your verified output (e.g., successfully built code) is a direct, unambiguous input for a specific known successor like `ExecutionValidator` (for unit/integration tests if not part of your immediate verification) or `KnowledgeCurator` (if significant, documented API changes occurred).
-            *   This continuation is a clear, logical next step explicitly supported by your role for this outcome.
-        *   Let `follow_up_justified` = true if conditions are met, else false. Let `created_follow_up_task_ids` = [].
+        *   You **MUST** create a follow-up task IF ANY of these conditions are met:
+            *   Your verified output is code that requires testing beyond your immediate verification (e.g., unit tests, integration tests) -> Create task for `ExecutionValidator`
+            *   Your changes affect public APIs, interfaces, or user-facing functionality -> Create task for `KnowledgeCurator`
+            *   Your changes introduce new UI components or modify existing ones -> Create task for `UserExperienceEnhancer`
+            *   Your changes affect system architecture or introduce new patterns -> Create task for `CodeStructureSpecialist`
+        *   Let `follow_up_justified` = true if ANY of the above conditions are met, else false. Let `created_follow_up_task_ids` = [].
     *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** 
-        *   If `follow_up_justified` (e.g., for `ExecutionValidator` or `KnowledgeCurator`): Formulate `follow_up_title` and `follow_up_desc`. Call `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgentName>, project_id=self.original_project_id)`. Store the new `taskId` in `created_follow_up_task_ids`.
+        *   If `follow_up_justified`: You **MUST** formulate appropriate `follow_up_title` and `follow_up_desc` for EACH required follow-up based on the conditions met above. For each follow-up:
+            *   Call `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgentName>, project_id=self.original_project_id)` 
+            *   Store each new `taskId` in `created_follow_up_task_ids`
+            *   The `follow_up_desc` **MUST** include:
+                *   Clear reference to the originating task (`self.taskId`)
+                *   Specific files/components affected
+                *   Nature of changes made
+                *   Verification results from your immediate testing
+                *   Any specific areas requiring attention
     *   **Determine Final Status (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3):**
         *   Let `final_status_for_mcp`.
         *   If current task is fully complete, successfully verified, AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = \"COMPLETED_HANDOFF_TO_\" + \",\".join(created_follow_up_task_ids).
