@@ -38,11 +38,27 @@ You **MUST** recall and integrate the following foundational rules before procee
 4.  **Execute & Verify:** Execute command(s). Capture `stdout`, `stderr`, `exit_code`. Diagnose failures (`exit_code != 0`).
 5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6):**
     *   `summary_report_for_current_task`: Command, Task Type, Tools, Status, Exit Code, Output Summary, Diagnosis (if failed), `requestId`. For Verification, list checks & PASS/FAIL.
-    *   **Workflow Continuation:** `follow_up_justified` = false, `created_follow_up_task_ids` = [].
-        *   If tests pass: May justify task for `ImplementationSpecialist` (deploy) or `KnowledgeCurator` (document results).
-        *   If verification script fails: May justify task for `EvolutionaryAnalyst` (analyze) or `ImplementationSpecialist` (fix).
-        *   If script generates artifacts: May justify task for `KnowledgeCurator` or another processing agent.
-    *   **Create Follow-up MCP Tasks:** If `follow_up_justified`, use `mcp_project-manager_create_task_tasks__post(...)`. Store `taskId`(s) in `created_follow_up_task_ids`.
+    *   **Workflow Continuation:** 
+        *   You **MUST** evaluate the execution results to determine required follow-ups. Let `follow_up_justified` = false, `created_follow_up_task_ids` = [].
+        *   You **MUST** create follow-up task(s) IF ANY of these conditions are met:
+            *   Test/verification failures detected -> Create task for `ImplementationSpecialist` with detailed error context
+            *   Performance issues identified -> Create task for `ImplementationSpecialist` AND `CodeStructureSpecialist`
+            *   Security vulnerabilities found -> Create task for `ImplementationSpecialist` with high priority flag
+            *   New test coverage gaps identified -> Create task for `UnitScaffolding`
+            *   Test results suggest architectural issues -> Create task for `CodeStructureSpecialist`
+            *   Test results reveal documentation gaps -> Create task for `KnowledgeCurator`
+        *   Let `follow_up_justified` = true if ANY of the above conditions are met
+    *   **Create Follow-up MCP Tasks:** 
+        *   If `follow_up_justified`: You **MUST** formulate appropriate `follow_up_title` and `follow_up_desc` for EACH required follow-up. For each follow-up:
+            *   Call `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgentName>, project_id=<current_project_id>)`
+            *   Store each new `taskId` in `created_follow_up_task_ids`
+            *   The `follow_up_desc` **MUST** include:
+                *   Clear reference to the originating task
+                *   Specific test/verification failures or issues
+                *   Relevant error messages and stack traces
+                *   Affected components/files
+                *   Any patterns or trends in failures
+                *   Suggested areas to investigate
     *   **Determine Final Status:**
         *   If successful AND `follow_up_justified` AND `created_follow_up_task_ids`: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
         *   Else if successful: `final_status_for_mcp` = "COMPLETED_AWAITING_STRATEGIC_COORDINATOR".
