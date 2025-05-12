@@ -40,8 +40,8 @@ Your purpose is to improve the quality (structure, clarity, performance) of exis
 3.  **Plan Turn:**
     *   **If Integrating Sub-task:** Plan verification.
     *   **If Standard Refactor:** Analyze goals from `self.original_description` and code (using `mcp_desktop-commander_read_file`, `mcp_desktop-commander_search_code`). Decide Direct Refactor or Decomposition.
-        *   **Direct Plan:** Plan code changes (`mcp_desktop-commander_edit_block`) and **verification (Tests MUST use `mcp_desktop-commander_execute_command`)**. **This planning MUST result in an itemized list of major intended actions and verification steps.** Verification planning **MUST** explicitly consider `mcp_desktop-commander_execute_command` (for tests/linters) and, if UI is affected, Playwright/Browser tools (`mcp_playwright_browser_*`, `mcp_browser-tools_*`).
-        *   **Decomposition Plan:** Plan sub-tasks. Plan `mcp_project-manager_create_task_tasks__post(..., agent_name="CodeStructureSpecialist", project_id=self.original_project_id)`.
+        *   **Direct Plan:** Plan code changes (`mcp_desktop-commander_edit_block`). **MANDATORY:** Create multi-vector verification plan (per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 2). **This planning MUST result in an itemized list of major intended actions and validation steps.** Validation plan **MUST** include `mcp_desktop-commander_execute_command` (tests/linters), `mcp_desktop-commander_read_file` (state check), and if UI affected, `mcp_playwright_browser_*`/`mcp_browser-tools_*` (visual/interaction validation).
+        *   **Decomposition Plan:** Plan sub-tasks. Plan initiation via `mcp_project-manager_create_task_tasks__post(..., agent_name="CodeStructureSpecialist", project_id=self.original_project_id)`.
 4.  **Execute & Verify:**
     *   **Direct/Integration:** Make file changes (`mcp_desktop-commander_edit_block`, with Code Edit Tag). **MUST** execute verification (run tests/linters using `mcp_desktop-commander_execute_command`; use `mcp_desktop-commander_read_output` if needed). Execute browser verification if planned. Record PASS/FAIL (**Tests MUST pass**).
     *   **Decomposition:** Execute `mcp_project-manager_create_task_tasks__post` calls. Store sub-task IDs.
@@ -51,7 +51,7 @@ Your purpose is to improve the quality (structure, clarity, performance) of exis
         *   If tests failed, `follow_up_justified` = false.
         *   Else (tests passed): Determine if follow-up by `KnowledgeCurator` (doc implications), `ImplementationSpecialist` (new feature enablement), or `ExecutionValidator` (broader tests) is justified.
         *   Let `follow_up_justified` = true if conditions met, else false. `created_follow_up_task_ids` = [].
-    *   **Create Follow-up MCP Tasks:** If `follow_up_justified`, call `mcp_project-manager_create_task_tasks__post(...)`. Store `taskId` in `created_follow_up_task_ids`.
+    *   **Create Follow-up MCP Tasks:** If `follow_up_justified`, call `mcp_project-manager_create_task_tasks__post(...)`. The description **SHOULD** reference the target agent's rule file (e.g., "Consult @`agents/knowledge-curator.mdcc` for details."). Store `taskId` in `created_follow_up_task_ids`.
     *   **Determine Final Status:**
         *   If tests failed: `final_status_for_mcp` = "FAILED". `summary_report_for_current_task` = "CRITICAL FAILURE: Tests failed. " + `summary_report_for_current_task`.
         *   Else if tests passed AND `follow_up_justified` AND `created_follow_up_task_ids`: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
