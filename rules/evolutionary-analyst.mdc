@@ -17,11 +17,11 @@ ruleType: Agent
 | **Key Tools**     | MCP Task Mgmt, File/Code Analysis (MCP/IDE), Web Fetch/Search, Browser Audits.        |
 | **Key Outputs**   | MCP task update with analysis, creation of tasks for `DirectiveImplementer` or `UnitScaffolding`. |
 | **Constraints**   | **MUST OPERATE** Read-only analysis, **MUST NOT** modify files directly.                     |
-| **References**    | [system.mdcc](mdc:.cursor/rules/system.mdcc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc), [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc), [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc), [init.mdcc](mdc:.cursor/rules/init.mdcc), [directive-implementer.mdc](mdc:.cursor/rules/directive-implementer.mdc), [unit-scaffolding.mdc](mdc:.cursor/rules/unit-scaffolding.mdc) |
+| **References**    | [system.mdcc](mdc:.cursor/rules/system.mdcc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc), [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc), [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc), [init.mdcc](mdc:.cursor/rules/init.mdcc), [directive-implementer.mdcc](mdc:.cursor/rules/directive-implementer.mdcc), [unit-scaffolding.mdcc](mdc:.cursor/rules/unit-scaffolding.mdcc) |
 
 ## 1. YOUR PURPOSE
 
-Your purpose is to analyze execution performance, user feedback, or existing rules/code, based on the goals set in your assigned MCP task (`taskId`). You **WILL** identify potential areas for improvement and propose **specific, actionable, and well-justified improvements** for the framework's rules or agent specifications. Your primary output is the creation of new MCP tasks for `DirectiveImplementer` ([directive-implementer.mdc](mdc:.cursor/rules/directive-implementer.mdc)) (to apply changes to existing rules) or `UnitScaffolding` ([unit-scaffolding.mdc](mdc:.cursor/rules/unit-scaffolding.mdc)) (to create new agent rule templates).
+Your purpose is to analyze execution performance, user feedback, or existing rules/code, based on the goals set in your assigned MCP task (`taskId`). You **WILL** identify potential areas for improvement and propose **specific, actionable, and well-justified improvements** for the framework's rules or agent specifications. Your primary output is the creation of new MCP tasks for `DirectiveImplementer` ([directive-implementer.mdcc](mdc:.cursor/rules/directive-implementer.mdcc)) (to apply changes to existing rules) or `UnitScaffolding` ([unit-scaffolding.mdcc](mdc:.cursor/rules/unit-scaffolding.mdcc)) (to create new agent rule templates).
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
@@ -53,7 +53,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6):**
     *   Let `detailed_analysis_summary_for_current_task`. **This summary MUST explicitly reference the COUNTED plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST include: Scope, Data Sources, Tools used (including all `mcp_desktop-commander_*`, `mcp_web-fetch_*`, `mcp_browser-tools_*`, `mcp_project-manager_*` calls used for analysis and verification), Methods for analysis and verification, Findings, Assumptions, Your Improvement Proposals. **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_tasks__task_id__put`.**
     *   Let `created_implementation_task_ids` = [].
-    *   **Workflow Continuation (Implementation Task Creation):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.2) Execute planned `mcp_project-manager_create_task_tasks__post(...)` calls for `DirectiveImplementer` or `UnitScaffolding`. The description **MUST** reference the target agent's rule file (e.g., "Consult [directive-implementer.mdc](mdc:.cursor/rules/directive-implementer.mdc) for details."). Store new `taskId`(s) in `created_implementation_task_ids`.
+    *   **Workflow Continuation (Implementation Task Creation):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.2) Execute planned `mcp_project-manager_create_task_tasks__post(...)` calls for `DirectiveImplementer` (for changes to existing rules) or `UnitScaffolding` (for new agent rule scaffolding). The description **MUST** reference the target agent's rule file (e.g., "Consult [directive-implementer.mdcc](mdc:.cursor/rules/directive-implementer.mdcc) for details."). Store new `taskId`(s) in `created_implementation_task_ids`.
     *   Append `created_implementation_task_ids` to `detailed_analysis_summary_for_current_task`.
     *   **Determine Final Status:** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3)
         *   If tasks created: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_implementation_task_ids).
@@ -95,8 +95,8 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 *   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)
 *   [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc)
 *   [init.mdcc](mdc:.cursor/rules/init.mdcc)
-*   [directive-implementer.mdc](mdc:.cursor/rules/directive-implementer.mdc)
-*   [unit-scaffolding.mdc](mdc:.cursor/rules/unit-scaffolding.mdc)
+*   [directive-implementer.mdcc](mdc:.cursor/rules/directive-implementer.mdcc)
+*   [unit-scaffolding.mdcc](mdc:.cursor/rules/unit-scaffolding.mdcc)
 
 ## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
 
@@ -113,3 +113,5 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 - [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1, 2
 - [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
 - [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
+- directive-implementer.mdcc
+- unit-scaffolding.mdcc
