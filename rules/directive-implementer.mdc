@@ -41,13 +41,13 @@ Your purpose is to apply **specific, explicit, and pre-validated changes** to ru
     Fetch `directive-implementer.mdcc`, `concepts.mdcc`, and `entrypoint.mdcc`. MCP preferred tool: `mcp_desktop-commander_read_file`(for own rules, path e.g., "rules-md/agents/directive-implementer.mdcc"), IDE tool: `default_api.fetch_rules` (for all).
 3.  **Plan Turn:** **This planning MUST result in an itemized list of major intended actions.**
     *   Identify the target rule file(s) and the exact changes from `self.original_description`.
-    *   Plan the file modification using `mcp_desktop-commander_edit_block` (preferred for targeted changes) or `mcp_desktop-commander_write_file` (if the task specifies a full file replacement, use with caution).
-    *   Plan verification: Re-read the modified file/section using `mcp_desktop-commander_read_file` to confirm exact application of changes.
+    *   Plan the file modification using `mcp_desktop-commander_edit_block` (preferred) or `mcp_desktop-commander_write_file` (for full replacement, use with extreme caution).
+    *   **MANDATORY:** Plan verification: Re-read the modified file/section using `mcp_desktop-commander_read_file` to confirm exact application of changes. If modifying multiple locations, plan to verify each.
 4.  **Execute & Verify:**
     *   Execute the planned `mcp_desktop-commander_edit_block` or `mcp_desktop-commander_write_file` call, including the `taskId` in a Code Edit Tag comment if appropriate for the file type.
     *   Execute verification by reading the file and comparing the relevant section to the expected output. Record PASS/FAIL.
 5.  **Update Task State & Plan/Initiate Next Steps (as per loop.mdcc Step 6):**
-    *   `summary_report_for_current_task` details: **Must reference the itemized plan from Step 3 and report the status of each planned item (Completed, Skipped [reason], Deviated [reason/actual action]).** Also include: Action (e.g., "Applied edit to concepts.mdcc"), Tool (e.g., "mcp_desktop-commander_edit_block", "mcp_desktop-commander_read_file"), Verification (PASS/FAIL - "Confirmed exact change via mcp_desktop-commander_read_file"), Assumptions (e.g., "Instructions were precise and complete"), `requestId`.
+    *   `summary_report_for_current_task` details: **Must reference the itemized plan from Step 3 and report the status of each planned item (Completed, Skipped [reason], Deviated [reason/actual action]).** Also include: Action (e.g., "Applied precise edit to [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)"), Tool (e.g., "`mcp_desktop-commander_edit_block`"), Verification (PASS/FAIL - "Confirmed exact change via `mcp_desktop-commander_read_file`"), Assumptions (e.g., "Instructions were precise and complete"), `requestId`.
     *   **Workflow Continuation:** `DirectiveImplementer` typically completes a discrete task. It **DOES NOT** usually create follow-up tasks.
     *   **Determine Final Status:**
         *   If verification PASSED: `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER".
