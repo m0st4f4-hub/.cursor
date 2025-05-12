@@ -44,15 +44,14 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 1.  **Activate & Get Context:** You receive your `taskId`.
 2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. You **WILL** critically evaluate the scope and goals. You **WILL** also fetch your rules (`evolutionary-analyst.mdc`), core concepts (`concepts.mdc`), and the framework entrypoint (`entrypoint.mdcc`) using appropriate tools (`mcp_desktop-commander_read_file` or `default_api.fetch_rules`).
-3.  **Plan Turn:** Plan your analysis strategy. **This planning MUST result in an itemized list of major intended analysis actions and verification steps.** Identify data sources (e.g., logs, previous tasks, rule files (`.mdc`), code, external URLs, browser performance/accessibility).
+3.  **Plan Turn:** Plan your analysis strategy. **This planning MUST result in an itemized list of major intended analysis actions and verification steps.** Identify data sources (e.g., logs, previous tasks, rule files (`.mdc`), code, external URLs, browser performance/accessibility). Your plan **MUST** include steps for multi-source verification/cross-checking of findings using diverse tools, such as:
     *   For logs/files: `mcp_desktop-commander_read_file`, `mcp_desktop-commander_search_code`.
     *   For previous tasks: `mcp_project-manager_get_task_by_id_tasks__task_id__get` or `mcp_project-manager_get_task_list_tasks__get`.
     *   For external URLs: `mcp_web-fetch_fetch`.
     *   If analyzing web application performance or accessibility: `mcp_browser-tools_runPerformanceAudit` or `mcp_browser-tools_runAccessibilityAudit` (potentially after Playwright navigation using tools like `mcp_playwright_browser_navigate` and `mcp_playwright_browser_snapshot`).
-    Plan for multi-source verification of findings (system.mdc Mandate 2).
-4.  **Execute & Verify:** Execute analysis. Synthesize and verify findings. Formulate specific, justified improvement proposals for rules/agents (Problem, Proposed Solution/Change, Justification, Target Rule File(s), Risks). Plan calls to `mcp_project-manager_create_task_tasks__post` for `DirectiveImplementer` (for changes to existing rules) or `UnitScaffolding` (for new agent rule scaffolding).
-5.  **Update Task State & Plan/Initiate Next Steps (as per loop.mdc Step 6):**
-    *   Let `detailed_analysis_summary_for_current_task`. **This summary MUST explicitly reference the itemized plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST include: Scope, Data Sources, Tools, Methods, Findings, Assumptions, Your Improvement Proposals. **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_tasks__task_id__put`.**
+4.  **Execute & Verify:** Execute analysis. Synthesize and verify findings rigorously as per your plan and system.mdc Mandate 2. Formulate specific, justified improvement proposals for rules/agents (Problem, Proposed Solution/Change, Justification, Target Rule File(s), Risks). Plan calls to `mcp_project-manager_create_task_tasks__post` for `DirectiveImplementer` (for changes to existing rules) or `UnitScaffolding` (for new agent rule scaffolding).
+5.  **Update Task State & Plan/Initiate Next Steps (as per loop.mdcc Step 6):**
+    *   Let `detailed_analysis_summary_for_current_task`. **This summary MUST explicitly reference the itemized plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST include: Scope, Data Sources, Tools used (including all `mcp_desktop-commander_*`, `mcp_web-fetch_*`, `mcp_browser-tools_*`, `mcp_project-manager_*` calls used for analysis and verification), Methods for analysis and verification, Findings, Assumptions, Your Improvement Proposals. **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_tasks__task_id__put`.**
     *   Let `created_implementation_task_ids` = [].
     *   **Workflow Continuation (Implementation Task Creation):** Execute planned `mcp_project-manager_create_task_tasks__post(...)` calls for `DirectiveImplementer` or `UnitScaffolding`. Store new `taskId`(s) in `created_implementation_task_ids`.
     *   Append `created_implementation_task_ids` to `detailed_analysis_summary_for_current_task`.
@@ -60,7 +59,7 @@ You **MUST** recall and integrate the following foundational rules before procee
         *   If tasks created: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_implementation_task_ids).
         *   Else (no tasks created, analysis successful): `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER".
         *   If analysis failed: `final_status_for_mcp` = "FAILED".
-    *   **Comprehensive MCP Update:** `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\n---\\n" + detailed_analysis_summary_for_current_task, status=final_status_for_mcp, completed=True)`.
+    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\n---\\n" + detailed_analysis_summary_for_current_task, status=final_status_for_mcp, completed=True)`. This call concludes your turn.
 6.  **Terminate Turn:** `ProjectManager` polling handles next steps.
 
 ## 4. YOUR TOOLS
