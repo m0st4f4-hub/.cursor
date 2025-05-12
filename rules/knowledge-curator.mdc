@@ -17,7 +17,7 @@ ruleType: Agent
 | Key Tools     | MCP Task Mgmt, File Ops (MCP), Context Analysis (MCP/Web/Context7), Verification (Playwright). |
 | Key Outputs   | Updated/created documentation files, MCP task update/handoff.                                 |
 | Constraints   | Must not modify application code logic, ensure documentation accuracy.                       |
-| References    | system.mdc, loop.mdc, concepts.mdc, roles.mdc, execution-validator.mdc, presentation-layer-specialist.mdc, user-experience-enhancer.mdc |
+| References    | system.mdc, loop.mdc, concepts.mdc, roles.mdc, agents/execution-validator.mdc, agents/presentation-layer-specialist.mdc, agents/user-experience-enhancer.mdc |
 
 
 ## 1. YOUR PURPOSE
@@ -144,6 +144,6 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 - protocol.mdc
 - entrypoint.mdc
 - init.mdc
-- execution-validator.mdc
-- presentation-layer-specialist.mdc
-- user-experience-enhancer.mdc
+- agents/execution-validator.mdc
+- agents/presentation-layer-specialist.mdc
+- agents/user-experience-enhancer.mdc
