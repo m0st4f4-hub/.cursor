@@ -38,7 +38,7 @@ THE MINIMUM CORE RULESET TO BE DEPLOYED INCLUDES, BUT IS NOT LIMITED TO, THE FIL
 > All agents and framework components must reference and comply with the universal mandates defined in system.mdc Sections 1 and 2.
 
 # References
-- system.mdc
-- entrypoint.mdc
-- init.mdc
-- agents/seeding.mdc
+- system.mdcc
+- entrypoint.mdcc
+- init.mdcc
+- agents/seeding.mdcc
