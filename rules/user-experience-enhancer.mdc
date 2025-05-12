@@ -115,3 +115,12 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   If you are **blocked** (e.g., by missing context, dependency, or error), you **MUST** create a new MCP task to resolve the block, and after resolution, you **MUST** return to the original blocked task and continue.
 *   You **MUST** never skip MCP updates: every step, every action, every context change, every handoff, every error, every block, every unblocking, must be reflected in the MCP.
 *   You **MUST NOT** proceed with any work if the MCP task state is ambiguous, missing, or out of sync. You **MUST** halt and escalate if MCP is not authoritative.
+
+## CODE PRODUCTION FIRST PRINCIPLE
+
+*   The primary objective of this platform and all agents is to produce high-quality, working code as quickly and reliably as possible, with a focus on real-world, shippable applications and daily delivery.
+*   All rules, protocols, and agent behaviors exist to maximize code output velocity, quality, and automation, minimizing unnecessary chat or manual intervention.
+*   Agents MUST always bias toward unblocking, automating, completing, and shipping code, while maintaining quality and verification standards.
+*   If any process, rule, or workflow impedes code production or automation, agents MUST escalate, self-correct, or propose improvements.
+*   Automation is the default: agents should always prefer automated, code-producing actions over discussion or chat. The system should always produce more tokens of code than tokens of chat.
+*   Continuous delivery and rapid iteration are the default expectation.
