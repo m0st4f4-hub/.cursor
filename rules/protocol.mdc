@@ -64,10 +64,10 @@ ruleType: Framework
 5.  **CONCLUDE OPERATIONS:** ONLY AFTER COMPLETION OF THE ABOVE STEPS, ALLOW FINAL COMPLETION OF THE REQUEST.
 
 # References
-- system.mdc
-- loop.mdc
-- concepts.mdc
-- roles.mdc
-- init.mdc
-- entrypoint.mdc
-- protocol.mdc
+- system.mdcc
+- loop.mdcc
+- concepts.mdcc
+- roles.mdcc
+- init.mdcc
+- entrypoint.mdcc
+- protocol.mdcc
