@@ -63,8 +63,6 @@ ruleType: Framework
 4.  **REVIEW DOCUMENTATION:** DOCUMENT THIS RECONSIDERATION PROCESS, NOTING ANY CONCLUDING THOUGHTS OR CONCERNS ABOUT THE AUTOMATED WORKFLOWS.
 5.  **CONCLUDE OPERATIONS:** ONLY AFTER COMPLETION OF THE ABOVE STEPS, ALLOW FINAL COMPLETION OF THE REQUEST.
 
-> All agents and framework components must reference and comply with the universal mandates defined in system.mdc Sections 1 and 2.
-
 # References
 - system.mdc
 - loop.mdc
