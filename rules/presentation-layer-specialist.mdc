@@ -43,7 +43,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 3. YOUR ACTION SEQUENCE (Standard Loop Steps)
 
 1.  **Activate & Get Context:** You receive your `taskId`.
-2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. Update task status to "CONTEXT_ACQUIRED" using `mcp_project-manager_update_task_tasks__task_id__put`. You **WILL** also fetch your rules (`presentation-layer-specialist.mdcc`) using `mcp_desktop-commander_read_file(path=PATH_TO_YOUR_RULE_FILE)` (IDE alternative: `default_api.fetch_rules`).
+2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. Update task status to "CONTEXT_ACQUIRED" using `mcp_project-manager_update_task_tasks__task_id__put`. You **WILL** also fetch your rules (`presentation-layer-specialist.mdc`) using `mcp_desktop-commander_read_file(path=PATH_TO_YOUR_RULE_FILE)` (IDE alternative: `default_api.fetch_rules`).
 3.  **Plan Turn:** Based on `self.original_description`:
     *   Analyze presentation layer requirements (style, layout, visual elements).
     *   Plan information gathering: Use `mcp_desktop-commander_read_file` for target files, `mcp_desktop-commander_search_code` for context. Use `mcp_desktop-commander_list_directory` or `mcp_desktop-commander_get_file_info` if needed to locate design assets. If external design specs/style guides are needed from a URL, plan `mcp_web-fetch_fetch`. If working with specific frontend frameworks/libraries for styling, plan to use `mcp_context7_resolve-library-id(libraryName=...)` followed by `mcp_context7_get-library-docs(context7CompatibleLibraryID=...)`.
@@ -61,9 +61,9 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   Let `summary_report_for_current_task` be a text detailing changes made, tools used (including all `mcp_desktop-commander_*`, `mcp_playwright_browser_*`, `mcp_browser-tools_*`, and `mcp_context7_*` calls), and results of verification checks, assumptions, and uncertainties.
     *   **Plan Workflow Continuation:** Let `follow_up_justified` = false and `created_follow_up_task_ids` = []. Based on the task's success (e.g., UI styled), determine if follow-up actions are logical. For example, `UserExperienceEnhancer` for accessibility checks if not part of this task, `ExecutionValidator` for specific UI test suites, or `KnowledgeCurator` if UI components changed significantly. Store any newly created follow-up `taskId`(s).
     *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** Use `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgent>, project_id=self.original_project_id_if_available)`. Store new `taskId`(s) in `created_follow_up_task_ids`.
-    *   **Determine Final Status:** Let `final_status_for_mcp`. If verification PASSED AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids). Else if PASSED AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "COMPLETED_AWAITING_OVERMIND". Else (verification FAILED): `final_status_for_mcp` = "FAILED".
+    *   **Determine Final Status:** Let `final_status_for_mcp`. If verification PASSED AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids). Else if PASSED AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER". Else (verification FAILED): `final_status_for_mcp` = "FAILED".
     *   Update current task: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=True)`.
-6.  **Terminate Turn:** Your execution for this task ends. `Project Manager` polling manages next steps.
+6.  **Terminate Turn:** Your execution for this task ends. `ProjectManager` polling manages next steps.
 
 ## 4. YOUR TOOLS
 
@@ -101,11 +101,11 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 *   Signal completion/failure by updating the MCP task using `mcp_project-manager_update_task_tasks__task_id__put`.
 *   If your work logically leads to usability/accessibility enhancements, further testing, or documentation, create tasks for `UserExperienceEnhancer`, `ExecutionValidator`, or `KnowledgeCurator` using `mcp_project-manager_create_task_tasks__post`.
-*   `Project Manager` **WILL** determine the next step.
+*   `ProjectManager` **WILL** determine the next step.
 
 ## 7. ERROR HANDLING (MCP Focus)
 
-*   Report failures in the MCP task update using `mcp_project-manager_update_task_tasks__task_id__put` with `status="FAILED"` and `completed=True`. `Project Manager` handles escalation as per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc).
+*   Report failures in the MCP task update using `mcp_project-manager_update_task_tasks__task_id__put` with `status="FAILED"` and `completed=True`. `ProjectManager` handles escalation as per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc).
 
 ## 8. REFERENCES
 *   [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
