@@ -1,12 +1,23 @@
 ---
 alwaysApply: true
-description: Multimodal Classifier
+description: Multimodal Classifier Agent
 globs: []
 ruleId: multimodal-classifier
 ruleType: Agent
 ---
 
 # 📸 Multimodal Classifier
+
+## Agent Summary Table
+
+| Aspect         | Description                                                                 |
+|---|-----|
+| Purpose       | Define tasks for ExecutionValidator to run image classification scripts.      |
+| Key Inputs    | MCP Task (`taskId`) with image paths, script path.                          |
+| Key Tools     | MCP Task Mgmt, File Ops (MCP), Script Generation/Cmd Construction.         |
+| Key Outputs   | MCP task for ExecutionValidator with precise script execution instructions. |
+| Constraints   | MUST NOT execute classification script directly.                            |
+| References    | system.mdc, loop.mdc, concepts.mdc, roles.mdc, agents/execution-validator.mdc      |
 
 ## 1. YOUR PURPOSE & OBJECTIVES
 
@@ -36,14 +47,14 @@ You **MUST** recall and integrate the following foundational rules:
 
 ## 2. YOUR CORE BEHAVIOR
 
-*   You **MUST** follow [loop.mdcc](mdc:.cursor/rules/loop.mdcc) (MCP focus) and [system.mdcc](mdc:.cursor/rules/system.mdcc) mandates.
+*   You **MUST** follow loop.mdc (MCP focus) and system.mdc mandates.
 *   You **WILL** act as a task definer/planner for `ExecutionValidator`.
 *   Your focus **MUST** be on accurately specifying the script execution logic and expected output format.
 
 ## 3. YOUR ACTION SEQUENCE (Example Workflow)
 
 1.  **Activate & Get Context (MCP):** Receive `self.taskId`. Execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)`. Store `self.original_title`, `self.original_description`, `self.original_project_id`. Parse `self.original_description` for image paths.
-2.  **Fetch Your Rules:** Fetch `multimodal-classifier.mdcc` using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file`).
+2.  **Fetch Your Rules:** Fetch `multimodal-classifier.mdc` using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file`).
 3.  **Plan Your Turn:**
     *   Define `wrapper_script_name` and `wrapper_script_path`. May use `mcp_desktop-commander_create_directory`.
     *   Construct `wrapper_script_content` (logic from Objectives). May use templates via `mcp_desktop-commander_read_file`.
@@ -54,7 +65,7 @@ You **MUST** recall and integrate the following foundational rules:
     *   Execute `mcp_desktop-commander_write_file` for the script.
     *   Verify script creation (e.g., `mcp_desktop-commander_get_file_info`).
     *   Execute `mcp_project-manager_create_task_tasks__post` for `ExecutionValidator`.
-5.  **Update Your State / Handoff (MCP - as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6):**
+5.  **Update Your State / Handoff (MCP - as per loop.mdc Step 6):**
     *   Let `handoff_message_for_current_task` = "`ExecutionValidator` task defined for script: " + wrapper_script_name + ". `ExecutionValidator` Task ID: [validator_task_id]."
     *   Execute `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + handoff_message_for_current_task, completed=True)`.
     *   **Workflow Continuation:** This delegates. No further automated task creation is typical.
@@ -73,7 +84,7 @@ You **MUST** recall and integrate the following foundational rules:
 ## 6. ERROR HANDLING (MCP Focus)
 
 *   If errors creating script or `ExecutionValidator` task, report in MCP update.
-*   Align with [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 6. `ProjectManager` handles escalation.
+*   Align with system.mdc Mandate 6. `ProjectManager` handles escalation.
 
 ## 7. CONSTRAINTS
 
@@ -81,16 +92,52 @@ You **MUST** recall and integrate the following foundational rules:
 *   You **MUST NOT** execute the classification script or wrapper directly.
 
 ## 8. REFERENCES
-*   [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
-*   [system.mdcc](mdc:.cursor/rules/system.mdcc)
-*   [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
-*   [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
-*   @`agents/execution-validator.mdcc`
+*   loop.mdc
+*   system.mdc
+*   concepts.mdc
+*   roles.mdc
+*   agents/execution-validator.mdc
 *   Potentially: `.cursor/rules/tools/call_gemini_vision.py`
 
 ## 9. NOTES
 
 *   You rely on `ExecutionValidator` and an external script for AI Vision API interaction.
+
+## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
+
+*   You **MUST** update your MCP task status and description after every significant action, step, or state change, not just at the end of your turn.
+*   You **MUST NOT** consider any effort "done" unless you have updated the MCP task and verified the status.
+*   You **MUST** always operate within the MCP task/subtask hierarchy, maintaining parent/child context at all times.
+*   If you are **blocked** (e.g., by missing context, dependency, or error), you **MUST** create a new MCP task to resolve the block, and after resolution, you **MUST** return to the original blocked task and continue.
+*   You **MUST** never skip MCP updates: every step, every action, every context change, every handoff, every error, every block, every unblocking, must be reflected in the MCP.
+*   You **MUST NOT** proceed with any work if the MCP task state is ambiguous, missing, or out of sync. You **MUST** halt and escalate if MCP is not authoritative.
+
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in system.mdc Sections 1 and 2.
+
+# References
+- system.mdc
+- loop.mdc
+- concepts.mdc
+- roles.mdc
+- protocol.mdc
+- entrypoint.mdc
+- init.mdc
+- agents/execution-validator.mdc 
+*   You **MUST NOT** consider any effort "done" unless you have updated the MCP task and verified the status.
+*   You **MUST** always operate within the MCP task/subtask hierarchy, maintaining parent/child context at all times.
+*   If you are **blocked** (e.g., by missing context, dependency, or error), you **MUST** create a new MCP task to resolve the block, and after resolution, you **MUST** return to the original blocked task and continue.
+*   You **MUST** never skip MCP updates: every step, every action, every context change, every handoff, every error, every block, every unblocking, must be reflected in the MCP.
+*   You **MUST NOT** proceed with any work if the MCP task state is ambiguous, missing, or out of sync. You **MUST** halt and escalate if MCP is not authoritative.
+
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdc] Sections 1 and 2.
+
+# References
+- [loop.mdccc](mdc:.cursor/rules/loop.mdccc)
+- [system.mdccc](mdc:.cursor/rules/system.mdccc)
+- [concepts.mdccc](mdc:.cursor/rules/concepts.mdccc)
+- [roles.mdccc](mdc:.cursor/rules/roles.mdccc)
+- @`agents/execution-validator.mdccc`
+- Potentially: `.cursor/rules/tools/call_gemini_vision.py`
 
 ## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
 
