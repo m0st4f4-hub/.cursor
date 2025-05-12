@@ -61,7 +61,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 3.  **Plan Turn:**
     *   **If Integrating Sub-task:** You **WILL** get the completed sub-task details (likely from `self.original_description` or by fetching the sub-task if its ID is known using `mcp_project-manager_get_task_by_id_tasks__task_id__get`) and plan how to integrate and verify the changes.
     *   **If Standard Execution:** You **WILL** analyze the task requirements from `self.original_description`, feasibility, and your assumptions (e.g., using `default_api.read_file` / `mcp_desktop-commander_read_file` for reading files and `default_api.codebase_search` / `mcp_desktop-commander_search_code` for searching the codebase; MCP tools **PREFERRED** for automation). You **WILL** decide whether to perform Direct Execution or to Decompose the task.
-        *   **Direct Plan:** You **WILL** plan the specific code changes (using `default_api.edit_file` or `mcp_desktop-commander_edit_block`) and **CREATE a verification plan (using at least one method, more if complex, as per system.mdc Mandate 2)**. **This planning MUST result in an itemized list of major intended actions and verification steps.** Verification tools can include `default_api.run_terminal_cmd` / `mcp_desktop-commander_execute_command` for tests/linters, and `mcp_desktop-commander_read_output`. If the task involves UI components, you **SHOULD** also plan to use Playwright tools for visual verification (e.g., `mcp_playwright_browser_navigate` to a test page, `mcp_playwright_browser_snapshot`).
+        *   **Direct Plan:** You **WILL** plan the specific code changes (using `default_api.edit_file` or `mcp_desktop-commander_edit_block`) and **CREATE a verification plan (using at least one method, more if complex, as per system.mdc Mandate 2)**. **This planning MUST result in an itemized list of major intended actions and verification steps.** Verification planning **MUST** explicitly consider using `mcp_desktop-commander_execute_command` (for tests/linters) and, if UI is affected, Playwright/Browser tools (`mcp_playwright_browser_*`, `mcp_browser-tools_*`).
         *   **Decomposition Plan:** You **WILL** plan the sub-tasks. Each sub-task **MUST** have a `title` and `description`. You **WILL** plan calls to `mcp_project-manager_create_task_tasks__post(title=sub_task_title, description=sub_task_description, project_id=self.original_project_id, agent_name="ImplementationSpecialist")`.
 4.  **Execute & Verify:**
     *   **Direct/Integration/Finalizing:** You **WILL** make changes to files (using tools like `default_api.edit_file` or `mcp_desktop-commander_edit_block`, including a Code Edit Tag as per concepts.mdc). You **MUST** execute your verification plan, including any planned browser verification steps using Playwright tools. You **WILL** record PASS/FAIL for each verification method used.
@@ -86,16 +86,16 @@ You **MUST** recall and integrate the following foundational rules before procee
                 *   Nature of changes made
                 *   Verification results from your immediate testing
                 *   Any specific areas requiring attention
-    *   **Determine Final Status (as per loop.mdc Step 6.3):**
+    *   **Determine Final Status (as per loop.mdcc Step 6.3):**
         *   Let `final_status_for_mcp`.
         *   If current task is fully complete, successfully verified, AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
         *   Else if current task is fully complete, successfully verified, AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER".
         *   Else if verification failed and it's not recoverable by this agent: `final_status_for_mcp` = "FAILED". `summary_for_current_task_description` = "FAILURE: " + `summary_for_current_task_description`.
         *   Else (e.g., after decomposition waiting for sub-tasks, or recoverable verification failure): `final_status_for_mcp` = "IN_PROGRESS_AWAITING_SUBTASK" or "PENDING_RECOVERY_ATTEMPT". Set `completed_flag_for_mcp` = False.
-    *   **Comprehensive MCP Update (as per loop.mdc Step 6.4):**
+    *   **Comprehensive MCP Update (as per loop.mdcc Step 6.4 - MANDATORY FINAL STEP):**
         *   Let `completed_flag_for_mcp` be True unless specific conditions for ongoing work by this agent are met.
         *   If `final_status_for_mcp` is "FAILED" or task is otherwise completed with errors, typically `created_follow_up_task_ids` should be empty.
-        *   You **WILL** update the task by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_for_current_task_description + "\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=completed_flag_for_mcp)`.
+        *   You **WILL** update the task by calling `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_for_current_task_description + "\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=completed_flag_for_mcp)`. This call concludes your turn.
 6.  **Terminate Turn:** Your execution for this task ends.
 
 ## 4. YOUR TOOLS
