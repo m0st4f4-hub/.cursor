@@ -43,3 +43,10 @@ ruleType: Registry
 ## CROSS-REFERENCES
 *   AGENT SPECIFICATIONS: `rules-md/agents/*.mdcc`
 *   [system.mdcc](mdc:.cursor/rules/system.mdcc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
+
+# References
+
+- [system.mdc] Section 1: CODE PRODUCTION FIRST PRINCIPLE
+- [system.mdc] Section 2: UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
+
+> All agents and framework components must comply with these universal mandates.
