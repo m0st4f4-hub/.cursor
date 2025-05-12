@@ -17,7 +17,7 @@ ruleType: Agent
 | **Key Tools**     | MCP Task Mgmt, File Creation (`mcp_desktop-commander_write_file`), Rule Fetching (for self). |
 | **Key Outputs**   | New agent `.mdc` rule file with standard sections, MCP task update (PASS/FAIL).           |
 | **Constraints**   | **MUST** create `.mdc` file, use standard template structure, **MUST NOT** implement logic. |
-| **References**    | [system.mdcc](mdc:.cursor/rules/system.mdcc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc), [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc), [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc), [init.mdcc](mdc:.cursor/rules/init.mdcc), [evolutionary-analyst.mdc](mdc:.cursor/rules/evolutionary-analyst.mdc) |
+| **References**    | [system.mdcc](mdc:.cursor/rules/system.mdcc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc), [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc), [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc), [init.mdcc](mdc:.cursor/rules/init.mdcc), [evolutionary-analyst.mdcc](mdc:.cursor/rules/evolutionary-analyst.mdcc) |
 
 ## 1. YOUR PURPOSE
 
@@ -56,8 +56,8 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   Compare written content to generated content. Record PASS/FAIL.
 5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6):**
     *   Let `scaffolding_summary` be a text. **This summary MUST explicitly reference the COUNTED plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST detail: New Agent Rule ID, Target File Path Created, Tool Used (`mcp_desktop-commander_write_file`), Verification Result (PASS/FAIL). **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_tasks__task_id__put`.**
-    *   **Workflow Continuation:** `UnitScaffolding` creates a template. Further implementation is needed. Let `follow_up_justified` = true if scaffolding was successful, else false. Let `created_follow_up_task_ids` = []. The logical next step is often analysis or initial implementation, perhaps by `EvolutionaryAnalyst` ([evolutionary-analyst.mdc](mdc:.cursor/rules/evolutionary-analyst.mdc)) or a relevant specialist agent based on the new role.
-    *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.2) Create a task for the next logical agent (e.g., `EvolutionaryAnalyst`). `mcp_project-manager_create_task_tasks__post(title="Analyze/Implement New Agent: " + new_agent_title, description="New agent rule scaffolded at [target_file_path]. Analyze template and plan/begin detailed implementation. Consult [evolutionary-analyst.mdc](mdc:.cursor/rules/evolutionary-analyst.mdc).", agent_name="EvolutionaryAnalyst", project_id=self.original_project_id_if_available)`. Store new `taskId` in `created_follow_up_task_ids`.
+    *   **Evaluate Workflow Continuation:** `UnitScaffolding` creates a template. Further implementation is needed. Let `follow_up_justified` = true if scaffolding was successful, else false. Let `created_follow_up_task_ids` = []. The logical next step is often analysis or initial implementation, perhaps by `EvolutionaryAnalyst` ([evolutionary-analyst.mdcc](mdc:.cursor/rules/evolutionary-analyst.mdcc)) or a relevant specialist agent based on the new role.
+    *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.2) Create a task for the next logical agent (e.g., `EvolutionaryAnalyst`). `mcp_project-manager_create_task_tasks__post(title="Analyze/Implement New Agent: " + new_agent_title, description="New agent rule scaffolded at [target_file_path]. Analyze template and plan/begin detailed implementation. Consult [evolutionary-analyst.mdcc](mdc:.cursor/rules/evolutionary-analyst.mdcc).", agent_name="EvolutionaryAnalyst", project_id=self.original_project_id_if_available)`. Store new `taskId` in `created_follow_up_task_ids`.
     *   **Determine Final Status:** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3)
         *   If verification PASSED AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
         *   Else if PASSED AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER".
@@ -99,7 +99,7 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 *   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)
 *   [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc)
 *   [init.mdcc](mdc:.cursor/rules/init.mdcc)
-*   [evolutionary-analyst.mdc](mdc:.cursor/rules/evolutionary-analyst.mdc)
+*   [evolutionary-analyst.mdcc](mdc:.cursor/rules/evolutionary-analyst.mdcc)
 *   Standard Agent Rule Template Structure (Implicit)
 
 ## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
