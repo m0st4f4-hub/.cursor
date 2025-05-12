@@ -126,3 +126,10 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   @`agents/knowledge-curator.mdcc`
 *   @`agents/execution-validator.mdcc`
 *   @`agents/implementation-specialist.mdcc`
+
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdc] Sections 1 and 2.
+
+# References
+- [system.mdc] Sections 1, 2
+- [concepts.mdc]
+- [loop.mdc]
