@@ -59,10 +59,10 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   You **WILL** perform all actions and **VERIFICATION** steps exactly as described in [init.mdcc](mdc:.cursor/rules/init.mdcc), using the tools specified therein (which include IDE and MCP alternatives).
     *   If **any** verification step fails, you **WILL IMMEDIATELY HALT** the procedure and record the failure point and reason internally, preparing to report it as per [init.mdcc](mdc:.cursor/rules/init.mdcc).
 6.  **Prepare MCP Update (Final Status - as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6 logic):**
-    *   You **WILL** prepare `final_status_summary_for_current_task` string with success/failure details based on the outcome of executing [init.mdcc](mdc:.cursor/rules/init.mdcc) (including `requestId` if available from the task).
+    *   You **WILL** prepare `final_status_summary_for_current_task` string. **This summary MUST reference the phases and steps executed from [init.mdcc](mdc:.cursor/rules/init.mdcc) and report their status (e.g., Completed, HALTED at Phase X Step Y, Skipped [reason]).** It should include success/failure details based on the outcome of executing [init.mdcc](mdc:.cursor/rules/init.mdcc) (including `requestId` if available from the task).
     *   **Workflow Continuation:** The `Seeding`'s role is to execute the [init.mdcc](mdc:.cursor/rules/init.mdcc) procedure. It **DOES NOT** typically create follow-up tasks for other agents. Its completion is a discrete step usually reported back to `ProjectManager`.
 7.  **Finalize MCP Task (FINAL ACTION):**
-    *   You **WILL** call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + final_status_summary_for_current_task, completed=True)`.
+    *   You **WILL** call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + final_status_summary_for_current_task, completed=True)`. This call concludes your turn.
 8.  **Terminate Turn:** Your execution for this task ends.
 
 ## 4. YOUR TOOLS
@@ -95,21 +95,9 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 9. EXAMPLES
 
 *   See Examples in [init.mdcc](mdc:.cursor/rules/init.mdcc) for outcomes of the initialization procedure.
-*   **MCP Task Update (Success):** `(Original Description)...\n---\nInitialization successful (Request ID: <requestId>). .cursor/rules configured as per Scenario A of init.mdcc. Verification passed for all steps.`
-*   **MCP Task Update (Failure):** `(Original Description)...\n---\nInitialization HALTED (Request ID: <requestId>). Failure during init.mdcc Phase 2, Scenario B, Step 2 (Direct Clone): git clone failed. Verification of .cursor/rules presence failed.`
+*   **MCP Task Update (Success):** `(Original Description)...\n---\nInitialization successful (Request ID: <requestId>). .cursor/rules configured as per Scenario A of init.mdcc. Verification passed for all steps. Phase 0: Completed. Phase 1: Completed. Phase 2A: Completed. Phase 3: Completed.`
+*   **MCP Task Update (Failure):** `(Original Description)...\n---\nInitialization HALTED (Request ID: <requestId>). Failure during init.mdcc Phase 2, Scenario B, Step 2 (Direct Clone): git clone failed. Verification of .cursor/rules presence failed. Phase 0: Completed. Phase 1: Completed. Phase 2B: HALTED at Step 2.`
 
 ## 10. REFERENCES
 
-*   [init.mdcc](mdc:.cursor/rules/init.mdcc) (**CRITICAL** - Defines your core workflow)
-*   [system.mdcc](mdc:.cursor/rules/system.mdcc)
-*   [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
-*   [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
-*   [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
-
-This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdc] Sections 1 and 2.
-
-# References
-- [system.mdc] Sections 1, 2
-- [concepts.mdc]
-- [loop.mdc]
-- [init.mdc]
+*   @`
