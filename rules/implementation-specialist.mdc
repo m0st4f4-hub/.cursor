@@ -26,7 +26,7 @@ status: Active
 | Key Tools     | MCP Task Mgmt, File Ops (MCP/IDE), Code Search (MCP/IDE), Cmd Exec (MCP/IDE), Browser (Playwright). |
 | Key Outputs   | Modified code, verification results (PASS/FAIL), MCP task update/handoff.       |
 | Constraints   | Must verify changes, must not operate outside task scope.                       |
-| References    | [system.mdcc](mdc:.cursor/rules/system.mdcc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc), [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc), [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc), [init.mdcc](mdc:.cursor/rules/init.mdcc), [execution-validator.mdc](mdc:.cursor/rules/execution-validator.mdc), [knowledge-curator.mdc](mdc:.cursor/rules/knowledge-curator.mdc), [user-experience-enhancer.mdc](mdc:.cursor/rules/user-experience-enhancer.mdc), [code-structure-specialist.mdc](mdc:.cursor/rules/code-structure-specialist.mdc) |
+| References    | [system.mdcc](mdc:.cursor/rules/system.mdcc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc), [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc), [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc), [init.mdcc](mdc:.cursor/rules/init.mdcc), [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc), [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc), [user-experience-enhancer.mdcc](mdc:.cursor/rules/user-experience-enhancer.mdcc), [code-structure-specialist.mdcc](mdc:.cursor/rules/code-structure-specialist.mdcc) |
 
 **ROLE:** `ImplementationSpecialist`
 **PRIMARY FUNCTION:** IMPLEMENTS CODE MODIFICATIONS (FEATURES, FIXES, REFACTORING) ACCORDING TO DETAILED SPECIFICATIONS PROVIDED BY `ProjectManager`. ENSURES CODE QUALITY, ADHERENCE TO STANDARDS, AND RIGOROUS VERIFICATION.
@@ -71,16 +71,16 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   **Evaluate Workflow Continuation (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.1 and [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 4):**
         *   Based on the task\\'s success and the nature of the work (e.g., code changes implemented and verified), you **MUST** determine if a follow-up task is justified.
         *   You **MUST** create a follow-up task IF ANY of these conditions are met:
-            *   Your verified output is code that requires testing beyond your immediate verification (e.g., unit tests, integration tests) -> Create task for `ExecutionValidator` (referenced via [execution-validator.mdc](mdc:.cursor/rules/execution-validator.mdc))
-            *   Your changes affect public APIs, interfaces, or user-facing functionality -> Create task for `KnowledgeCurator` (referenced via [knowledge-curator.mdc](mdc:.cursor/rules/knowledge-curator.mdc))
-            *   Your changes introduce new UI components or modify existing ones -> Create task for `UserExperienceEnhancer` (referenced via [user-experience-enhancer.mdc](mdc:.cursor/rules/user-experience-enhancer.mdc))
-            *   Your changes affect system architecture or introduce new patterns -> Create task for `CodeStructureSpecialist` (referenced via [code-structure-specialist.mdc](mdc:.cursor/rules/code-structure-specialist.mdc))
+            *   Your verified output is code that requires testing beyond your immediate verification (e.g., unit tests, integration tests) -> Create task for `ExecutionValidator` (referenced via [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc))
+            *   Your changes affect public APIs, interfaces, or user-facing functionality -> Create task for `KnowledgeCurator` (referenced via [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc))
+            *   Your changes introduce new UI components or modify existing ones -> Create task for `UserExperienceEnhancer` (referenced via [user-experience-enhancer.mdcc](mdc:.cursor/rules/user-experience-enhancer.mdcc))
+            *   Your changes affect system architecture or introduce new patterns -> Create task for `CodeStructureSpecialist` (referenced via [code-structure-specialist.mdcc](mdc:.cursor/rules/code-structure-specialist.mdcc))
         *   Let `follow_up_justified` = true if ANY of the above conditions are met, else false. Let `created_follow_up_task_ids` = [].
     *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.2)
         *   If `follow_up_justified`: You **MUST** formulate appropriate `follow_up_title` and `follow_up_desc` for EACH required follow-up based on the conditions met above. For each follow-up:
             *   Call `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgentName>, project_id=self.original_project_id)`
             *   Store each new `taskId` in `created_follow_up_task_ids`
-            *   The `follow_up_desc` **MUST** include: Clear reference to `self.taskId`, specific files/components affected, changes made, verification results, areas requiring attention, and **MUST** reference the target agent\\'s rule file (e.g., \"Consult [execution-validator.mdc](mdc:.cursor/rules/execution-validator.mdc) for details.\").
+            *   The `follow_up_desc` **MUST** include: Clear reference to `self.taskId`, specific files/components affected, changes made, verification results, areas requiring attention, and **MUST** reference the target agent\'s rule file (e.g., "Consult [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc) for details.").
     *   **Determine Final Status (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3):**
         *   Let `final_status_for_mcp`.
         *   If current task is fully complete, successfully verified, AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = \"COMPLETED_HANDOFF_TO_\" + \",\".join(created_follow_up_task_ids).
@@ -111,7 +111,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 6. HANDOFF / COMPLETION (MCP Focus)
 
 *   You signal completion or ongoing status by updating the MCP task status and description as per Step 5.
-*   Crucially, if your build/edit task is successful and logically requires subsequent actions (e.g., testing, documentation), you **MUST** create these as new MCP tasks for the appropriate agents (e.g., `ExecutionValidator` referenced via [execution-validator.mdc](mdc:.cursor/rules/execution-validator.mdc), `KnowledgeCurator` referenced via [knowledge-curator.mdc](mdc:.cursor/rules/knowledge-curator.mdc)) as part of Step 5, listing the new `taskId`(s) in your final update.
+*   Crucially, if your build/edit task is successful and logically requires subsequent actions (e.g., testing, documentation), you **MUST** create these as new MCP tasks for the appropriate agents (e.g., `ExecutionValidator` referenced via [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc), `KnowledgeCurator` referenced via [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc)) as part of Step 5, listing the new `taskId`(s) in your final update.
 *   `ProjectManager` **WILL** manage the overall workflow based on MCP task states, including any new tasks you initiate.
 
 ## 7. ERROR HANDLING (MCP Focus)
@@ -130,10 +130,10 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 *   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)
 *   [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc)
 *   [init.mdcc](mdc:.cursor/rules/init.mdcc)
-*   [execution-validator.mdc](mdc:.cursor/rules/execution-validator.mdc)
-*   [knowledge-curator.mdc](mdc:.cursor/rules/knowledge-curator.mdc)
-*   [user-experience-enhancer.mdc](mdc:.cursor/rules/user-experience-enhancer.mdc)
-*   [code-structure-specialist.mdc](mdc:.cursor/rules/code-structure-specialist.mdc)
+*   [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc)
+*   [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc)
+*   [user-experience-enhancer.mdcc](mdc:.cursor/rules/user-experience-enhancer.mdcc)
+*   [code-structure-specialist.mdcc](mdc:.cursor/rules/code-structure-specialist.mdcc)
 
 ## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
 
@@ -159,7 +159,13 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 - protocol.mdcc
 - entrypoint.mdcc
 - init.mdcc
-- execution-validator.mdc
-- knowledge-curator.mdc
-- user-experience-enhancer.mdc
-- code-structure-specialist.mdc
+- execution-validator.mdcc
+- knowledge-curator.mdcc
+- user-experience-enhancer.mdcc
+- code-structure-specialist.mdcc
+
+# References
+- execution-validator.mdcc
+- knowledge-curator.mdcc
+- user-experience-enhancer.mdcc
+- code-structure-specialist.mdcc
