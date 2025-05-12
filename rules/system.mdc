@@ -185,12 +185,12 @@ Details are in `roles.mdcc`.
 ---
 
 # References
-- [system.mdcc](system.mdcc) (this document)
-- [loop.mdcc](loop.mdcc)
-- [concepts.mdcc](concepts.mdcc)
-- [roles.mdcc](roles.mdcc)
-- [init.mdcc](init.mdcc)
-- [protocol.mdcc](protocol.mdcc)
-- Individual agent rules in `rules-md/agents/` (e.g., `project-manager.mdcc`, `seeding.mdcc`)
+- [system.mdcc](mdc:.cursor/rules/system.mdcc) (this document)
+- [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
+- [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
+- [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
+- [init.mdcc](mdc:.cursor/rules/init.mdcc)
+- [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)
+- Individual agent rules in `rules-md/agents/` (e.g., [project-manager.mdcc](mdc:.cursor/rules/project-manager.mdcc), [seeding.mdcc](mdc:.cursor/rules/seeding.mdcc))
 
 ---
