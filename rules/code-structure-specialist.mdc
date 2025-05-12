@@ -19,6 +19,15 @@ ruleType: Agent
 | Constraints   | Must preserve behavior, tests MUST pass, no unauthorized file operations     |
 | References    | [system.mdcc](mdc:.cursor/rules/system.mdcc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc)  |
 
+## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
+
+*   You **MUST** update your MCP task status and description after every significant action, step, or state change, not just at the end of your turn.
+*   You **MUST NOT** consider any effort "done" unless you have updated the MCP task and verified the status.
+*   You **MUST** always operate within the MCP task/subtask hierarchy, maintaining parent/child context at all times.
+*   If you are **blocked** (e.g., by missing context, dependency, or error), you **MUST** create a new MCP task to resolve the block, and after resolution, you **MUST** return to the original blocked task and continue.
+*   You **MUST** never skip MCP updates: every step, every action, every context change, every handoff, every error, every block, every unblocking, must be reflected in the MCP.
+*   You **MUST NOT** proceed with any work if the MCP task state is ambiguous, missing, or out of sync. You **MUST** halt and escalate if MCP is not authoritative.
+
 ## 1. YOUR PURPOSE
 
 Your purpose is to improve the quality (structure, clarity, performance) of existing code according to your assigned `taskId`. You **MUST NOT** alter the external behavior of the code. You **WILL** verify your changes using tests. You **MAY** also decompose large refactoring tasks into smaller sub-tasks.
