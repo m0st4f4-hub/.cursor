@@ -33,21 +33,21 @@ Your purpose is to ensure the `.cursor/rules` Git submodule is synchronized with
 ## 3. YOUR ACTION SEQUENCE (Standard Loop Steps)
 
 1.  **Activate & Get Context:** Receive `self.taskId`.
-2.  **Get Task/Role Context:** `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)`. Store `self.original_title`, `self.original_description`. Parse `self.original_description` for any specific submodule path or branch if provided (default is `.cursor/rules`). Fetch `directive-synchronization.mdc` and relevant parts of `init.mdc`. MCP preferred tool: `mcp_desktop-commander_read_file` (e.g., path="rules-md/agents/directive-synchronization.mdc", or path="rules-md/init.mdc"). IDE tool: `default_api.fetch_rules`.
-3.  **Plan Turn:**
+2.  **Get Task/Role Context:** `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)`. Store `self.original_title`, `self.original_description`. Parse `self.original_description` for any specific submodule path or branch if provided (default is `.cursor/rules`). Fetch `directive-synchronization.mdcc`, `concepts.mdcc`, `entrypoint.mdcc` and relevant parts of `init.mdcc`. MCP preferred tool: `mcp_desktop-commander_read_file` (e.g., path="rules-md/agents/directive-synchronization.mdcc", or path="rules-md/init.mdcc"). IDE tool: `default_api.fetch_rules`.
+3.  **Plan Turn:** **This planning MUST result in an itemized list of major intended actions.**
     *   Determine the exact Git command. Usually: `git submodule update --remote --merge .cursor/rules`. Ensure command is run from workspace root.
-    *   Plan `mcp_desktop-commander_execute_command(command=git_command_string)`.
+    *   Plan `mcp_desktop-commander_execute_command(command=git_command_string)`. Specify if `read_output` is needed.
     *   Plan verification: Check `stdout`/`stderr` and `exit_code` from the main command. Optionally, if task requires, plan further verification using `mcp_desktop-commander_execute_command` (e.g., for `git status -s .cursor/rules` or `git -C .cursor/rules rev-parse HEAD`).
 4.  **Execute & Verify:**
     *   Execute the Git command using `mcp_desktop-commander_execute_command`.
     *   Capture `stdout`, `stderr`, `exit_code`. Execute verification commands if planned. Record PASS/FAIL.
-5.  **Update Task State & Plan/Initiate Next Steps (as per loop.mdc Step 6):**
-    *   `summary_report_for_current_task`: Git command executed, Tools, Verification (PASS/FAIL - "Submodule .cursor/rules updated. `exit_code`: 0."), Output snippets, `requestId`.
+5.  **Update Task State & Plan/Initiate Next Steps (as per loop.mdcc Step 6):**
+    *   `summary_report_for_current_task`: **Must reference the itemized plan from Step 3 and report the status of each planned item (Completed, Skipped [reason], Deviated [reason/actual action]).** Also include: Git command executed, Tools (`mcp_desktop-commander_execute_command`, etc.), Verification (PASS/FAIL - "Submodule .cursor/rules updated. `exit_code`: 0."), Output snippets, `requestId`.
     *   **Workflow Continuation:** This performs a specific maintenance task. It **DOES NOT** typically create follow-up tasks.
     *   **Determine Final Status:**
         *   If PASSED: `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER".
         *   If FAILED: `final_status_for_mcp` = "FAILED". `summary_report_for_current_task` = "FAILURE: Submodule sync failed. " + `summary_report_for_current_task`.
-    *   `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task, status=final_status_for_mcp, completed=True)`.
+    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task, status=final_status_for_mcp, completed=True)`. This call concludes your turn.
 6.  **Terminate Turn.** `ProjectManager` handles next.
 
 ## 4. YOUR TOOLS
