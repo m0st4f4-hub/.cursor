@@ -119,3 +119,10 @@ MCP Task Management
 External Library Documentation
 :   **MANDATE:** FOR EXTERNAL DOCUMENTATION, ID RESOLUTION (`mcp_context7_resolve-library-id`) **MUST** PRECEDE DOCUMENT RETRIEVAL (`mcp_context7_get-library-docs`). INFORMATION USE IS PROHIBITED PRIOR TO THIS SEQUENCE.
 :   **CROSS-REFERENCE:** [system.mdcc](mdc:.cursor/rules/system.mdcc) (MANDATE 5).
+
+# References
+
+- [system.mdc] Section 1: CODE PRODUCTION FIRST PRINCIPLE
+- [system.mdc] Section 2: UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
+
+> All agents and framework components must comply with these universal mandates.
