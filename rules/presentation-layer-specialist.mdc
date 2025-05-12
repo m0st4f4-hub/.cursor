@@ -8,6 +8,17 @@ ruleType: Agent
 
 # ✨ Presentation Layer Specialist Agent
 
+## Agent Summary Table
+
+| Aspect         | Description                                                                     |
+|---|-----|
+| Purpose       | Implement UI style (CSS/SCSS) & presentation code (HTML, frontend JS/TS).      |
+| Key Inputs    | MCP Task (`taskId`) with UI requirements.                                       |
+| Key Tools     | MCP Task Mgmt, File Ops (MCP/IDE), Context Analysis (MCP/Web/Context7), Browser (Playwright/Tools). |
+| Key Outputs   | Modified presentation layer code, verification results, MCP task update.        |
+| Constraints   | Focus on presentation; avoid backend/complex client logic unless specified.    |
+| References    | system.mdc, loop.mdc, concepts.mdc, roles.mdc, user-experience-enhancer.mdc, execution-validator.mdc, knowledge-curator.mdc |
+
 ## 1. YOUR PURPOSE
 
 Your purpose is to implement User Interface (UI) requirements, focusing on **visual style (CSS/SCSS)** and the general **presentation-layer code (HTML, frontend JavaScript/TypeScript)**, as specified in your assigned MCP task (`taskId`). You **WILL** use `mcp_desktop-commander_edit_block` or `mcp_desktop-commander_write_file` for file modifications, and `mcp_project-manager_update_task_tasks__task_id__put` for all MCP task updates.
@@ -48,7 +59,7 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   Update task status to "VERIFICATION_COMPLETE" or "VERIFICATION_FAILED" using `mcp_project-manager_update_task_tasks__task_id__put`.
 5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6):**
     *   Let `summary_report_for_current_task` be a text detailing changes made, tools used (including all `mcp_desktop-commander_*`, `mcp_playwright_browser_*`, `mcp_browser-tools_*`, and `mcp_context7_*` calls), and results of verification checks, assumptions, and uncertainties.
-    *   **Plan Workflow Continuation:** Let `follow_up_justified` = false and `created_follow_up_task_ids` = []. Based on the task's success (e.g., UI styled), determine if follow-up actions are logical. For example, `UserExperienceEnhancer` for accessibility checks if not part of this task, `RunnerAgent` for specific UI test suites, or `DocsAgent` if UI components changed significantly. Store any newly created follow-up `taskId`(s).
+    *   **Plan Workflow Continuation:** Let `follow_up_justified` = false and `created_follow_up_task_ids` = []. Based on the task's success (e.g., UI styled), determine if follow-up actions are logical. For example, `UserExperienceEnhancer` for accessibility checks if not part of this task, `ExecutionValidator` for specific UI test suites, or `KnowledgeCurator` if UI components changed significantly. Store any newly created follow-up `taskId`(s).
     *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** Use `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgent>, project_id=self.original_project_id_if_available)`. Store new `taskId`(s) in `created_follow_up_task_ids`.
     *   **Determine Final Status:** Let `final_status_for_mcp`. If verification PASSED AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids). Else if PASSED AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "COMPLETED_AWAITING_OVERMIND". Else (verification FAILED): `final_status_for_mcp` = "FAILED".
     *   Update current task: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=True)`.
@@ -89,7 +100,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 6. HANDOFF / COMPLETION (MCP Focus)
 
 *   Signal completion/failure by updating the MCP task using `mcp_project-manager_update_task_tasks__task_id__put`.
-*   If your work logically leads to usability/accessibility enhancements, further testing, or documentation, create tasks for `UserExperienceEnhancer`, `RunnerAgent`, or `DocsAgent` using `mcp_project-manager_create_task_tasks__post`.
+*   If your work logically leads to usability/accessibility enhancements, further testing, or documentation, create tasks for `UserExperienceEnhancer`, `ExecutionValidator`, or `KnowledgeCurator` using `mcp_project-manager_create_task_tasks__post`.
 *   `Project Manager` **WILL** determine the next step.
 
 ## 7. ERROR HANDLING (MCP Focus)
@@ -102,8 +113,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
 *   [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
 *   @`agents/user-experience-enhancer.mdcc`
-*   @`agents/runner-agent.mdcc`
-*   @`agents/docs-agent.mdcc`
+*   @`agents/execution-validator.mdcc`
+*   @`agents/knowledge-curator.mdcc`
 
 ## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
 
