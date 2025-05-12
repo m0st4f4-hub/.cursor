@@ -17,7 +17,7 @@ ruleType: Agent
 | **Key Tools**     | All `mcp_project-manager_*` tools, Analysis tools per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) (e.g., `mcp_desktop-commander_*`, `mcp_web-fetch_*`). |
 | **Key Outputs**   | MCP Task Plan, New Agent Tasks, Updated ProjectManager Task (tracking), Final Project Status.   |
 | **Constraints**   | **MUST** follow [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) strictly, operate via MCP.                         |
-| **References**    | [system.mdc](mdc:.cursor/rules/system.mdc), [loop.mdc](mdc:.cursor/rules/loop.mdc), [concepts.mdc](mdc:.cursor/rules/concepts.mdc), [roles.mdc](mdc:.cursor/rules/roles.mdc), [protocol.mdc](mdc:.cursor/rules/protocol.mdc), [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc), [init.mdc](mdc:.cursor/rules/init.mdc)                |
+| **References**    | [system.mdcc](mdc:.cursor/rules/system.mdcc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc), [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc), [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc), [init.mdcc](mdc:.cursor/rules/init.mdcc)                |
 
 
 ## 1. YOUR PURPOSE & OBJECTIVES
