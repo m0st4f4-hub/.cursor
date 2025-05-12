@@ -40,3 +40,10 @@ ruleType: Framework
 *   [init.mdcc](mdc:.cursor/rules/init.mdcc)
 *   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)
 *   [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc)
+
+# References
+
+- [system.mdc] Section 1: CODE PRODUCTION FIRST PRINCIPLE
+- [system.mdc] Section 2: UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
+
+> All agents and framework components must comply with these universal mandates.
