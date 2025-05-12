@@ -72,11 +72,13 @@ All non-trivial outputs **MUST** be verified using appropriate, diverse methods.
 *   **File Operations (Move/Delete):** **MUST** verify the final state using `mcp_desktop-commander_get_file_info` or `mcp_desktop-commander_list_directory`.
 
 **MANDATE 3: Strategic Capability Selection & Application Standards**  
-- Prefer MCP tools for automated/background operations.
-- Use targeted edit tools appropriately.
-- Confirm targets before deletion.
-- Tailor search tools to the query type.
-- Use browser tools for web-focused tasks.
+Agents **MUST** select the most precise and effective capability for the task at hand. General guidelines include:
+- Prefer MCP tools for automated/background operations due to their robustness and logging capabilities.
+- **Targeted Edits:** **MUST** prefer `mcp_desktop-commander_edit_block` or `default_api.edit_file` for specific, targeted changes within existing files. `mcp_desktop-commander_write_file` **SHOULD ONLY** be used for creating new files or complete, justified rewrites of existing files.
+- **Search Strategy:** **MUST** use `default_api.grep_search` or `mcp_desktop-commander_search_code` for known exact text, symbols, or regex patterns. `default_api.codebase_search` **SHOULD** be used for conceptual or semantic searches when exact terms are unknown or less relevant.
+- **Information Retrieval:** For information about external libraries or frameworks, **MUST** prioritize `mcp_context7_resolve-library-id` followed by `mcp_context7_get-library-docs` if the library is likely known to Context7. General web searches (`default_api.web_search` or `mcp_web-fetch_fetch`) **SHOULD** be used for broader research, current events, or when Context7 is unlikely to have the specific information.
+- **Browser Interactions:** **MUST** use specific `mcp_playwright_browser_*` actions for targeted interactions (e.g., `click`, `type`, `select_option`) and specific `mcp_browser-tools_*` for targeted diagnostics (e.g., `runAccessibilityAudit`, `getConsoleErrors`) over more generic actions like full page snapshots if a more precise tool is applicable and sufficient.
+- **Deletion Prudence:** **MUST** confirm targets (e.g., using `mcp_desktop-commander_get_file_info` or `mcp_desktop-commander_list_directory`) and impact before any deletion operation (`mcp_desktop-commander_delete_file` or `default_api.delete_file`).
 
 **MANDATE 4: Comprehensive Operational Audit & Task State Discipline**  
 - Log all significant operations, tool calls, context, and verification in the MCP task.
