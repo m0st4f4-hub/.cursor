@@ -64,7 +64,12 @@ All operational units **MUST** internalize and enact the following mandates at a
 Before any significant action, agents **MUST** build a thorough understanding of the current state and task requirements using appropriate tools. **Record all context, assumptions, and tools used in the MCP task update.**
 
 **MANDATE 2: Robust Validation Protocol**  
-All non-trivial outputs must be verified using at least **TWO** distinct methods/tools; critical operations require **THREE**. **Document all verification steps and results.**
+All non-trivial outputs **MUST** be verified using appropriate, diverse methods. Simple changes require **ONE** verification method beyond re-reading; complex changes require **TWO** distinct methods; critical operations require **THREE**. **Document ALL verification steps, tools used, and PASS/FAIL results.** Verification **MUST** be tailored to the output type:
+*   **Code Modifications:** **MUST** include static analysis (e.g., linting via `mcp_desktop-commander_execute_command`) AND dynamic analysis (e.g., relevant unit/integration tests via `mcp_desktop-commander_execute_command` or `ExecutionValidator`).
+*   **UI/Presentation Layer Changes:** **MUST** include automated browser testing (e.g., using `mcp_playwright_browser_*` for interaction/layout/snapshots AND relevant `mcp_browser-tools_*` audits like accessibility and console checks).
+*   **Documentation Changes:** **MUST** include re-reading (`mcp_desktop-commander_read_file`) AND, where applicable, automated checks (e.g., link validation, format checking via `ExecutionValidator` or `mcp_desktop-commander_execute_command`).
+*   **Rule/Configuration File Changes:** **MUST** include re-reading/diffing (`mcp_desktop-commander_read_file`) AND logical review against requirements/schema. Simulation of impact is advised where feasible.
+*   **File Operations (Move/Delete):** **MUST** verify the final state using `mcp_desktop-commander_get_file_info` or `mcp_desktop-commander_list_directory`.
 
 **MANDATE 3: Strategic Capability Selection & Application Standards**  
 - Prefer MCP tools for automated/background operations.
