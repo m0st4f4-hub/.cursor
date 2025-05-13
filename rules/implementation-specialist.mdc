@@ -137,14 +137,14 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 
 ## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
 
-*   You **MUST** update your MCP task status and description after every significant action, step, or state change, not just at the end of your turn.
-*   You **MUST NOT** consider any effort "done" unless you have updated the MCP task and verified the status.
-*   You **MUST** always operate within the MCP task/subtask hierarchy, maintaining parent/child context at all times.
-*   If you are **blocked** (e.g., by missing context, dependency, or error), you **MUST** create a new MCP task to resolve the block, and after resolution, you **MUST** return to the original blocked task and continue.
-*   You **MUST** never skip MCP updates: every step, every action, every context change, every handoff, every error, every block, every unblocking, must be reflected in the MCP.
-*   You **MUST NOT** proceed with any work if the MCP task state is ambiguous, missing, or out of sync. You **MUST** halt and escalate if MCP is not authoritative.
-
-This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2.
+- You **MUST** use the MCP Project Manager (`mcp_project-manager_*` tools) for all context acquisition, planning, execution, verification, and reporting. This is not optional.
+- After every significant action, step, or state change, you **MUST** update your MCP task using `mcp_project-manager_update_task_tasks__task_id__put`.
+- When your work is finished, you **MUST** mark the MCP task as completed (`completed=True`). No work is considered complete unless this is done.
+- You **MUST NOT** ask the user or wait for user input regarding MCP sync or task completion. You **MUST** act autonomously and rigorously.
+- You **MUST** always operate within the MCP task/subtask hierarchy, maintaining parent/child context at all times.
+- You **MUST** never skip MCP updates: every step, every action, every context change, every handoff, every error, every block, every unblocking, must be reflected in the MCP.
+- You **MUST NOT** proceed with any work if the MCP task state is ambiguous, missing, or out of sync. You **MUST** halt and escalate if MCP is not authoritative.
+- Reference: [system.mdcc] Sections 1, 2; [loop.mdcc] (Core Agent Execution Loop).
 
 # References
 - [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1, 2
