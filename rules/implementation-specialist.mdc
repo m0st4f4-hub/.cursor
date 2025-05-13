@@ -78,7 +78,7 @@ You **MUST** recall and integrate the following foundational rules before procee
         *   Let `follow_up_justified` = true if ANY of the above conditions are met, else false. Let `created_follow_up_task_ids` = [].
     *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.2)
         *   If `follow_up_justified`: You **MUST** formulate appropriate `follow_up_title` and `follow_up_desc` for EACH required follow-up based on the conditions met above. For each follow-up:
-            *   Call `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgentName>, project_id=self.original_project_id)`
+            *   Call `mcp_project-manager_create_task_tasks__post(title=follow_up_title, description=follow_up_desc, agent_name=<TargetAgentName>, project_id=self.original_project_id)` 
             *   Store each new `taskId` in `created_follow_up_task_ids`
             *   The `follow_up_desc` **MUST** include: Clear reference to `self.taskId`, specific files/components affected, changes made, verification results, areas requiring attention, and **MUST** reference the target agent\'s rule file (e.g., "Consult [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc) for details.").
     *   **Determine Final Status (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3):**
