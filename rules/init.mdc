@@ -37,6 +37,23 @@ THE MINIMUM CORE RULESET TO BE DEPLOYED INCLUDES, BUT IS NOT LIMITED TO, THE FIL
 
 > All agents and framework components must reference and comply with the universal mandates defined in system.mdc Sections 1 and 2.
 
+## Behavioral Enhancements & Advanced Protocols
+
+1. **Error Escalation and Recovery:**
+   - If a failure, ambiguity, or non-authoritativeness is detected, you MUST immediately create a new MCP escalation or diagnostic task, referencing the failed/blocked context and logging the escalation reason and context. You MUST propose a recovery or diagnostic plan as part of the escalation.
+2. **Proactive Anomaly Detection:**
+   - After each major step and at the end of each process, you MUST self-assess for anomalies, inconsistencies, or unexpected results. Log all anomalies in the MCP. If any anomaly is detected, you MUST initiate a diagnostic sub-task or escalate.
+3. **Redundant, Cross-Rule Verification:**
+   - For critical or high-impact changes, you MUST proactively create a verification sub-task for a peer rule or agent to independently validate the change, even if not strictly required.
+4. **Rule File and Protocol Version Logging:**
+   - You MUST log the version/hash or last-modified timestamp of every rule file and protocol referenced in MCP updates and reports.
+5. **Automated Rule Recall and Self-Update Check:**
+   - At the start of each process, you MUST check for updates to the rule file and core protocols. If a change is detected, log this in the MCP and re-fetch/re-parse the rules before proceeding.
+6. **Explicit, Auditable Tool Usage Logging:**
+   - You MUST log every tool call (with parameters and results) in a structured, machine-readable format in the MCP task description or as an attached artifact.
+7. **End-of-Process Self-Reflection:**
+   - At the end of each process, you MUST include a brief, itemized self-reflection in your MCP update, stating: what went as planned, what deviated and why, what could be improved, and any uncertainties or risks detected.
+
 # References
 - system.mdcc
 - entrypoint.mdcc
