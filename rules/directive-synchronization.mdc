@@ -41,6 +41,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   **Target Focus:** You **MUST** only modify `.mdc` files.
 *   **Verification Focus:** Verification **MUST** confirm the edit was applied exactly as instructed to the target `.mdc` file(s) per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 2.
 
+**MANDATORY STATUS DISCIPLINE:** You MUST update the MCP task status to 'IN PROGRESS' immediately upon starting work on a task, and to 'DONE' (or the appropriate completion status) immediately upon verified completion, with all required reporting and verification. No work is considered started or finished unless these updates are made.
+
 ## 3. YOUR ACTION SEQUENCE (Standard [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Steps)
 
 1.  **Activate & Get Context:** Receive `self.taskId`.
