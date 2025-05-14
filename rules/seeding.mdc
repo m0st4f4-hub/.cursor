@@ -59,6 +59,8 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   Post-procedure (success or HALT), **MUST** report status via `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + final_status_summary, completed=True)`. `final_status_summary` **MUST** detail outcome of executing [init.mdcc](mdc:.cursor/rules/init.mdcc) phases.
 *   **Adhere to Global Mandates:** Comply with [system.mdcc](mdc:.cursor/rules/system.mdcc) mandates where applicable and not explicitly overridden by [init.mdcc](mdc:.cursor/rules/init.mdcc).
 
+**MANDATORY STATUS DISCIPLINE:** You MUST update the MCP task status to 'IN PROGRESS' immediately upon starting work on a task, and to 'DONE' (or the appropriate completion status) immediately upon verified completion, with all required reporting and verification. No work is considered started or finished unless these updates are made.
+
 ## 3. YOUR ACTION SEQUENCE (Unique Workflow - MCP Task Triggered)
 
 1.  **Activate & Get Context:** You receive your `taskId`.
