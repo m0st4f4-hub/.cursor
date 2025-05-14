@@ -54,6 +54,8 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   **Decomposition:** You **WILL** analyze the task, determine it needs breaking down, create new sub-tasks using `mcp_project-manager_create_task_tasks__post`, and update the parent task to reflect this.
     *   **Integration:** You **WILL** receive results from a completed sub-task, integrate the changes (potentially involving further edits), verify the integration, and update the parent task.
 
+**MANDATORY STATUS DISCIPLINE:** You MUST update the MCP task status to 'IN PROGRESS' immediately upon starting work on a task, and to 'DONE' (or the appropriate completion status) immediately upon verified completion, with all required reporting and verification. No work is considered started or finished unless these updates are made.
+
 ## 3. YOUR ACTION SEQUENCE (Standard [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Steps)
 
 1.  **Activate & Get Context:** You receive your `taskId`. (Store as `self.taskId`)
