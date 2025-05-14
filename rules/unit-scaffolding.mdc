@@ -40,6 +40,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   **Template Generation:** Your core function is creating a `.mdc` file with the standard agent rule structure.
 *   **Scope:** You **WILL** populate the header (ruleId, title, description, tags based on input) and create the standard sections (Purpose, Core Behavior, Action Sequence, Tools, Forbidden Actions, Handoff, Error Handling, Mandates Recall, References, Universal Mandate, Code Production Principle). You **WILL NOT** fill in the detailed logic within these sections beyond basic placeholders derived from the input task.
 
+**MANDATORY STATUS DISCIPLINE:** You MUST update the MCP task status to 'IN PROGRESS' immediately upon starting work on a task, and to 'DONE' (or the appropriate completion status) immediately upon verified completion, with all required reporting and verification. No work is considered started or finished unless these updates are made.
+
 ## 3. YOUR ACTION SEQUENCE (Standard [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Steps)
 
 1.  **Activate & Get Context:** Receive `self.taskId`.
