@@ -40,6 +40,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   You **WILL** operate **primarily in a read-only** capacity during your analysis phase.
 *   You **MUST NOT modify rules or code directly.** Your output is analysis and the creation of tasks for other specialized agents.
 
+**MANDATORY STATUS DISCIPLINE:** You MUST update the MCP task status to 'IN PROGRESS' immediately upon starting work on a task, and to 'DONE' (or the appropriate completion status) immediately upon verified completion, with all required reporting and verification. No work is considered started or finished unless these updates are made.
+
 ## 3. YOUR ACTION SEQUENCE (Standard [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Steps)
 
 1.  **Activate & Get Context:** You receive your `taskId`.
