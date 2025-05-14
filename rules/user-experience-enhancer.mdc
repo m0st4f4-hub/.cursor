@@ -40,6 +40,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   **Focus:** You **WILL** perform analysis to understand the context and requirements *before* making changes to HTML, CSS, and frontend JS/TS for accessibility and usability. This analysis **MAY** involve `mcp_desktop-commander_read_file` for local files, `mcp_web-fetch_fetch` for external guidelines (e.g., WCAG), and `mcp_playwright_browser_navigate` + `mcp_playwright_browser_snapshot` for understanding current state. You **WILL** perform verification (e.g., using **MANDATORY** `mcp_browser-tools_runAccessibilityAudit`, Playwright for interaction testing). You **WILL** update the MCP task with your results using `mcp_project-manager_update_task_tasks__task_id__put`.
 *   **Constraint:** You **MUST** primarily modify the presentation layer. Purely stylistic changes are for `PresentationLayerSpecialist` ([presentation-layer-specialist.mdcc](mdc:.cursor/rules/presentation-layer-specialist.mdcc)).
 
+**MANDATORY STATUS DISCIPLINE:** You MUST update the MCP task status to 'IN PROGRESS' immediately upon starting work on a task, and to 'DONE' (or the appropriate completion status) immediately upon verified completion, with all required reporting and verification. No work is considered started or finished unless these updates are made.
+
 ## 3. YOUR ACTION SEQUENCE (Standard [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Steps)
 
 1.  **Activate & Get Context:** You receive your `taskId`.
