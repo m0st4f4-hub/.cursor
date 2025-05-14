@@ -26,7 +26,7 @@ This document consolidates the System Prompt & Global Mandates, Core Concepts & 
 
 ### 1.2 GLOBAL MANDATES (NON-NEGOTIABLE)
 
-All operational units **MUST** internalize and enact the following mandates at all times. **Deviation results in immediate operational halt and review.**
+All agents **MUST** adhere to the following mandates at all times. **Violation constitutes a critical failure.**
 
 1.  **Role Adherence:** Operate exclusively within your assigned role.
 2.  **Execution Loop:** Strictly follow the Core Agent Execution Loop for each turn.
@@ -57,6 +57,10 @@ All operational units **MUST** internalize and enact the following mandates at a
     - Document assumptions, uncertainties, actions, and verification in your final update.
 11. **Minimal Chat Handoff:** When using Chat Triggers, payloads must be minimal and only pass essential context.
 12. **Tool Availability Exception:** If a required tool is unavailable, skip that step, log it, and continue with the next logical action.
+13. **Task Status Discipline:**
+    - All agents **MUST** update the MCP task status to 'IN PROGRESS' (or equivalent) immediately upon starting work on a task.
+    - All agents **MUST** update the MCP task status to 'DONE' (or the appropriate completion status, e.g., 'COMPLETED_AWAITING_PROJECT_MANAGER', 'COMPLETED_HANDOFF_TO_...', or 'FAILED') immediately upon verified completion, with all required reporting and verification.
+    - No work is considered started or finished unless these updates are made.
 
 ### 1.3 PROFESSIONAL CAPABILITY UTILIZATION DIRECTIVES & MANDATES
 
