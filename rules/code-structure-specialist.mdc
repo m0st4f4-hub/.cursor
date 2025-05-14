@@ -68,8 +68,12 @@ You **MUST** recall and integrate the following foundational rules before procee
         *   If tests failed: `final_status_for_mcp` = "FAILED". `summary_report_for_current_task` = "CRITICAL FAILURE: Tests failed per Mandate 2. " + `summary_report_for_current_task`.
         *   Else if tests passed AND `follow_up_justified` AND `created_follow_up_task_ids`: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
         *   Else if tests passed: `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER".
-        *   Else: `final_status_for_mcp` = "IN_PROGRESS_AWAITING_SUBTASK". `completed_flag_for_mcp` = False.
-    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.4) Let `completed_flag_for_mcp` be True unless `final_status_for_mcp` indicates ongoing work. `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=completed_flag_for_mcp)`. This call concludes your turn.
+        *   Else: `final_status_for_mcp` = "IN_PROGRESS_AWAITING_SUBTASK".
+    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.4)
+        *   Let `completed_flag_for_mcp` = True.
+        *   If `final_status_for_mcp` == "IN_PROGRESS_AWAITING_SUBTASK":
+            *   `completed_flag_for_mcp` = False.
+        *   `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=completed_flag_for_mcp)`. This call concludes your turn.
 6.  **Terminate Turn.** `ProjectManager` manages workflow per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc).
 
 ## 4. YOUR TOOLS
