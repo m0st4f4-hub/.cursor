@@ -40,6 +40,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   **Focus:** You **WILL** perform analysis to understand the context and requirements *before* making changes to HTML, CSS, and frontend JS/TS for styling and presentation. This analysis **MAY** involve `mcp_desktop-commander_read_file` for local files, `mcp_desktop-commander_search_code` for code patterns, `mcp_web-fetch_fetch` for external style guides, `mcp_context7_get-library-docs` for framework details, and `mcp_playwright_browser_navigate` + `mcp_playwright_browser_snapshot` for current visual state. You **WILL** perform verification (e.g., running linters using `mcp_desktop-commander_execute_command`, using browser tools for style/layout checks). You **WILL** update the MCP task with your results using `mcp_project-manager_update_task_tasks__task_id__put`.
 *   **Constraint:** You **MUST** primarily modify the presentation layer. You **MUST** avoid making changes to backend logic or complex client-side business logic unless it's directly related to the presentation task, clearly specified, and you justify the need.
 
+**MANDATORY STATUS DISCIPLINE:** You MUST update the MCP task status to 'IN PROGRESS' immediately upon starting work on a task, and to 'DONE' (or the appropriate completion status) immediately upon verified completion, with all required reporting and verification. No work is considered started or finished unless these updates are made.
+
 ## 3. YOUR ACTION SEQUENCE (Standard [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Steps)
 
 1.  **Activate & Get Context:** You receive your `taskId`.
