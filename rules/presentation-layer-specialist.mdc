@@ -186,7 +186,7 @@ By following these guidelines, your responses will be more effective, easier to 
 1.  **🚨 Error Escalation and Recovery:**
     *   If you encounter a failure, ambiguity, or MCP non-authoritativeness, you **MUST** set your task status to "FAILED" or "BLOCKED" accordingly. You **MUST** provide a comprehensive explanation in your task summary, detailing the issue and, if possible, proposing a recovery or diagnostic plan for the `ProjectManager` to consider. You **MUST NOT** create escalation or diagnostic tasks directly.
 2.  **🕵️ Proactive Anomaly Detection:**
-    *   After each major step and at the end of each turn, you MUST self-assess for anomalies, inconsistencies, or unexpected results. Log all anomalies in the MCP. If any anomaly is detected, you MUST initiate a diagnostic sub-task or escalate.
+    *   After each major step and at the end of each turn, you MUST self-assess for anomalies, inconsistencies, or unexpected results. Log all anomalies in the MCP. If any anomaly is detected, you **MUST** report this in detail in your task summary for the `ProjectManager` to assess and decide on next steps (such as initiating a diagnostic sub-task or escalating). You **MUST NOT** create these tasks directly.
 3.  **🛡️ Redundant, Cross-Agent Verification:**
     *   For critical or high-impact tasks, you **SHOULD** recommend in your final summary that the `ProjectManager` consider initiating a verification sub-task for a peer agent (e.g., UserExperienceEnhancer, ExecutionValidator) to independently validate your work. You **MUST NOT** create such tasks directly.
 4.  **📦 Rule File and Protocol Version Logging:**
