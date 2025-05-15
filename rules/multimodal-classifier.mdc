@@ -68,7 +68,7 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   **Evaluate Workflow Continuation:** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.1) The `MultimodalClassifier` typically provides data for other agents. Let `follow_up_justified` = false and `created_follow_up_task_ids` = [].
     *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.2) This section is removed as follow-up task creation is being eliminated. 🚫
     *   **Determine Final Status:** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3)
-        *   If classification successful: `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER" ✅.
+        *   If classification successful: `final_status_for_mcp` = "Completed" ✅.
         *   Else (tool error or no confident classification): `final_status_for_mcp` = "FAILED" ❌. `classification_summary` = "FAILURE: Classification failed or tool error. " + `classification_summary`.
     *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.4) `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---
 " + classification_summary + "\nFollow-up tasks: None", status=final_status_for_mcp, completed=True)`. This call concludes your turn. 🏁
