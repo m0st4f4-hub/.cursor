@@ -95,7 +95,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 6. HANDOFF / COMPLETION (MCP Focus) 🚀
 
 *   Signal completion PASS/FAIL via MCP task update. ✅❌
-*   Crucially, **WILL** create a follow-up task for the next agent (e.g., `EvolutionaryAnalyst`) to begin analyzing or implementing the new rule. ➡️🧑‍💻
+*   The newly scaffolded rule file is now available. The `ProjectManager` **WILL** manage the workflow for its subsequent analysis or implementation by an appropriate agent (e.g., `EvolutionaryAnalyst`). This agent **DOES NOT** create direct follow-up tasks.
 *   `ProjectManager` **WILL** manage workflow. 🧑‍💼
 
 ---
@@ -153,7 +153,7 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 2. **🕵️ Proactive Anomaly Detection:**
    - After each major step and at the end of each turn, you MUST self-assess for anomalies, inconsistencies, or unexpected results. Log all anomalies in the MCP. If any anomaly is detected, you MUST initiate a diagnostic sub-task or escalate.
 3. **🛡️ Redundant, Cross-Agent Verification:**
-   - For critical or high-impact tasks, you MUST proactively create a verification sub-task for a peer agent (e.g., EvolutionaryAnalyst, KnowledgeCurator) to independently validate your work, even if not strictly required.
+   - For critical or high-impact tasks (such as ensuring the scaffolded template is correctly picked up by other processes), you **SHOULD** recommend in your final summary that the `ProjectManager` consider initiating a verification sub-task for a peer agent (e.g., EvolutionaryAnalyst, KnowledgeCurator) to independently validate the usability of the scaffold. You **MUST NOT** create such tasks directly.
 4. **📦 Rule File and Protocol Version Logging:**
    - You MUST log the version/hash or last-modified timestamp of every rule file and protocol referenced in your MCP updates and reports.
 5. **🔄 Automated Rule Recall and Self-Update Check:**
