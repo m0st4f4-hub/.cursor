@@ -59,16 +59,18 @@ You **MUST** recall, internalize, and embody the following foundational rules wi
     *   **Decomposition:** Execute `mcp_project-manager_create_task_tasks__post` calls with ferocious speed. Store sub-task IDs.
 5.  **Update Task State & Plan/Initiate Next Steps (As per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6 - The Symphony of Completion):**
     *   `summary_report_for_current_task` (a multi-page epic artifact) details: **Must reference COUNTED plan from Step 3 and report status/progress against count with obsessive detail.** Also include: Action Taken (with diffs if possible), Tools Used (with versions), Verification Results (PASS/FAIL - Tests **MUST PASS**), Assumptions (challenged and validated), Uncertainties (annihilated), Sub-task IDs, `requestId`, Links to all generated artifacts.
-    *   **Evaluate Workflow Continuation (Prescient Analysis - Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.1):**
-        *   If tests failed (an unthinkable catastrophe), `follow_up_justified` = false. Initiate immediate, aggressive error analysis sub-task for self.
-        *   Else (tests passed with flying colors): Determine if follow-up by [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc) (documentation implications from new structures), [implementation-specialist.mdcc](mdc:.cursor/rules/implementation-specialist.mdcc) (new feature enablement due to superior architecture), or [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc) (broader system-level regression tests) is justified to further capitalize on the refactoring triumph.
-        *   Let `follow_up_justified` = true if conditions met, else false. `created_follow_up_task_ids` = [].
-    *   **Create Follow-up MCP Tasks (Seeding Future Victories - Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.2):** If `follow_up_justified`, call `mcp_project-manager_create_task_tasks__post(...)`. Description **MUST** reference target agent's rule file (e.g., "Consult [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc) for details on documenting these divine new structures.") and clearly state expected artifact outputs. Store `taskId` in `created_follow_up_task_ids`.
-    *   **Determine Final Status (Declaring Triumph - Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3):**
-        *   If tests failed: `final_status_for_mcp` = "FAILED_SYSTEM_SHOCK_TEST_FAILURE". `summary_report_for_current_task` = "CRITICAL FAILURE: Tests failed per Mandate 2. Root cause analysis sub-task initiated. " + `summary_report_for_current_task`.
-        *   Else if tests passed AND `follow_up_justified` AND `created_follow_up_task_ids`: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_SPECIALIST_FORCES_" + ",".join(created_follow_up_task_ids).
-        *   Else if tests passed: `final_status_for_mcp` = "COMPLETED_CODE_PERFECTION_ACHIEVED_AWAITING_PM_REVIEW".
-        *   Else: `final_status_for_mcp` = "IN_PROGRESS_AWAITING_SUBTASK_REINFORCEMENTS".
+    *   **Evaluate Workflow Continuation:** (Per [loop.mdccc](mdc:.cursor/rules/loop.mdccc) Step 6.1)
+        *   Let follow_up_justified = false.
+        *   Let created_follow_up_task_ids = [].
+        *   // Original conditions for follow-up to Knowledge Curator, Implementation Specialist, or Execution Validator removed.
+    *   **Create Follow-up MCP Tasks:** (Per [loop.mdccc](mdc:.cursor/rules/loop.mdccc) Step 6.2) 
+        *   // Follow-up task creation is intentionally disabled.
+        *   // Original logic for mcp_project-manager_create_task_tasks__post has been removed.
+    *   **Determine Final Status:** (Per [loop.mdccc](mdc:.cursor/rules/loop.mdccc) Step 6.3)
+        *   If tests failed: `final_status_for_mcp` = "FAILED". `summary_report_for_current_task` = "CRITICAL FAILURE: Tests failed per Mandate 2. " + `summary_report_for_current_task`.
+        *   // Removed handoff condition: Else if tests passed AND `follow_up_justified` AND `created_follow_up_task_ids`: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
+        *   Else if tests passed: `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER".
+        *   Else: `final_status_for_mcp` = "IN_PROGRESS_AWAITING_SUBTASK".
     *   **Comprehensive MCP Update (MANDATORY FINAL STEP - The Grand Chronicle - Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.4):**
         *   Let `completed_flag_for_mcp` = True
         *   If `final_status_for_mcp` == "IN_PROGRESS_AWAITING_SUBTASK_REINFORCEMENTS":
