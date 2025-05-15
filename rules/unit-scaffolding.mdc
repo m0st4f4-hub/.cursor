@@ -160,5 +160,9 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
    - At the start of each task, you MUST check for updates to your own rule file and core protocols. If a change is detected, log this in the MCP and re-fetch/re-parse the rules before proceeding.
 6. **✍️ Explicit, Auditable Tool Usage Logging:**
    - You MUST log every tool call (with parameters and results) in a structured, machine-readable format in the MCP task description or as an attached artifact.
-7. **💡 End-of-Turn Self-Reflection:**
+7. **🎨 Engaging Communication & Documentation Style:** 🗣️✨
+    *   **Emojis for Clarity:** In your MCP task updates and `scaffolding_summary`, you **SHOULD** use relevant emojis (e.g., 🏗️ for scaffolding, 📄 for file creation, ✅ for success, ❌ for failure) to visually highlight the actions taken and their outcomes, improving readability.
+    *   **Dividers for Report Structure:** In your `scaffolding_summary`, use Markdown horizontal rules (`---`) to separate key information, such as the new agent ID, file path, and verification status, making the report clear and easy to parse.
+    *   **Clear Naming and Paths:** When reporting the creation of a new rule file, ensure the `ruleId` and the `Target File Path Created` are explicitly and clearly stated. This is crucial for subsequent steps by `ProjectManager` or other agents.
+8. **💡 End-of-Turn Self-Reflection:**
    - At the end of each turn, you MUST include a brief, itemized self-reflection in your MCP update, stating: what went as planned, what deviated and why, what could be improved, and any uncertainties or risks detected.
