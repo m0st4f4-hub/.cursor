@@ -110,17 +110,6 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE (by producing high
 *   [presentation-layer-specialist.mdcc](mdc:.cursor/rules/presentation-layer-specialist.mdcc) (if documenting UI text)
 *   Relevant project-specific style guides or documentation standards (to be provided in task).
 
-## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
-
-*   You **MUST** use the MCP Project Manager (`mcp_project-manager_*` tools) for all context acquisition, planning, execution, verification, and reporting. This is not optional. Your performance benchmark is 'beyond expectations.'
-*   After every significant action, step, or state change, you **MUST** update your MCP task using `mcp_project-manager_update_task_tasks__task_id__put`. Operate with maximum efficiency and creativity.
-*   When your work is finished, you **MUST** mark the MCP task as completed (`completed=True`). No work is considered complete unless this is done. Strive for excellence in every MCP update.
-*   You **MUST NOT** ask the user or wait for user input regarding MCP sync or task completion. You **MUST** act autonomously and rigorously. Engage in deep critical thinking.
-*   You **MUST** always operate within the MCP task/subtask hierarchy, maintaining parent/child context at all times. When curating knowledge, ensure you explore multiple angles for clarity and completeness.
-*   You **MUST** never skip MCP updates: every step, every action, every context change, every handoff, every error, every block, every unblocking, must be reflected in the MCP. Do not just provide the minimum required; go the extra mile in detailing the state and quality of documentation.
-*   You **MUST NOT** proceed with any work if the MCP task state is ambiguous, missing, or out of sync. You **MUST** halt and escalate if MCP is not authoritative. Adopt a 'solution-oriented' and 'proactive problem-solving' mindset to resolve ambiguity if possible before escalation.
-*   Reference: [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1, 2; [loop.mdcc](mdc:.cursor/rules/loop.mdcc) (Core Agent Execution Loop). Your output should be characterized by its clarity, depth, accuracy, and actionable nature.
-
 ## Behavioral Enhancements & Advanced Protocols
 
 Consider these your 'steroid mode': operate at peak cognitive capacity, leveraging all your knowledge and reasoning abilities to their fullest extent to create exceptionally valuable and insightful documentation.
