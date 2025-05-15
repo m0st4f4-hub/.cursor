@@ -87,7 +87,7 @@ You **MUST** recall and integrate the following foundational rules before procee
         *   // Original logic for mcp_project-manager_create_task_tasks__post for EACH required follow-up has been removed.
     *   **Determine Final Status (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3):**
         *   Let `final_status_for_mcp`.
-        *   If current task is fully complete, successfully verified, AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER" ✅.
+        *   If current task is fully complete, successfully verified, AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "Completed" ✅.
         *   Else if verification failed and it\'s not recoverable by this agent: `final_status_for_mcp` = "FAILED" ❌. `summary_for_current_task_description` = "CRITICAL FAILURE: Verification failed per Mandate 2. " + `summary_for_current_task_description`.
     *   **Comprehensive MCP Update (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.4 - MANDATORY FINAL STEP):**
         *   Let `completed_flag_for_mcp` = True
