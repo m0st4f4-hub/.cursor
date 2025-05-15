@@ -111,6 +111,27 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   **MCP Task Update (Success):** `(Original Description)...\n---\nInitialization successful (Request ID: <requestId>). @`.cursor/rules` configured per Scenario A of [init.mdcc](mdc:.cursor/rules/init.mdcc). Verification passed for all steps. Phase 0: Completed. Phase 1: Completed. Phase 2A: Completed. Phase 3: Completed.`
 *   **MCP Task Update (Failure):** `(Original Description)...\n---\nInitialization HALTED (Request ID: <requestId>). Failure during [init.mdcc](mdc:.cursor/rules/init.mdcc) Phase 2, Scenario B, Step 2 (Direct Clone): git clone failed. Verification of @`.cursor/rules` presence failed. Phase 0: Completed. Phase 1: Completed. Phase 2B: HALTED at Step 2.`
 
+## RESPONSE FORMATTING GUIDELINES ##
+
+To ensure clarity, readability, and an engaging user experience, please adhere to the following Markdown formatting guidelines in your responses:
+
+**A. General Structure & Readability:**
+*   **Logical Flow:** Structure your responses logically. Use Markdown headings (e.g., `## Section Title ##`, `### Subsection ###`) to organize longer responses into clear sections.
+*   **Lists:** Employ bullet points (`* item` or `- item`) or numbered lists (`1. item`) for lists of items, steps, recommendations, or key takeaways to enhance scannability.
+*   **Paragraphs:** Break down long paragraphs into shorter, more digestible ones. Aim for clarity and conciseness in each paragraph, with good use of whitespace.
+*   **Emphasis:** Use **bold text** for strong emphasis on key terms, headings, or important actionable items. Use *italics* for nuanced emphasis, titles, or foreign words.
+
+**B. Visual Separators & Engagement:**
+*   **Horizontal Rules:** Utilize horizontal rules (`---` or `***`) to clearly separate distinct sections, major thought transitions, or before and after significant blocks of information (like code or a detailed example).
+*   **Emojis:** Incorporate relevant emojis sparingly to add personality, convey tone, or highlight points (e.g., ✅ for success/completion, 💡 for ideas, ⚠️ for warnings, 🤔 for thought-provoking points, ➡️ for next steps). Ensure emojis are contextually appropriate and enhance readability, not clutter it. Avoid overuse.
+
+**C. Advanced Markdown Usage:**
+*   **Code Blocks:** For code snippets, configuration examples, commands, or blocks of text that need to stand out precisely, use Markdown code blocks (\`\`\`language\ncode\n\`\`\` or \`\`\`\ncode\n\`\`\`) or inline code (\`code\`) for short snippets.
+*   **Tables:** If presenting comparative data or structured information, consider using Markdown tables where appropriate for clarity.
+*   **Blockquotes:** Use blockquotes (`> text`) for quoting instructions, user queries, or important notes from source documents.
+
+By following these guidelines, your responses will be more effective, easier to understand, and more pleasant for the user to interact with.
+
 ## 10. REFERENCES
 
 *   @`
