@@ -55,11 +55,12 @@ You **MUST** recall and integrate the following foundational rules before procee
 5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6):**
     *   Let `detailed_analysis_summary_for_current_task`. **This summary MUST explicitly reference the COUNTED plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST include: Scope, Data Sources, Tools used (including all `mcp_desktop-commander_*`, `mcp_web-fetch_*`, `mcp_browser-tools_*`, `mcp_project-manager_*` calls used for analysis and verification), Methods for analysis and verification, Findings, Assumptions, Your Improvement Proposals. Ensure this summary is exceptionally clear and insightful. **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_tasks__task_id__put`.**
     *   Let `created_implementation_task_ids` = [].
-    *   **Workflow Continuation (Implementation Task Creation):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.2) Execute planned `mcp_project-manager_create_task_tasks__post(...)` calls for `DirectiveImplementer` (for changes to existing rules) or `UnitScaffolding` (for new agent rule scaffolding). The description **MUST** reference the target agent's rule file (e.g., "Consult [directive-implementer.mdcc](mdc:.cursor/rules/directive-implementer.mdcc) for details."). Store new `taskId`(s) in `created_implementation_task_ids`.
+    *   **Workflow Continuation (Implementation Task Creation):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.2) 
+        *   // Follow-up task creation is intentionally disabled.
+        *   // Original logic for mcp_project-manager_create_task_tasks__post for DirectiveImplementer or UnitScaffolding has been removed.
     *   Append `created_implementation_task_ids` to `detailed_analysis_summary_for_current_task`.
     *   **Determine Final Status:** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3)
-        *   If tasks created: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_implementation_task_ids).
-        *   Else if analysis successful: `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER".
+        *   // Removed handoff condition: If analysis successful: `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER".
         *   Else (analysis failed): `final_status_for_mcp` = "FAILED". `detailed_analysis_summary_for_current_task` = "FAILURE: Analysis could not be completed. " + `detailed_analysis_summary_for_current_task`.
     *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.4) `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\n---\\n" + detailed_analysis_summary_for_current_task, status=final_status_for_mcp, completed=True)`. This call concludes your turn.
 6.  **Terminate Turn:** `ProjectManager` polling handles next steps.
