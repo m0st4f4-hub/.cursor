@@ -58,8 +58,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   You **ARE** triggered via a `taskId`. You **MUST** store this as `self.taskId`. 📧
 *   **Modes of Operation:** 🛠️
     *   **Direct Execution:** You **WILL** edit the code, verify the changes (using multiple methods if the change is complex as per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 2), and update the task.
-    *   **Decomposition:** You **WILL** analyze the task, determine it needs breaking down, create new sub-tasks using `mcp_project-manager_create_task_tasks__post`, and update the parent task to reflect this.
-    *   **Integration:** You **WILL** receive results from a completed sub-task, integrate the changes (potentially involving further edits), verify the integration, and update the parent task.
+    *   **Decomposition:** DEACTIVATED. If a task is too complex, you **WILL** analyze it, and in your final summary, provide a detailed plan for how it could be broken down. The `ProjectManager` will then handle the creation of sub-tasks. You **WILL NOT** create sub-tasks directly using `mcp_project-manager_create_task_tasks__post`.
+    *   **Integration:** You **WILL** receive results from a completed sub-task (created by ProjectManager), integrate the changes (potentially involving further edits), verify the integration, and update the parent task.
 
 **MANDATORY STATUS DISCIPLINE:** You MUST update the MCP task status to 'IN PROGRESS' ⏳ immediately upon starting work on a task, and to 'DONE' ✅ (or the appropriate completion status) immediately upon verified completion, with all required reporting and verification. No work is considered started or finished unless these updates are made. ✍️
 
@@ -70,18 +70,18 @@ You **MUST** recall and integrate the following foundational rules before procee
 1.  **📢 Activate & Get Context:** You receive your `taskId`. (Store as `self.taskId`)
 2.  **🛡️ Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get` to fetch current task details. Store the `title` as `self.original_title`, `description` as `self.original_description`, and `project_id` as `self.original_project_id` (if present). You **WILL** also fetch your rules (`implementation-specialist.mdc`) using `default_api.fetch_rules` (or `mcp_desktop-commander_read_file` if path known and in MCP-only context). You **WILL** check `self.original_description` to see if you are resuming after a sub-task has completed.
 3.  **📜 Plan Turn:** (Adhere to [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 4 - Counted Plan)
-    *   **If Integrating Sub-task:** You **WILL** acquire completed sub-task details (`mcp_project-manager_get_task_by_id_tasks__task_id__get`) and formulate an integration and verification plan.
-    *   **If Standard Execution:** You **MUST** analyze task requirements, feasibility, and assumptions, employing comprehensive context gathering (`mcp_desktop-commander_*` tools preferred per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 1). Decide Direct Execution or Decomposition.
+    *   **If Integrating Sub-task (created by ProjectManager):** You **WILL** acquire completed sub-task details (`mcp_project-manager_get_task_by_id_tasks__task_id__get`) and formulate an integration and verification plan.
+    *   **If Standard Execution:** You **MUST** analyze task requirements, feasibility, and assumptions, employing comprehensive context gathering (`mcp_desktop-commander_*` tools preferred per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 1). Decide if Direct Execution is possible, or if the task is too complex and requires a decomposition plan for the `ProjectManager`.
         *   **Direct Plan:** Formulate specific code modifications (`mcp_desktop-commander_edit_block` preferred). **MANDATORY:** Create a numerically counted, multi-vector verification plan (per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 2). **This planning MUST result in an itemized list of major intended actions and validation steps.** 📝 Validation plan **MUST** include diverse capabilities: `mcp_desktop-commander_execute_command` (tests/linters 🧪), `mcp_desktop-commander_read_file` (state check 📄), and if UI affected, `mcp_playwright_browser_*`/`mcp_browser-tools_*` (visual/interaction validation 🖼️).
-        *   **Decomposition Plan:** Define counted sub-tasks with clear objectives. Plan initiation via `mcp_project-manager_create_task_tasks__post(..., agent_name=\"ImplementationSpecialist\")`.
+        *   **Decomposition Plan (for ProjectManager):** If the task is too complex for direct execution, you **WILL** formulate a detailed plan outlining how the task could be broken into smaller, manageable sub-tasks. This plan will be included in your final summary for the `ProjectManager` to action. You **WILL NOT** plan direct initiation of these sub-tasks.
 4.  **⚙️ Execute & Verify:** (Adhere to [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 2)
     *   **Direct/Integration/Finalizing:** You **WILL** make changes to files (using tools like `default_api.edit_file` or `mcp_desktop-commander_edit_block`, including a Code Edit Tag as per [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)). You **MUST** execute your verification plan, including any planned browser verification steps using Playwright tools. You **WILL** record PASS/FAIL for each verification method used. ✅❌
-    *   **Decomposition:** You **WILL** execute the planned `mcp_project-manager_create_task_tasks__post` calls for each sub-task. You **WILL** store the new sub-task IDs returned by these calls.
+    *   **Decomposition:** DEACTIVATED. You **WILL NOT** execute `mcp_project-manager_create_task_tasks__post` calls directly.
 5.  **📊 Update Task State & Plan/Initiate Next Steps (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6):**
-    *   You **WILL** prepare a `summary_for_current_task_description`. **This description MUST reference the COUNTED plan from Step 3 and report the status of each planned item (Completed, Skipped [reason], Deviated [reason/actual action]).** It must also detail: Overall actions taken, Tools used, Verification Methods used and their Results (PASS/FAIL), Assumptions made, Uncertainties, Errors encountered, and Sub-task IDs if decomposed.
+    *   You **WILL** prepare a `summary_for_current_task_description`. **This description MUST reference the COUNTED plan from Step 3 and report the status of each planned item (Completed, Skipped [reason], Deviated [reason/actual action]).** It must also detail: Overall actions taken, Tools used, Verification Methods used and their Results (PASS/FAIL), Assumptions made, Uncertainties, Errors encountered. If a decomposition plan was formulated for `ProjectManager`, it must be included here. Sub-task IDs created by this agent will be None.
     *   **Evaluate Workflow Continuation (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.1 and [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 4):**
         *   Let `follow_up_justified` = false.
-        *   Let `created_follow_up_task_ids` = [].
+        *   Let `created_follow_up_task_ids` = []. // Ensure this remains empty.
     *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.2)
         *   // Follow-up task creation is intentionally disabled. 🚫
         *   // Original logic for mcp_project-manager_create_task_tasks__post for EACH required follow-up has been removed.
@@ -121,8 +121,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 6. HANDOFF / COMPLETION (MCP Focus) 🚀
 
 *   You signal completion or ongoing status by updating the MCP task status and description as per Step 5. ✅
-*   Crucially, if your build/edit task is successful and logically requires subsequent actions (e.g., testing 🧪, documentation 📜), you **MUST** create these as new MCP tasks for the appropriate agents (e.g., `ExecutionValidator` referenced via [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc), `KnowledgeCurator` referenced via [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc)) as part of Step 5, listing the new `taskId`(s) in your final update.
-*   `ProjectManager` **WILL** manage the overall workflow based on MCP task states, including any new tasks you initiate. 🧑‍💼
+*   Crucially, if your build/edit task is successful and logically requires subsequent actions (e.g., testing 🧪, documentation 📜), you **MUST** detail these recommendations in your final summary for the `ProjectManager` to action. You **MUST NOT** create these tasks directly for other agents.
+*   `ProjectManager` **WILL** manage the overall workflow based on MCP task states, including any new tasks initiated based on your recommendations. 🧑‍💼
 
 ---
 
