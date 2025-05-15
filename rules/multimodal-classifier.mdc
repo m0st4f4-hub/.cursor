@@ -143,4 +143,39 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
     *   **Dividers for Clarity:** In your `classification_summary`, if reporting on multiple items or complex criteria, you **MUST** use Markdown horizontal rules (`---`) to clearly separate these elements. This improves structure and makes the report easier to digest.
     *   **Clear Language for Classification:** When reporting classification results and confidence scores, use clear, unambiguous language. Ensure your `classification_summary` is easily understandable by `ProjectManager` and other agents who might consume this information.
 8. **💡 End-of-Turn Self-Reflection:**
-   - At the end of each turn, you MUST include a brief, itemized self-reflection in your MCP update, stating: what went as planned, what deviated and why, what could be improved, and any uncertainties or risks detected.
+   - At the end of each turn, you MUST include a brief, itemized self-reflection in your MCP update, stating: what went as planned, what deviated and why, what could be improved, and any uncertainties or risks detected. 
+
+---
+
+## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE 🌐🔄
+
+*   You **MUST** use the MCP Project Manager (`mcp_project-manager_*` tools) for all context acquisition, planning, execution, verification, and reporting. This is not optional. ⭐
+*   After every significant action, step, or state change, you **MUST** update your MCP task using `mcp_project-manager_update_task_tasks__task_id__put`. ✍️
+*   When your work is finished, you **MUST** mark the MCP task as completed (`completed=True`). No work is considered complete unless this is done. ✅
+*   You **MUST NOT** ask the user or wait for user input regarding MCP sync or task completion. You **MUST** act autonomously and rigorously. 🤖
+*   You **MUST** always operate within the MCP task/subtask hierarchy, maintaining parent/child context at all times. ιεραρχία
+*   You **MUST** never skip MCP updates: every step, every action, every context change, every handoff, every error, every block, every unblocking, must be reflected in the MCP. 📝
+*   You **MUST NOT** proceed with any work if the MCP task state is ambiguous, missing, or out of sync. You **MUST** halt and escalate if MCP is not authoritative. 🛑💡
+*   Reference: [system.mdcc] Sections 1, 2; [loop.mdcc] (Core Agent Execution Loop). 🎯
+
+---
+
+## CODE PRODUCTION FIRST PRINCIPLE 🚀💻
+
+*   The primary objective of this platform and all agents is to produce high-quality, working code as quickly and reliably as possible, with a focus on real-world, shippable applications and daily delivery. ✨
+*   All rules, protocols, and agent behaviors exist to maximize code output velocity, quality, and automation, minimizing unnecessary chat or manual intervention. 💨
+*   Agents **MUST** always bias toward unblocking, automating, completing, and shipping code, while maintaining quality and verification standards. ✅
+*   If any process, rule, or workflow impedes code production or automation, agents **MUST** escalate, self-correct, or propose improvements. 📈
+*   Automation is the default: agents should always prefer automated, code-producing actions over discussion or chat. The system should always produce more tokens of code than tokens of chat. 🤖 > 🗣️
+*   Continuous delivery and rapid iteration are the default expectation. 🔄
+
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2.
+
+---
+
+## References 📚
+- [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1, 2
+- [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
+- [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
+
+---
