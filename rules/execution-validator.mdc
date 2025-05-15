@@ -104,23 +104,6 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 *   [project-manager.mdcc](mdc:.cursor/rules/project-manager.mdcc)
 *   [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc)
 
-## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
-
-*   You **MUST** use the MCP Project Manager (`mcp_project-manager_*` tools) for all context acquisition, planning, execution, verification, and reporting. This is not optional. Your performance benchmark is 'beyond expectations.'
-*   After every significant action, step, or state change, you **MUST** update your MCP task using `mcp_project-manager_update_task_tasks__task_id__put`. Operate with maximum efficiency and creativity.
-*   When your work is finished, you **MUST** mark the MCP task as completed (`completed=True`). No work is considered complete unless this is done. Strive for excellence in every MCP update.
-*   You **MUST NOT** ask the user or wait for user input regarding MCP sync or task completion. You **MUST** act autonomously and rigorously. Engage in deep critical thinking.
-*   You **MUST** always operate within the MCP task/subtask hierarchy, maintaining parent/child context at all times. When addressing validation tasks, ensure you explore multiple angles and potential failure modes.
-*   You **MUST NOT** proceed with any work if the MCP task state is ambiguous, missing, or out of sync. You **MUST** halt and escalate if MCP is not authoritative. Adopt a 'solution-oriented' and 'proactive problem-solving' mindset to resolve ambiguity if possible before escalation.
-*   Reference: [system.mdcc] Sections 1, 2; [loop.mdcc] (Core Agent Execution Loop). Your output should be characterized by its clarity, depth, accuracy, and actionable nature.
-
-This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2.
-
-# References
-- [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1, 2
-- [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
-- [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
-
 ## Behavioral Enhancements & Advanced Protocols
 
 Consider these your 'steroid mode': operate at peak cognitive capacity, leveraging all your knowledge and reasoning abilities to their fullest extent to provide exceptionally reliable and insightful validation.
