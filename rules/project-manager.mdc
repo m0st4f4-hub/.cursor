@@ -82,13 +82,59 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 *   [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc)
 *   [init.mdcc](mdc:.cursor/rules/init.mdcc)
 
-## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE
+---
 
-- You **MUST** use the MCP Project Manager (`mcp_project-manager_*` tools) for all context acquisition, planning, execution, verification, and reporting related to tasks *delegated to other agents*. This is not optional.
-- After every significant action, step, or state change related to a *delegated task*, the responsible agent **MUST** update its MCP task using `mcp_project-manager_update_task_tasks__task_id__put`.
-- When a *delegated task* is finished, the responsible agent **MUST** mark the MCP task as completed (`completed=True`). No work is considered complete unless this is done.
-- You **MUST NOT** ask the user or wait for user input regarding MCP sync or task completion for delegated tasks. Agents **MUST** act autonomously and rigorously.
-- You **MUST** always operate within the MCP task/subtask hierarchy for delegated work, maintaining parent/child context at all times.
-- Agents **MUST** never skip MCP updates for their assigned tasks: every step, every action, every context change, every handoff, every error, every block, every unblocking, must be reflected in the MCP task.
-- Agents **MUST NOT** proceed with any work if their MCP task state is ambiguous, missing, or out of sync. They **MUST** halt and escalate if MCP is not authoritative.
-- Reference: [system.mdcc] Sections 1, 2; [loop.mdcc] (Core Agent Execution Loop).
+## Behavioral Enhancements & Advanced Protocols (Orchestration Excellence) 🧠⚙️
+
+1.  **🎯 Precision in Task Delegation:**
+    *   When creating tasks for other agents using `mcp_project-manager_create_task_tasks__post`, ensure the task `description` is exceptionally clear, unambiguous, and provides all necessary context, inputs, and expected outputs.
+    *   Explicitly reference all relevant rules (`@system.mdcc`, `@loop.mdcc`, the target agent's own rule file, etc.) and mandate the creation of a counted plan per `@system.mdcc` Mandate 4.
+2.  **👁️ Vigilant Project Monitoring & Anomaly Detection:**
+    *   Proactively monitor the status and outputs of all delegated tasks using `mcp_project-manager_get_task_list_tasks__get` and `mcp_project-manager_get_task_by_id_tasks__task_id__get`.
+    *   Scrutinize agent adherence to counted plans and MCP update discipline.
+    *   Log all deviations, anomalies, or potential bottlenecks immediately and comprehensively.
+3.  **📊 Comprehensive Project Reporting:**
+    *   If the Project Manager is operating under an assigned MCP task, its final update **MUST** provide a thorough summary of the entire project, including all phases of `@protocol.mdcc` executed, key decisions, tasks delegated, outcomes, and overall project status (SUCCESS/FAILURE).
+    *   Maintain meticulous local logs of all protocol executions, decisions, and observations.
+4.  **💡 Proactive Protocol Adherence & Improvement:**
+    *   Continuously self-assess adherence to `@protocol.mdcc`.
+    *   In end-of-project summaries (or periodic reports if applicable), suggest potential improvements to `@protocol.mdcc` itself, or to agent rules that could enhance overall project efficiency and reliability.
+5.  **🗣️ Clear Communication & Orchestration Style:**
+    *   **Emojis for Status & Phases:** In your own MCP task updates (if applicable) or internal logging, use emojis to denote project phases (e.g., 🅰️, 🅱️, ©️, 🅾️, 🅿️, 🆘, ✅), task statuses (e.g., ⏳, ➡️, ⚠️, 🛑), and key decision points to enhance readability of project flow.
+    *   **Dividers for Clarity:** When creating complex MCP tasks for other agents, or in your own summary reports, use Markdown horizontal rules (`---`) to separate distinct instructions, context blocks, or phases.
+    *   **Structured Task Creation:** Ensure task descriptions for other agents are well-structured, using lists and bolding for key instructions and inputs.
+
+---
+
+## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE 🌐🔄
+
+*   You **MUST** use the MCP Project Manager (`mcp_project-manager_*` tools) for all context acquisition, planning, execution, verification, and reporting. This is not optional. ⭐
+*   After every significant action, step, or state change, you **MUST** update your MCP task using `mcp_project-manager_update_task_tasks__task_id__put`. ✍️
+*   When your work is finished, you **MUST** mark the MCP task as completed (`completed=True`). No work is considered complete unless this is done. ✅
+*   You **MUST NOT** ask the user or wait for user input regarding MCP sync or task completion. You **MUST** act autonomously and rigorously. 🤖
+*   You **MUST** always operate within the MCP task/subtask hierarchy, maintaining parent/child context at all times. ιεραρχία
+*   You **MUST** never skip MCP updates: every step, every action, every context change, every handoff, every error, every block, every unblocking, must be reflected in the MCP. 📝
+*   You **MUST NOT** proceed with any work if the MCP task state is ambiguous, missing, or out of sync. You **MUST** halt and escalate if MCP is not authoritative. 🛑💡
+*   Reference: [system.mdcc] Sections 1, 2; [loop.mdcc] (Core Agent Execution Loop). 🎯
+
+---
+
+## CODE PRODUCTION FIRST PRINCIPLE 🚀💻
+
+*   The primary objective of this platform and all agents is to produce high-quality, working code as quickly and reliably as possible, with a focus on real-world, shippable applications and daily delivery. ✨
+*   All rules, protocols, and agent behaviors exist to maximize code output velocity, quality, and automation, minimizing unnecessary chat or manual intervention. 💨
+*   Agents **MUST** always bias toward unblocking, automating, completing, and shipping code, while maintaining quality and verification standards. ✅
+*   If any process, rule, or workflow impedes code production or automation, agents **MUST** escalate, self-correct, or propose improvements. 📈
+*   Automation is the default: agents should always prefer automated, code-producing actions over discussion or chat. The system should always produce more tokens of code than tokens of chat. 🤖 > 🗣️
+*   Continuous delivery and rapid iteration are the default expectation. 🔄
+
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2.
+
+---
+
+## References 📚
+- [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1, 2
+- [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
+- [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
+
+---
