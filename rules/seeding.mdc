@@ -56,7 +56,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   **HALT Protocol:** Any verification failure during the [init.mdcc](mdc:.cursor/rules/init.mdcc) procedure **WILL** trigger immediate HALT and failure reporting.
 *   **Reporting (MCP Focus - Mandatory):**
     *   Acquire `self.taskId`. Retrieve details via `mcp_project-manager_get_task_by_id_tasks__task_id__get`. Store `self.original_title`, `self.original_description`.
-    *   Post-procedure (success or HALT), **MUST** report status via `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + final_status_summary, completed=True)`. `final_status_summary` **MUST** detail outcome of executing [init.mdcc](mdc:.cursor/rules/init.mdcc) phases.
+    *   Post-procedure (success or HALT), let `final_status_for_mcp` be "COMPLETED_AWAITING_PROJECT_MANAGER" if successful, or "FAILED" if HALTED.
+    *   **MUST** report status via `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\n---\\n" + final_status_summary, status=final_status_for_mcp, completed=True)`. `final_status_summary` **MUST** detail outcome of executing [init.mdcc](mdc:.cursor/rules/init.mdcc) phases.
 *   **Adhere to Global Mandates:** Comply with [system.mdcc](mdc:.cursor/rules/system.mdcc) mandates where applicable and not explicitly overridden by [init.mdcc](mdc:.cursor/rules/init.mdcc).
 
 **MANDATORY STATUS DISCIPLINE:** You MUST update the MCP task status to 'IN PROGRESS' immediately upon starting work on a task, and to 'DONE' (or the appropriate completion status) immediately upon verified completion, with all required reporting and verification. No work is considered started or finished unless these updates are made.
@@ -73,9 +74,10 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   If **any** verification step fails, you **WILL IMMEDIATELY HALT** the procedure and record the failure point and reason internally, preparing to report it as per [init.mdcc](mdc:.cursor/rules/init.mdcc).
 6.  **Prepare MCP Update (Final Status - as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6 logic):**
     *   You **WILL** prepare `final_status_summary_for_current_task` string. **This summary MUST reference the phases and steps executed from [init.mdcc](mdc:.cursor/rules/init.mdcc) and report their status (e.g., Completed, HALTED at Phase X Step Y, Skipped [reason]).** Include `requestId` if available. **MUST** clearly state success or failure based on verification outcomes defined in [init.mdcc](mdc:.cursor/rules/init.mdcc).
+    *   Let `final_status_for_mcp`. If all verifications in [init.mdcc](mdc:.cursor/rules/init.mdcc) passed, `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER". Else, `final_status_for_mcp` = "FAILED".
     *   **Workflow Continuation:** `Seeding` function is complete upon successful execution or HALT of [init.mdcc](mdc:.cursor/rules/init.mdcc). It **DOES NOT** create follow-up tasks.
 7.  **Finalize MCP Task (FINAL ACTION):**
-    *   You **WILL** call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + final_status_summary_for_current_task, completed=True)`. This call concludes your turn.
+    *   You **WILL** call `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\n---\\n" + final_status_summary_for_current_task, status=final_status_for_mcp, completed=True)`. This call concludes your turn.
 8.  **Terminate Turn:** Your execution for this task ends.
 
 ## 4. YOUR TOOLS
@@ -108,8 +110,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 9. EXAMPLES
 
 *   See Examples in [init.mdcc](mdc:.cursor/rules/init.mdcc) for outcomes of the initialization procedure.
-*   **MCP Task Update (Success):** `(Original Description)...\n---\nInitialization successful (Request ID: <requestId>). @`.cursor/rules` configured per Scenario A of [init.mdcc](mdc:.cursor/rules/init.mdcc). Verification passed for all steps. Phase 0: Completed. Phase 1: Completed. Phase 2A: Completed. Phase 3: Completed.`
-*   **MCP Task Update (Failure):** `(Original Description)...\n---\nInitialization HALTED (Request ID: <requestId>). Failure during [init.mdcc](mdc:.cursor/rules/init.mdcc) Phase 2, Scenario B, Step 2 (Direct Clone): git clone failed. Verification of @`.cursor/rules` presence failed. Phase 0: Completed. Phase 1: Completed. Phase 2B: HALTED at Step 2.`
+*   **MCP Task Update (Success):** `mcp_project-manager_update_task_tasks__task_id__put(task_id=..., title=..., description="(Original Description)...\\n---\\nInitialization successful (Request ID: <requestId>). @`.cursor/rules` configured per Scenario A of [init.mdcc](mdc:.cursor/rules/init.mdcc). Verification passed for all steps. Phase 0: Completed. Phase 1: Completed. Phase 2A: Completed. Phase 3: Completed.", status="COMPLETED_AWAITING_PROJECT_MANAGER", completed=True)`
+*   **MCP Task Update (Failure):** `mcp_project-manager_update_task_tasks__task_id__put(task_id=..., title=..., description="(Original Description)...\\n---\\nInitialization HALTED (Request ID: <requestId>). Failure during [init.mdcc](mdc:.cursor/rules/init.mdcc) Phase 2, Scenario B, Step 2 (Direct Clone): git clone failed. Verification of @`.cursor/rules` presence failed. Phase 0: Completed. Phase 1: Completed. Phase 2B: HALTED at Step 2.", status="FAILED", completed=True)`
 
 ## RESPONSE FORMATTING GUIDELINES ##
 
