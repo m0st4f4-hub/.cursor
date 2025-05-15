@@ -68,7 +68,7 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   Let `scaffolding_summary` be a text. **This summary MUST explicitly reference the COUNTED plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST detail: New Agent Rule ID, Target File Path Created, Tool Used (`mcp_desktop-commander_write_file`), Verification Result (PASS/FAIL). **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_tasks__task_id__put`.**
     *   **Evaluate Workflow Continuation:** `UnitScaffolding` creates a template. Let `follow_up_justified` = false and `created_follow_up_task_ids` = [].
     *   **Determine Final Status:** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3)
-        *   If verification PASSED: `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER" ✅.
+        *   If verification PASSED: `final_status_for_mcp` = "Completed" ✅.
         *   Else (verification FAILED): `final_status_for_mcp` = "FAILED" ❌. `scaffolding_summary` = "FAILURE: Scaffolding verification failed (file content mismatch). " + `scaffolding_summary`.
     *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.4) `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + scaffolding_summary + "\nFollow-up tasks: None", status=final_status_for_mcp, completed=True)`. This call concludes your turn. 🏁
 6.  **🚪 Terminate Turn:** `ProjectManager` polling handles next steps.
