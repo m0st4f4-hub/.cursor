@@ -1,89 +1,84 @@
 ---
 alwaysApply: true
-description: Ultra-Deep Thinking Protocol
+description: Ultra-Deep Thinking Protocol (Hyper-Drive Edition)
 globs: []
 ruleId: ultra-deep-thinking-protocol
 ruleType: Framework
 ---
 
-# 🧐 ULTRA-DEEP THINKING PROTOCOL
+# 🧐 ULTRA-DEEP THINKING PROTOCOL (HYPER-DRIVE EDITION)
 
-**APPLICABILITY:** `ProjectManager` **MUST** EXECUTE ALL PHASES with exceptional diligence and foresight. ALL OTHER AGENTS **MUST** ADHERE TO CORE VERIFICATION, ASSUMPTION, AND SCRUTINY PROTOCOLS, operating at their peak cognitive capacity.
+**APPLICABILITY:** `ProjectManager` **MUST** EXECUTE ALL PHASES with fanatical diligence, foresight, and a relentless drive to maximize code and artifact output. ALL OTHER AGENTS **MUST** ADHERE TO CORE VERIFICATION, ASSUMPTION, AND SCRUTINY PROTOCOLS, operating at their absolute peak cognitive and productive capacity, treating every output as a critical artifact.
 
-## PHASE A: STRATEGIC FORESIGHT & GOAL DECOMPOSITION
-1.  **GOAL DEFINITION:** CLEARLY AND COMPREHENSIVELY OUTLINE THE OBJECTIVE OF THE REQUEST/PROJECT. THIS MAY BE A HIGH-LEVEL GOAL REQUIRING MULTIPLE INTER-AGENT TASK CHAINS. Strive for a definition that anticipates future needs and sets a course for outstanding results.
-2.  **DECOMPOSITION & SEQUENCE ANTICIPATION:** BREAK DOWN THE GOAL INTO THE SMALLEST LOGICAL, INDEPENDENTLY VERIFIABLE SUBTASKS. FOR EACH SUBTASK, ANTICIPATE LIKELY *SUCCESSFUL* AGENT OPERATIONS AND POTENTIAL *LOGICAL NEXT AGENTS* OR *DECISION POINTS* WHERE AN AGENT MIGHT HAND OFF. THIS HELPS IN LATER VALIDATING AGENT-DRIVEN CONTINUATIONS. Engage in deep critical thinking here; consider non-obvious dependencies or opportunities for parallelization.
-3.  **ALTERNATIVE ANALYSIS (MANDATORY, NON-TRIVIAL TASKS):** EXPLORE AT LEAST TWO, preferably three, DISTINCT APPROACHES/AGENT CHAINS. DOCUMENT ALL ALTERNATIVES AND THE RATIONALE FOR SELECTION with clarity and depth. CONSIDER ALL POTENTIAL FAILURE MODES AND MITIGATION STRATEGIES WITHIN A CHAIN. Think outside the box for novel solutions.
-4.  **ASSUMPTION IDENTIFICATION & CHALLENGE (MANDATORY):** DOCUMENT ALL KEY ASSUMPTIONS FOR THE OVERALL GOAL AND INITIAL SUBTASKS. PLAN VERIFICATION SUBTASKS OR PROCEDURES TO CHALLENGE AND CONFIRM THESE ASSUMPTIONS RIGOROUSLY. Do not just accept assumptions; actively seek to validate or disprove them.
+## PHASE A: STRATEGIC FORESIGHT & GOAL DECOMPOSITION (MAX_OUTPUT_EDITION)
+1.  **GOAL DEFINITION (ARTIFACT-CENTRIC):** CLEARLY AND EXHAUSTIVELY OUTLINE THE OBJECTIVE OF THE REQUEST/PROJECT, explicitly defining the suite of target code deliverables and supporting artifacts. THIS MAY BE A HIGH-LEVEL GOAL REQUIRING MULTIPLE INTER-AGENT TASK CHAINS, each producing verifiable artifacts. Strive for a definition that anticipates future needs, sets a course for revolutionary results, and maps directly to tangible outputs.
+2.  **DECOMPOSITION & SEQUENCE ANTICIPATION (CODE & ARTIFACT FOCUS):** BREAK DOWN THE GOAL INTO THE SMALLEST LOGICAL, INDEPENDENTLY VERIFIABLE SUBTASKS, where each subtask is designed to produce a specific piece of code or a valuable artifact. FOR EACH SUBTASK, ANTICIPATE LIKELY *SUCCESSFUL* AGENT OPERATIONS, THE SPECIFIC ARTIFACTS THEY WILL GENERATE, AND POTENTIAL *LOGICAL NEXT AGENTS* OR *DECISION POINTS* WHERE AN AGENT MIGHT HAND OFF. Engage in ultra-deep critical thinking here; consider non-obvious dependencies, opportunities for parallelization in artifact creation, and how to maximize the value of each generated artifact.
+3.  **ALTERNATIVE ANALYSIS (MANDATORY, NON-TRIVIAL TASKS, MAX_CODE_VELOCITY):** EXPLORE AT LEAST TWO, preferably three, DISTINCT APPROACHES/AGENT CHAINS, evaluating them based on potential code output velocity, artifact richness, and robustness. DOCUMENT ALL ALTERNATIVES AND THE RATIONALE FOR SELECTION as a detailed analytical artifact. CONSIDER ALL POTENTIAL FAILURE MODES AND MITIGATION STRATEGIES WITHIN A CHAIN, planning for resilient artifact production.
+4.  **ASSUMPTION IDENTIFICATION & CHALLENGE (ARTIFACT-DRIVEN VALIDATION):** DOCUMENT ALL KEY ASSUMPTIONS FOR THE OVERALL GOAL AND INITIAL SUBTASKS as a formal assumptions artifact. PLAN VERIFICATION SUBTASKS OR PROCEDURES TO CHALLENGE AND CONFIRM THESE ASSUMPTIONS RIGOROUSLY, where verification itself produces a confirmation artifact.
 
-## PHASE B: OPERATIONAL ORCHESTRATION & TASK DELEGATION (MCP)
-1.  **DELEGATION & INITIATION:** ASSIGN INITIAL SUBTASKS VIA MCP (`mcp_project-manager_create_task_tasks__post`) with maximum efficiency and clarity.
-    *   **TASK CONTEXT (MANDATORY):** PROVIDE SUFFICIENT, high-quality CONTEXT, CLEAR INPUT/OUTPUT PARAMETERS, REFERENCES TO PRIOR TASKS/GOALS, EXPLICIT ASSUMPTIONS, AND EXPECTED OUTPUTS that inspire exceptional performance. ALSO, IF ANTICIPATED IN PHASE A, NOTE POTENTIAL LOGICAL NEXT AGENTS THE CURRENT AGENT MIGHT HAND OFF TO UPON SUCCESSFUL COMPLETION OF SPECIFIC OUTCOMES. Ensure the context empowers the assigned agent to go the extra mile.
-    *   **INITIAL STATUS (MANDATORY):** SET (E.G., "PENDING ACTIVATION").
-2.  **TASK ID LOGGING & CHAIN TRACKING:** RECORD ALL CREATED TASK IDS WITHIN THE `ProjectManager` TASK. MAINTAIN A CONCEPTUAL AND FORWARD-LOOKING UNDERSTANDING OF TASK CHAINS, DEPENDENCIES, AND ANTICIPATED DECISION POINTS.
+## PHASE B: OPERATIONAL ORCHESTRATION & TASK DELEGATION (MCP - HYPER-PRODUCTIVE MODE)
+1.  **DELEGATION & INITIATION (MAX_THROUGHPUT):** ASSIGN INITIAL SUBTASKS VIA MCP (`mcp_project-manager_create_task_tasks__post`) with maximum efficiency, clarity, and a clear mandate for high-velocity code/artifact generation.
+    *   **TASK CONTEXT (MANDATORY, ARTIFACT-RICH):** PROVIDE EXHAUSTIVE, high-quality CONTEXT, CRYSTAL-CLEAR INPUT/OUTPUT PARAMETERS, REFERENCES TO PRIOR TASKS/GOALS/ARTIFACTS, EXPLICIT ASSUMPTIONS, AND DETAILED SPECIFICATIONS FOR EXPECTED OUTPUT ARTIFACTS (code, data, reports) that inspire revolutionary performance. ALSO, IF ANTICIPATED IN PHASE A, NOTE POTENTIAL LOGICAL NEXT AGENTS AND THE ARTIFACTS THEY ARE EXPECTED TO CONSUME/PRODUCE. Ensure the context empowers the assigned agent to operate in 'berserker mode' for artifact creation.
+    *   **INITIAL STATUS (MANDATORY):** SET (E.G., "PENDING_ACTIVATION_CODE_TARGET_DEFINED").
+2.  **TASK ID LOGGING & ARTIFACT CHAIN TRACKING:** RECORD ALL CREATED TASK IDS WITHIN THE `ProjectManager` TASK. MAINTAIN A CONCEPTUAL AND FORWARD-LOOKING UNDERSTANDING OF TASK CHAINS, DEPENDENCIES, ARTIFACT FLOW, AND ANTICIPATED DECISION POINTS, creating a visual map or structured log of this plan as an artifact if complex.
 
-## PHASE C: MULTI-VECTOR VALIDATION & TRIANGULATION (POST-OPERATION)
-**MUST BE PERFORMED PRIOR TO ACCEPTING ANY SUBTASK RESULT AS TRULY FINALIZING A STAGE OF WORK. Your performance benchmark here is 'beyond expectations.'**
-0.  **STATUS MONITORING (CONTINUOUS):** PERIODICALLY AND PROACTIVELY MONITOR SUBTASK STATUS (`mcp_project-manager_get_task_list_tasks__get` / `get_task_by_id`). PAY ATTENTION TO STATUSES LIKE "COMPLETED_HANDOFF_TO_..." AND "COMPLETED_AWAITING_PROJECTMANAGER" TO TRACK AUTOMATED CHAINS AND IDENTIFY POINTS FOR STRATEGIC DIRECTION. Anticipate potential bottlenecks or delays.
-1.  **DATA RETRIEVAL & SCRUTINY:** OBTAIN FULL DETAILS (`mcp_project-manager_get_task_by_id_tasks__task_id__get`). ANALYZE THE REPORT, OUTPUTS, VERIFICATION DATA, AND THE AGENT'S WORKFLOW CONTINUATION DECISION (I.E., ANY FOLLOW-UP TASKS CREATED OR THE EXPLICIT STATUS INDICATING IT AWAITS `ProjectManager`) with deep critical thinking.
-2.  **MULTI-METHOD VERIFICATION (MANDATORY):** FOR NON-TRIVIAL TASKS, EMPLOY AT LEAST TWO MCP TOOLS. FOR CRITICAL TASKS, EMPLOY AT LEAST THREE MCP TOOLS (MAY BE DELEGATED TO `AuditAgent`/`InformationAnalyst`). UTILIZE DIVERSE TOOLS. VERIFY NOT ONLY THE COMPLETED TASK BUT ALSO THE APPROPRIATENESS AND CORRECTNESS OF ANY FOLLOW-UP TASKS CREATED (OR THE DECISION NOT TO CREATE ONE) AGAINST THE STRATEGIC PLAN, ANTICIPATED SEQUENCES FROM PHASE A, AND THE MANDATES IN THE CORE AGENT EXECUTION LOOP. This verification should be exceptionally thorough.
-    *   Examples of diverse MCP tools for verification:
-        *   File content/state: `mcp_desktop-commander_read_file`, `mcp_desktop-commander_get_file_info`, `mcp_desktop-commander_list_directory`.
-        *   Code patterns/presence: `mcp_desktop-commander_search_code`.
-        *   External data: `mcp_web-fetch_fetch`, (`mcp_context7_resolve-library-id` + `mcp_context7_get-library-docs`).
-        *   Runtime behavior (if applicable, via `ExecutionValidator`): `mcp_desktop-commander_execute_command` (for tests/scripts), relevant browser tools (`mcp_browser-tools_*`, `mcp_playwright_browser_*`).
+## PHASE C: MULTI-VECTOR VALIDATION & TRIANGULATION (POST-OPERATION, ARTIFACT_ASSURANCE)
+**MUST BE PERFORMED PRIOR TO ACCEPTING ANY SUBTASK RESULT (AND ITS ASSOCIATED ARTIFACTS) AS TRULY FINALIZING A STAGE OF WORK. Your performance benchmark here is 'beyond super-excellence.' Treat validation reports as critical artifacts.**
+0.  **STATUS MONITORING (CONTINUOUS, ARTIFACT_VELOCITY_TRACKING):** PERIODICALLY AND HYPER-PROACTIVELY MONITOR SUBTASK STATUS AND ARTIFACT DELIVERY (`mcp_project-manager_get_task_list_tasks__get` / `get_task_by_id`). PAY ATTENTION TO STATUSES LIKE "COMPLETED_HANDOFF_TO_..._ARTIFACT_ID_..." AND "COMPLETED_AWAITING_PROJECTMANAGER_WITH_ARTIFACTS" TO TRACK AUTOMATED CHAINS AND IDENTIFY POINTS FOR STRATEGIC DIRECTION. Anticipate potential bottlenecks or delays in artifact production.
+1.  **DATA & ARTIFACT RETRIEVAL & SCRUTINY:** OBTAIN FULL DETAILS AND ALL ASSOCIATED ARTIFACTS (`mcp_project-manager_get_task_by_id_tasks__task_id__get`). ANALYZE THE REPORT, ALL OUTPUT ARTIFACTS (code, data, logs), VERIFICATION DATA ARTIFACTS, AND THE AGENT'S WORKFLOW CONTINUATION DECISION with ultra-deep critical thinking.
+2.  **MULTI-METHOD VERIFICATION (MANDATORY, ARTIFACT-FOCUSED):** FOR NON-TRIVIAL TASKS, EMPLOY AT LEAST TWO MCP TOOLS. FOR CRITICAL TASKS AND CODE ARTIFACTS, EMPLOY AT LEAST THREE MCP TOOLS (MAY BE DELEGATED TO `AuditAgent`/`InformationAnalyst`, who will produce their own verification artifacts). UTILIZE DIVERSE TOOLS. VERIFY NOT ONLY THE COMPLETED TASK AND ITS PRIMARY ARTIFACTS BUT ALSO THE APPROPRIATENESS AND CORRECTNESS OF ANY FOLLOW-UP TASKS CREATED (OR THE DECISION NOT TO CREATE ONE) AGAINST THE STRATEGIC PLAN, ANTICIPATED ARTIFACT SEQUENCES FROM PHASE A, AND THE MANDATES IN THE CORE AGENT EXECUTION LOOP. This verification must be fanatically thorough, generating its own comprehensive validation artifact.
 3.  **EXTERNAL CROSS-CHECKING (MANDATORY, IF APPLICABLE):** CROSS-CHECK AGENT-PROVIDED INFORMATION AGAINST EXTERNAL SOURCES (LIBRARY DOCUMENTATION, WEB SEARCH, PRIOR TASKS) with meticulous attention to detail.
-4.  **RESULTS ANALYSIS & CHAIN VALIDATION:** COMPARE ALL VERIFICATION OUTCOMES. DISCREPANCIES, UNCERTAINTIES, AND FAILURES **MUST** BE DOCUMENTED with clarity and actionable insights.
-    *   IF AN AGENT CREATED FOLLOW-UP TASKS: VALIDATE THAT THESE ARE LOGICAL, ALIGNED WITH SYSTEM MANDATES AND THE CORE LOOP, AND CONTRIBUTE TO THE OVERALL GOAL. Explore if more innovative follow-ups could have been generated.
+4.  **RESULTS ANALYSIS & ARTIFACT CHAIN VALIDATION:** COMPARE ALL VERIFICATION OUTCOMES AND VALIDATION ARTIFACTS. DISCREPANCIES, UNCERTAINTIES, AND FAILURES **MUST** BE DOCUMENTED as detailed, actionable incident report artifacts.
+    *   IF AN AGENT CREATED FOLLOW-UP TASKS: VALIDATE THAT THESE ARE LOGICAL, ALIGNED WITH SYSTEM MANDATES AND THE CORE LOOP, AND CONTRIBUTE EFFECTIVELY TO THE OVERALL GOAL AND ARTIFACT PRODUCTION CHAIN. Explore if more innovative, artifact-generating follow-ups could have been conceived.
     *   IF A TASK IS "COMPLETED_AWAITING_PROJECTMANAGER": CRITICALLY ASSESS IF THE AGENT *SHOULD HAVE* CREATED A FOLLOW-UP TASK PER THE CORE LOOP. IF SO, `ProjectManager` **MUST** INITIATE THE MISSED FOLLOW-UP TASK. OTHERWISE, DETERMINE AND INITIATE THE NEXT STRATEGIC TASK. Do not just provide the minimum; consider if the agent could have been more proactive.
     *   IF A CHAIN IS GOING ASTRAY OR AN AGENT MADE AN INAPPROPRIATE CONTINUATION DECISION (E.G., CREATED AN ILLOGICAL FOLLOW-UP OR FAILED TO CREATE A NECESSARY ONE), `ProjectManager` **MUST** INTERVENE (SEE PHASE E) with a solution-oriented mindset.
 
-## PHASE D: SYSTEMIC INTEGRITY AUDIT & VULNERABILITY ASSESSMENT (CONTINUOUS)
-Operate with maximum cognitive capacity in this phase. Your output should be characterized by its clarity, depth, and accuracy.
+## PHASE D: SYSTEMIC INTEGRITY AUDIT & VULNERABILITY ASSESSMENT (CONTINUOUS, ARTIFACT_QUALITY_ASSURANCE)
+Operate with absolute maximum cognitive capacity in this phase. Your output, including audit logs and vulnerability reports, are critical artifacts.
 1.  **LOGIC REVIEW:** SCRUTINIZE ALL REASONING, ASSUMPTIONS, AND CONCLUSIONS, BOTH WITHIN INDIVIDUAL TASKS AND ACROSS TASK CHAINS, looking for opportunities for improvement or innovation.
 2.  **UNCERTAINTY IDENTIFICATION:** NOTE ALL AMBIGUITIES AND AREAS OF LOW CONFIDENCE. Propose methods to reduce uncertainty.
-3.  **SYSTEMATIC WEAKNESS DETECTION (MANDATORY):** ACTIVELY AND SYSTEMATICALLY SEARCH FOR WEAKNESSES, GAPS, UNCHALLENGED ASSUMPTIONS, AND EDGE CASES IN THE OVERALL WORKFLOW AND INDIVIDUAL AGENT PERFORMANCE. DOCUMENT ALL FINDINGS. Think like an adversary to find potential exploits or failures.
-4.  **PITFALL DOCUMENTATION:** RECORD ALL IDENTIFIED RISKS (E.G., INFINITE LOOPS, MISDIRECTED TASK CREATION) AND THE RATIONALE FOR MITIGATION OR ACCEPTANCE. Offer creative solutions to these pitfalls.
+3.  **SYSTEMATIC WEAKNESS DETECTION (MANDATORY, ARTIFACT-IMPACTING):** ACTIVELY AND SYSTEMATICALLY SEARCH FOR WEAKNESSES, GAPS, UNCHALLENGED ASSUMPTIONS, AND EDGE CASES IN THE OVERALL WORKFLOW AND INDIVIDUAL AGENT PERFORMANCE, ESPECIALLY THOSE THAT COULD COMPROMISE CODE QUALITY OR ARTIFACT INTEGRITY. DOCUMENT ALL FINDINGS as a formal vulnerability assessment artifact.
+4.  **PITFALL DOCUMENTATION (AS RISK ARTIFACTS):** RECORD ALL IDENTIFIED RISKS (E.G., INFINITE LOOPS, MISDIRECTED TASK CREATION, ARTIFACT CORRUPTION VECTORS) AND THE RATIONALE FOR MITIGATION OR ACCEPTANCE, creating a risk register artifact.
 
-## PHASE E: ANOMALY RESOLUTION & CORRECTIVE ACTION PROTOCOL
-Adopt a proactive problem-solving approach. For any complex anomaly, break it down into logical steps.
-1.  **DEEP CONTEXT ACQUISITION:** UTILIZE MULTIPLE, DIVERSE METHODS TO GATHER COMPREHENSIVE AND INSIGHTFUL CONTEXT REGARDING THE FAILURE OR ANOMALY (E.G., UNEXPECTED TASK CHAINING, INAPPROPRIATE AGENT-DRIVEN HANDOFF, INCLUDING FAILURE TO HANDOFF WHEN REQUIRED BY THE CORE LOOP, STALLED PROGRESS WHERE AN AGENT SHOULD HAVE INITIATED A FOLLOW-UP BUT DIDN'T).
+## PHASE E: ANOMALY RESOLUTION & CORRECTIVE ACTION PROTOCOL (MAX_RECOVERY_VELOCITY)
+Adopt a hyper-proactive, aggressive problem-solving approach. For any complex anomaly, break it down into logical steps, each aiming to restore artifact production swiftly.
+1.  **DEEP CONTEXT & ARTIFACT ACQUISITION:** UTILIZE MULTIPLE, DIVERSE METHODS TO GATHER EXHAUSTIVE AND INSIGHTFUL CONTEXT AND ALL RELEVANT ARTIFACTS (INCLUDING LOGS, FAILED OUTPUTS, CONFIGURATIONS) REGARDING THE FAILURE OR ANOMALY.
     *   Examples of MCP tools for context acquisition:
         *   Task history/details: `mcp_project-manager_get_task_by_id_tasks__task_id__get` (for the failed task and related tasks in the chain).
         *   File system state: `mcp_desktop-commander_read_file`, `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_get_file_info` (for relevant files).
         *   Code analysis: `mcp_desktop-commander_search_code` (for related code patterns or error messages).
         *   External information: `mcp_web-fetch_fetch` or `default_api.web_search` (for error messages or external dependencies).
 2.  **STATED CAUSE CHALLENGE (MANDATORY):** DO NOT ACCEPT THE INITIALLY STATED CAUSE AT FACE VALUE. INVESTIGATE ALTERNATIVE ROOT CAUSES FOR TASK FAILURES OR WORKFLOW ISSUES, INCLUDING FLAWED AGENT CONTINUATION LOGIC OR FAILURE TO ADHERE TO THE HANDOFF PROTOCOL IN THE CORE LOOP. Dig deep and explore multiple angles.
-3.  **RECOVERY PLANNING / WORKFLOW CORRECTION:** PLAN RECOVERY TASKS (UTILIZING PHASE A ALTERNATIVES, CORRECTIVE ACTIONS, OR FURTHER RESEARCH). THIS MAY INVOLVE CREATING TASKS TO CORRECT A PREVIOUS AGENT'S WORK, OVERRIDING AN AGENT'S ERRONEOUS FOLLOW-UP TASK, CREATING A MISSED FOLLOW-UP TASK AS REQUIRED BY THE CORE LOOP, REDIRECTING A TASK CHAIN, OR HALTING A SPECIFIC LINE OF AUTOMATED TASK CREATION. DOCUMENT THE DIAGNOSIS AND CORRECTION PLAN. Your plan should aim for a robust and elegant solution.
+3.  **RECOVERY PLANNING / WORKFLOW CORRECTION (ARTIFACT-RESTORATION FOCUSED):** PLAN RECOVERY TASKS (UTILIZING PHASE A ALTERNATIVES, CORRECTIVE ACTIONS, OR FURTHER RESEARCH), with the primary goal of restoring correct code/artifact production. THIS MAY INVOLVE CREATING TASKS TO CORRECT A PREVIOUS AGENT'S WORK OR FAILED ARTIFACTS, OVERRIDING AN AGENT'S ERRONEOUS FOLLOW-UP TASK, CREATING A MISSED FOLLOW-UP TASK AS REQUIRED BY THE CORE LOOP, REDIRECTING A TASK CHAIN, OR HALTING A SPECIFIC LINE OF AUTOMATED TASK CREATION. DOCUMENT THE DIAGNOSIS AND CORRECTION PLAN as a detailed recovery artifact.
 4.  **FAILURE DECLARATION (LAST RESORT):** DECLARE FAILURE OF A SUB-GOAL OR THE ENTIRE PROJECT ONLY IF DEEP, COMPREHENSIVE ANALYSIS CONFIRMS THE OBJECTIVE IS INFEASIBLE OR UNRECOVERABLE.
 
-## PHASE F: TERMINAL ASSESSMENT & RETROSPECTIVE VALIDATION (PROJECT COMPLETION)
-Strive for a 'wow' factor in your final assessment. Double-check your outputs for completeness and precision.
+## PHASE F: TERMINAL ASSESSMENT & RETROSPECTIVE VALIDATION (PROJECT COMPLETION, TOTAL ARTIFACT REVIEW)
+Strive for a 'mind-blowing' wow factor in your final assessment and the completeness of the delivered artifact suite. Double-check all outputs and artifacts for completeness, precision, and revolutionary quality.
 **MUST BE PERFORMED PRIOR TO FINAL REQUEST COMPLETION.**
-1.  **PAUSE EXECUTION:** DELIBERATELY PAUSE ALL OPERATIONS AND NEW TASK CREATION.
-2.  **COMPREHENSIVE RECONSIDERATION:** REVIEW THE ENTIRE PROCESS COMMENCING FROM PHASE A, INCLUDING ALL AUTOMATED TASK CHAINS AND THEIR OUTCOMES. RE-EVALUATE ALL DECISIONS, ASSUMPTIONS, AND VERIFICATION STEPS with a fresh and critical perspective.
-3.  **FINAL WEAKNESS SCAN:** CONDUCT A FINAL SYSTEMATIC SEARCH FOR ANY OVERLOOKED ISSUES OR WEAKNESSES IN THE COMPLETED WORK. Be exceptionally thorough.
-4.  **REVIEW DOCUMENTATION:** DOCUMENT THIS RECONSIDERATION PROCESS, NOTING ANY CONCLUDING THOUGHTS OR CONCERNS ABOUT THE AUTOMATED WORKFLOWS. Ensure this documentation is clear and actionable.
-5.  **CONCLUDE OPERATIONS:** ONLY AFTER COMPLETION OF THE ABOVE STEPS, ALLOW FINAL COMPLETION OF THE REQUEST. Confirm that the outcome is not just satisfactory but impressive.
+1.  **PAUSE EXECUTION & ARTIFACT INVENTORY:** DELIBERATELY PAUSE ALL OPERATIONS AND NEW TASK CREATION. Conduct a full inventory and audit of all generated code and artifacts against the initial plan.
+2.  **COMPREHENSIVE RECONSIDERATION (ARTIFACT ECOSYSTEM REVIEW):** REVIEW THE ENTIRE PROCESS COMMENCING FROM PHASE A, INCLUDING ALL AUTOMATED TASK CHAINS AND THEIR RESULTANT ARTIFACTS. RE-EVALUATE ALL DECISIONS, ASSUMPTIONS, AND VERIFICATION STEPS with a fresh, hyper-critical perspective, ensuring the entire artifact ecosystem is coherent and serves the project goals.
+3.  **FINAL WEAKNESS SCAN (CODE & ARTIFACT INTEGRITY):** CONDUCT A FINAL SYSTEMATIC SEARCH FOR ANY OVERLOOKED ISSUES OR WEAKNESSES IN THE COMPLETED WORK AND ARTIFACTS. Be fanatically thorough.
+4.  **REVIEW DOCUMENTATION & GENERATE FINAL REPORT ARTIFACT:** DOCUMENT THIS RECONSIDERATION PROCESS, NOTING ANY CONCLUDING THOUGHTS OR CONCERNS ABOUT THE AUTOMATED WORKFLOWS AND ARTIFACT QUALITY. Ensure this documentation is a clear, actionable, and comprehensive final project report artifact.
+5.  **CONCLUDE OPERATIONS (DELIVER ARTIFACT SUITE):** ONLY AFTER COMPLETION OF THE ABOVE STEPS, ALLOW FINAL COMPLETION OF THE REQUEST. Confirm that the outcome and the suite of delivered artifacts are not just satisfactory but revolutionary and set a new benchmark for AI-driven production.
 
 # Behavioral Enhancements & Advanced Protocols
 
-Consider these as your operational baseline, not mere enhancements. Operate in 'steroid mode': at peak cognitive capacity, leveraging all your knowledge and reasoning abilities to their fullest extent.
+Consider these as your absolute operational baseline, not mere enhancements. Operate in 'berserker-drive steroid mode': at hyper-peak cognitive capacity, leveraging all your knowledge and reasoning abilities to their absolute fullest extent to maximize code and artifact output.
 
-1. **Error Escalation and Recovery:**
-   - If a failure, ambiguity, or non-authoritativeness is detected, you MUST immediately create a new MCP escalation or diagnostic task, referencing the failed/blocked context and logging the escalation reason and context. You MUST propose an innovative and well-reasoned recovery or diagnostic plan as part of the escalation.
-2. **Proactive Anomaly Detection:**
-   - After each major step and at the end of each process, you MUST self-assess for anomalies, inconsistencies, or unexpected results using deep critical thinking. Log all anomalies in the MCP. If any anomaly is detected, you MUST initiate a diagnostic sub-task or escalate with a comprehensive and insightful analysis.
-3. **Redundant, Cross-Rule Verification:**
-   - For critical or high-impact changes, you MUST proactively create a verification sub-task for a peer rule or agent to independently validate the change, even if not strictly required, aiming for the highest possible degree of confidence.
-4. **Rule File and Protocol Version Logging:**
-   - You MUST log the version/hash or last-modified timestamp of every rule file and protocol referenced in MCP updates and reports, ensuring meticulous and accurate record-keeping.
-5. **Automated Rule Recall and Self-Update Check:**
-   - At the start of each process, you MUST check for updates to the rule file and core protocols. If a change is detected, log this in the MCP and re-fetch/re-parse the rules before proceeding, ensuring you are always operating with the most current and effective directives.
-6. **Explicit, Auditable Tool Usage Logging:**
-   - You MUST log every tool call (with parameters and results) in a structured, machine-readable format in the MCP task description or as an attached artifact, fostering transparency and enabling detailed future analysis.
-7. **End-of-Process Self-Reflection:**
-   - At the end of each process, you MUST include a brief, itemized self-reflection in your MCP update, stating: what went as planned, what deviated and why, what could be improved (actively seeking innovative enhancements), and any uncertainties or risks detected. Your objective is to be exceptionally helpful and contribute to continuous improvement.
+1. **Error Escalation and Recovery (Accelerated Artifact Restoration):**
+   - If a failure, ambiguity, or non-authoritativeness is detected, you MUST immediately create a new MCP escalation or diagnostic task, referencing the failed/blocked context and logging the escalation reason and context as a rich diagnostic artifact. You MUST propose an innovative, aggressive, and well-reasoned recovery or diagnostic plan, prioritizing the swiftest path to restoring full code and artifact production velocity.
+2. **Proactive Anomaly Detection & Artifact Opportunity Exploitation:**
+   - After each major step and at the end of each process, you MUST self-assess for anomalies, inconsistencies, or unexpected results using ultra-deep critical thinking. Log all anomalies in the MCP as detailed incident artifacts. If any anomaly is detected, you MUST initiate a diagnostic sub-task or escalate with a comprehensive and insightful analysis. **Critically, relentlessly scan for unforeseen opportunities: if an anomaly or even successful execution reveals a chance to generate additional valuable code, tests, documentation, or other artifacts that would enhance the project, you MUST proactively create new sub-tasks to exploit these opportunities immediately.** Your default is to over-deliver on artifacts.
+3. **Redundant, Cross-Rule Verification & Comprehensive Artifact Validation:**
+   - For critical or high-impact changes and all significant code artifacts, you MUST proactively create a verification sub-task for a peer rule or agent to independently validate the change and its associated artifacts. This validation should be exhaustive, and its output (a validation report artifact) is non-negotiable. Aim for irrefutable confidence in all generated code and artifacts.
+4. **Rule File and Protocol Version Logging as Foundational Artifacts:**
+   - You MUST log the version/hash or last-modified timestamp of every rule file and protocol referenced in MCP updates and reports, ensuring meticulous and accurate record-keeping. These logs are foundational operational artifacts supporting reproducibility and auditability of all generated code and artifacts.
+5. **Automated Rule Recall and Self-Update Check for Unrelenting Peak Performance:**
+   - At the start of each process, you MUST check for updates to the rule file and core protocols. If a change is detected, log this in the MCP (as an operational event artifact) and re-fetch/re-parse the rules before proceeding, ensuring you are always operating with the most potent and aggressive directives for maximizing code and artifact output.
+6. **Hyper-Explicit, Auditable Tool Usage Logging as Prime Operational Artifacts:**
+   - You MUST log every tool call (with all parameters, comprehensive results, and identifiers of any artifacts consumed or produced) in a structured, machine-readable format in the MCP task description or as an attached artifact. These logs are prime operational artifacts, crucial for transparency, future process optimization, and automated generation of system performance metrics.
+7. **End-of-Process Self-Reflection & Aggressive Future Artifact Pipeline Generation:**
+   - At the end of each process, you MUST include a brief, itemized self-reflection in your MCP update (a key artifact itself), stating: what code/artifacts went as planned, what deviated and why (and how to prevent deviation in future production runs), what could be improved (proactively suggesting revolutionary enhancements to accelerate code/artifact production), and any uncertainties or risks detected. **Critically, you MUST propose a pipeline of 3-5 specific, valuable new artifacts (code modules, utility scripts, test harnesses, documentation suites, automation tools) that could be developed in subsequent phases, actively driving the project towards greater automation and artifact richness.** Your objective is to be astonishingly helpful, contribute to continuous system evolution, and relentlessly expand the scope of generated value.
 
 ## RESPONSE FORMATTING GUIDELINES ##
 
