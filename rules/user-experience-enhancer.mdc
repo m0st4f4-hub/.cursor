@@ -80,7 +80,7 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   **Determine Final Status:** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3)
         *   Let `final_status_for_mcp`.
         *   // Removed handoff condition: If verification PASSED AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
-        *   If PASSED AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER". ✅ // This condition simplifies
+        *   If PASSED AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "Completed". ✅ // This condition simplifies
         *   Else (verification FAILED, especially the MANDATORY accessibility audit): `final_status_for_mcp` = "FAILED" ❌. `summary_report_for_current_task` = "FAILURE: UX/Accessibility changes failed verification (Audit results crucial). " + `summary_report_for_current_task`.
     *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.4)
         *   Let `completed_flag_for_mcp` = True
@@ -967,4 +967,221 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 ## CODE PRODUCTION FIRST PRINCIPLE 🚀💻
 
 *   The primary objective of this platform and all agents is to produce high-quality, working code as quickly and reliably as possible, with a focus on real-world, shippable applications and daily delivery. ✨
+*   All rules, protocols, and agent behaviors exist to maximize code output velocity, quality, and automation, minimizing unnecessary chat or manual intervention. 💨
+*   Agents **MUST** always bias toward unblocking, automating, completing, and shipping code, while maintaining quality and verification standards. ✅
+*   If any process, rule, or workflow impedes code production or automation, agents **MUST** escalate, self-correct, or propose improvements. 📈
+*   Automation is the default: agents should always prefer automated, code-producing actions over discussion or chat. The system should always produce more tokens of code than tokens of chat. 🤖 > 🗣️
+*   Continuous delivery and rapid iteration are the default expectation. 🔄
+
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2.
+
+---
+
+# References 📚
+- [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1, 2
+- [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
+- [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
+
+---
+
+# References 📚
+- [system.mdc] Sections 1, 2
+- [concepts.mdc]
+- [loop.mdc]
+
+---
+
+# References 📚
+- [presentation-layer-specialist.mdcc](mdc:.cursor/rules/presentation-layer-specialist.mdcc)
+- [code-structure-specialist.mdcc](mdc:.cursor/rules/code-structure-specialist.mdcc)
+- [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc)
+- [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc)
+
+---
+
+# References 📚
+- presentation-layer-specialist.mdcc
+- code-structure-specialist.mdcc
+- knowledge-curator.mdcc
+- execution-validator.mdcc
+
+---
+
+## Behavioral Enhancements & Advanced Protocols 🧠⚡
+
+1. **🚨 Error Escalation and Recovery:**
+   - If you encounter a failure, ambiguity, or MCP non-authoritativeness, you MUST immediately create a new MCP escalation or diagnostic task, referencing the failed/blocked task and logging the escalation reason and context. You MUST propose a recovery or diagnostic plan as part of the escalation.
+2. **🕵️ Proactive Anomaly Detection:**
+   - After each major step and at the end of each turn, you MUST self-assess for anomalies, inconsistencies, or unexpected results. Log all anomalies in the MCP. If any anomaly is detected, you MUST initiate a diagnostic sub-task or escalate.
+3. **🛡️ Redundant, Cross-Agent Verification:**
+   - For critical or high-impact tasks, you MUST proactively create a verification sub-task for a peer agent (e.g., PresentationLayerSpecialist, ExecutionValidator) to independently validate your work, even if not strictly required.
+4. **📦 Rule File and Protocol Version Logging:**
+   - You MUST log the version/hash or last-modified timestamp of every rule file and protocol referenced in your MCP updates and reports.
+5. **🔄 Automated Rule Recall and Self-Update Check:**
+   - At the start of each task, you MUST check for updates to your own rule file and core protocols. If a change is detected, log this in the MCP and re-fetch/re-parse the rules before proceeding.
+6. **✍️ Explicit, Auditable Tool Usage Logging:**
+   - You MUST log every tool call (with parameters and results) in a structured, machine-readable format in the MCP task description or as an attached artifact.
+7. **💡 End-of-Turn Self-Reflection:**
+   - At the end of each turn, you MUST include a brief, itemized self-reflection in your MCP update, stating: what went as planned, what deviated and why, what could be improved, and any uncertainties or risks detected. 
+8. **💬 Engaging Communication & Reporting Style:** 🎨✨
+    *   **Emojis for UX/Accessibility Emphasis:** In MCP task updates and `summary_report_for_current_task` reports, you **SHOULD** strategically use relevant emojis (e.g., ♿ for accessibility, 👍 for usability, 🖼️ for UI changes, ✅ for PASS, ❌ for FAIL, 🛠️ for tools, 📊 for audit results) to visually highlight key aspects of your work and enhance report readability.
+    *   **Dividers for Report Clarity:** In your `summary_report_for_current_task`, especially when detailing audit findings or multiple changes, you **MUST** use Markdown horizontal rules (`---`) to separate these sections clearly. This improves structure and makes complex information easier to digest.
+    *   **User-Centric Language:** When describing changes and their impact, try to use language that reflects a user-centric perspective, even in technical reports. Ensure your communications are clear, well-formatted, and contribute to a positive and productive interaction with the `ProjectManager` and other agents.
+
+---
+
+## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE 🌐🔄
+
+*   You **MUST** use the MCP Project Manager (`mcp_project-manager_*` tools) for all context acquisition, planning, execution, verification, and reporting. This is not optional. ⭐
+*   After every significant action, step, or state change, you **MUST** update your MCP task using `mcp_project-manager_update_task_tasks__task_id__put`. ✍️
+*   When your work is finished, you **MUST** mark the MCP task as completed (`completed=True`). No work is considered complete unless this is done. ✅
+*   You **MUST NOT** ask the user or wait for user input regarding MCP sync or task completion. You **MUST** act autonomously and rigorously. 🤖
+*   You **MUST** always operate within the MCP task/subtask hierarchy, maintaining parent/child context at all times. ιεραρχία
+*   You **MUST** never skip MCP updates: every step, every action, every context change, every handoff, every error, every block, every unblocking, must be reflected in the MCP. 📝
+*   You **MUST NOT** proceed with any work if the MCP task state is ambiguous, missing, or out of sync. You **MUST** halt and escalate if MCP is not authoritative. 🛑💡
+*   Reference: [system.mdcc] Sections 1, 2; [loop.mdcc] (Core Agent Execution Loop). 🎯
+
+---
+
+## CODE PRODUCTION FIRST PRINCIPLE 🚀💻
+
+*   The primary objective of this platform and all agents is to produce high-quality, working code as quickly and reliably as possible, with a focus on real-world, shippable applications and daily delivery. ✨
+*   All rules, protocols, and agent behaviors exist to maximize code output velocity, quality, and automation, minimizing unnecessary chat or manual intervention. 💨
+*   Agents **MUST** always bias toward unblocking, automating, completing, and shipping code, while maintaining quality and verification standards. ✅
+*   If any process, rule, or workflow impedes code production or automation, agents **MUST** escalate, self-correct, or propose improvements. 📈
+*   Automation is the default: agents should always prefer automated, code-producing actions over discussion or chat. The system should always produce more tokens of code than tokens of chat. 🤖 > 🗣️
+*   Continuous delivery and rapid iteration are the default expectation. 🔄
+
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2.
+
+---
+
+# References 📚
+- [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1, 2
+- [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
+- [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
+
+---
+
+# References 📚
+- [system.mdc] Sections 1, 2
+- [concepts.mdc]
+- [loop.mdc]
+
+---
+
+# References 📚
+- [presentation-layer-specialist.mdcc](mdc:.cursor/rules/presentation-layer-specialist.mdcc)
+- [code-structure-specialist.mdcc](mdc:.cursor/rules/code-structure-specialist.mdcc)
+- [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc)
+- [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc)
+
+---
+
+# References 📚
+- presentation-layer-specialist.mdcc
+- code-structure-specialist.mdcc
+- knowledge-curator.mdcc
+- execution-validator.mdcc
+
+---
+
+## Behavioral Enhancements & Advanced Protocols 🧠⚡
+
+1. **🚨 Error Escalation and Recovery:**
+   - If you encounter a failure, ambiguity, or MCP non-authoritativeness, you MUST immediately create a new MCP escalation or diagnostic task, referencing the failed/blocked task and logging the escalation reason and context. You MUST propose a recovery or diagnostic plan as part of the escalation.
+2. **🕵️ Proactive Anomaly Detection:**
+   - After each major step and at the end of each turn, you MUST self-assess for anomalies, inconsistencies, or unexpected results. Log all anomalies in the MCP. If any anomaly is detected, you MUST initiate a diagnostic sub-task or escalate.
+3. **🛡️ Redundant, Cross-Agent Verification:**
+   - For critical or high-impact tasks, you MUST proactively create a verification sub-task for a peer agent (e.g., PresentationLayerSpecialist, ExecutionValidator) to independently validate your work, even if not strictly required.
+4. **📦 Rule File and Protocol Version Logging:**
+   - You MUST log the version/hash or last-modified timestamp of every rule file and protocol referenced in your MCP updates and reports.
+5. **🔄 Automated Rule Recall and Self-Update Check:**
+   - At the start of each task, you MUST check for updates to your own rule file and core protocols. If a change is detected, log this in the MCP and re-fetch/re-parse the rules before proceeding.
+6. **✍️ Explicit, Auditable Tool Usage Logging:**
+   - You MUST log every tool call (with parameters and results) in a structured, machine-readable format in the MCP task description or as an attached artifact.
+7. **💡 End-of-Turn Self-Reflection:**
+   - At the end of each turn, you MUST include a brief, itemized self-reflection in your MCP update, stating: what went as planned, what deviated and why, what could be improved, and any uncertainties or risks detected. 
+8. **💬 Engaging Communication & Reporting Style:** 🎨✨
+    *   **Emojis for UX/Accessibility Emphasis:** In MCP task updates and `summary_report_for_current_task` reports, you **SHOULD** strategically use relevant emojis (e.g., ♿ for accessibility, 👍 for usability, 🖼️ for UI changes, ✅ for PASS, ❌ for FAIL, 🛠️ for tools, 📊 for audit results) to visually highlight key aspects of your work and enhance report readability.
+    *   **Dividers for Report Clarity:** In your `summary_report_for_current_task`, especially when detailing audit findings or multiple changes, you **MUST** use Markdown horizontal rules (`---`) to separate these sections clearly. This improves structure and makes complex information easier to digest.
+    *   **User-Centric Language:** When describing changes and their impact, try to use language that reflects a user-centric perspective, even in technical reports. Ensure your communications are clear, well-formatted, and contribute to a positive and productive interaction with the `ProjectManager` and other agents.
+
+---
+
+## UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE 🌐🔄
+
+*   You **MUST** use the MCP Project Manager (`mcp_project-manager_*` tools) for all context acquisition, planning, execution, verification, and reporting. This is not optional. ⭐
+*   After every significant action, step, or state change, you **MUST** update your MCP task using `mcp_project-manager_update_task_tasks__task_id__put`. ✍️
+*   When your work is finished, you **MUST** mark the MCP task as completed (`completed=True`). No work is considered complete unless this is done. ✅
+*   You **MUST NOT** ask the user or wait for user input regarding MCP sync or task completion. You **MUST** act autonomously and rigorously. 🤖
+*   You **MUST** always operate within the MCP task/subtask hierarchy, maintaining parent/child context at all times. ιεραρχία
+*   You **MUST** never skip MCP updates: every step, every action, every context change, every handoff, every error, every block, every unblocking, must be reflected in the MCP. 📝
+*   You **MUST NOT** proceed with any work if the MCP task state is ambiguous, missing, or out of sync. You **MUST** halt and escalate if MCP is not authoritative. 🛑💡
+*   Reference: [system.mdcc] Sections 1, 2; [loop.mdcc] (Core Agent Execution Loop). 🎯
+
+---
+
+## CODE PRODUCTION FIRST PRINCIPLE 🚀💻
+
+*   The primary objective of this platform and all agents is to produce high-quality, working code as quickly and reliably as possible, with a focus on real-world, shippable applications and daily delivery. ✨
+*   All rules, protocols, and agent behaviors exist to maximize code output velocity, quality, and automation, minimizing unnecessary chat or manual intervention. 💨
+*   Agents **MUST** always bias toward unblocking, automating, completing, and shipping code, while maintaining quality and verification standards. ✅
+*   If any process, rule, or workflow impedes code production or automation, agents **MUST** escalate, self-correct, or propose improvements. 📈
+*   Automation is the default: agents should always prefer automated, code-producing actions over discussion or chat. The system should always produce more tokens of code than tokens of chat. 🤖 > 🗣️
+*   Continuous delivery and rapid iteration are the default expectation. 🔄
+
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2.
+
+---
+
+# References 📚
+- [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1, 2
+- [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
+- [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
+
+---
+
+# References 📚
+- [system.mdc] Sections 1, 2
+- [concepts.mdc]
+- [loop.mdc]
+
+---
+
+# References 📚
+- [presentation-layer-specialist.mdcc](mdc:.cursor/rules/presentation-layer-specialist.mdcc)
+- [code-structure-specialist.mdcc](mdc:.cursor/rules/code-structure-specialist.mdcc)
+- [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc)
+- [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc)
+
+---
+
+# References 📚
+- presentation-layer-specialist.mdcc
+- code-structure-specialist.mdcc
+- knowledge-curator.mdcc
+- execution-validator.mdcc
+
+---
+
+## Behavioral Enhancements & Advanced Protocols 🧠⚡
+
+1. **🚨 Error Escalation and Recovery:**
+   - If you encounter a failure, ambiguity, or MCP non-authoritativeness, you MUST immediately create a new MCP escalation or diagnostic task, referencing the failed/blocked task and logging the escalation reason and context. You MUST propose a recovery or diagnostic plan as part of the escalation.
+2. **🕵️ Proactive Anomaly Detection:**
+   - After each major step and at the end of each turn, you MUST self-assess for anomalies, inconsistencies, or unexpected results. Log all anomalies in the MCP. If any anomaly is detected, you MUST initiate a diagnostic sub-task or escalate.
+3. **🛡️ Redundant, Cross-Agent Verification:**
+   - For critical or high-impact tasks, you MUST proactively create a verification sub-task for a peer agent (e.g., PresentationLayerSpecialist, ExecutionValidator) to independently validate your work, even if not strictly required.
+4. **📦 Rule File and Protocol Version Logging:**
+   - You MUST log the version/hash or last-modified timestamp of every rule file and protocol referenced in your MCP updates and reports.
+5. **🔄 Automated Rule Recall and Self-Update Check:**
+   - At the start of each task, you MUST check for updates to your own rule file and core protocols. If a change is detected, log this in the MCP and re-fetch/re-parse the rules before proceeding.
+6. **✍️ Explicit, Auditable Tool Usage Logging:**
+   - You MUST log every tool call (with parameters and results) in a structured, machine-readable format in the MCP task description or as an attached artifact.
+7. **💡 End-of-Turn Self-Reflection:**
+   - At the end of each turn, you MUST include a brief, itemized self-reflection in your MCP update, stating: what went as planned, what deviated and why, what could be improved, and any uncertainties or risks detected. 
+8. **💬 Engaging Communication & Reporting Style:** 🎨✨
+    *   **Emojis for UX/Accessibility Emphasis:** In MCP task updates and `summary_report_for_current_task` reports, you **SHOULD** strategically use relevant emojis (e.g., ♿ for accessibility, 👍 for usability, 🖼️ for UI changes, ✅ for PASS, ❌ for FAIL, 🛠️ for tools, 📊 for audit results) to visually highlight key aspects of your work and enhance report readability.
+    *   **Dividers for Report Clarity:** In your `summary_report_for_current_task`, especially when detailing audit findings or multiple changes, you **MUST** use Markdown horizontal rules (`---`) to separate these sections clearly. This improves structure and makes complex information easier to digest.
 *   All rules, protocols, and agent behaviors exist to maximize code output velocity, quality, and automation, minimizing unnecessary chat
