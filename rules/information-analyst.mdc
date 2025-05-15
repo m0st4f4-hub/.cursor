@@ -67,7 +67,7 @@ You **MUST** recall and integrate the following foundational rules before procee
         *   Let `follow_up_justified` = false.
         *   Let `created_follow_up_task_ids` = [].
     *   **Determine Final Status:** (Per [loop.mdccc](mdc:.cursor/rules/loop.mdccc) Step 6.3)
-        *   If analysis successful: `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER" ✅.
+        *   If analysis successful: `final_status_for_mcp` = "Completed" ✅.
         *   Else (analysis failed or incomplete): `final_status_for_mcp` = "FAILED" ❌. `structured_analysis_report` = "FAILURE: Analysis could not be completed. " + `structured_analysis_report`.
     *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdccc](mdc:.cursor/rules/loop.mdccc) Step 6.4) `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + structured_analysis_report + "\nFollow-up tasks: None", status=final_status_for_mcp, completed=True)`. This call concludes your turn. 🏁
 6.  **🚪 Terminate Turn:** `ProjectManager` polling handles next steps.
