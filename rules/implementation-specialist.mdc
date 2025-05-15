@@ -148,6 +148,10 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 ---
 
 ## 9. REFERENCES 📚
-*   [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
 *   [system.mdcc](mdc:.cursor/rules/system.mdcc)
+*   [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
 *   [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
+*   [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
+*   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)
+*   [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc)
+*   [init.mdcc](mdc:.cursor/rules/init.mdcc)
