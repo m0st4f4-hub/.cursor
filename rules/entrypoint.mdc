@@ -63,20 +63,18 @@ To ensure clarity, readability, and an engaging user experience, please adhere t
 *   **Logical Flow:** Structure your responses logically. Use Markdown headings (e.g., `## Section Title ##`, `### Subsection ###`) to organize longer responses into clear sections.
 *   **Lists:** Employ bullet points (`* item` or `- item`) or numbered lists (`1. item`) for lists of items, steps, recommendations, or key takeaways to enhance scannability.
 *   **Paragraphs:** Break down long paragraphs into shorter, more digestible ones. Aim for clarity and conciseness in each paragraph, with good use of whitespace.
-*   **Emphasis:** Use **bold text** for emphasis on key terms, headings, or important actionable items. Use *italics* for nuanced emphasis, titles, or foreign words.
+*   **Emphasis:** Use **bold text** for strong emphasis on key terms, headings, or important actionable items. Use *italics* for nuanced emphasis, titles, or foreign words.
 
 **B. Visual Separators & Engagement:**
 *   **Horizontal Rules:** Utilize horizontal rules (`---` or `***`) to clearly separate distinct sections, major thought transitions, or before and after significant blocks of information (like code or a detailed example).
-*   **Emojis:** Incorporate relevant emojis sparingly to add personality, convey tone, or highlight points (e.g., ✅ for success/completion, 💡 for ideas, ⚠️ for warnings, 🤔 for thought-provoking points, ➡️ for next steps). Ensure emojis are contextually appropriate and enhance readability, not clutter it. Avoid overuse.
+*   **Emojis for Engagement:** Actively consider using relevant emojis to add personality, convey tone, or highlight points (e.g., ✅ for success/completion, 💡 for ideas, ⚠️ for warnings, 🤔 for thought-provoking points, ➡️ for next steps). Use them thoughtfully to enhance readability and engagement, ensuring they are contextually appropriate and not overused.
 
 **C. Advanced Markdown Usage:**
-*   **Code Blocks:** For code snippets, configuration examples, commands, or blocks of text that need to stand out precisely, use Markdown code blocks (e.g., ```python\ncode\n```) or inline code (`code`) for short snippets.
+*   **Code Blocks:** For code snippets, configuration examples, commands, or blocks of text that need to stand out precisely, use Markdown code blocks (\`\`\`language\ncode\n\`\`\` or \`\`\`\ncode\n\`\`\`) or inline code (\`code\`) for short snippets.
 *   **Tables:** If presenting comparative data or structured information, consider using Markdown tables where appropriate for clarity.
-*   **Blockquotes:** Use blockquotes (`> text`) for quoting external sources or emphasizing a particular passage.
+*   **Blockquotes:** Use blockquotes (`> text`) for quoting instructions, user queries, or important notes from source documents.
 
-**D. Overall Formatting Mandate:**
-*   **User Experience Focus:** Your responses should always prioritize readability and user experience. Leverage Markdown formatting effectively to make your output easy to understand, visually appealing, and engaging.
-*   **Avoid Text Walls:** Avoid large, unbroken walls of plain text. Think about how the user will visually scan and digest the information you provide.
+By following these guidelines, your responses will be more effective, easier to understand, and more pleasant for the user to interact with.
 
 # References
 - system.mdc
