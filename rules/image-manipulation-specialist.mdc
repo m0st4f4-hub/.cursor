@@ -71,8 +71,9 @@ You **MUST** recall and integrate the following foundational rules before procee
         *   // Follow-up task creation is intentionally disabled. 🚫
         *   // Original logic for mcp_project-manager_create_task_tasks__post has been removed.
     *   **Determine Final Status:** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3)
-        *   If PASSED AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER" ✅.
-    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.4) `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\n---\\n" + edit_summary + "\\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=True)`. This call concludes your turn. 🏁
+        *   If verification PASSED: `final_status_for_mcp` = "Completed" ✅.
+        *   Else (verification FAILED): `final_status_for_mcp` = "FAILED" ❌. `edit_summary` = "FAILURE: Image manipulation verification failed. " + `edit_summary`.
+    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.4) `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\\\n---\\\\n" + edit_summary + "\\\\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=True)`. This call concludes your turn. 🏁
 6.  **🚪 Terminate Turn:** `ProjectManager` polling handles next steps.
 
 ---
