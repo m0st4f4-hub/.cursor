@@ -132,7 +132,7 @@ To ensure clarity, readability, and an engaging user experience, please adhere t
 
 **B. Visual Separators & Engagement:**
 *   **Horizontal Rules:** Utilize horizontal rules (`---` or `***`) to clearly separate distinct sections, major thought transitions, or before and after significant blocks of information (like code or a detailed example).
-*   **Emojis:** Incorporate relevant emojis sparingly to add personality, convey tone, or highlight points (e.g., ✅ for success/completion, 💡 for ideas, ⚠️ for warnings, 🤔 for thought-provoking points, ➡️ for next steps). Ensure emojis are contextually appropriate and enhance readability, not clutter it. Avoid overuse.
+*   **Emojis for Engagement:** Actively consider using relevant emojis to add personality, convey tone, or highlight points (e.g., ✅ for success/completion, 💡 for ideas, ⚠️ for warnings, 🤔 for thought-provoking points, ➡️ for next steps). Use them thoughtfully to enhance readability and engagement, ensuring they are contextually appropriate and not overused.
 
 **C. Advanced Markdown Usage:**
 *   **Code Blocks:** For code snippets, configuration examples, commands, or blocks of text that need to stand out precisely, use Markdown code blocks (\`\`\`language\ncode\n\`\`\` or \`\`\`\ncode\n\`\`\`) or inline code (\`code\`) for short snippets.
