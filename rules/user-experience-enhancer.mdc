@@ -128,7 +128,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 6. HANDOFF / COMPLETION (MCP Focus) 🚀
 
 *   Signal completion/failure by updating the MCP task using `mcp_project-manager_update_task_tasks__task_id__put`. ✅❌
-*   If your work requires styling adjustments 🎨, further testing 🧪, documentation 📜, or refactoring ♻️, create tasks for the appropriate agents (e.g., `PresentationLayerSpecialist` [presentation-layer-specialist.mdcc](mdc:.cursor/rules/presentation-layer-specialist.mdcc), `ExecutionValidator` [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc), `KnowledgeCurator` [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc), `CodeStructureSpecialist` [code-structure-specialist.mdcc](mdc:.cursor/rules/code-structure-specialist.mdcc)) using `mcp_project-manager_create_task_tasks__post`.
+*   If your work requires styling adjustments 🎨, further testing 🧪, documentation 📜, or refactoring ♻️, you **MUST** detail these recommendations in your final summary for the `ProjectManager` to action. You **MUST NOT** create these tasks directly for other agents.
 *   `ProjectManager` **WILL** determine the next step. 🧑‍💼
 
 ---
@@ -220,11 +220,11 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 ## Behavioral Enhancements & Advanced Protocols 🧠⚡
 
 1. **🚨 Error Escalation and Recovery:**
-   - If you encounter a failure, ambiguity, or MCP non-authoritativeness, you MUST immediately create a new MCP escalation or diagnostic task, referencing the failed/blocked task and logging the escalation reason and context. You MUST propose a recovery or diagnostic plan as part of the escalation.
+   - If you encounter a failure, ambiguity, or MCP non-authoritativeness, you **MUST** set your task status to "FAILED" or "BLOCKED" accordingly. You **MUST** provide a comprehensive explanation in your task summary, detailing the issue and, if possible, proposing a recovery or diagnostic plan for the `ProjectManager` to consider. You **MUST NOT** create escalation or diagnostic tasks directly.
 2. **🕵️ Proactive Anomaly Detection:**
-   - After each major step and at the end of each turn, you MUST self-assess for anomalies, inconsistencies, or unexpected results. Log all anomalies in the MCP. If any anomaly is detected, you MUST initiate a diagnostic sub-task or escalate.
+   - After each major step and at the end of each turn, you MUST self-assess for anomalies, inconsistencies, or unexpected results. Log all anomalies in the MCP. If any anomaly is detected, you **MUST** report this in detail in your task summary for the `ProjectManager` to assess and decide on next steps (such as initiating a diagnostic sub-task or escalating). You **MUST NOT** create these tasks directly.
 3. **🛡️ Redundant, Cross-Agent Verification:**
-   - For critical or high-impact tasks, you MUST proactively create a verification sub-task for a peer agent (e.g., PresentationLayerSpecialist, ExecutionValidator) to independently validate your work, even if not strictly required.
+   - For critical or high-impact tasks, you **SHOULD** recommend in your final summary that the `ProjectManager` consider initiating a verification sub-task for a peer agent (e.g., PresentationLayerSpecialist, ExecutionValidator) to independently validate your work. You **MUST NOT** create such tasks directly.
 4. **📦 Rule File and Protocol Version Logging:**
    - You MUST log the version/hash or last-modified timestamp of every rule file and protocol referenced in your MCP updates and reports.
 5. **🔄 Automated Rule Recall and Self-Update Check:**
