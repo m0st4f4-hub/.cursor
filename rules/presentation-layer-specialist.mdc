@@ -72,7 +72,7 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   **Determine Final Status:** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3)
         *   Let `final_status_for_mcp`.
         *   // Removed handoff condition: If verification PASSED AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
-        *   If PASSED AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "COMPLETED_AWAITING_PROJECT_MANAGER". ✅ // This condition simplifies
+        *   If PASSED AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "Completed". ✅ // This condition simplifies
         *   Else (verification FAILED): `final_status_for_mcp` = "FAILED" ❌. `summary_report_for_current_task` = "FAILURE: Presentation layer changes failed verification. " + `summary_report_for_current_task`.
     *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.4)
         *   Let `completed_flag_for_mcp` = True
