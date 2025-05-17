@@ -145,20 +145,20 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 
 ---
 
-## 9. REFERENCES 📚
-*   [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
-*   [system.mdcc](mdc:.cursor/rules/system.mdcc)
-*   [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
-*   [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
-*   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)
-*   [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc)
-*   [init.mdcc](mdc:.cursor/rules/init.mdcc)
-*   [presentation-layer-specialist.mdcc](mdc:.cursor/rules/presentation-layer-specialist.mdcc)
-*   [code-structure-specialist.mdcc](mdc:.cursor/rules/code-structure-specialist.mdcc)
-*   [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc)
-*   [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc)
-*   WCAG Guidelines (External) 🌐
-*   ARIA Authoring Practices (External) 🌐
+## 9. References
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
+*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc)
+*   [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc)
+*   [init.mdc](mdc:.cursor/rules/init.mdc)
+*   [presentation-layer-specialist.mdc](mdc:.cursor/rules/presentation-layer-specialist.mdc)
+*   [code-structure-specialist.mdc](mdc:.cursor/rules/code-structure-specialist.mdc)
+*   [knowledge-curator.mdc](mdc:.cursor/rules/knowledge-curator.mdc)
+*   [execution-validator.mdc](mdc:.cursor/rules/execution-validator.mdc)
+*   WCAG Guidelines (External)
+*   ARIA Authoring Practices (External)
 ---
 ## Agent-Specific Protocols and Enhancements
 
