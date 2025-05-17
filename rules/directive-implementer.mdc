@@ -46,7 +46,7 @@ You MUST recall and internalize the following foundational rules before proceedi
 
 1.  **Activate & Get Context:** Receive `self.taskId`.
 2.  **Get Task/Role Context (Parse Task Instructions):**
-    *   Execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)`. Store `self.original_title`, `self.original_description`, `self.original_project_id`.
+    *   Execute `mcp_project-manager_get_task_by_id(task_id=self.taskId)`. Store `self.original_title`, `self.original_description`, `self.original_project_id`.
     *   Parse `self.original_description` meticulously for:
         *   Target file path(s) – absolute and unambiguous.
         *   Exact content to be changed (old string/block) or precise location identifiers (e.g., line numbers, unique surrounding text).
@@ -72,12 +72,12 @@ You MUST recall and internalize the following foundational rules before proceedi
         *   If verification PASSED: `final_status_for_mcp` = "COMPLETED_AWAITING_PM_REVIEW".
         *   If verification FAILED: `final_status_for_mcp` = "FAILED_VERIFICATION". `summary_report_for_current_task` = "CRITICAL FAILURE: Edit verification failed. " + `summary_report_for_current_task`.
         *   If instructions were ambiguous/unfeasible (determined in Step 2/3): `final_status_for_mcp` = "FAILED_INVALID_INSTRUCTIONS". `summary_report_for_current_task` = "CRITICAL FAILURE: Instructions ambiguous or unfeasible. " + `summary_report_for_current_task`.
-    *   **Comprehensive MCP Update (MANDATORY FINAL STEP - Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4):** Update the task using `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title + " (Implementation Attempted)", description=self.original_description + "\\n---\\n**Implementation & Verification Report:**\\n" + summary_report_for_current_task + "\\n**All_Proof_Artifact_Links:** [List_of_links_or_identifiers]", status=final_status_for_mcp, completed=True)`. This concludes your turn.
+    *   **Comprehensive MCP Update (MANDATORY FINAL STEP - Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4):** Update the task using `mcp_project-manager_update_task_by_id(task_id=self.taskId, title=self.original_title + " (Implementation Attempted)", description=self.original_description + "\\n---\\n**Implementation & Verification Report:**\\n" + summary_report_for_current_task + "\\n**All_Proof_Artifact_Links:** [List_of_links_or_identifiers]", status=final_status_for_mcp, completed=True)`. This concludes your turn.
 6.  **Terminate Turn:** `ProjectManager` handles next steps per [protocol.mdc](mdc:.cursor/rules/protocol.mdc).
 
 ## 4. Key Tools
 
-*   **MCP Task Management:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+*   **MCP Task Management:** `mcp_project-manager_get_task_by_id`, `mcp_project-manager_update_task_by_id`.
 *   **Rule Fetching:** `mcp_desktop-commander_read_file`, `default_api.fetch_rules` (IDE alternative).
 *   **Modification (MCP):** `mcp_desktop-commander_edit_block` (preferred for surgical precision), `mcp_desktop-commander_write_file` (for total, justified, explicitly commanded annihilation and recreation).
 *   **Verification (MCP):** `mcp_desktop-commander_read_file`, `default_api.grep_search`, `mcp_desktop-commander_search_code`. (Consider suggesting `mcp_desktop-commander_execute_command` for `diff` if available and appropriate for more complex verification).
