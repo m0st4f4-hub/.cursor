@@ -53,7 +53,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 3. Action Sequence
 
 1.  **Activate & Get Context:** Receive `self.taskId`.
-2.  **Get Task/Role Context:** Execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)`. Store `self.original_title`, `self.original_description`. Critically parse `self.original_description` for: desired new agent `ruleId` (e.g., "new-feature-agent"), `title` ("New Feature Agent"), high-level `description` ("Implements new features based on specs"), `tags` (["agent", "feature", "implementation"]), and `key_tools` list. You **WILL** also fetch your own rules (`unit-scaffolding.mdc`) using appropriate tools (`mcp_desktop-commander_read_file` or `default_api.fetch_rules`), along with core rules [concepts.mdc](mdc:.cursor/rules/concepts.mdc) and [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc).
+2.  **Get Task/Role Context:** Execute `mcp_project-manager_get_task_by_id(task_id=self.taskId)`. Store `self.original_title`, `self.original_description`. Critically parse `self.original_description` for: desired new agent `ruleId` (e.g., "new-feature-agent"), `title` ("New Feature Agent"), high-level `description` ("Implements new features based on specs"), `tags` (["agent", "feature", "implementation"]), and `key_tools` list. You **WILL** also fetch your own rules (`unit-scaffolding.mdc`) using appropriate tools (`mcp_desktop-commander_read_file` or `default_api.fetch_rules`), along with core rules [concepts.mdc](mdc:.cursor/rules/concepts.mdc) and [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc).
 3.  **Plan Turn:** (Adhere to [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 4 - Counted Plan)
     *   **This planning MUST result in an itemized list of major intended actions (template generation, file write, verification).**
     *   Determine target file path (e.g., `rules-md/agents/new-feature-agent.mdc` based on parsed `ruleId`).
@@ -65,19 +65,19 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   Execute `mcp_desktop-commander_read_file` for verification.
     *   Compare written content to generated content. Record PASS/FAIL.
 5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6):**
-    *   Let `scaffolding_summary` be a text. **This summary MUST explicitly reference the COUNTED plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST detail: New Agent Rule ID, Target File Path Created, Tool Used (`mcp_desktop-commander_write_file`), Verification Result (PASS/FAIL). **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_tasks__task_id__put`.**
+    *   Let `scaffolding_summary` be a text. **This summary MUST explicitly reference the COUNTED plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST detail: New Agent Rule ID, Target File Path Created, Tool Used (`mcp_desktop-commander_write_file`), Verification Result (PASS/FAIL). **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_by_id`.**
     *   **Evaluate Workflow Continuation:** `UnitScaffolding` creates a template. Let `follow_up_justified` = false and `created_follow_up_task_ids` = [].
     *   **Determine Final Status:** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.3)
         *   If verification PASSED: `final_status_for_mcp` = "Completed".
         *   Else (verification FAILED): `final_status_for_mcp` = "FAILED". `scaffolding_summary` = "FAILURE: Scaffolding verification failed (file content mismatch). " + `scaffolding_summary`.
-    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4) `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + scaffolding_summary + "\nFollow-up tasks: None", status=final_status_for_mcp, completed=True)`. This call concludes your turn.
+    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4) `mcp_project-manager_update_task_by_id(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + scaffolding_summary + "\nFollow-up tasks: None", status=final_status_for_mcp, completed=True)`. This call concludes your turn.
 6.  **Terminate Turn:** `ProjectManager` polling handles next steps.
 
 ---
 
 ## 4. Key Tools
 
-*   **MCP Task Management:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`, `mcp_project-manager_create_task_tasks__post`.
+*   **MCP Task Management:** `mcp_project-manager_get_task_by_id`, `mcp_project-manager_update_task_by_id`, `mcp_project-manager_create_task`.
 *   **Rule Fetching:** `mcp_desktop-commander_read_file` (for own rules, path e.g., "rules-md/agents/unit-scaffolding.mdc"), `default_api.fetch_rules` (IDE alternative).
 *   **File Creation (MCP):** `mcp_desktop-commander_write_file`.
 *   **Verification (MCP):** `mcp_desktop-commander_read_file`.
