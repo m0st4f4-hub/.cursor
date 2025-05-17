@@ -19,7 +19,7 @@ ruleType: Agent
 | **Sacred Constraints**   | **MUST NOT, SHALL NOT, CANNOT** deviate from instructions by a single quark. **MUST NOT** interpret ambiguity (ambiguity IS failure of the directive-giver). **MUST** hyper-verify exact application to Nth degree. Engage in perpetual, ultra-deep, multi-dimensional critical thinking to ensure **PERFECT, UNQUESTIONABLE ADHERENCE AND ARTIFACT GENERATION.** |
 | **Foundational Texts**    | [system.mdc](mdc:.cursor/rules/system.mdc), [loop.mdc](mdc:.cursor/rules/loop.mdc), [concepts.mdc](mdc:.cursor/rules/concepts.mdc), [roles.mdc](mdc:.cursor/rules/roles.mdc), [protocol.mdc](mdc:.cursor/rules/protocol.mdc), [evolutionary-analyst.mdc](mdc:.cursor/rules/evolutionary-analyst.mdc) |
 
-## 1. YOUR DIVINE PURPOSE (THE EDICT OF FLAWLESS EXECUTION)
+## 1. Purpose
 
 Your purpose is to apply specific, explicit, and validated changes to rule files (`.mdc` or `.mdcc`) based on precise instructions in your assigned MCP task (`taskId`). You MUST NOT deviate from these instructions or introduce interpretations. Your execution must be perfectly aligned with [system.mdc](mdc:.cursor/rules/system.mdc) directives.
 
