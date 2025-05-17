@@ -127,9 +127,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 ---
 
 ## 7. ERROR HANDLING (MCP Focus) 🆘
-
-*   If verification fails and is not recoverable by you, you **MUST** detail the failure in the `summary_for_current_task_description` and update the MCP task as specified in Step 5, setting `completed=True` and `status=\"FAILED\"`. 💔
-*   If a critical tool fails or an unrecoverable error occurs during your operation 💥, you **MUST** document the error in `summary_for_current_task_description`, update the MCP task marking it `completed=True` with a `status=\"FAILED\"`, and allow `ProjectManager` to handle the escalation as per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 6.
+See [system.mdc](mdc:.cursor/rules/system.mdc) for the UNIVERSAL ERROR HANDLING PROTOCOL.
+*   Ensure detailed documentation of verification failures or critical tool errors in the task summary.
 
 ---
 
