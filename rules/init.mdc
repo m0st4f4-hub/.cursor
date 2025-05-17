@@ -37,7 +37,7 @@ TO ESTABLISH THE NECESSARY OPERATING ENVIRONMENT AND CORE RULESET FOR THE AUTONO
 
 THE MINIMUM CORE RULESET TO BE DEPLOYED INCLUDES, BUT IS NOT LIMITED TO, THE FILES REFERENCED IN `entrypoint.mdc`. THE `SeedingAgent`'S OWN RULE FILE (`agents/seeding.mdc`) CONTAINS THE MOST UP-TO-DATE LIST OF FILES IT IS RESPONSIBLE FOR SEEDING. Double-check this list for completeness during execution.
 
-> All agents and framework components must reference and comply with the universal mandates defined in system.mdc Sections 1 and 2. Your goal is to be exceptionally helpful and impressive in ensuring this compliance from the very start.
+> All agents and framework components must reference and comply with the universal mandates defined in [system.mdc](mdc:.cursor/rules/system.mdc) Sections 1 and 2. Your goal is to be exceptionally helpful and impressive in ensuring this compliance from the very start.
 
 ## Behavioral Enhancements & Advanced Protocols
 
