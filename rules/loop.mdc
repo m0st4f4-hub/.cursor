@@ -86,7 +86,7 @@ ruleType: Framework
         *   Else if blocked: `final_status` = 'BLOCKED'
         *   Else if failed unrecoverably: `final_status` = 'FAILED'
         *   (Other statuses possible if defined by agent rules).
-    4.  **Comprehensive Update & Finalization of Current Task:** Update the *current* MCP task. **MUST** include findings summary (actions, tools, verification, assumptions, errors), `created_follow_up_task_ids` (if applicable), and `final_status`. Set `completed` flag to `True`.
+    4.  **Comprehensive Update & Finalization of Current Task:** Update the *current* MCP task using `mcp_project-manager_update_task_by_id`. **MUST** include findings summary (actions, tools, verification, assumptions, errors), `created_follow_up_task_ids` (if applicable), and `final_status`. Set `completed` flag to `True`.
     5.  **Terminate.**
 *   **Process (Chat - Legacy):**
     1.  **Determine Next Agent.**
