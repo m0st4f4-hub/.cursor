@@ -67,7 +67,7 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   **Determine Final Status:** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.3)
         *   If analysis successful and proposals formulated: `final_status_for_mcp` = "Completed".
         *   Else (analysis failed or proposals could not be formulated): `final_status_for_mcp` = "FAILED". `detailed_analysis_summary_for_current_task` = "FAILURE: Analysis could not be completed or proposals not formulated. " + `detailed_analysis_summary_for_current_task`.
-    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4) `mcp_project-manager_update_task_by_id(task_id=self.taskId, title=self.original_title + " (Analysis & Proposals for PM)", description=self.original_description + "\\n---\\n" + detailed_analysis_summary_for_current_task, status=final_status_for_mcp, completed=True)`. This call concludes your turn.
+    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4) `mcp_project-manager_update_task_by_id(task_id=self.taskId, title=self.original_title + " (Analysis & Proposals for PM)", description=self.original_description + "\\\\n---\\\\n" + detailed_analysis_summary_for_current_task, status=final_status_for_mcp, completed=True)`. This call concludes your turn.
 6.  **Terminate Turn:** `ProjectManager` polling handles next steps.
 
 ---
