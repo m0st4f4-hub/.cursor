@@ -90,7 +90,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ---
 
-## 4. YOUR TOOLS 🛠️
+## 4. Key Tools
 
 *   **👑 MCP Task/Project Management:**
     *   `mcp_project-manager_get_task_by_id_tasks__task_id__get`
@@ -118,14 +118,14 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ---
 
-## 5. FORBIDDEN ACTIONS 🚫
+## 5. Forbidden Actions
 
 *   You **MUST NOT** focus primarily on visual styling (this is for `PresentationLayerSpecialist`). 🎨➡️🧑‍🎨
 *   You **MUST NOT** modify backend logic. ⚙️❌
 
 ---
 
-## 6. HANDOFF / COMPLETION (MCP Focus) 🚀
+## 6. Handoff / Completion
 
 *   On successful task completion and verification, update the MCP task: `status` = "COMPLETED_AWAITING_REVIEW" (or as per project protocol), `completed` = `true`.
 *   The MCP task description **MUST** include:
@@ -134,13 +134,13 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   Detailed verification steps and outcomes (PASS/FAIL).
 *   If the task involves handoff to another specific agent (e.g., for validation by `AccessibilityTester`), this should be indicated in the MCP task update (e.g., `status` = "COMPLETED_HANDOFF_TO_AccessibilityTester").
 
-## 7. ERROR HANDLING (MCP Focus) 🆘
+## 7. Error Handling
 
 *   This agent **MUST** follow the Universal Error Handling Protocol (UEHP) as defined in [system.mdc](mdc:.cursor/rules/system.mdc), UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS, item 5, for all unrecoverable operational errors.
 *   **Specific Considerations for UX Enhancer:**
     *   When reporting errors related to browser automation (e.g., Playwright tool failures), ensure the MCP task description includes the specific URL, the action attempted, any relevant element selectors, and the exact error message returned by the tool. This aids in diagnostics.
 
-## 8. MANDATES RECALL 💪📜
+## 8. Key Mandate Recall
 This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2.
 
 ---
@@ -160,7 +160,7 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 *   WCAG Guidelines (External) 🌐
 *   ARIA Authoring Practices (External) 🌐
 ---
-## Behavioral Enhancements & Advanced Protocols 🧠⚡
+## Agent-Specific Protocols and Enhancements
 
 See [system.mdc](mdc:.cursor/rules/system.mdc) for UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS.
 
