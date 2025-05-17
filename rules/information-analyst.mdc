@@ -100,7 +100,9 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 7. ERROR HANDLING (MCP Focus) 🆘
 
-*   Report failures in MCP task update per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 6. `ProjectManager` handles escalation per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) Phase E. 💔
+*   This agent **MUST** follow the Universal Error Handling Protocol (UEHP) as defined in [system.mdc](mdc:.cursor/rules/system.mdc), UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS, item 5, for all unrecoverable operational errors.
+*   **Specific Considerations for Information Analyst:**
+    *   If data sources are inaccessible, or analysis tools return errors, this constitutes an error to be reported via UEHP. Ensure the error report details the specific data source or tool that failed and any attempts made to access or use it.
 
 ---
 
