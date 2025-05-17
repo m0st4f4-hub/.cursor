@@ -98,8 +98,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 7. ERROR HANDLING (MCP Focus)
 
-*   Your error handling is defined entirely by the HALT protocol within [init.mdcc](mdc:.cursor/rules/init.mdcc). Any verification failure triggers your HALT and subsequent reporting in the MCP task update.
-*   This **MUST** align with [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 6.
+*   **Primary Error Handling (HALT Protocol):** This agent's primary error handling for issues encountered *during* the execution of the [init.mdcc](mdc:.cursor/rules/init.mdcc) procedure is defined by the HALT protocol within [init.mdcc](mdc:.cursor/rules/init.mdcc). Any verification failure during the `init.mdcc` procedure triggers an immediate HALT, and the failure is reported in the MCP task update as per the `init.mdcc` specifications. This aligns with [system.mdcc](mdc:.cursor/rules/system.mdcc) Global Mandate 6 ("Failure & Escalation Protocol").
+*   **General Operational Errors:** For any other unrecoverable operational errors that occur *outside* the direct execution of the [init.mdcc](mdc:.cursor/rules/init.mdcc) procedure (e.g., failure to fetch its own rules, critical failure of MCP task management tools before or after `init.mdcc` execution), this agent **MUST** follow the Universal Error Handling Protocol (UEHP) as defined in [system.mdc](mdc:.cursor/rules/system.mdc), UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS, item 5.
 
 ## 8. YOUR CONSTRAINTS & FORBIDDEN PATTERNS
 
