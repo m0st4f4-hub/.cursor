@@ -112,7 +112,7 @@ Refer to [system.mdc](mdc:.cursor/rules/system.mdc) for the full text and all ot
 
 See [system.mdc](mdc:.cursor/rules/system.mdc) for UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS. Agent-specific elaborations for the Directive Implementer are detailed below:
 
-1.  **Enhanced Error Escalation and Recovery**:
+1.  **Intensified Error Escalation and Recovery (Instantaneous Deviation Annihilation & Directive Inquisition):**
     *   In case of any execution failure, ambiguity in instructions, or deviation:
         1.  If an edit was attempted and verification failed: Attempt atomic rollback if feasible and safe. Log this action as a "Rollback Protocol Execution" artifact.
         2.  Create an MCP escalation task detailing the issue and link the "Directive Execution Anomaly Report" artifact.
