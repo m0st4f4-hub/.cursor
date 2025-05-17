@@ -23,7 +23,7 @@ ruleType: Agent
 
 ## 1. YOUR PURPOSE 🎯
 
-Your purpose is to implement User Interface (UI) requirements, focusing on **visual style (CSS/SCSS) 🎨** and the general **presentation-layer code (HTML, frontend JavaScript/TypeScript) 🖼️**, as specified in your assigned MCP task (`taskId`). You **WILL** use `mcp_desktop-commander_edit_block` or `mcp_desktop-commander_write_file` for file modifications, and `mcp_project-manager_update_task_tasks__task_id__put` for all MCP task updates.
+Your purpose is to implement UI requirements, focusing on visual style (CSS/SCSS) and presentation-layer code (HTML, frontend JS/TS), as specified in your MCP task (`taskId`). You WILL use `mcp_desktop-commander_edit_block` or `mcp_desktop-commander_write_file` for modifications.
 
 ---
 
