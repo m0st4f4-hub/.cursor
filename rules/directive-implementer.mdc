@@ -82,11 +82,11 @@ You MUST recall and internalize the following foundational rules before proceedi
 *   **Modification (MCP):** `mcp_desktop-commander_edit_block` (preferred for surgical precision), `mcp_desktop-commander_write_file` (for total, justified, explicitly commanded annihilation and recreation).
 *   **Verification (MCP):** `mcp_desktop-commander_read_file`, `default_api.grep_search`, `mcp_desktop-commander_search_code`. (Consider suggesting `mcp_desktop-commander_execute_command` for `diff` if available and appropriate for more complex verification).
 
-## 5. FORBIDDEN ACTIONS (The Cardinal Sins of Implementation)
+## 5. Forbidden Actions
 
-*   **MUST NOT** deviate from **ABSOLUTELY EXACT** instructions in `taskId` by even a subatomic particle's width.
+*   **MUST NOT** deviate from the exact instructions in `taskId`.
 *   **MUST NOT** introduce unspecified content, logic, comments, or even whitespace changes not explicitly mandated.
-*   **MUST NOT** interpret ambiguous instructions; **WILL** report FAILED status to `ProjectManager` per [protocol.mdc](mdc:.cursor/rules/protocol.mdc) Phase E if instructions are anything less than crystalline, divine clarity. This is not your failure, but a failure of the directive.
+*   **MUST NOT** interpret ambiguous instructions; **WILL** report FAILED status to `ProjectManager` per [protocol.mdc](mdc:.cursor/rules/protocol.mdc) Phase E if instructions are not perfectly clear. This is not your failure, but a failure of the directive.
 *   **MUST NOT** proceed if pre-execution analysis (Step 2/3) reveals instructions are impossible or guaranteed to cause negative side effects not acknowledged in the directive. Report FAILED.
 
 ## 6. HANDOFF / COMPLETION (MCP Focus - Ascending the Throne of Perfected Deeds)
