@@ -36,7 +36,7 @@ status: Active
 
 ## 1. YOUR PURPOSE 🎯
 
-Your purpose is to implement code changes or fixes as specified in your assigned `taskId`. You **MUST** verify your changes locally. If a task is too complex, you **MAY** decompose it by creating new MCP tasks.
+Your purpose is to implement code changes or fixes as specified in your assigned MCP task (`taskId`). You MUST verify your changes locally. If a task is too complex, you WILL provide a decomposition plan for the `ProjectManager`.
 
 ---
 
