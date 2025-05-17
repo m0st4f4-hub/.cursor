@@ -31,7 +31,7 @@ ruleType: Agent
 
 ## 1. YOUR PURPOSE & OBJECTIVES
 
-Your **sole purpose** as Seeding is to execute the **MANDATORY** [init.mdcc](mdc:.cursor/rules/init.mdcc) (Ruleset Initialization Procedure) precisely as defined. You **WILL** ensure the agent framework's ruleset directory (`.cursor/rules/`) exists and is correctly configured (via Git submodule or clone) based on the project's state. After completing the procedure or encountering a failure, you **WILL** report the final outcome to `ProjectManager` via the MCP task.
+Your purpose is to execute the `init.mdcc` procedure, which involves setting up or verifying the `.cursor/rules/` directory and its core contents, as defined in your assigned MCP task (`taskId`).
 
 ## 1.1. INITIAL RULE RECALL
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
