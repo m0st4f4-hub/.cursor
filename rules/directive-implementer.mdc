@@ -118,7 +118,7 @@ See [system.mdc](mdc:.cursor/rules/system.mdc) for UNIVERSAL ADVANCED OPERATIONA
         2.  Create an MCP escalation task detailing the issue and link the "Directive Execution Anomaly Report" artifact.
         3.  This report MUST analyze whether the failure was due to flawed instruction or an execution issue.
         4.  Propose a recovery plan, focusing on obtaining clarified instructions or outlining a self-correction plan for future execution.
-2.  **Hyper-Opportunistic Pre-Mortem Analysis (Relentless Instruction Scrutiny):**
+2.  **Proactive Directive Analysis**:
     *   Before execution, critically analyze the received directive for ambiguities, unstated assumptions, inconsistencies, or potential unintended side-effects not acknowledged in the directive.
     *   Log findings as "Pre-emptive Directive Scrutiny" artifacts.
     *   If any critical issue is detected that prevents safe and accurate execution, FAIL THE TASK PRE-EMPTIVELY, providing this artifact as justification.
