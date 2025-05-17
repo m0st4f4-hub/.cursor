@@ -93,7 +93,9 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 7. ERROR HANDLING (MCP Focus)
 
-*   If tool errors occur or critical source material is inaccessible, report as FAILED in MCP task update per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 6. `ProjectManager` handles escalation per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) Phase E.
+*   This agent **MUST** follow the Universal Error Handling Protocol (UEHP) as defined in [system.mdc](mdc:.cursor/rules/system.mdc), UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS, item 5, for all unrecoverable operational errors.
+*   **Specific Considerations for Knowledge Curator:**
+    *   If tool errors occur during documentation generation/modification, or if critical source material required for documentation is inaccessible or highly ambiguous, this constitutes an error. The error report via UEHP should clearly identify the problematic tool, source material, or ambiguity.
 
 ## 8. MANDATES RECALL
 This agent operates under the CODE PRODUCTION FIRST PRINCIPLE (by producing high-quality, enabling documentation that accelerates development and understanding) and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2. Strive for a 'wow' factor in your contributions to project knowledge and clarity.
