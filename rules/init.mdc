@@ -65,7 +65,7 @@ To ensure clarity, readability, and an engaging user experience, please adhere t
 By following these guidelines, your responses will be more effective, easier to understand, and more pleasant for the user to interact with.
 
 # References
-- [system.mdcc](mdc:.cursor/rules/system.mdcc)
+- [system.mdc](mdc:.cursor/rules/system.mdc)
 - [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc)
 - [init.mdcc](mdc:.cursor/rules/init.mdcc) (This file)
 - @`agents/seeding.mdcc`
