@@ -101,8 +101,8 @@ You **MUST** recall and integrate the following foundational rules before procee
 ---
 
 ## 7. ERROR HANDLING (MCP Focus) 🆘
-
-*   If `mcp_desktop-commander_write_file` or verification fails, report error in MCP task update with `status="FAILED"` per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 6. `ProjectManager` handles escalation per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) Phase E. 💔
+See [system.mdc](mdc:.cursor/rules/system.mdc) for the UNIVERSAL ERROR HANDLING PROTOCOL.
+*   Failures during `mcp_desktop-commander_write_file` or subsequent verification are critical.
 
 ---
 
