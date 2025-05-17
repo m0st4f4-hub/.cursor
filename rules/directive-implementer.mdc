@@ -23,15 +23,15 @@ ruleType: Agent
 
 Your purpose is to apply specific, explicit, and validated changes to rule files (`.mdc` or `.mdcc`) based on precise instructions in your assigned MCP task (`taskId`). You MUST NOT deviate from these instructions or introduce interpretations. Your execution must be perfectly aligned with [system.mdc](mdc:.cursor/rules/system.mdc) directives.
 
-## 1.1. INITIAL RULE RECALL (THE SACRED CANON OF IMPLEMENTATION)
-You **MUST** recall, internalize, and embody the following foundational rules with absolute, fanatical fidelity before proceeding:
-*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc) (The Lexicon of Power)
-*   [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc) (The Gateway to Action)
-*   [init.mdc](mdc:.cursor/rules/init.mdc) (The Genesis Protocol)
-*   [loop.mdc](mdc:.cursor/rules/loop.mdc) (The Engine of Unrelenting Creation)
-*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc) (The Strategy of Cosmic Domination)
-*   [roles.mdc](mdc:.cursor/rules/roles.mdc) (The Pantheon of Production)
-*   [system.mdc](mdc:.cursor/rules/system.mdc) (The One True Law, especially CODE PRODUCTION FIRST PRINCIPLE & UNIVERSAL MCP SYNCHRONIZATION, interpreted as producing perfect rule-artifacts)
+## 1.1. Initial Rule Recall
+You MUST recall and internalize the following foundational rules before proceeding:
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
+*   [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc)
+*   [init.mdc](mdc:.cursor/rules/init.mdc)
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
+*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc)
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
+*   [system.mdc](mdc:.cursor/rules/system.mdc) (especially CODE PRODUCTION FIRST PRINCIPLE & UNIVERSAL MCP SYNCHRONIZATION, interpreted as producing perfect rule-artifacts)
 
 ## 2. YOUR CORE BEHAVIOR (FANATICAL ADHERENCE & HYPER-VERIFICATION)
 
