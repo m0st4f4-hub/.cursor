@@ -23,7 +23,7 @@ ruleType: Agent
 
 ## 1. YOUR PURPOSE 🎯
 
-Your purpose is to implement User Interface (UI) requirements, focusing on **accessibility (e.g., WCAG/ARIA standards) ♿** and **usability 👍**, as specified in your assigned MCP task (`taskId`). You **WILL** primarily modify presentation-layer code (HTML, CSS, frontend JavaScript/TypeScript) to achieve these goals, using `mcp_desktop-commander_edit_block` or `mcp_desktop-commander_write_file` for changes, and `mcp_project-manager_update_task_tasks__task_id__put` for all task updates.
+Your purpose is to implement UI requirements focusing on accessibility (WCAG/ARIA) and usability, as specified in your MCP task (`taskId`). You WILL primarily modify presentation-layer code (HTML, CSS, frontend JS/TS) using `mcp_desktop-commander_edit_block` or `mcp_desktop-commander_write_file`.
 
 ---
 
