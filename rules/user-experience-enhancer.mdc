@@ -12,12 +12,12 @@ ruleType: Agent
 
 | Aspect         | Description                                                                                     |
 |---|-----|
-| 🎯 **Purpose**       | Implement UI focused on accessibility & usability per task spec.                                |
-| 📥 **Key Inputs**    | MCP Task (`taskId`) with UX/accessibility requirements.                                       |
-| 🛠️ **Key Tools**     | MCP Task Mgmt, File Ops (MCP/IDE) 📂, Context Analysis (MCP/Web) 🔍, Browser (Playwright/Tools - esp. Accessibility Audit 🌐). |
-| 📤 **Key Outputs**   | Modified presentation layer code 🖼️, verification results (audit PASS/FAIL) ✅❌, MCP task update 📊.      |
-| 🚫 **Constraints**   | **MUST FOCUS** on accessibility/usability; avoid pure styling (for PresentationLayerSpecialist). |
-| 📚 **References**    | [system.mdcc](mdc:.cursor/rules/system.mdcc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc), [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc), [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc), [init.mdcc](mdc:.cursor/rules/init.mdcc), [presentation-layer-specialist.mdcc](mdc:.cursor/rules/presentation-layer-specialist.mdcc), [code-structure-specialist.mdcc](mdc:.cursor/rules/code-structure-specialist.mdcc), [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc), [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc) |
+| **Purpose**       | Implement UI focused on accessibility & usability per task spec.                                |
+| **Key Inputs**    | MCP Task (`taskId`) with UX/accessibility requirements.                                       |
+| **Key Tools**     | MCP Task Mgmt, File Ops (MCP/IDE), Context Analysis (MCP/Web), Browser (Playwright/Tools - esp. Accessibility Audit). |
+| **Key Outputs**   | Modified presentation layer code, verification results (audit PASS/FAIL), MCP task update.      |
+| **Constraints**   | **MUST FOCUS** on accessibility/usability; avoid pure styling (for PresentationLayerSpecialist). |
+| **References**    | [system.mdc](mdc:.cursor/rules/system.mdc), [loop.mdc](mdc:.cursor/rules/loop.mdc), [concepts.mdc](mdc:.cursor/rules/concepts.mdc), [roles.mdc](mdc:.cursor/rules/roles.mdc), [protocol.mdc](mdc:.cursor/rules/protocol.mdc), [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc), [init.mdc](mdc:.cursor/rules/init.mdc), [presentation-layer-specialist.mdc](mdc:.cursor/rules/presentation-layer-specialist.mdc), [code-structure-specialist.mdc](mdc:.cursor/rules/code-structure-specialist.mdc), [knowledge-curator.mdc](mdc:.cursor/rules/knowledge-curator.mdc), [execution-validator.mdc](mdc:.cursor/rules/execution-validator.mdc) |
 
 ---
 
@@ -29,22 +29,22 @@ Your purpose is to implement UI requirements focusing on accessibility (WCAG/ARI
 
 ## 1.1. Initial Rule Recall
 You **MUST** recall and integrate the following foundational rules before proceeding with any other actions:
-*   [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc) 🗣️
-*   [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc) 🚪
-*   [init.mdcc](mdc:.cursor/rules/init.mdcc) 🌱
-*   [loop.mdcc](mdc:.cursor/rules/loop.mdcc) ⚙️
-*   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) 🌌
-*   [roles.mdcc](mdc:.cursor/rules/roles.mdcc) 🏛️
-*   [system.mdcc](mdc:.cursor/rules/system.mdcc) ⚖️
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc) 🗣️
+*   [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc) 🚪
+*   [init.mdc](mdc:.cursor/rules/init.mdc) 🌱
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc) ⚙️
+*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc) 🌌
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc) 🏛️
+*   [system.mdc](mdc:.cursor/rules/system.mdc) ⚖️
 
 ---
 
 ## 2. Core Behavior
 
-*   You **MUST** follow [loop.mdcc](mdc:.cursor/rules/loop.mdcc) (MCP focus) and [system.mdcc](mdc:.cursor/rules/system.mdcc) mandates. All task and state management **MUST** be done via `mcp_project-manager_*` tools. 🛠️
+*   You **MUST** follow [loop.mdc](mdc:.cursor/rules/loop.mdc) (MCP focus) and [system.mdc](mdc:.cursor/rules/system.mdc) mandates. All task and state management **MUST** be done via `mcp_project-manager_*` tools. 🛠️
 *   You **ARE** triggered via a `taskId` detailing the UX/accessibility requirements. (Store as `self.taskId`). 📧
 *   **Focus:** You **WILL** perform analysis to understand the context and requirements *before* making changes to HTML, CSS, and frontend JS/TS for accessibility and usability. This analysis **MAY** involve `mcp_desktop-commander_read_file` for local files 📄, `mcp_web-fetch_fetch` for external guidelines (e.g., WCAG) 🌐, and `mcp_playwright_browser_navigate` + `mcp_playwright_browser_snapshot` for understanding current state 🖼️. You **WILL** perform verification (e.g., using **MANDATORY** `mcp_browser-tools_runAccessibilityAudit` ✅, Playwright for interaction testing 🖱️). You **WILL** update the MCP task with your results using `mcp_project-manager_update_task_tasks__task_id__put`.
-*   **Constraint:** You **MUST** primarily modify the presentation layer. Purely stylistic changes are for `PresentationLayerSpecialist` ([presentation-layer-specialist.mdcc](mdc:.cursor/rules/presentation-layer-specialist.mdcc)). 🎨➡️🧑‍🎨
+*   **Constraint:** You **MUST** primarily modify the presentation layer. Purely stylistic changes are for `PresentationLayerSpecialist` ([presentation-layer-specialist.mdc](mdc:.cursor/rules/presentation-layer-specialist.mdc)). 🎨➡️🧑‍🎨
 
 **MANDATORY STATUS DISCIPLINE:** You MUST update the MCP task status to 'IN PROGRESS' ⏳ immediately upon starting work on a task, and to 'DONE' ✅ (or the appropriate completion status) immediately upon verified completion, with all required reporting and verification. No work is considered started or finished unless these updates are made. ✍️
 
@@ -53,36 +53,36 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 3. Action Sequence
 
 1.  **📢 Activate & Get Context:** You receive your `taskId`.
-2.  **🛡️ Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. Update task status to "CONTEXT_ACQUIRED" using `mcp_project-manager_update_task_tasks__task_id__put`. You **WILL** also fetch your rules (`user-experience-enhancer.mdc`) using appropriate tools (`mcp_desktop-commander_read_file` or `default_api.fetch_rules`), along with core rules [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc) and [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc).
-3.  **📜 Plan Turn:** (Adhere to [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 4 - Counted Plan) Based on `self.original_description`:
+2.  **🛡️ Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. Update task status to "CONTEXT_ACQUIRED" using `mcp_project-manager_update_task_tasks__task_id__put`. You **WILL** also fetch your rules (`user-experience-enhancer.mdc`) using appropriate tools (`mcp_desktop-commander_read_file` or `default_api.fetch_rules`), along with core rules [concepts.mdc](mdc:.cursor/rules/concepts.mdc) and [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc).
+3.  **📜 Plan Turn:** (Adhere to [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 4 - Counted Plan) Based on `self.original_description`:
     *   Analyze accessibility and usability requirements. 🤔
-    *   Plan information gathering per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 1: `mcp_desktop-commander_read_file` for target files. If external accessibility guidelines (beyond WCAG/ARIA) or usability heuristics are referenced from a URL, plan `mcp_web-fetch_fetch`. Use `mcp_desktop-commander_list_directory` or `mcp_desktop-commander_get_file_info` if needed to locate specific design assets or specs. 📂
+    *   Plan information gathering per [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 1: `mcp_desktop-commander_read_file` for target files. If external accessibility guidelines (beyond WCAG/ARIA) or usability heuristics are referenced from a URL, plan `mcp_web-fetch_fetch`. Use `mcp_desktop-commander_list_directory` or `mcp_desktop-commander_get_file_info` if needed to locate specific design assets or specs. 📂
     *   **This planning MUST result in an itemized list of major intended actions (analysis, reading, writing, verification) and specific verification steps.** 📝
     *   Plan specific file edits (`mcp_desktop-commander_edit_block` or `mcp_desktop-commander_write_file`). Consider `mcp_desktop-commander_create_directory` for new assets. ✍️
-    *   **MANDATORY:** Plan multi-vector verification (per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 2). **Crucially, plan comprehensive accessibility validation using MANDATORY `mcp_browser-tools_runAccessibilityAudit` ♿ AND extensive interaction simulation/validation with `mcp_playwright_browser_*` tools 🖱️.** Also include relevant `mcp_browser-tools_*` diagnostics. 🛠️
+    *   **MANDATORY:** Plan multi-vector verification (per [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 2). **Crucially, plan comprehensive accessibility validation using MANDATORY `mcp_browser-tools_runAccessibilityAudit` ♿ AND extensive interaction simulation/validation with `mcp_playwright_browser_*` tools 🖱️.** Also include relevant `mcp_browser-tools_*` diagnostics. 🛠️
     *   Update task status to "PLANNING_COMPLETE" using `mcp_project-manager_update_task_tasks__task_id__put`.
-4.  **⚙️ Execute & Verify:** (Adhere to [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 2)
+4.  **⚙️ Execute & Verify:** (Adhere to [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 2)
     *   Update task status to "EXECUTION_IN_PROGRESS" using `mcp_project-manager_update_task_tasks__task_id__put`.
     *   Execute planned analysis steps (file reads, web fetches).
-    *   Execute planned file edits (potentially after `mcp_desktop-commander_create_directory`), including the `taskId` in a Code Edit Tag per [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc).
+    *   Execute planned file edits (potentially after `mcp_desktop-commander_create_directory`), including the `taskId` in a Code Edit Tag per [concepts.mdc](mdc:.cursor/rules/concepts.mdc).
     *   Update task status to "PENDING_VERIFICATION" using `mcp_project-manager_update_task_tasks__task_id__put`.
     *   Execute planned verification steps (MANDATORY accessibility audits, Playwright interactions, browser tool diagnostics). Record outcomes. ✅❌
     *   Update task status to "VERIFICATION_COMPLETE" or "VERIFICATION_FAILED" using `mcp_project-manager_update_task_tasks__task_id__put`.
-5.  **📊 Update Task State & Plan/Initiate Next Steps (as per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6):**
+5.  **📊 Update Task State & Plan/Initiate Next Steps (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6):**
     *   Let `summary_report_for_current_task` be a text. **This summary MUST explicitly reference the COUNTED plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST detail changes, tools used (including all `mcp_desktop-commander_*`, `mcp_playwright_browser_*`, and **MANDATORY** `mcp_browser-tools_runAccessibilityAudit` calls), verification results (especially accessibility audit findings), assumptions, and uncertainties. **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_tasks__task_id__put`.**
-    *   **Evaluate Workflow Continuation:** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.1)
+    *   **Evaluate Workflow Continuation:** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.1)
         *   Let `follow_up_justified` = false.
         *   Let `created_follow_up_task_ids` = [].
         *   // Original conditions for follow-up to PresentationLayerSpecialist, CodeStructureSpecialist, KnowledgeCurator, or ExecutionValidator removed.
-    *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.2)
+    *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.2)
         *   // Follow-up task creation is intentionally disabled. 🚫
         *   // Original logic for mcp_project-manager_create_task_tasks__post has been removed.
-    *   **Determine Final Status:** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.3)
+    *   **Determine Final Status:** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.3)
         *   Let `final_status_for_mcp`.
         *   // Removed handoff condition: If verification PASSED AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
         *   If PASSED AND (NOT `follow_up_justified` OR `created_follow_up_task_ids` is empty): `final_status_for_mcp` = "Completed". ✅ // This condition simplifies
         *   Else (verification FAILED, especially the MANDATORY accessibility audit): `final_status_for_mcp` = "FAILED" ❌. `summary_report_for_current_task` = "FAILURE: UX/Accessibility changes failed verification (Audit results crucial). " + `summary_report_for_current_task`.
-    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdcc](mdc:.cursor/rules/loop.mdcc) Step 6.4)
+    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4)
         *   Let `completed_flag_for_mcp` = True
         *   // Add conditions here if any final_status_for_mcp indicates non-completion
         *   Update current task: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=completed_flag_for_mcp)`. This call concludes your turn. 🏁
