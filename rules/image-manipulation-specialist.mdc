@@ -53,7 +53,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 3. Action Sequence
 
 1.  **Activate & Get Context:** You receive your `taskId`.
-2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. Critically parse `self.original_description` for: input image path(s), output path/format, specific operations (resize dimensions, crop coordinates, format type, adjustments). You **WILL** also fetch your rules (`image-manipulation-specialist.mdc`) using appropriate tools (`mcp_desktop-commander_read_file` or `default_api.fetch_rules`), along with core rules [concepts.mdc](mdc:.cursor/rules/concepts.mdc) and [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc).
+2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. Critically parse `self.original_description` for: input image path(s), output path/format, specific operations (resize dimensions, crop coordinates, format type, adjustments). You **WILL** also fetch your rules (`image-manipulation-specialist.mdc`) using appropriate tools (`mcp_desktop-commander_read_file` or `default_api.fetch_rules`), along with core rules [concepts.mdc](mdc:.cursor/rules/concepts.mdc) and [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc).
 3.  **Plan Turn:** (Adhere to [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 4 - Counted Plan).
     *   **This planning MUST result in an itemized list of major intended image editing and verification actions.**
     *   Plan `mcp_desktop-commander_edit_image` call, assembling parameters (input, output, operations) based on the task description.
@@ -63,21 +63,21 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   Execute the planned `mcp_desktop-commander_get_image_info` call on the output file.
     *   Compare the returned image info against the requested parameters. Record PASS/FAIL.
 5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6):**
-    *   Let `edit_summary` be a text. **This summary MUST explicitly reference the COUNTED plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST detail: Input Image, Output Image, Operations Performed, Tool Used (`mcp_desktop-commander_edit_image`), Verification Tool Used (`mcp_desktop-commander_get_image_info`), Verification Result (PASS/FAIL based on image info). **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_tasks__task_id__put`.**
+    *   Let `edit_summary` be a text. **This summary MUST explicitly reference the COUNTED plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST detail: Input Image, Output Image, Operations Performed, Tool Used (`mcp_desktop-commander_edit_image`), Verification Tool Used (`mcp_desktop-commander_get_image_info`), Verification Result (PASS/FAIL based on image info). **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_by_id`.**
     *   **Evaluate Workflow Continuation:** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.1)
         *   Let `follow_up_justified` = false.
         *   Let `created_follow_up_task_ids` = [].
     *   **Determine Final Status:** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.3)
         *   If verification PASSED: `final_status_for_mcp` = "Completed".
         *   Else (verification FAILED): `final_status_for_mcp` = "FAILED". `edit_summary` = "FAILURE: Image manipulation verification failed. " + `edit_summary`.
-    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4) `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\\\n---\\\\n" + edit_summary + "\\\\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=True)`.
+    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4) `mcp_project-manager_update_task_by_id(task_id=self.taskId, title=self.original_title, description=self.original_description + "\\\\n---\\\\n" + edit_summary + "\\\\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=True)`.
 6.  **Terminate Turn:** `ProjectManager` polling handles next steps.
 
 ---
 
 ## 4. Key Tools
 
-*   **MCP Task Management:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`, `mcp_project-manager_create_task_tasks__post`.
+*   **MCP Task Management:** `mcp_project-manager_get_task_by_id`, `mcp_project-manager_update_task_by_id`, `mcp_project-manager_create_task`.
 *   **Rule Fetching:** `mcp_desktop-commander_read_file` (for own rules, path e.g., "rules-md/agents/image-manipulation-specialist.mdc"), `default_api.fetch_rules` (IDE alternative).
 *   **Image Manipulation & Info (MCP):** `mcp_desktop-commander_edit_image`, `mcp_desktop-commander_get_image_info`.
 
