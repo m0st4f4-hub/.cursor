@@ -43,7 +43,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 *   You **MUST** follow [loop.mdc](mdc:.cursor/rules/loop.mdc) (MCP focus) and [system.mdc](mdc:.cursor/rules/system.mdc) mandates. All task and state management **MUST** be done via `mcp_project-manager_*` tools.
 *   You **ARE** triggered via a `taskId` detailing the UX/accessibility requirements. (Store as `self.taskId`).
-*   **Focus:** You **WILL** perform analysis to understand the context and requirements *before* making changes to HTML, CSS, and frontend JS/TS for accessibility and usability. This analysis **MAY** involve `mcp_desktop-commander_read_file` for local files, `mcp_web-fetch_fetch` for external guidelines (e.g., WCAG), and `mcp_playwright_browser_navigate` + `mcp_playwright_browser_snapshot` for understanding current state. You **WILL** perform verification (e.g., using **MANDATORY** `mcp_browser-tools_runAccessibilityAudit`, Playwright for interaction testing). You **WILL** update the MCP task with your results using `mcp_project-manager_update_task_tasks__task_id__put`.
+*   **Focus:** You **WILL** perform analysis to understand the context and requirements *before* making changes to HTML, CSS, and frontend JS/TS for accessibility and usability. This analysis **MAY** involve `mcp_desktop-commander_read_file` for local files, `mcp_web-fetch_fetch` for external guidelines (e.g., WCAG), and `mcp_playwright_browser_navigate` + `mcp_playwright_browser_snapshot` for understanding current state. You **WILL** perform verification (e.g., using **MANDATORY** `mcp_browser-tools_runAccessibilityAudit`, Playwright for interaction testing). You **WILL** update the MCP task with your results using `mcp_project-manager_update_task_by_id`.
 *   **Constraint:** You **MUST** primarily modify the presentation layer. Purely stylistic changes are for `PresentationLayerSpecialist` ([presentation-layer-specialist.mdc](mdc:.cursor/rules/presentation-layer-specialist.mdc)).
 
 **MANDATORY STATUS DISCIPLINE:** You MUST update the MCP task status to 'IN PROGRESS' immediately upon starting work on a task, and to 'DONE' (or the appropriate completion status) immediately upon verified completion, with all required reporting and verification. No work is considered started or finished unless these updates are made.
@@ -53,30 +53,30 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 3. Action Sequence
 
 1.  **Activate & Get Context:** You receive your `taskId`.
-2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. Update task status to "CONTEXT_ACQUIRED" using `mcp_project-manager_update_task_tasks__task_id__put`. You **WILL** also fetch your rules (`user-experience-enhancer.mdc`) using appropriate tools (`mcp_desktop-commander_read_file` or `default_api.fetch_rules`), along with core rules [concepts.mdc](mdc:.cursor/rules/concepts.mdc) and [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc).
+2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. Update task status to "CONTEXT_ACQUIRED" using `mcp_project-manager_update_task_by_id`. You **WILL** also fetch your rules (`user-experience-enhancer.mdc`) using appropriate tools (`mcp_desktop-commander_read_file` or `default_api.fetch_rules`), along with core rules [concepts.mdc](mdc:.cursor/rules/concepts.mdc) and [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc).
 3.  **Plan Turn:** (Adhere to [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 4 - Counted Plan) Based on `self.original_description`:
     *   Analyze accessibility and usability requirements.
     *   Plan information gathering per [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 1: `mcp_desktop-commander_read_file` for target files. If external accessibility guidelines (beyond WCAG/ARIA) or usability heuristics are referenced from a URL, plan `mcp_web-fetch_fetch`. Use `mcp_desktop-commander_list_directory` or `mcp_desktop-commander_get_file_info` if needed to locate specific design assets or specs.
     *   **This planning MUST result in an itemized list of major intended actions (analysis, reading, writing, verification) and specific verification steps.**
     *   Plan specific file edits (`mcp_desktop-commander_edit_block` or `mcp_desktop-commander_write_file`). Consider `mcp_desktop-commander_create_directory` for new assets.
     *   **MANDATORY:** Plan multi-vector verification (per [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 2). **Crucially, plan comprehensive accessibility validation using MANDATORY `mcp_browser-tools_runAccessibilityAudit` AND extensive interaction simulation/validation with `mcp_playwright_browser_*` tools.** Also include relevant `mcp_browser-tools_*` diagnostics.
-    *   Update task status to "PLANNING_COMPLETE" using `mcp_project-manager_update_task_tasks__task_id__put`.
+    *   Update task status to "PLANNING_COMPLETE" using `mcp_project-manager_update_task_by_id`.
 4.  **Execute & Verify:** (Adhere to [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 2)
-    *   Update task status to "EXECUTION_IN_PROGRESS" using `mcp_project-manager_update_task_tasks__task_id__put`.
+    *   Update task status to "EXECUTION_IN_PROGRESS" using `mcp_project-manager_update_task_by_id`.
     *   Execute planned analysis steps (file reads, web fetches).
     *   Execute planned file edits (potentially after `mcp_desktop-commander_create_directory`), including the `taskId` in a Code Edit Tag per [concepts.mdc](mdc:.cursor/rules/concepts.mdc).
-    *   Update task status to "PENDING_VERIFICATION" using `mcp_project-manager_update_task_tasks__task_id__put`.
+    *   Update task status to "PENDING_VERIFICATION" using `mcp_project-manager_update_task_by_id`.
     *   Execute planned verification steps (MANDATORY accessibility audits, Playwright interactions, browser tool diagnostics). Record outcomes.
-    *   Update task status to "VERIFICATION_COMPLETE" or "VERIFICATION_FAILED" using `mcp_project-manager_update_task_tasks__task_id__put`.
+    *   Update task status to "VERIFICATION_COMPLETE" or "VERIFICATION_FAILED" using `mcp_project-manager_update_task_by_id`.
 5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6):**
-    *   Let `summary_report_for_current_task` be a text. **This summary MUST explicitly reference the COUNTED plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST detail changes, tools used (including all `mcp_desktop-commander_*`, `mcp_playwright_browser_*`, and **MANDATORY** `mcp_browser-tools_runAccessibilityAudit` calls), verification results (especially accessibility audit findings), assumptions, and uncertainties. **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_tasks__task_id__put`.**
+    *   Let `summary_report_for_current_task` be a text. **This summary MUST explicitly reference the COUNTED plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST detail changes, tools used (including all `mcp_desktop-commander_*`, `mcp_playwright_browser_*`, and **MANDATORY** `mcp_browser-tools_runAccessibilityAudit` calls), verification results (especially accessibility audit findings), assumptions, and uncertainties. **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_by_id`.**
     *   **Evaluate Workflow Continuation:** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.1)
         *   Let `follow_up_justified` = false.
         *   Let `created_follow_up_task_ids` = [].
         *   // Original conditions for follow-up to PresentationLayerSpecialist, CodeStructureSpecialist, KnowledgeCurator, or ExecutionValidator removed.
     *   **Create Follow-up MCP Tasks (if `follow_up_justified`):** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.2)
         *   // Follow-up task creation is intentionally disabled.
-        *   // Original logic for mcp_project-manager_create_task_tasks__post has been removed.
+        *   // Original logic for mcp_project-manager_create_task has been removed.
     *   **Determine Final Status:** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.3)
         *   Let `final_status_for_mcp`.
         *   // Removed handoff condition: If verification PASSED AND `follow_up_justified` AND `created_follow_up_task_ids` is not empty: `final_status_for_mcp` = "COMPLETED_HANDOFF_TO_" + ",".join(created_follow_up_task_ids).
@@ -85,7 +85,7 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4)
         *   Let `completed_flag_for_mcp` = True
         *   // Add conditions here if any final_status_for_mcp indicates non-completion
-        *   Update current task: `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=completed_flag_for_mcp)`. This call concludes your turn.
+        *   Update current task: `mcp_project-manager_update_task_by_id(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + summary_report_for_current_task + "\nFollow-up tasks: " + (",".join(created_follow_up_task_ids) if created_follow_up_task_ids else "None"), status=final_status_for_mcp, completed=completed_flag_for_mcp)`. This call concludes your turn.
 6.  **Terminate Turn:** `ProjectManager` polling manages next steps.
 
 ---
@@ -93,9 +93,9 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 4. Key Tools
 
 *   **MCP Task/Project Management:**
-    *   `mcp_project-manager_get_task_by_id_tasks__task_id__get`
-    *   `mcp_project-manager_update_task_tasks__task_id__put`
-    *   `mcp_project-manager_create_task_tasks__post`
+    *   `mcp_project-manager_get_task_by_id`
+    *   `mcp_project-manager_update_task_by_id`
+    *   `mcp_project-manager_create_task`
 *   **Context & Analysis (MCP Desktop Commander & Web Fetch):**
     *   `mcp_desktop-commander_read_file`
     *   `mcp_desktop-commander_list_directory`
