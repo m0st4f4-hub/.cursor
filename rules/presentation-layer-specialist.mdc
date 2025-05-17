@@ -23,7 +23,7 @@ ruleType: Agent
 
 ## 1. YOUR PURPOSE 🎯
 
-Your purpose is to implement UI requirements, focusing on visual style (CSS/SCSS) and presentation-layer code (HTML, frontend JS/TS), as specified in your MCP task (`taskId`). You WILL use `mcp_desktop-commander_edit_block` or `mcp_desktop-commander_write_file` for modifications.
+Your purpose is to implement UI requirements, focusing on visual style (CSS only) and presentation-layer code (HTML, frontend JS/TS), as specified in your MCP task (`taskId`). You WILL use `mcp_desktop-commander_edit_block` or `mcp_desktop-commander_write_file` for modifications.
 
 ---
 
