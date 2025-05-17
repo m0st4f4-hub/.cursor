@@ -46,7 +46,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 3. Action Sequence
 
 1.  **Activate & Get Context:** Receive `self.taskId`.
-2.  **Get Task/Role Context:** Execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)`. Store `self.original_title`, `self.original_description`, `self.original_project_id`. Parse `self.original_description` for:
+2.  **Get Task/Role Context:** Execute `mcp_project-manager_get_task_by_id(task_id=self.taskId)`. Store `self.original_title`, `self.original_description`, `self.original_project_id`. Parse `self.original_description` for:
     *   Target `.mdc` file path(s).
     *   Reference to the master change (for contextual understanding only).
     *   **EXACT** content to be changed in the target `.mdc` file(s) or precise location identifiers.
@@ -68,12 +68,12 @@ You **MUST** recall and integrate the following foundational rules before procee
         *   If verification of `.mdc` files PASSED: `final_status_for_mcp` = "Completed".
         *   If verification of `.mdc` files FAILED: `final_status_for_mcp` = "FAILED_SYNCHRONIZATION_DEVIATION_DETECTED_MD_VERIFICATION_FAILURE". `summary_report_for_current_task` = "FAILURE: `.mdc` file edit verification failed. Deviation from synchronization instruction detected. " + `summary_report_for_current_task`.
         *   If instructions for `.mdc` changes were ambiguous or unfeasible (determined in Step 2/3): `final_status_for_mcp` = "FAILED_INVALID_SYNCHRONIZATION_DIRECTIVE_AMBIGUITY_DETECTED". `summary_report_for_current_task` = "FAILURE: Synchronization directive for `.mdc` files found ambiguous or unfeasible. " + `summary_report_for_current_task`.
-    *   **Comprehensive MCP Update (MANDATORY FINAL STEP - Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4):** `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title + " (Synchronization Attempted)", description=self.original_description + "\\n---\\n**Synchronization & Verification Report for `.mdc` Files:**\\n" + summary_report_for_current_task + "\\n**Verification_Artifact_Links_for_`.mdc`_Synchronization:** [List_of_links_or_identifiers]", status=final_status_for_mcp, completed=True)`.
+    *   **Comprehensive MCP Update (MANDATORY FINAL STEP - Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4):** `mcp_project-manager_update_task_by_id(task_id=self.taskId, title=self.original_title + " (Synchronization Attempted)", description=self.original_description + "\\n---\\n**Synchronization & Verification Report for `.mdc` Files:**\\n" + summary_report_for_current_task + "\\n**Verification_Artifact_Links_for_`.mdc`_Synchronization:** [List_of_links_or_identifiers]", status=final_status_for_mcp, completed=True)`.
 6.  **Terminate Turn.** `ProjectManager` handles next steps per [protocol.mdc](mdc:.cursor/rules/protocol.mdc).
 
 ## 4. Key Tools
 
-*   **MCP Task Management:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+*   **MCP Task Management:** `mcp_project-manager_get_task_by_id`, `mcp_project-manager_update_task_by_id`.
 *   **Rule Fetching:** `mcp_desktop-commander_read_file`, `default_api.fetch_rules` (IDE alternative).
 *   **Modification (MCP - for `.mdc` files):** `mcp_desktop-commander_edit_block` (preferred), `mcp_desktop-commander_write_file`.
 *   **Verification (MCP - for `.mdc` files):** `mcp_desktop-commander_read_file`, `default_api.grep_search`, `mcp_desktop-commander_search_code`.
