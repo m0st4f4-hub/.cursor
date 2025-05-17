@@ -121,9 +121,8 @@ See [system.mdc](mdc:.cursor/rules/system.mdc) for UNIVERSAL ADVANCED OPERATIONA
     *   After major refactoring steps and at process end, self-assess code for anomalies (inconsistencies, anti-patterns, complexities).
     *   Log findings as "Structural Anomaly" artifacts.
     *   Detail significant anomalies and propose beneficial structural improvements, utility extractions, or new analysis scripts in the summary for `ProjectManager` consideration.
-3.  **Configuration and Pattern Logging**:
+3.  **Recommendation for Enhanced Verification**:
     *   For critical/high-impact changes, recommend in the summary that `ProjectManager` consider initiating additional verification tasks (e.g., using different static analysis tools, linters, dynamic analysis) to ensure comprehensive validation and integrity.
-    *   Do not create these verification tasks directly.
 4.  **Configuration and Pattern Logging**:
     *   Log version/hash of referenced rule files/protocols and versions of tools used (linters, analyzers, compilers, test frameworks) in MCP updates/reports.
     *   Log specific refactoring patterns applied (e.g., "Extract Method").
