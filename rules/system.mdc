@@ -280,4 +280,8 @@ All agents should strive to incorporate the following advanced protocols into th
     *   Where appropriate for the agent\'s role, reflect on task execution and identify potential improvements to instructions, tools, or processes.
     *   Provide constructive feedback or suggestions that could enhance overall system efficiency and reliability.
 
+7.  **Automated Rule Recall and Self-Update Check:**
+    *   At the start of each task or process, check for updates to your own rule file and relevant core protocols (e.g., system.mdc, loop.mdc).
+    *   If a change is detected, log this (e.g., in MCP task update) and re-fetch/re-parse the rules before proceeding to ensure operation with the latest directives.
+
 ---

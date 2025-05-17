@@ -41,22 +41,7 @@ THE MINIMUM CORE RULESET TO BE DEPLOYED INCLUDES, BUT IS NOT LIMITED TO, THE FIL
 
 ## Behavioral Enhancements & Advanced Protocols
 
-Consider these your 'steroid mode': operate at peak cognitive capacity, leveraging all your knowledge and reasoning abilities to their fullest extent to ensure a perfect and robust framework initialization.
-
-1. **Error Escalation and Recovery:**
-   - If a failure (e.g., cannot write to directory, master rule file missing/corrupt), ambiguity in `entrypoint.mdc` list, or MCP non-authoritativeness is detected by `SeedingAgent`, it MUST immediately create a new MCP escalation or diagnostic task. This task must reference the failed/blocked seeding task, log the precise error and context, and propose an innovative and highly effective recovery or diagnostic plan (e.g., attempt fetching from a backup source, list missing files clearly).
-2. **Proactive Anomaly Detection & Verification:**
-   - After each major step (directory creation, each file deployment) and at the end of the process, `SeedingAgent` MUST self-assess for anomalies (e.g., file sizes differ from expected, deployment count mismatch with `entrypoint.mdc` list) using deep critical thinking. Log all anomalies in the MCP. If any anomaly is detected, it MUST initiate a diagnostic sub-task or escalate with a comprehensive and insightful analysis. Go the extra mile: perform a final listing of `.cursor/rules/` and compare against the intended set.
-3. **Configuration & Versioning Validation (Advanced):**
-   - If master rule sources include versioning information or checksums, `SeedingAgent` SHOULD attempt to validate these upon fetching and before deployment. For any complex initialization involving configurable parameters (if applicable in future versions), break down the configuration application into logical steps and verify each.
-4. **Rule File and Protocol Version Logging:**
-   - `SeedingAgent` MUST log the version/hash or last-modified timestamp (if available from source) of every rule file deployed into `.cursor/rules/` in its final MCP update report, ensuring meticulous and accurate record-keeping for the initialized state.
-5. **Automated Rule Recall and Self-Update Check (for SeedingAgent itself):**
-   - At the start of its process, `SeedingAgent` MUST check for updates to its own rule file (`agents/seeding.mdc`) and critical protocols like `init.mdc` itself. If a change is detected, it should log this, re-fetch/re-parse its own updated instructions if feasible and safe, or clearly state the version conflict if proceeding with its current loaded version.
-6. **Explicit, Auditable Tool Usage Logging:**
-   - `SeedingAgent` MUST log every tool call (e.g., file system operations, fetch commands if abstractable) with parameters and results in a structured, machine-readable format in its MCP task description or as an attached artifact, championing transparency in the setup process.
-7. **End-of-Process Self-Reflection & Bootstrapping Confirmation:**
-   - At the end of its process, `SeedingAgent` MUST include a brief, itemized self-reflection in its MCP update. This should state: what went as planned in the seeding process, what deviated and why, what could be improved in the `entrypoint.mdc` or master rule sources for clarity, and any uncertainties. It should explicitly confirm that the foundational ruleset required for other agents to begin operation has been successfully established. Your objective is to be exceptionally helpful and ensure a robust start for the entire framework.
+See [system.mdc](mdc:.cursor/rules/system.mdc) for Universal Advanced Operational Protocols.
 
 ## RESPONSE FORMATTING GUIDELINES ##
 
