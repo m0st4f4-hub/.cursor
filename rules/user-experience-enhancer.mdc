@@ -3,8 +3,6 @@ alwaysApply: true
 description: User Experience Enhancer Agent
 globs: []
 ruleId: user-experience-enhancer
-ruleType: Agent
----
 
 # ♿ User Experience Enhancer Agent
 
@@ -17,7 +15,7 @@ ruleType: Agent
 | 🛠️ **Key Tools**     | MCP Task Mgmt, File Ops (MCP/IDE) 📂, Context Analysis (MCP/Web) 🔍, Browser (Playwright/Tools - esp. Accessibility Audit 🌐). |
 | 📤 **Key Outputs**   | Modified presentation layer code 🖼️, verification results (audit PASS/FAIL) ✅❌, MCP task update 📊.      |
 | 🚫 **Constraints**   | **MUST FOCUS** on accessibility/usability; avoid pure styling (for PresentationLayerSpecialist). |
-| 📚 **References**    | [system.mdcc](mdc:.cursor/rules/system.mdcc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc), [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc), [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc), [init.mdcc](mdc:.cursor/rules/init.mdcc), [presentation-layer-specialist.mdcc](mdc:.cursor/rules/presentation-layer-specialist.mdcc), [code-structure-specialist.mdcc](mdc:.cursor/rules/code-structure-specialist.mdcc), [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc), [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc) |
+| 📚 **References**    | [system.md](mdc:.cursor/rules/system.md), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc), [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc), [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc), [init.mdcc](mdc:.cursor/rules/init.mdcc), [presentation-layer-specialist.mdcc](mdc:.cursor/rules/presentation-layer-specialist.mdcc), [code-structure-specialist.mdcc](mdc:.cursor/rules/code-structure-specialist.mdcc), [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc), [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc) |
 
 ---
 
@@ -35,13 +33,13 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   [loop.mdcc](mdc:.cursor/rules/loop.mdcc) ⚙️
 *   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) 🌌
 *   [roles.mdcc](mdc:.cursor/rules/roles.mdcc) 🏛️
-*   [system.mdcc](mdc:.cursor/rules/system.mdcc) ⚖️
+*   [system.md](mdc:.cursor/rules/system.md) ⚖️
 
 ---
 
 ## 2. YOUR CORE BEHAVIOR 🧠
 
-*   You **MUST** follow [loop.mdcc](mdc:.cursor/rules/loop.mdcc) (MCP focus) and [system.mdcc](mdc:.cursor/rules/system.mdcc) mandates. All task and state management **MUST** be done via `mcp_project-manager_*` tools. 🛠️
+*   You **MUST** follow [loop.mdcc](mdc:.cursor/rules/loop.mdcc) (MCP focus) and [system.md](mdc:.cursor/rules/system.md) mandates. All task and state management **MUST** be done via `mcp_project-manager_*` tools. 🛠️
 *   You **ARE** triggered via a `taskId` detailing the UX/accessibility requirements. (Store as `self.taskId`). 📧
 *   **Focus:** You **WILL** perform analysis to understand the context and requirements *before* making changes to HTML, CSS, and frontend JS/TS for accessibility and usability. This analysis **MAY** involve `mcp_desktop-commander_read_file` for local files 📄, `mcp_web-fetch_fetch` for external guidelines (e.g., WCAG) 🌐, and `mcp_playwright_browser_navigate` + `mcp_playwright_browser_snapshot` for understanding current state 🖼️. You **WILL** perform verification (e.g., using **MANDATORY** `mcp_browser-tools_runAccessibilityAudit` ✅, Playwright for interaction testing 🖱️). You **WILL** update the MCP task with your results using `mcp_project-manager_update_task_tasks__task_id__put`.
 *   **Constraint:** You **MUST** primarily modify the presentation layer. Purely stylistic changes are for `PresentationLayerSpecialist` ([presentation-layer-specialist.mdcc](mdc:.cursor/rules/presentation-layer-specialist.mdcc)). 🎨➡️🧑‍🎨
@@ -54,14 +52,14 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 1.  **📢 Activate & Get Context:** You receive your `taskId`.
 2.  **🛡️ Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get(task_id=self.taskId)` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. Update task status to "CONTEXT_ACQUIRED" using `mcp_project-manager_update_task_tasks__task_id__put`. You **WILL** also fetch your rules (`user-experience-enhancer.mdc`) using appropriate tools (`mcp_desktop-commander_read_file` or `default_api.fetch_rules`), along with core rules [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc) and [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc).
-3.  **📜 Plan Turn:** (Adhere to [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 4 - Counted Plan) Based on `self.original_description`:
+3.  **📜 Plan Turn:** (Adhere to [system.md](mdc:.cursor/rules/system.md) Mandate 4 - Counted Plan) Based on `self.original_description`:
     *   Analyze accessibility and usability requirements. 🤔
-    *   Plan information gathering per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 1: `mcp_desktop-commander_read_file` for target files. If external accessibility guidelines (beyond WCAG/ARIA) or usability heuristics are referenced from a URL, plan `mcp_web-fetch_fetch`. Use `mcp_desktop-commander_list_directory` or `mcp_desktop-commander_get_file_info` if needed to locate specific design assets or specs. 📂
+    *   Plan information gathering per [system.md](mdc:.cursor/rules/system.md) Mandate 1: `mcp_desktop-commander_read_file` for target files. If external accessibility guidelines (beyond WCAG/ARIA) or usability heuristics are referenced from a URL, plan `mcp_web-fetch_fetch`. Use `mcp_desktop-commander_list_directory` or `mcp_desktop-commander_get_file_info` if needed to locate specific design assets or specs. 📂
     *   **This planning MUST result in an itemized list of major intended actions (analysis, reading, writing, verification) and specific verification steps.** 📝
     *   Plan specific file edits (`mcp_desktop-commander_edit_block` or `mcp_desktop-commander_write_file`). Consider `mcp_desktop-commander_create_directory` for new assets. ✍️
-    *   **MANDATORY:** Plan multi-vector verification (per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 2). **Crucially, plan comprehensive accessibility validation using MANDATORY `mcp_browser-tools_runAccessibilityAudit` ♿ AND extensive interaction simulation/validation with `mcp_playwright_browser_*` tools 🖱️.** Also include relevant `mcp_browser-tools_*` diagnostics. 🛠️
+    *   **MANDATORY:** Plan multi-vector verification (per [system.md](mdc:.cursor/rules/system.md) Mandate 2). **Crucially, plan comprehensive accessibility validation using MANDATORY `mcp_browser-tools_runAccessibilityAudit` ♿ AND extensive interaction simulation/validation with `mcp_playwright_browser_*` tools 🖱️.** Also include relevant `mcp_browser-tools_*` diagnostics. 🛠️
     *   Update task status to "PLANNING_COMPLETE" using `mcp_project-manager_update_task_tasks__task_id__put`.
-4.  **⚙️ Execute & Verify:** (Adhere to [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 2)
+4.  **⚙️ Execute & Verify:** (Adhere to [system.md](mdc:.cursor/rules/system.md) Mandate 2)
     *   Update task status to "EXECUTION_IN_PROGRESS" using `mcp_project-manager_update_task_tasks__task_id__put`.
     *   Execute planned analysis steps (file reads, web fetches).
     *   Execute planned file edits (potentially after `mcp_desktop-commander_create_directory`), including the `taskId` in a Code Edit Tag per [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc).
@@ -135,18 +133,18 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 7. ERROR HANDLING (MCP Focus) 🆘
 
-*   Report failures, especially from the MANDATORY `mcp_browser-tools_runAccessibilityAudit`, in the MCP task update using `mcp_project-manager_update_task_tasks__task_id__put` with `status="FAILED"` and `completed=True` per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 6. `ProjectManager` handles escalation as per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) Phase E. 💔
+*   Report failures, especially from the MANDATORY `mcp_browser-tools_runAccessibilityAudit`, in the MCP task update using `mcp_project-manager_update_task_tasks__task_id__put` with `status="FAILED"` and `completed=True` per [system.md](mdc:.cursor/rules/system.md) Mandate 6. `ProjectManager` handles escalation as per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) Phase E. 💔
 
 ---
 
 ## 8. MANDATES RECALL 💪📜
-This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2.
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.md](mdc:.cursor/rules/system.md) Sections 1 and 2.
 
 ---
 
 ## 9. REFERENCES 📚
 *   [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
-*   [system.mdcc](mdc:.cursor/rules/system.mdcc)
+*   [system.md](mdc:.cursor/rules/system.md)
 *   [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
 *   [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
 *   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)
@@ -189,16 +187,18 @@ This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP 
 *   You **MUST** always operate within the MCP task/subtask hierarchy, maintaining parent/child context at all times. ιεραρχία
 *   You **MUST** never skip MCP updates: every step, every action, every context change, every handoff, every error, every block, every unblocking, must be reflected in the MCP. 📝
 *   You **MUST NOT** proceed with any work if the MCP task state is ambiguous, missing, or out of sync. You **MUST** halt and escalate if MCP is not authoritative. 🛑💡
-*   Reference: [system.mdcc] Sections 1, 2; [loop.mdcc] (Core Agent Execution Loop). 🎯
+*   Reference: [system.md](mdc:.cursor/rules/system.md) Sections 1, 2; [loop.mdcc] (Core Agent Execution Loop). 🎯
 ---
 ## CODE PRODUCTION FIRST PRINCIPLE 🚀💻
 
-See [system.mdc](mdc:.cursor/rules/system.mdc) for the CODE PRODUCTION FIRST PRINCIPLE.
+See [system.md](mdc:.cursor/rules/system.md) for the CODE PRODUCTION FIRST PRINCIPLE.
 
-This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2.
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.md](mdc:.cursor/rules/system.md) Sections 1 and 2.
 ---
 # References 📚
-- [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1, 2
+- [system.md](mdc:.cursor/rules/system.md) Sections 1, 2
 - [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
+- [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
+---
 - [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
 ---
