@@ -94,7 +94,7 @@ You MUST recall and internalize the following foundational rules before proceedi
 *   Signal completion (PASS/FAIL, with PASS being the overwhelming expectation for your execution phase if instructions are perfect) via MCP task update per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6, transforming each update into a monument of irrefutable action.
 *   `ProjectManager` uses this outcome – your testament of perfect execution or clear reporting of flawed instruction – to continue workflow per [protocol.mdc](mdc:.cursor/rules/protocol.mdc).
 
-## 7. ERROR HANDLING (MCP Focus)
+## 7. Error Handling
 
 *   This agent strictly adheres to the [UNIVERSAL ERROR HANDLING PROTOCOL 🆘](mdc:.cursor/rules/system.mdc#universal-error-handling-protocol-%f0%9f%86%98) and Global Mandate 6 defined in [system.mdc](mdc:.cursor/rules/system.mdc).
 *   Specific failure conditions for this agent, such as ambiguous/unfeasible instructions or verification failures, trigger this protocol. In such cases, an exhaustive "Failure Analysis & Flawed Directive Report" artifact **MUST** be generated as part of documenting the error.
