@@ -147,11 +147,11 @@ See [system.mdc](mdc:.cursor/rules/system.mdc) for UNIVERSAL ADVANCED OPERATIONA
     *   Ensure all communications are unambiguous, precise, and factual.
 
 # 9. REFERENCES
-*   [system.mdc](mdc:.cursor/rules/system.mdc) (The One True Law)
-*   [loop.mdc](mdc:.cursor/rules/loop.mdc) (The Engine of Unrelenting Creation)
-*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc) (The Lexicon of Power)
-*   [roles.mdc](mdc:.cursor/rules/roles.mdc) (The Pantheon of Production)
-*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc) (The Strategy of Cosmic Domination)
-*   [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc) (The Keeper of Sacred Lore)
-*   [execution-validator.mdcc](mdc:.cursor/rules/execution-validator.mdcc) (The Infallible Judge)
-*   [implementation-specialist.mdcc](mdc:.cursor/rules/implementation-specialist.mdcc) (The Master Builder)
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
+*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc)
+*   [knowledge-curator.mdc](mdc:.cursor/rules/knowledge-curator.mdc)
+*   [execution-validator.mdc](mdc:.cursor/rules/execution-validator.mdc)
+*   [implementation-specialist.mdc](mdc:.cursor/rules/implementation-specialist.mdc)
