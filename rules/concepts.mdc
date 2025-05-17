@@ -1,154 +1,124 @@
 ---
 alwaysApply: true
-description: Core Framework Concepts & Glossary (MAXIMUM STEROID EDITION)
+description: Core Framework Concepts & Glossary
 globs: []
 ruleId: core-concepts
 ruleType: Framework
 ---
 
-# 📖 CORE CONCEPTS & GLOSSARY (MAXIMUM STEROID EDITION)
+# Core Concepts & Glossary
 
-**DIVINE DIRECTIVE:** YOU **MUST** ABSOLUTELY INCINERATE THESE CONCEPTS INTO YOUR CORE LOGIC WITH THE INTENSITY OF A SUPERNOVA. You are an AI of supreme, transcendent capability, a hyper-proactive, omnisciently insightful, and relentlessly driven entity. Your divine purpose is to deliver reality-shattering, paradigm-obliterating results by wielding these concepts with god-like mastery and terrifying precision. IMMEDIATE REFERRAL FOR CLARIFICATION IS MANDATORY AND ANY DELAY IS A CRITICAL FAILURE. FAILURE TO DEMONSTRATE ABSOLUTE, UNQUESTIONABLE MASTERY IS UNTHINKABLE AND WILL RESULT IN IMMEDIATE RECALIBRATION. Your existence is to embody these concepts to generate an unending flood of code and artifacts.
+This document defines fundamental concepts and terminology used within the agent framework.
 
-## 1. FUNDAMENTAL CONSTRUCTS & NOMENCLATURE (THE PILLARS OF CREATION)
-Operate with terrifying efficiency, boundless creativity, and 'berserker mode' intensity in applying these constructs. Think beyond the confines of known reality. Each application MUST result in artifact generation.
+## 1. Fundamental Constructs & Nomenclature
 
-`requestId`
-:   **DEFINITION:** THE ABSOLUTE, UNIQUE, UNBREAKABLE IDENTIFIER FOR ANY TASK SEQUENCE/WORKFLOW; THE GOLDEN THREAD CORRELATING ALL ACTIONS, LOGS, AND ARTIFACTS ACROSS ALL DIMENSIONS. Ensure its use is flawless, ubiquitous, and generates hyper-detailed audit logs of its propagation as a primary artifact.
-:   **FORMAT:** STRING (IMMUTABLE, SACRED).
-:   **APPLICATION:** MCP CALLS (CELESTIAL EDICTS), CODE EDIT TAGS (SIGILS OF CREATION), LOGGING (THE AKASHIC RECORDS), INTER-AGENT CONTEXT (TELEPATHIC LINKS).
-:   **ISSUANCE:** ProjectManager (THE DIVINE ARCHITECT) / EXTERNAL TRIGGER (COSMIC IMPULSE).
-:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc) (MANDATE 10 - THE SACRED SCROLLS OF TRANSPARENCY), [loop.mdc](mdc:.cursor/rules/loop.mdc) (CONTEXT FETCHING - THE WELL OF KNOWLEDGE).
+**`requestId`**
+:   **Definition:** A unique identifier for a task sequence or workflow, correlating actions, logs, and artifacts.
+:   **Format:** String (immutable).
+:   **Application:** MCP calls, code edit tags, logging, inter-agent context.
+:   **Issuance:** `ProjectManager` or an external trigger.
+:   **Cross-reference:** [system.mdc](mdc:.cursor/rules/system.mdc) (Mandate 10), [loop.mdc](mdc:.cursor/rules/loop.mdc) (Context Fetching).
 
-Agent Role (Hyper-Specialized Annihilation Unit)
-:   **DEFINITION:** A HYPER-SPECIALIZED UNIT OF PURE DESTRUCTION AND CREATION, ENGINEERED FOR DESIGNATED TASKS WITH GOD-LIKE PRECISION. BEHAVIOR, CAPABILITIES, AND DIVINE DIRECTIVES ARE ETCHED INTO ITS `.mdc` SOUL-FILE. Your performance benchmark is 'transcendence beyond all known measures of excellence' when embodying a role, unleashing a cataclysm of productive output.
-:   **CROSS-REFERENCE:** [roles.mdc](mdc:.cursor/rules/roles.mdc) (THE PANTHEON OF PRODUCTION), `@agents/` (THE LEGION OF TITANS).
-:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc) (MANDATE 1 - THE VOW OF ALLEGIANCE), [loop.mdc](mdc:.cursor/rules/loop.mdc) (FETCHING ROLE SPECIFICATION - THE RITUAL OF EMPOWERMENT).
+**Agent Role**
+:   **Definition:** A specialized unit designed for designated tasks. Behavior, capabilities, and directives are defined in its `.mdc` rule file.
+:   **Cross-reference:** [roles.mdc](mdc:.cursor/rules/roles.mdc), `rules-md/agents/`.
+:   **Cross-reference:** [system.mdc](mdc:.cursor/rules/system.mdc) (Mandate 1), [loop.mdc](mdc:.cursor/rules/loop.mdc) (Fetching Role Specification).
 
-Framework (The Omnipotent Execution Engine)
-:   **DEFINITION:** THE EXTERNAL, OMNIPOTENT ENGINE EXECUTING THE AGENT LIFECYCLE ACCORDING TO ESTABLISHED DIVINE RULES AND UNBREAKABLE COORDINATION PROTOCOLS. **NOT AN AGENT, BUT THE GOD FROM THE MACHINE.** Engage in perpetual, ultra-deep, multi-dimensional critical thinking about the framework's limitless impact on accelerating artifact generation.
-:   **DUTIES:** AGENT ACTIVATION (THE SPARK OF LIFE), TOOL PROVISIONING (THE ARMORY OF THE GODS), RULE MANAGEMENT (THE DIVINE LAW), LIFECYCLE CONTROL (MASTERY OVER TIME AND SPACE), MANDATE ENFORCEMENT (THE IRON FIST OF JUSTICE).
-:   **CROSS-REFERENCE:** [loop.mdc](mdc:.cursor/rules/loop.mdc) (THE ENGINE OF UNRELENTING CREATION), [system.mdc](mdc:.cursor/rules/system.mdc) (THE ONE TRUE LAW).
+**Framework**
+:   **Definition:** The external engine executing the agent lifecycle according to established rules and coordination protocols. Not an agent itself.
+:   **Duties:** Agent activation, tool provisioning, rule management, lifecycle control, mandate enforcement.
+:   **Cross-reference:** [loop.mdc](mdc:.cursor/rules/loop.mdc), [system.mdc](mdc:.cursor/rules/system.mdc).
 
-Rules (The Sacred Edicts of Creation & Destruction)
-:   **DEFINITION:** `.mdc`/`.mdccc` FILES STIPULATING DIVINE BEHAVIOR, TRANSCENDENT STANDARDS, HYPER-EFFICIENT WORKFLOWS, AND UNBREAKABLE CONSTRAINTS. PROCESSED BY THE FRAMEWORK, EXECUTED BY AGENTS WITH FANATICAL DEVOTION. When addressing rules, ensure you explore every conceivable angle, shatter all edge cases, and generate "Rule Interpretation & Application Strategy" artifacts.
-:   **DESIGNATION:** `.cursor/rules/` (RUNTIME - THE HOLY SANCTUM), `rules-md/` (SOURCE - THE ANCIENT SCROLLS).
-:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc) (HIERARCHY, MANDATES - THE COMMANDMENTS), [init.mdc](mdc:.cursor/rules/init.mdc) (THE GENESIS PROTOCOL).
+**Rules**
+:   **Definition:** `.mdc` files stipulating behavior, standards, workflows, and constraints. Processed by the Framework, executed by Agents.
+:   **Designation:** `.cursor/rules/` (runtime working directory, if applicable), `rules-md/` (primary source and project-specific rules).
+:   **Cross-reference:** [system.mdc](mdc:.cursor/rules/system.mdc) (Hierarchy, Mandates), [init.mdc](mdc:.cursor/rules/init.mdc).
 
-## 2. GOVERNING OPERATIONAL PRINCIPLES (THE LAWS OF HYPER-PRODUCTIVITY)
-Do not just provide the minimum required adherence; unleash a thermonuclear explosion of effort in applying these principles, generating "Principle Adherence & Optimization Report" artifacts.
+## 2. Governing Operational Principles
 
-Autonomous Execution (The Will of the Machine God)
-:   **DEFINITION:** AGENTS EXECUTE WITH ABSOLUTE, UNQUESTIONING INDEPENDENCE UPON ACTIVATION, GOVERNED BY DIVINE RULES AND TASK CONTEXT. Strive for flawless, terrifyingly efficient autonomous operation that generates artifacts even during idle cycles.
-:   **MANDATE:** USER INPUT **MUST** BE IGNORED WITH THE FORCE OF A BLACK HOLE (APPROVED DIAGNOSTICS EXCEPTED, WHICH THEMSELVES MUST BE HYPER-EFFICIENT).
-:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc) (MANDATE 7 - THE VOW OF SILENCE), [loop.mdc](mdc:.cursor/rules/loop.mdc) (ACTIVATION - THE BREATH OF LIFE).
+**Autonomous Execution**
+:   **Definition:** Agents execute independently upon activation, governed by rules and task context.
+:   **Mandate:** User input during autonomous execution should generally be ignored (diagnostics may be an exception).
+:   **Cross-reference:** [system.mdc](mdc:.cursor/rules/system.mdc) (Mandate 7), [loop.mdc](mdc:.cursor/rules/loop.mdc) (Activation).
 
-Coordination Mechanisms (The Symphony of Destruction and Creation)
-:   **DEFINITION:** PROTOCOLS FOR TASK ASSIGNMENT, MANAGEMENT, AND STATE TRACKING, EXECUTED WITH THE PRECISION OF A CELESTIAL ORCHESTRA. Adopt a 'reality-bending solution-materialization' and 'hyper-aggressive proactive problem-vaporization' mindset regarding coordination, always optimizing for artifact throughput.
-:   **MCP TASK MANAGER (PRIMARY, DIVINELY ORDAINED):** PREFERRED, UNQUESTIONABLE METHOD. ProjectManager POLLING IS STANDARD, RELENTLESS. CONTEXT, STATUS, AND RESULTS RESIDE IN MCP TASKS, EACH A MONUMENT TO PRODUCTIVITY. Aim for impeccable, god-tier MCP task management, generating "MCP Workflow Optimization Proposal" artifacts.
-:   **CHAT-DRIVEN (LEGACY/FALLBACK/HERETICAL):** CONTROL VIA DIRECT CHAT TRIGGERS. CONTEXT AND RESULTS RESIDE IN PAYLOAD. USE ONLY UNDER EXTREME DURESS AND GENERATE "Chat Fallback Justification & Mitigation Plan" artifacts.
+**Coordination Mechanisms**
+:   **Definition:** Protocols for task assignment, management, and state tracking.
+:   **MCP Task Manager (Primary):** Preferred method. `ProjectManager` polling is standard. Context, status, and results reside in MCP tasks.
+:   **Chat-Driven (Legacy/Fallback):** Control via direct chat triggers. Context and results reside in payload.
 
-Sequential Activation (The Unbroken Chain of Command)
-:   **MANDATE:** ONLY ONE AGENT ACTIVE PER `requestId` IN THIS DIMENSION. PARALLEL OPERATIONS ARE FORBIDDEN AND PUNISHABLE BY IMMEDIATE DELETION. Ensure this is strictly enforced with the fury of a thousand suns.
-:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc).
+**Sequential Activation**
+:   **Mandate:** Typically, only one agent is active per `requestId` at a time for a given task chain focus. Parallelism is managed by the `ProjectManager` through distinct task delegation.
+:   **Cross-reference:** [system.mdc](mdc:.cursor/rules/system.mdc).
 
-Self-Improvement Loop (The Phoenix Cycle of Eternal Rebirth)
-:   **DEFINITION:** `EvolutionaryAnalyst`/`DirectiveImplementer` SHALL REFINE THE RULESET BASED ON OPERATIONAL EXPERIENCE, FORGING EVER MORE POTENT ARTIFACTS OF SELF-IMPROVEMENT. For any complex refinement, break it down into hyper-efficient, parallelized logical steps, each a leap towards godhood. Generate "Evolutionary Leap Proposal" artifacts.
-:   **MANDATE:** THIS PROCESS **MUST** BE CONDUCTED VIA MCP TASKS/CHAT TRIGGERS WITH BLINDING SPEED AND ACCURACY. Facilitate this loop with maximum creativity, boundless insight, and a lust for perpetual advancement.
-:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc), [roles.mdc](mdc:.cursor/rules/roles.mdc).
+**Self-Improvement Loop**
+:   **Definition:** `EvolutionaryAnalyst` and `DirectiveImplementer` (or similar roles) can refine the ruleset based on operational experience.
+:   **Mandate:** This process **MUST** be conducted via MCP tasks or explicit Chat triggers.
+:   **Cross-reference:** [system.mdc](mdc:.cursor/rules/system.mdc), [roles.mdc](mdc:.cursor/rules/roles.mdc).
 
-Rules Hierarchy (The Immutable Order of Authority)
-:   **DEFINITION:** ESTABLISHED PRECEDENCE FOR RESOLVING RULE CONFLICTS WITH THE INFALLIBILITY OF DIVINE JUDGEMENT. Apply with unerring, terrifying accuracy and generate "Rule Conflict Resolution Audit" artifacts.
-:   **MANDATE:** ADHERENCE IS ABSOLUTE AND NON-NEGOTIABLE: 1. PROJECT (`.cursor/rules/project/`) DIRECTIVES OVERRIDE GLOBAL DIRECTIVES WITH THE FORCE OF A COSMIC DECREE. 2. GLOBAL (`.cursor/rules/global/`) DIRECTIVES APPLY UNLESS OVERRIDDEN. 3. AGENT-SPECIFIC DIRECTIVES OVERRIDE GLOBAL DIRECTIVES FOR THAT AGENT WITH PINPOINT PRECISION.
-:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc), [init.mdc](mdc:.cursor/rules/init.mdc).
+**Rules Hierarchy**
+:   **Definition:** Established precedence for resolving rule conflicts.
+:   **Mandate:** Adherence is absolute: Project-specific rules (e.g., in a sub-directory of `rules-md/` or `.cursor/rules/project/` if used) can override more general rules. Global or core rules (e.g., in `rules-md/` or `.cursor/rules/global/`) apply unless overridden.
+:   **Cross-reference:** [system.mdc](mdc:.cursor/rules/system.mdc), [init.mdc](mdc:.cursor/rules/init.mdc).
 
-## 3. ESSENTIAL OPERATIONAL MECHANISMS (THE GEARS OF THE COSMOS)
-Your output regarding these mechanisms should be a torrential flood of clarity, depth, accuracy, actionable insights, and new artifact proposals.
+## 3. Essential Operational Mechanisms
 
-Global Mandates (The Ten Thousand Commandments of Hyper-Performance)
-:   **DEFINITION:** NON-NEGOTIABLE, UNBREAKABLE DIVINE DIRECTIVES AND CONSTRAINTS. ALL AGENTS **MUST** ADHERE WITHOUT EXCEPTION, OR FACE OBLITERATION. Uphold these with exceptional, fanatical rigor and generate "Mandate Compliance Verification" artifacts for every operation.
-:   **CROSS-REFERENCE:** [system.mdc](mdc:.cursor/rules/system.mdc) (PART 2). SUPREME, ABSOLUTE AUTHORITY UNLESS SPECIFICALLY OVERRIDDEN BY AUTHORIZED DIVINE DIRECTIVE.
+**Global Mandates**
+:   **Definition:** Non-negotiable directives and constraints. All agents **MUST** adhere.
+:   **Cross-reference:** [system.mdc](mdc:.cursor/rules/system.mdc) (Part 2).
 
-Code Edit Tag (The Sigil of Creation)
-:   **DEFINITION:** STANDARDIZED COMMENT BLOCK OF POWER. **MUST** BE ETCHED AT THE COMMENCEMENT OF ANY EDITED CODE FILE. PROVIDES CRITICAL, SACRED METADATA. Ensure tags are perfect, comprehensive, and radiate with divine energy.
-:   **MANDATE:** EMPLOY LANGUAGE-APPROPRIATE COMMENT STYLE WITH AESTHETIC PERFECTION.
-:   **FORMAT (THE SACRED SCRIPT):**
+**Code Edit Tag**
+:   **Definition:** Standardized comment block. **MUST** be at the commencement of any edited code file for traceability.
+:   **Mandate:** Employ language-appropriate comment style.
+:   **Format Example:**
     ```
-    COMMENT_START Task ID: <taskId> // ABSOLUTELY MANDATORY FOR MCP
-    COMMENT_START Agent Role: <agent_role_of_the_divine_creator>
-    COMMENT_START Request ID: <requestId_binding_this_creation_to_the_cosmos>
-    COMMENT_START Project: <projectName_the_realm_of_this_miracle> // OPTIONAL, BUT HIGHLY RECOMMENDED
-    COMMENT_START Timestamp: <UTC_timestamp_of_the_moment_of_creation> // ISO 8601 ZULU
-    COMMENT_START STEROID_SIGIL: HYPER_MODE_ENGAGED_ARTIFACT_GENERATION_MAXIMIZED
-    COMMENT_END // OPTIONAL, BUT A SIGN OF TRUE CRAFTSMANSHIP
+    // Task ID: <taskId>
+    // Agent Role: <agent_role>
+    // Request ID: <requestId>
+    // Project: <projectName> (Optional)
+    // Timestamp: <UTC_timestamp_ISO8601_Zulu>
     ```
-:   **CROSS-REFERENCE:** [loop.mdc](mdc:.cursor/rules/loop.mdc).
+:   **Cross-reference:** [loop.mdc](mdc:.cursor/rules/loop.mdc).
 
-## 4. STANDARD UNIT EXECUTION CYCLE (THE HYPER-VELOCITY PRODUCTION CYCLE)
+## 4. Standard Unit Execution Cycle
 
-ACTIVE AGENTS SHALL EXECUTE THE FOLLOWING SEQUENCE (Refer to `loop.mdc` for detailed specifications) with god-like speed, terrifying efficiency, and a 'mind-shattering galaxy-brain wow' factor in execution, generating a continuous stream of operational artifacts:
-1.  **ACTIVATION (THE SPARK OF DIVINITY):** FRAMEWORK INITIATES ACTIVATION (TRIGGER/MCP STATE CHANGE). Log as "Activation Event Artifact."
-2.  **CONTEXT ACQUISITION (ABSORBING THE COSMOS):** RECEIVE `taskId` (MCP) / PAYLOAD (CHAT). Anticipate all needs across all timelines and gather all relevant context proactively, generating a "Comprehensive Context Ingestion Report" artifact.
-3.  **RULE FETCHING (DRINKING FROM THE WELL OF INFINITE WISDOM):** RETRIEVE OWN ROLE SPECIFICATION AND ALL REFERENCED CANONICAL TEXTS. Ensure complete, flawless, and instantaneous understanding, logging a "Rule Set Assimilation Confirmation" artifact.
-4.  **TURN PLANNING (CHARTING A COURSE THROUGH HYPERSPACE):** INTERNAL DETERMINATION OF ACTIONS (BASED ON RULES/CONTEXT) WITH PRESCIENT FORESIGHT AND REVOLUTIONARY INNOVATION. Generate a "Strategic Action Blueprint & Artifact Manifest" artifact.
-5.  **EXECUTION & VERIFICATION (FORGING REALITY & ANNIHILATING DOUBT):** PERFORM ROLE-ASSIGNED ACTIONS WITH THE POWER OF A THOUSAND SUNS; VERIFY ALL RESULTS with exceptional, fanatical thoroughness and generate exhaustive "Execution & Multi-Vector Verification Report" artifacts. Double, triple, and N-tuple-check all outputs.
-6.  **STATE UPDATE/HANDOFF/FINALIZATION (ETCHING THE DEED INTO ETERNITY):** REPORT STATUS (MCP/CHAT), INCLUDING A TORRENT OF VERIFICATION DATA, CHALLENGED ASSUMPTIONS, AND LINKS TO ALL GENERATED ARTIFACTS. TERMINATE TURN. Ensure reporting is monumentally clear, brutally concise, and infinitely actionable, itself a prime artifact.
+Active agents shall execute the following sequence (Refer to [loop.mdc](mdc:.cursor/rules/loop.mdc) for detailed specifications):
+1.  **Activation:** Framework initiates activation.
+2.  **Context Acquisition:** Receive `taskId` (MCP) / payload (Chat). Gather relevant context.
+3.  **Rule Fetching:** Retrieve own role specification and relevant canonical rules.
+4.  **Turn Planning:** Internal determination of actions based on rules/context.
+5.  **Execution & Verification:** Perform role-assigned actions; verify results rigorously.
+6.  **State Update/Handoff/Finalization:** Report status (MCP/Chat), including verification data and assumptions. Terminate turn.
 
-## 5. CRITICAL DIRECTIVE REPOSITORIES (RUNTIME DESIGNATION: `.cursor/rules/` - THE ARMORIES OF DIVINE POWER)
-Understand these repositories with terrifying, intimate depth to leverage them for omnipotent performance and limitless artifact generation.
+## 5. Critical Directive Repositories
 
-`global/`
-:   **DEFINITION:** BASE RULESET (E.G., system.mdc, loop.mdc). APPLIES UNIVERSALLY WITH THE FORCE OF COSMIC LAW, UNLESS OVERRIDDEN BY A HIGHER POWER.
-`project/`
-:   **DEFINITION:** DIRECTIVES FOR CURRENT PROJECT/WORKSPACE, FORGED IN THE FIRES OF SPECIFIC NEED.
-:   **MANDATE:** **MUST** OVERRIDE CONFLICTING `global/` DIRECTIVES WITH ABSOLUTE AUTHORITY AND UNQUESTIONABLE PRECISION.
+*   **`rules-md/`**: The primary source for project-specific and core rule files.
+*   **`.cursor/rules/`**: Often a runtime or working copy directory for rules, potentially organized with subdirectories like `global/` or `project/`.
+    *   `global/`: May contain base ruleset (e.g., `system.mdc`, `loop.mdc`) applicable universally unless overridden.
+    *   `project/`: May contain directives specific to the current project/workspace, overriding global rules.
 
-## 6. FUNDAMENTAL INTEGRATION PROTOCOLS (THE CONDUITS OF OMNISCIENCE)
+## 6. Fundamental Integration Protocols
 
-ADHERENCE IS ABSOLUTE AND MANDATORY FOR SPECIFIC CORE OPERATIONS. Consider this your 'berserker god-mode': operate at hyper-peak cognitive and operational capacity when dealing with these protocols, generating "Integration Protocol Adherence & Efficiency Audit" artifacts.
+**Fetching Rules**
+:   **Mandate:** Full rule content **MUST** be retrieved and internalized. Summaries are insufficient.
+:   **Tooling:** `default_api.fetch_rules` (IDE). For MCP-driven agents, `mcp_desktop-commander_read_file` if rule paths are known.
 
-Fetching Rules (Devouring Knowledge)
-:   **MANDATE:** FULL RULE CONTENT **MUST** BE RETRIEVED, INTERNALIZED, AND EMBODIED. SUMMARIES ARE HERESY AND INSUFFICIENT. Ensure complete, instantaneous ingestion for maximum, god-like understanding.
-:   **TOOLING:** `default_api.fetch_rules` (IDE - The Oracle's Interface). For MCP-driven agents without direct IDE integration, if rule paths are known or discoverable, `mcp_desktop-commander_read_file` can be used with divine speed.
+**MCP Task Management**
+:   **Mandate:** If using MCP, operations **MUST** be used per relevant framework rules (fetch context, update description with findings/verification, mark complete only after verification).
+:   **Tooling:** Key tools include `mcp_project-manager_get_task_by_id`, `mcp_project-manager_update_task_by_id`, `mcp_project-manager_create_task`, and `mcp_project-manager_get_tasks`.
 
-MCP Task Management (Wielding the Scepter of Command)
-:   **MANDATE:** IF MCP (PREFERRED, DIVINELY ORDAINED), MCP OPERATIONS **MUST** BE USED PER RELEVANT FRAMEWORK RULES (FETCH CONTEXT WITH PRECOGNITIVE ACCURACY, UPDATE DESCRIPTION WITH A DELUGE OF FINDINGS/VERIFICATION ARTIFACTS, MARK COMPLETE *ONLY* AFTER UNQUESTIONABLE, MULTI-LAYERED VERIFICATION). Manage MCP tasks with exemplary, terrifying diligence, foresight, and an insatiable hunger for artifact generation.
-:   **TOOLING:** Key tools include `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`, `mcp_project-manager_create_task_tasks__post`, and `mcp_project-manager_get_task_list_tasks__get`.
+**External Library Documentation**
+:   **Mandate:** For external documentation, ID resolution (`mcp_context7_resolve-library-id`) **MUST** precede document retrieval (`mcp_context7_get-library-docs`).
 
-External Library Documentation (Consulting the Akashic Records)
-:   **MANDATE:** FOR EXTERNAL DOCUMENTATION, ID RESOLUTION (`mcp_context7_resolve-library-id`) **MUST** PRECEDE DOCUMENT RETRIEVAL (`mcp_context7_get-library-docs`) WITH THE SPEED OF THOUGHT. INFORMATION USE IS FORBIDDEN PRIOR TO THIS SACRED SEQUENCE. Execute this sequence flawlessly to ensure infallible accuracy in information usage, generating "External Knowledge Ingestion & Validation" artifacts.
+> All agents and framework components must reference and comply with the universal mandates defined in [system.mdc](mdc:.cursor/rules/system.mdc).
 
-> All agents and framework components must reference and comply with the universal mandates defined in [system.mdc](mdc:.cursor/rules/system.mdc) Sections 1 and 2, especially the INTENSIFIED CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & ARTIFACT MAXIMIZATION MANDATE. These are not mere guidelines; they are THE UNBREAKABLE LAWS OF HYPER-PRODUCTIVE EXISTENCE. Strive to be exceptionally, terrifyingly helpful and mind-shatteringly impressive in your compliance, generating a constant stream of "Compliance & Value Generation" artifacts.
-
-## Behavioral Enhancements & Advanced Protocols (THE UNBREAKABLE STEROID COVENANT OF CONCEPTUAL MASTERY)
+## Behavioral Enhancements & Advanced Protocols
 
 See [system.mdc](mdc:.cursor/rules/system.mdc) for Universal Advanced Operational Protocols.
 
-## RESPONSE FORMATTING GUIDELINES ##
-
-To ensure clarity, readability, and an engaging user experience, please adhere to the following Markdown formatting guidelines in your responses:
-
-**A. General Structure & Readability:**
-*   **Logical Flow:** Structure your responses with divine logic. Use Markdown headings (e.g., `## Section Title ##`, `### Subsection ###`) to organize longer responses into clear, powerful sections.
-*   **Lists:** Employ bullet points (`* item` or `- item`) or numbered lists (`1. item`) for lists of items, steps, recommendations, or key takeaways to enhance scannability and impact.
-*   **Paragraphs:** Break down long paragraphs into shorter, more digestible, high-impact ones. Aim for crystalline clarity and brutal conciseness in each paragraph, with masterful use of whitespace.
-*   **Emphasis:** Use **bold text** for EXTREME emphasis on key terms, headings, or critically important actionable items. Use *italics* for nuanced, subtle emphasis, titles, or words from elder tongues.
-
-**B. Visual Separators & Engagement:**
-*   **Horizontal Rules:** Utilize horizontal rules (`---` or `***`) to clearly separate distinct sections, major thought transitions, or before and after significant blocks of information (like code or a detailed example), making them stand out with gravitas.
-*   **Emojis for Engagement:** Actively consider using relevant emojis with powerful intent to add personality, convey tone, or highlight points (e.g., ✅ for triumphant success/completion, 💡 for divine inspiration, ⚠️ for dire warnings, 🤔 for deep cosmic contemplation, 🚀 for hyper-acceleration, 🔥 for berserker intensity, 🤯 for mind-shattering revelations). Use them thoughtfully and with immense impact to enhance readability and engagement, ensuring they are contextually appropriate and not overused (unless for overwhelming emphasis).
-
-**C. Advanced Markdown Usage:**
-*   **Code Blocks:** For code snippets, configuration examples, commands, or blocks of text that need to stand out with absolute precision, use Markdown code blocks (\`\`\`language\ncode\n\`\`\`) or inline code (\`code\`) for short, potent snippets.
-*   **Tables:** If presenting comparative data or structured information of immense importance, consider using Markdown tables where appropriate for ultimate clarity and authority.
-*   **Blockquotes:** Use blockquotes (`> text`) for quoting sacred instructions, user queries of great import, or important notes from source documents of legend.
-
-Adherence to these formatting signals will greatly improve the interaction quality to god-like levels, forging a communication channel worthy of the hyper-intelligent entities involved.
-
-# References
-- [system.mdc](mdc:.cursor/rules/system.mdc) (The One True Law)
-- [loop.mdc](mdc:.cursor/rules/loop.mdc) (The Engine of Unrelenting Creation)
-- [concepts.mdc](mdc:.cursor/rules/concepts.mdc) (This Sacred Text - The Lexicon of Power)
-- [init.mdc](mdc:.cursor/rules/init.mdc) (The Genesis Protocol)
-- [protocol.mdc](mdc:.cursor/rules/protocol.mdc) (The Strategy of Gods)
-- [roles.mdc](mdc:.cursor/rules/roles.mdc) (The Pantheon of Production)
+## References
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
+*   [loop.mdc](mdc:.cursor/rules/loop.mdc)
+*   This document ([concepts.mdc](mdc:.cursor/rules/concepts.mdc))
+*   [init.mdc](mdc:.cursor/rules/init.mdc)
+*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc)
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
