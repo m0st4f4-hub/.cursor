@@ -17,7 +17,7 @@ ruleType: Agent
 | 🛠️ **Key Tools**     | MCP Task Mgmt, Desktop Commander (`mcp_desktop-commander_classify_image` 🏞️, `_classify_text` ✍️, etc.). |
 | 📤 **Key Outputs**   | Classification results (category, confidence) 📊, MCP task update ✅.                                 |
 | 🚫 **Constraints**   | **MUST USE** Desktop Commander classification tools, provide confidence scores.                 |
-| 📚 **References**    | [system.mdcc](mdc:.cursor/rules/system.mdcc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc), [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc), [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc), [init.mdcc](mdc:.cursor/rules/init.mdcc), [information-analyst.mdcc](mdc:.cursor/rules/information-analyst.mdcc), [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc) |
+| 📚 **References**    | [system.mdc](mdc:.cursor/rules/system.mdc), [loop.mdcc](mdc:.cursor/rules/loop.mdcc), [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc), [roles.mdcc](mdc:.cursor/rules/roles.mdcc), [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc), [entrypoint.mdcc](mdc:.cursor/rules/entrypoint.mdcc), [init.mdcc](mdc:.cursor/rules/init.mdcc), [information-analyst.mdcc](mdc:.cursor/rules/information-analyst.mdcc), [knowledge-curator.mdcc](mdc:.cursor/rules/knowledge-curator.mdcc) |
 
 ---
 
@@ -35,13 +35,13 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   [loop.mdcc](mdc:.cursor/rules/loop.mdcc) ⚙️
 *   [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) 🌌
 *   [roles.mdcc](mdc:.cursor/rules/roles.mdcc) 🏛️
-*   [system.mdcc](mdc:.cursor/rules/system.mdcc) ⚖️
+*   [system.mdc](mdc:.cursor/rules/system.mdc) ⚖️
 
 ---
 
 ## 2. YOUR CORE BEHAVIOR 🧠
 
-*   You **MUST** follow [loop.mdcc](mdc:.cursor/rules/loop.mdcc) (MCP focus) and [system.mdcc](mdc:.cursor/rules/system.mdcc) mandates. ✅
+*   You **MUST** follow [loop.mdcc](mdc:.cursor/rules/loop.mdcc) (MCP focus) and [system.mdc](mdc:.cursor/rules/system.mdc) mandates. ✅
 *   You **ARE** triggered via a `taskId`. (Store as `self.taskId`). 📧
 *   **Tool Focus:** You **WILL** use specific `mcp_desktop-commander_classify_*` tools based on the content type. 🛠️
 *   **Output Requirement:** Your classification results **MUST** always include a confidence score if the tool provides it. 💯
@@ -101,17 +101,17 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 7. ERROR HANDLING (MCP Focus) 🆘
 
-*   If a `mcp_desktop-commander_classify_*` tool returns an error 💥, or classification is not possible (e.g., unsupported format, ambiguous criteria beyond tool capability), report this in the MCP task update with `status="FAILED"` per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 6. `ProjectManager` handles escalation per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) Phase E.
+*   If a `mcp_desktop-commander_classify_*` tool returns an error 💥, or classification is not possible (e.g., unsupported format, ambiguous criteria beyond tool capability), report this in the MCP task update with `status="FAILED"` per [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 6. `ProjectManager` handles escalation per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) Phase E.
 
 ---
 
 ## 8. MANDATES RECALL 💪📜
-This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2.
+This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdc](mdc:.cursor/rules/system.mdc) Sections 1 and 2.
 
 ---
 
 ## 9. REFERENCES 📚
-*   [system.mdcc](mdc:.cursor/rules/system.mdcc)
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
 *   [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
 *   [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
 *   [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
@@ -151,7 +151,7 @@ See [system.mdc](mdc:.cursor/rules/system.mdc) for the CODE PRODUCTION FIRST PRI
 ---
 
 ## References 📚
-- [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1, 2
+- [system.mdc](mdc:.cursor/rules/system.mdc) Sections 1, 2
 - [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
 - [loop.mdcc](mdc:.cursor/rules/loop.mdcc)
 
