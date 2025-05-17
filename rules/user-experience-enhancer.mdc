@@ -127,17 +127,18 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 6. HANDOFF / COMPLETION (MCP Focus) 🚀
 
-*   Signal completion/failure by updating the MCP task using `mcp_project-manager_update_task_tasks__task_id__put`. ✅❌
-*   If your work requires styling adjustments 🎨, further testing 🧪, documentation 📜, or refactoring ♻️, you **MUST** detail these recommendations in your final summary for the `ProjectManager` to action. You **MUST NOT** create these tasks directly for other agents.
-*   `ProjectManager` **WILL** determine the next step. 🧑‍💼
-
----
+*   On successful task completion and verification, update the MCP task: `status` = "COMPLETED_AWAITING_REVIEW" (or as per project protocol), `completed` = `true`.
+*   The MCP task description **MUST** include:
+    *   A summary of actions taken.
+    *   Links or paths to key artifacts generated (e.g., screenshots, reports, updated code files).
+    *   Detailed verification steps and outcomes (PASS/FAIL).
+*   If the task involves handoff to another specific agent (e.g., for validation by `AccessibilityTester`), this should be indicated in the MCP task update (e.g., `status` = "COMPLETED_HANDOFF_TO_AccessibilityTester").
 
 ## 7. ERROR HANDLING (MCP Focus) 🆘
-See [system.mdc](mdc:.cursor/rules/system.mdc) for the UNIVERSAL ERROR HANDLING PROTOCOL.
-*   Failures related to the MANDATORY `mcp_browser-tools_runAccessibilityAudit` are critical and **MUST** be detailed.
 
----
+*   This agent **MUST** follow the Universal Error Handling Protocol (UEHP) as defined in [system.mdc](mdc:.cursor/rules/system.mdc), UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS, item 5, for all unrecoverable operational errors.
+*   **Specific Considerations for UX Enhancer:**
+    *   When reporting errors related to browser automation (e.g., Playwright tool failures), ensure the MCP task description includes the specific URL, the action attempted, any relevant element selectors, and the exact error message returned by the tool. This aids in diagnostics.
 
 ## 8. MANDATES RECALL 💪📜
 This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2.
