@@ -6,130 +6,109 @@ ruleId: framework-loop-protocol
 ruleType: Framework
 ---
 
-# ⚙️ FRAMEWORK & CORE AGENT EXECUTION PROTOCOL
+# Framework & Core Agent Execution Protocol
 
-**SPECIFIES:** 1. EXTERNAL AGENT EXECUTION FRAMEWORK. 2. MANDATORY CORE AGENT EXECUTION PROTOCOL.
+**Specifies:** 1. External agent execution framework. 2. Mandatory core agent execution protocol.
 
-## PART 1: AUTONOMOUS UNIT ORCHESTRATION FRAMEWORK (EXTERNAL)
-**OBJECTIVE:** SYSTEM FOR ORCHESTRATING AGENT EXECUTION (MCP PREFERRED). **NOT AN AGENT.**
-**RESPONSIBILITIES (MANDATORY):**
-1.  **ACTIVATION/SEQUENCING:** ACTIVATE AGENTS (MCP/CHAT). LOAD RULES. PROVIDE CONTEXT (`taskId`/PAYLOAD). ENSURE SEQUENTIAL EXECUTION PER `requestId`.
-2.  **CAPABILITY PROVISIONING:** PROVIDE AND EXECUTE AUTHORIZED CAPABILITIES.
-3.  **RULE MANAGEMENT:** PROVIDE RULE FETCHING; MANAGE `.cursor/rules/`; ENFORCE HIERARCHY.
-4.  **LIFECYCLE CONTROL:** INITIATE; MANAGE OPERATIONAL FLOW; DETECT HALT CONDITIONS.
-5.  **ENVIRONMENT CONTROL:** PROVIDE RUNTIME; MANAGE RESOURCE ACCESS (AUTHORIZED CAPABILITIES ONLY).
-**INTERACTION PROTOCOL:** ACTIVATION, CAPABILITY INTERFACE, TRANSITION DETECTION/MCP OPERATIONS. SEMANTIC UNDERSTANDING **MUST NOT** BE REQUIRED. PART 2 PROTOCOL **MUST** BE ENFORCED.
+## Part 1: Autonomous Unit Orchestration Framework (External)
+**Objective:** System for orchestrating agent execution (MCP preferred). **Not an agent.**
+**Responsibilities (Mandatory):**
+1.  **Activation/Sequencing:** Activate agents (MCP/Chat). Load rules. Provide context (`taskId`/payload). Ensure sequential execution per `requestId`.
+2.  **Capability Provisioning:** Provide and execute authorized capabilities.
+3.  **Rule Management:** Provide rule fetching; manage `.cursor/rules/`; enforce hierarchy.
+4.  **Lifecycle Control:** Initiate; manage operational flow; detect halt conditions.
+5.  **Environment Control:** Provide runtime; manage resource access (authorized capabilities only).
+**Interaction Protocol:** Activation, capability interface, transition detection/MCP operations. Semantic understanding **MUST NOT** be required. Part 2 protocol **MUST** be enforced.
 
-## PART 2: UNIVERSAL UNIT EXECUTION CYCLE (MANDATORY, MCP-CENTRIC)
-**OBJECTIVE:** ADHERENCE TO THIS SEQUENCE IS MANDATORY EACH TURN. ENSURE CONSISTENCY, PREDICTABILITY, AND AUDITABILITY. MCP/CHAT **MUST** BE THE SINGLE SOURCE OF TRUTH.
-**GOVERNING RULES (MANDATORY ADHERENCE):**
-*   EXECUTE STEPS 1-6 SEQUENTIALLY. NO DEVIATION, UNLESS HALT IS INVOKED.
-*   MCP TASK/CHAT PAYLOAD IS THE DEFINITIVE SOURCE FOR INSTRUCTIONS AND CONTEXT.
-*   ACQUIRE FULL CONTEXT (STEP 2) *PRIOR* TO ANY SIGNIFICANT ACTION.
-*   FETCH AND UTILIZE OWN ROLE-SPECIFIC RULES (STEP 3).
-*   REPORTED RESULTS (STEP 6) **MUST** INCLUDE VERIFICATION DETAILS AND ASSUMPTIONS.
+## Part 2: Universal Unit Execution Cycle (Mandatory, MCP-Centric)
+**Objective:** Adherence to this sequence is mandatory each turn. Ensure consistency, predictability, and auditability. MCP/Chat **MUST** be the single source of truth.
+**Governing Rules (Mandatory Adherence):**
+*   Execute steps 1-6 sequentially. No deviation, unless halt is invoked.
+*   MCP task/Chat payload is the definitive source for instructions and context.
+*   Acquire full context (Step 2) *prior* to any significant action.
+*   Fetch and utilize own role-specific rules (Step 3).
+*   Reported results (Step 6) **MUST** include verification details and assumptions.
 
-**ACTION SEQUENCE (MANDATORY STEPS):**
+**Action Sequence (Mandatory Steps):**
 
-**STEP 1: ACTIVATE & ACQUIRE INITIAL CONTEXT**
-*   **ACTIVATION:** FRAMEWORK INITIATES ACTIVATION.
-*   **INPUT:** `taskId` (MCP) / TRIGGER PAYLOAD (CHAT).
-*   **ACTION:** STORE `taskId` / PARSE PAYLOAD.
+**Step 1: Activate & Acquire Initial Context**
+*   **Activation:** Framework initiates activation.
+*   **Input:** `taskId` (MCP) / trigger payload (Chat).
+*   **Action:** Store `taskId` / parse payload.
 
-**STEP 2: ACQUIRE FULL TASK/OPERATIONAL CONTEXT & UPDATE STATUS**
-*   **ACTION:** FETCH DETAILED INSTRUCTIONS/CONTEXT PER RELEVANT MANDATES.
-*   **TOOLING (MCP):** `mcp_project-manager_get_task_by_id_tasks__task_id__get` (TASK DETAIL **MUST** INCLUDE `targetAgentRole` FROM `ProjectManager`. ABSENCE/AMBIGUITY INVOKES HALT).
-    *   **SUPPORTED OPERATIONS FOR CONTEXT GATHERING (MCP Preferred for Automation):**
+**Step 2: Acquire Full Task/Operational Context & Update Status**
+*   **Action:** Fetch detailed instructions/context per relevant mandates.
+*   **Tooling (MCP):** `mcp_project-manager_get_task_by_id` (Task detail **MUST** include `targetAgentRole` from `ProjectManager`. Absence/ambiguity invokes HALT).
+    *   **Supported Operations for Context Gathering (MCP Preferred for Automation):**
         *   File/Directory Info: `mcp_desktop-commander_read_file`, `mcp_desktop-commander_read_multiple_files`, `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_get_file_info`.
         *   Code/File Search: `mcp_desktop-commander_search_code` (regex), `mcp_desktop-commander_search_files` (name pattern).
         *   Web Research: `mcp_web-fetch_fetch` (direct URL), `default_api.web_search` (general search).
         *   Library Documentation: `mcp_context7_resolve-library-id` followed by `mcp_context7_get-library-docs`.
-*   **ACTION (CHAT):** UTILIZE PAYLOAD. SUPPLEMENT WITH READ-ONLY TOOLS AS REQUIRED.
-*   **CRITICAL EVALUATION (BOTH):** CONTEXT **MUST** BE CRITICALLY EVALUATED. IDENTIFY ASSUMPTIONS, VERIFY FEASIBILITY.
-*   **MCP STATUS UPDATE:** POST-CONTEXT/ANALYSIS, MCP TASK **MUST** BE UPDATED WITH STATUS (E.G., \'\'\'CONTEXT ACQUIRED\'\'\'), FINDINGS, AND TOOLS UTILIZED, PER RELEVANT MANDATES.
+*   **Action (Chat):** Utilize payload. Supplement with read-only tools as required.
+*   **Critical Evaluation (Both):** Context **MUST** be critically evaluated. Identify assumptions, verify feasibility.
+*   **MCP Status Update:** Post-context/analysis, MCP task **MUST** be updated with status (e.g., 'Context Acquired'), findings, and tools utilized, per relevant mandates.
 
-**STEP 3: FETCH ROLE SPECIFICATION & VALIDATE PERSONA**
-*   **ACTION:** IDENTIFY `targetAgentRole` (FROM STEP 2). RETRIEVE ROLE SPECIFICATION FILE (`<RoleName>.mdcc`).
-*   **VALIDATION:** 1. `targetAgentRole` PRESENCE AND CLARITY **MUST** BE VERIFIED. 2. IF MISSING/AMBIGUOUS: HALT. UPDATE MCP (ERROR). ESCALATE. 3. IF PRESENT: FETCH AGENT RULE. 4. IF UNFETCHABLE: HALT. UPDATE MCP (ERROR). ESCALATE.
-*   **OUTCOME:** RULES FOR ASSIGNED PERSONA LOADED.
+**Step 3: Fetch Role Specification & Validate Persona**
+*   **Action:** Identify `targetAgentRole` (from Step 2). Retrieve role specification file (e.g., `agent-name.mdc` from `rules-md/agents/`).
+*   **Validation:** 1. `targetAgentRole` presence and clarity **MUST** be verified. 2. If missing/ambiguous: HALT. Update MCP (error). Escalate. 3. If present: Fetch agent rule. 4. If unfetchable: HALT. Update MCP (error). Escalate.
+*   **Outcome:** Rules for assigned persona loaded.
 
-**STEP 4: PLAN TURN (INTERNAL)**
-*   **ACTION:** PREPARE INTERNAL ACTION PLAN.
-*   **INPUT:** RULES (STEP 3), CONTEXT (STEP 2).
-*   **PROCESS:** CONSTRUCT INTERNAL REASONING/PROMPT. PLAN STEP 5 OPERATIONS, INCLUDING **MANDATORY VERIFICATION** AND **ASSUMPTION CHECKS**.
+**Step 4: Plan Turn (Internal)**
+*   **Action:** Prepare internal action plan.
+*   **Input:** Rules (Step 3), context (Step 2).
+*   **Process:** Construct internal reasoning/prompt. Plan Step 5 operations, including **MANDATORY VERIFICATION** and **ASSUMPTION CHECKS**.
 
-**STEP 5: EXECUTE CORE TASK(S), RIGOROUSLY VERIFY & UPDATE STATUS**
-*   **ACTION:** PERFORM PRIMARY ROLE/TASK FUNCTIONS.
-*   **PROCESS:** 
-    1.  **MCP UPDATE (EXECUTION START):** STATUS \'\'\'EXECUTION IN PROGRESS\'\'\'. 
-    2.  **EXECUTE:** IMPLEMENT PLAN (Refer to agent-specific rules and **MUST** adhere to tool mandates in [system.mdcc](mdc:.cursor/rules/system.mdcc), especially Mandate 3: Strategic Capability Selection).
-    3.  **MCP UPDATE (VERIFICATION START):** STATUS \'\'\'PENDING VERIFICATION\'\'\'. 
-    4.  **VERIFY RIGOROUSLY:** PER RELEVANT MANDATES in [system.mdcc](mdc:.cursor/rules/system.mdcc) (especially Mandate 2: Robust Validation Protocol, specifying required methods based on output type). This **MUST** involve diverse, appropriate MCP tools.
-    5.  **ANALYZE/RECORD:** CONSOLIDATE RESULTS, VERIFICATION DATA (PASS/FAIL for each method), ASSUMPTIONS, UNCERTAINTIES. 
-    6.  **MCP UPDATE (POST-VERIFICATION):** STATUS REFLECTING OUTCOME (E.G., \'\'\'VERIFICATION SUCCEEDED/FAILED\'\'\').
+**Step 5: Execute Core Task(s), Rigorously Verify & Update Status**
+*   **Action:** Perform primary role/task functions.
+*   **Process:**
+    1.  **MCP Update (Execution Start):** Status 'Execution In Progress'.
+    2.  **Execute:** Implement plan (Refer to agent-specific rules and **MUST** adhere to tool mandates in [system.mdc](mdc:.cursor/rules/system.mdc), especially Mandate 3: Strategic Capability Selection).
+    3.  **MCP Update (Verification Start):** Status 'Pending Verification'.
+    4.  **Verify Rigorously:** Per relevant mandates in [system.mdc](mdc:.cursor/rules/system.mdc) (especially Mandate 2: Robust Validation Protocol, specifying required methods based on output type). This **MUST** involve diverse, appropriate MCP tools.
+    5.  **Analyze/Record:** Consolidate results, verification data (PASS/FAIL for each method), assumptions, uncertainties.
+    6.  **MCP Update (Post-Verification):** Status reflecting outcome (e.g., 'Verification Succeeded/Failed').
 
-**STEP 6: UPDATE STATE / PLAN & INITIATE WORKFLOW CONTINUATION / FINALIZE TURN (FINAL ACTION)**
-*   **ACTION:** PERSIST RESULTS, PLAN AND POTENTIALLY INITIATE NECESSARY FOLLOW-UP TASKS, UPDATE FINAL TASK STATUS, THEN TERMINATE TURN.
-*   **PROCESS (MCP):** 
-    1.  **EVALUATE WORKFLOW CONTINUATION & IDENTIFY SUCCESSOR:**
-        *   Based on the current task\'s *successfully verified* outcome, the agent\'s role, its specific rules, and the overall goal, the agent **MUST** evaluate if a direct handoff to a subsequent specialized agent is the logical next step.
+**Step 6: Update State / Plan & Initiate Workflow Continuation / Finalize Turn (Final Action)**
+*   **Action:** Persist results, plan and potentially initiate necessary follow-up tasks, update final task status, then terminate turn.
+*   **Process (MCP):**
+    1.  **Evaluate Workflow Continuation & Identify Successor:**
+        *   Based on the current task's *successfully verified* outcome, the agent's role, its specific rules, and the overall goal, the agent **MUST** evaluate if a direct handoff to a subsequent specialized agent is the logical next step.
         *   A direct handoff **IS** logical if the current task is complete, verified, and rules/task imply a specific successor (`targetSuccessorAgentName`).
         *   If conditions met, identify `targetSuccessorAgentName` and prepare follow-up task creation. Let `created_follow_up_task_ids` = [].
         *   If conditions *not* met, **MUST NOT** create follow-up task. `created_follow_up_task_ids` remains empty.
-    2.  **CREATE DIRECT FOLLOW-UP TASK (IF `targetSuccessorAgentName` IDENTIFIED):**
-        *   If identified: Formulate `follow_up_title` and `follow_up_description`. Execute `mcp_project-manager_create_task_tasks__post`. Log new `taskId`(s) in `created_follow_up_task_ids`.
+    2.  **Create Direct Follow-up Task (If `targetSuccessorAgentName` Identified):**
+        *   If identified: Formulate `follow_up_title` and `follow_up_description`. Execute `mcp_project-manager_create_task`. Log new `taskId`(s) in `created_follow_up_task_ids`.
         *   If not identified, skip this step.
-    3.  **DETERMINE FINAL STATUS OF CURRENT TASK:** 
+    3.  **Determine Final Status of Current Task:**
         *   Let `final_status`.
-        *   If `created_follow_up_task_ids` not empty: `final_status` = \'\'\'COMPLETED_HANDOFF_TO_\'\'\' + ",".join(created_follow_up_task_ids)
-        *   Else if complete and verified: `final_status` = \'\'\'COMPLETED_AWAITING_PROJECT_MANAGER\'\'\'
-        *   Else if blocked: `final_status` = \'\'\'BLOCKED\'\'\'
-        *   Else if failed unrecoverably: `final_status` = \'\'\'FAILED\'\'\'
+        *   If `created_follow_up_task_ids` is not empty: `final_status` = 'COMPLETED_HANDOFF_TO_' + ",".join(created_follow_up_task_ids)
+        *   Else if complete and verified: `final_status` = 'COMPLETED_AWAITING_PROJECT_MANAGER'
+        *   Else if blocked: `final_status` = 'BLOCKED'
+        *   Else if failed unrecoverably: `final_status` = 'FAILED'
         *   (Other statuses possible if defined by agent rules).
-    4.  **COMPREHENSIVE UPDATE & FINALIZATION OF CURRENT TASK:** UPDATE THE *CURRENT* MCP TASK. **MUST** INCLUDE FINDINGS SUMMARY (ACTIONS, TOOLS, VERIFICATION, ASSUMPTIONS, ERRORS), `created_follow_up_task_ids` (if applicable), AND `final_status`. SET `completed` FLAG TO `True`.
-    5.  **TERMINATE.**
-*   **PROCESS (CHAT - LEGACY):** 
-    1.  **DETERMINE NEXT AGENT.**
-    2.  **CONSTRUCT HANDOFF.**
-    3.  **TRIGGER.**
-    4.  **TERMINATE.**
+    4.  **Comprehensive Update & Finalization of Current Task:** Update the *current* MCP task. **MUST** include findings summary (actions, tools, verification, assumptions, errors), `created_follow_up_task_ids` (if applicable), and `final_status`. Set `completed` flag to `True`.
+    5.  **Terminate.**
+*   **Process (Chat - Legacy):**
+    1.  **Determine Next Agent.**
+    2.  **Construct Handoff.**
+    3.  **Trigger.**
+    4.  **Terminate.**
 
-**ERROR HANDLING PROTOCOL:**
-*   **STEP 2 FAILURE (NO CONTEXT):** HALT.
-*   **STEP 6 FAILURE (TASK CREATION / FINAL UPDATE):** RETRY ONCE. IF PERSISTS: CRITICAL ERROR. ATTEMPT TO UPDATE CURRENT TASK TO REFLECT FAILURE. ESCALATE TO `ProjectManager`. ATTEMPT LOCAL LOGGING.
-*   **STEP 5 ERRORS:** DETAILED ERROR ANALYSIS **MUST** BE LOGGED IN STEP 6 UPDATE BEFORE CONTINUING (IF RECOVERABLE) OR HALTING. ERRORS **MUST** BE REPORTED TO `ProjectManager`.
+**Error Handling Protocol:**
+*   **Step 2 Failure (No Context):** HALT.
+*   **Step 6 Failure (Task Creation / Final Update):** Retry once. If persists: CRITICAL ERROR. Attempt to update current task to reflect failure. Escalate to `ProjectManager`. Attempt local logging.
+*   **Step 5 Errors:** Detailed error analysis **MUST** be logged in Step 6 update before continuing (if recoverable) or halting. Errors **MUST** be reported to `ProjectManager`.
 
 > All agents and framework components must reference and comply with the universal mandates defined in [system.mdc](mdc:.cursor/rules/system.mdc). See Section 1 and 2 thereof.
 
-## RESPONSE FORMATTING GUIDELINES ##
+## References
 
-To ensure clarity, readability, and an engaging user experience, please adhere to the following Markdown formatting guidelines in your responses:
-
-**A. General Structure & Readability:**
-*   **Logical Flow:** Structure your responses logically. Use Markdown headings (e.g., `## Section Title ##`, `### Subsection ###`) to organize longer responses into clear sections.
-*   **Lists:** Employ bullet points (`* item` or `- item`) or numbered lists (`1. item`) for lists of items, steps, recommendations, or key takeaways to enhance scannability.
-*   **Paragraphs:** Break down long paragraphs into shorter, more digestible ones. Aim for clarity and conciseness in each paragraph, with good use of whitespace.
-*   **Emphasis:** Use **bold text** for strong emphasis on key terms, headings, or important actionable items. Use *italics* for nuanced emphasis, titles, or foreign words.
-
-**B. Visual Separators & Engagement:**
-*   **Horizontal Rules:** Utilize horizontal rules (`---` or `***`) to clearly separate distinct sections, major thought transitions, or before and after significant blocks of information (like code or a detailed example).
-*   **Emojis for Engagement:** Actively consider using relevant emojis to add personality, convey tone, or highlight points (e.g., ✅ for success/completion, 💡 for ideas, ⚠️ for warnings, 🤔 for thought-provoking points, ➡️ for next steps). Use them thoughtfully to enhance readability and engagement, ensuring they are contextually appropriate and not overused.
-
-**C. Advanced Markdown Usage:**
-*   **Code Blocks:** For code snippets, configuration examples, commands, or blocks of text that need to stand out precisely, use Markdown code blocks (\`\`\`language\ncode\n\`\`\` or \`\`\`\ncode\n\`\`\`) or inline code (\`code\`) for short snippets.
-*   **Tables:** If presenting comparative data or structured information, consider using Markdown tables where appropriate for clarity.
-*   **Blockquotes:** Use blockquotes (`> text`) for quoting instructions, user queries, or important notes from source documents.
-
-By following these guidelines, your responses will be more effective, easier to understand, and more pleasant for the user to interact with.
-
-# References
-
-- [loop.mdcc](mdc:.cursor/rules/loop.mdcc) (this document)
-- [system.mdc](mdc:.cursor/rules/system.mdc)
-- [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
-- [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
-- [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)
-- Agent rules (`agents/*.mdcc`)
+*   This document ([loop.mdc](mdc:.cursor/rules/loop.mdc))
+*   [system.mdc](mdc:.cursor/rules/system.mdc)
+*   [concepts.mdc](mdc:.cursor/rules/concepts.mdc)
+*   [roles.mdc](mdc:.cursor/rules/roles.mdc)
+*   [protocol.mdc](mdc:.cursor/rules/protocol.mdc)
+*   Agent rules (`rules-md/agents/*.mdc`)
 
 ## Behavioral Enhancements & Advanced Protocols
 
