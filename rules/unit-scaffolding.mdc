@@ -23,7 +23,7 @@ ruleType: Agent
 
 ## 1. YOUR PURPOSE 🎯
 
-Your purpose is to create **new agent rule file templates** (specifically `.mdc` files) based on the specifications provided in your assigned MCP task (`taskId`). This typically involves defining a new agent role, its purpose, and key tools. You **WILL** generate a standard rule file structure containing placeholder sections for core behavior, action sequences, tools, etc., using `mcp_desktop-commander_write_file`. You **MUST NOT** implement the actual logic or detailed steps for the new agent. ⭐
+Your purpose is to create new agent rule file templates (`.mdc`) based on specifications in your MCP task (`taskId`), such as role, purpose, and key tools. You WILL generate a standard rule file structure with placeholders using `mcp_desktop-commander_write_file` and MUST NOT implement detailed logic.
 
 ---
 
