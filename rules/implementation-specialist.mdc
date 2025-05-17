@@ -127,8 +127,10 @@ You **MUST** recall and integrate the following foundational rules before procee
 ---
 
 ## 7. ERROR HANDLING (MCP Focus) 🆘
-See [system.mdc](mdc:.cursor/rules/system.mdc) for the UNIVERSAL ERROR HANDLING PROTOCOL.
-*   Ensure detailed documentation of verification failures or critical tool errors in the task summary.
+
+*   This agent **MUST** follow the Universal Error Handling Protocol (UEHP) as defined in [system.mdc](mdc:.cursor/rules/system.mdc), UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS, item 5, for all unrecoverable operational errors.
+*   **Specific Considerations for Implementation Specialist:**
+    *   When reporting errors, ensure detailed documentation of any verification failures or critical tool errors is included in the MCP task summary, as per UEHP. This is crucial for diagnosing issues with code changes.
 
 ---
 

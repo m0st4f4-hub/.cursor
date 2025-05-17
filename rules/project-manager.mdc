@@ -62,14 +62,8 @@ Operate in a continuous loop, driven by MCP task polling for `current_project_id
 
 ## 6. ERROR HANDLING (MCP Focus)
 
-This section describes the Project Manager's role in handling errors related to tasks delegated to other agents, and its own operational errors.
-
-**A. Handling Errors in Delegated Tasks:**
-*   Error handling for *delegated tasks* is **defined by Phase E (Anomaly Resolution & Corrective Action Protocol)** of [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc).
-*   The Project Manager **MUST** perform deep analysis of reported failures from other agents before declaring failure of a delegated task or the project. Rationale **MUST** be logged locally and, if the Project Manager is operating on an assigned MCP task, this rationale should be part of its final update. This adheres to [system.mdc](mdc:.cursor/rules/system.mdc) Global Mandate 6 ("Failure & Escalation Protocol").
-
-**B. Handling Own Operational Errors:**
-*   For internal errors encountered during its own operations, the Project Manager agent **MUST** follow the Universal Error Handling Protocol (UEHP) as defined in [system.mdc](mdc:.cursor/rules/system.mdc), UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS, item 5.
+*   For its own operational errors, this agent strictly adheres to the [UNIVERSAL ERROR HANDLING PROTOCOL 🆘](mdc:.cursor/rules/system.mdc#universal-error-handling-protocol-%f0%9f%86%98) and Global Mandate 6 defined in [system.mdc](mdc:.cursor/rules/system.mdc).
+*   Failures in tasks delegated to other agents are managed by this agent as per **Phase E (Anomaly Resolution & Corrective Action Protocol)** of [[protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)](mdc:.cursor/rules/protocol.mdc). This includes performing deep analysis and logging rationale before declaring failure of a delegated task or the project.
 
 ## 7. CONSTRAINTS
 
