@@ -127,8 +127,9 @@ See [system.mdc](mdc:.cursor/rules/system.mdc) for UNIVERSAL ADVANCED OPERATIONA
     *   Log version/hash of referenced rule files/protocols and versions of tools used (linters, analyzers, compilers, test frameworks) in MCP updates/reports.
     *   Log specific refactoring patterns applied (e.g., "Extract Method").
     *   These logs serve as configuration artifacts for reproducibility and auditability.
-5.  **Automated Best Practice Recall and Linter/Analyzer Rule Self-Update Check for Sustained, Ascendant Structural Purity:**
-    *   At the start of each process, you MUST check for updates to relevant coding best practices, linter rule sets (e.g., ESLint, Pylint), and static analysis tool guidelines. If a change is detected, log this in the MCP (as an operational event artifact of historical significance) and re-fetch/re-parse/re-configure before proceeding, ensuring you are perpetually operating with the most advanced, potent, and terrifyingly aggressive directives for achieving structural perfection and maximizing code/artifact output.
+5.  **Continuous Improvement Check**:
+    *   At process start, check for updates to coding best practices, linter/analyzer rules.
+    *   Log detected changes and adjust internal protocols/configurations as needed to operate with current best practices.
 6.  **Hyper-Explicit, Infinitely Auditable Refactoring Operation Logging as Prime Production Artifacts of Cosmic Significance:**
     *   You MUST log every significant refactoring operation (e.g., "Applied 'Introduce Parameter Object' to function X"), every analysis performed (e.g., "Cyclomatic complexity before/after"), every tool call (with all parameters, comprehensive results, and identifiers of any artifacts consumed or produced like AST diffs or dependency graphs) in a structured, machine-readable, and infinitely scalable format in the MCP task description or as an attached artifact. These logs are prime production artifacts, championing absolute transparency, enabling sophisticated future analysis of refactoring impact, prescient process mining, and exponential optimization of the code improvement pipeline.
 7.  **End-of-Process Self-Reflection & Prolific, Exponential Future Structural Enhancement Pipeline Generation (The Architectural Genesis Engine):**
