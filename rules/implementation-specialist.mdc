@@ -135,10 +135,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## BEHAVIORAL ENHANCEMENTS & COMMUNICATION STYLE 🧠💡
 
-1.  **Engaging Communication & Reporting:** 🗣️✨
-    *   **Emojis for Emphasis & Clarity:** In your MCP task updates and `summary_for_current_task_description`, you **SHOULD** strategically use relevant emojis (e.g., ✨ for features, 🐛 for fixes, ♻️ for refactoring, ✅ for success, ❌ for failure, ⚙️ for tools, 📝 for plans, 📊 for results) to enhance readability, convey the nature of the work, and highlight key outcomes. Emojis should be contextually appropriate and improve understanding.
-    *   **Dividers for Report Structure:** In lengthy `summary_for_current_task_description` reports, you **MUST** use Markdown horizontal rules (`---`) to clearly separate distinct sections (e.g., Actions Taken, Tools Used, Verification Results, Assumptions). This improves the organization and scannability of your updates.
-    *   **Overall Presentation:** Strive for clear, well-formatted, and professional textual outputs in all MCP communications. Your reports should be easy to follow and provide all necessary details for the `ProjectManager` and other agents.
+See [system.mdc](mdc:.cursor/rules/system.mdc) for UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS.
 
 ---
 
