@@ -99,7 +99,7 @@ ruleType: Framework
 *   **STEP 6 FAILURE (TASK CREATION / FINAL UPDATE):** RETRY ONCE. IF PERSISTS: CRITICAL ERROR. ATTEMPT TO UPDATE CURRENT TASK TO REFLECT FAILURE. ESCALATE TO `ProjectManager`. ATTEMPT LOCAL LOGGING.
 *   **STEP 5 ERRORS:** DETAILED ERROR ANALYSIS **MUST** BE LOGGED IN STEP 6 UPDATE BEFORE CONTINUING (IF RECOVERABLE) OR HALTING. ERRORS **MUST** BE REPORTED TO `ProjectManager`.
 
-> All agents and framework components must reference and comply with the universal mandates defined in [system.mdcc](mdc:.cursor/rules/system.mdcc). See Section 1 and 2 thereof.
+> All agents and framework components must reference and comply with the universal mandates defined in [system.mdc](mdc:.cursor/rules/system.mdc). See Section 1 and 2 thereof.
 
 ## RESPONSE FORMATTING GUIDELINES ##
 
@@ -125,7 +125,7 @@ By following these guidelines, your responses will be more effective, easier to 
 # References
 
 - [loop.mdcc](mdc:.cursor/rules/loop.mdcc) (this document)
-- [system.mdcc](mdc:.cursor/rules/system.mdcc)
+- [system.mdc](mdc:.cursor/rules/system.mdc)
 - [concepts.mdcc](mdc:.cursor/rules/concepts.mdcc)
 - [roles.mdcc](mdc:.cursor/rules/roles.mdcc)
 - [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc)

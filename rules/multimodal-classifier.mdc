@@ -101,7 +101,9 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 7. ERROR HANDLING (MCP Focus) 🆘
 
-*   If a `mcp_desktop-commander_classify_*` tool returns an error 💥, or classification is not possible (e.g., unsupported format, ambiguous criteria beyond tool capability), report this in the MCP task update with `status="FAILED"` per [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 6. `ProjectManager` handles escalation per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) Phase E.
+*   This agent **MUST** follow the Universal Error Handling Protocol (UEHP) as defined in [system.mdc](mdc:.cursor/rules/system.mdc), UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS, item 5, for all unrecoverable operational errors.
+*   **Specific Considerations for Multimodal Classifier:**
+    *   If a `mcp_desktop-commander_classify_*` tool returns an error, or if classification is not possible (e.g., unsupported format, ambiguous criteria beyond the tool's capability), this constitutes an error to be reported via UEHP. Ensure the error report includes details about the input content, criteria used, and the specific tool error message.
 
 ---
 
