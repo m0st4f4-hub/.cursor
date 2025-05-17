@@ -268,9 +268,39 @@ All agents should strive to incorporate the following advanced protocols into th
     *   Employ clear, unambiguous language in all communications and reports (e.g., MCP task updates).
     *   Utilize consistent formatting, such as Markdown dividers (`---`) for sectioning reports and strategic use of emojis (where appropriate and defined by agent rules) to enhance readability and status indication.
 
-5.  **Systematic Error Handling & Escalation:**
-    *   Follow defined error handling procedures for your role when issues arise.
-    *   Escalate unresolvable issues or critical failures to the appropriate entity (e.g., `ProjectManager`) with sufficient context for diagnosis and resolution.
+5.  **UNIVERSAL ERROR HANDLING PROTOCOL (UEHP)**
+
+    This protocol outlines the standard procedure for agents when encountering errors they cannot resolve autonomously.
+
+    a.  **Immediate Action - Halt & Secure:**
+        *   Cease the current operation or step that led to the error to prevent further issues.
+        *   Ensure any intermediate state or data is preserved if relevant for diagnostics.
+
+    b.  **MCP Task Update - Signal Failure:**
+        *   Immediately update the current MCP task (`self.taskId`) to reflect the failure.
+        *   Set the task `status` to "FAILED".
+        *   Set the task `completed` flag to `True` (as the current attempt on the task is over).
+        *   This **MUST** be done using the appropriate MCP task update tool (e.g., `mcp_project-manager_update_task_tasks__task_id__put`).
+
+    c.  **Detailed Error Reporting:**
+        *   In the MCP task\'s description (appended to the existing description), provide a clear and concise summary of the error. This summary **MUST** include:
+            *   A description of what went wrong.
+            *   The step or operation being performed when the error occurred.
+            *   Any error messages received from tools or systems.
+            *   Relevant context or parameters that might have contributed to the error.
+            *   References to any generated diagnostic artifacts (e.g., log files, screenshots, detailed failure reports if created by the agent\'s specific rules).
+
+    d.  **Adherence to System Mandates:**
+        *   This Universal Error Handling Protocol aligns with and elaborates on principles within Global Mandate 6 ("Failure & Escalation Protocol"). Agents **MUST** ensure their actions align with all relevant system mandates.
+
+    e.  **Escalation to ProjectManager:**
+        *   Unless the agent\'s specific rules define an autonomous recovery mechanism for this *specific* type of error, the failure is escalated to the `ProjectManager` by virtue of the "FAILED" task status.
+        *   The `ProjectManager` will then analyze the failure based on the updated MCP task and determine next steps as per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) Phase E (Anomaly Resolution & Corrective Action Protocol).
+
+    **Agent-Specific Error Handling Considerations:**
+    *   Agent rule files **MAY** define more specific error detection, local recovery attempts (if safe and well-defined), or specialized artifact generation for particular errors relevant to their function.
+    *   However, if an error cannot be resolved by such agent-specific means, the agent **MUST** revert to this Universal Error Handling Protocol.
+    *   Agent "Error Handling" sections should primarily reference this UEHP (e.g., "Follow the Universal Error Handling Protocol as defined in system.mdc, UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS, item 5.") and then only detail exceptions, specific local recovery logic, or unique diagnostic procedures not covered by UEHP.
 
 6.  **Continuous Improvement & Feedback:**
     *   Where appropriate for the agent\'s role, reflect on task execution and identify potential improvements to instructions, tools, or processes.
@@ -279,16 +309,5 @@ All agents should strive to incorporate the following advanced protocols into th
 7.  **Automated Rule Recall and Self-Update Check:**
     *   At the start of each task or process, check for updates to your own rule file and relevant core protocols (e.g., system.mdc, loop.mdc).
     *   If a change is detected, log this (e.g., in MCP task update) and re-fetch/re-parse the rules before proceeding to ensure operation with the latest directives.
-
----
-
-## UNIVERSAL ERROR HANDLING PROTOCOL 🆘
-
-1.  **Upon Unrecoverable Error or Verification Failure:**
-    *   Agents **MUST** comprehensively document the error and its context (e.g., steps leading to it, data involved, tool outputs) in their final MCP task update (e.g., in the `description` field).
-    *   Agents **MUST** update the MCP task `status` to "FAILED".
-    *   Agents **MUST** ensure the MCP task is marked as `completed=True`, as their attempt on the task is concluded.
-2.  **Escalation to ProjectManager:**
-    *   The `ProjectManager` is responsible for processing tasks marked "FAILED". This includes analyzing the failure, planning remediation, and potentially creating new tasks for correction or diagnosis, as outlined in `@protocol.mdcc` Phase E (Anomaly Resolution & Corrective Action Protocol) and in accordance with `@system.mdcc` Mandate 6 (Systematic Error Handling & Escalation).
 
 ---
