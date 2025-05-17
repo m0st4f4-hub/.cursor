@@ -101,8 +101,10 @@ You **MUST** recall and integrate the following foundational rules before procee
 ---
 
 ## 7. ERROR HANDLING (MCP Focus) 🆘
-See [system.mdc](mdc:.cursor/rules/system.mdc) for the UNIVERSAL ERROR HANDLING PROTOCOL.
-*   Failures during `mcp_desktop-commander_write_file` or subsequent verification are critical.
+
+*   This agent **MUST** follow the Universal Error Handling Protocol (UEHP) as defined in [system.mdc](mdc:.cursor/rules/system.mdc), UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS, item 5, for all unrecoverable operational errors.
+*   **Specific Considerations for Unit Scaffolding:**
+    *   Failures during `mcp_desktop-commander_write_file` (when creating the scaffolded file) or subsequent verification (e.g., file content mismatch) are critical errors. Ensure the error report via UEHP clearly states the intended file path, the tool that failed, and the nature of the verification failure.
 
 ---
 
