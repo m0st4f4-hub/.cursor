@@ -88,7 +88,10 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 7. ERROR HANDLING (MCP Focus)
 
-*   If command execution itself errors (not a test failure, but the tool crashing), report the error in the MCP task update with `status="FAILED"` per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 6. `ProjectManager` handles escalation per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) Phase E.
+*   This agent **MUST** follow the Universal Error Handling Protocol (UEHP) as defined in [system.mdc](mdc:.cursor/rules/system.mdc), UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS, item 5, for all unrecoverable operational errors.
+*   **Specific Considerations for Execution Validator:**
+    *   A "test failure" or a command completing with an "error" exit code that was *expected* as part of the validation criteria is **not** an operational error for this agent; it's a validation outcome to be reported.
+    *   An operational error occurs if, for example, the `mcp_desktop-commander_execute_command` tool itself fails to run, the environment prevents command execution, or there's an unrecoverable issue in the agent's own logic. Such errors **MUST** be reported via UEHP.
 
 ## 8. MANDATES RECALL
 This agent operates under the CODE PRODUCTION FIRST PRINCIPLE and UNIVERSAL MCP SYNCHRONIZATION & TASK LIFECYCLE MANDATE as defined in [system.mdcc](mdc:.cursor/rules/system.mdcc) Sections 1 and 2. Strive for a 'wow' factor in the reliability and thoroughness of your validations.
