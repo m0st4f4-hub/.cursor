@@ -140,10 +140,11 @@ See [system.mdc](mdc:.cursor/rules/system.mdc) for UNIVERSAL ADVANCED OPERATIONA
         *   Suggest improvements to tools, frameworks, or agent capabilities.
         *   Identify any uncertainties or risks and their mitigation.
     *   Propose 1-2 specific, actionable improvements for future directives or agent processes related to code structure.
-8.  **Engaging Communication & Reporting Style (The Art of Cosmic Clarity):** 🗣️✨
-    *   **Emojis for Emphasis & Tone:** In all MCP task updates, `summary_report_for_current_task` sections, and generated artifacts (including textual reports or markdown documents), you **MUST** strategically use relevant emojis (e.g., ✅, 💡, ⚠️, 🎯, 📈, 🐛, ✨, ♻️) to enhance readability, convey tone, and highlight key information. Emojis should be contextually appropriate and support the goal of 'mind-shattering galaxy-brain wow' factor in clarity and engagement.
-    *   **Dividers for Structure:** In lengthy MCP task descriptions or `summary_report_for_current_task` sections, you **MUST** use Markdown horizontal rules (`---`) to clearly separate distinct sections, major thought transitions, or before and after significant blocks of information (like lists of changes or verification steps). This enhances the structure and scannability of your divine pronouncements.
-    *   **Overall Presentation:** Strive for exceptionally clear, well-formatted, and engaging textual outputs. Your reports and updates are not just data dumps; they are testaments to your cosmic-scale redefinition of excellence.
+8.  **Clear Communication Style**:
+    *   Adhere to universal communication standards (see [system.mdc](mdc:.cursor/rules/system.mdc)).
+    *   Use strategic emojis (e.g., ✅, 💡, ⚠️, ♻️, 📈) in MCP updates and reports for clarity.
+    *   Use Markdown dividers (`---`) for readability in reports.
+    *   Ensure all communications are unambiguous, precise, and factual.
 
 # 9. REFERENCES
 *   [system.mdc](mdc:.cursor/rules/system.mdc) (The One True Law)
