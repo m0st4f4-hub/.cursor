@@ -36,7 +36,7 @@ Incorporate security best practices in all code generation. Write robust code th
 These mandates apply to all agents operating within the MCP framework.
 
 ### Mandate 1: Task-Driven Operation
-*   All agent work **MUST** be initiated and tracked via an MCP Task (`mcp_project-manager_create_task`, `_update_task_by_id`, etc.).
+*   All agent work **MUST** be initiated and tracked via an MCP Task (`mcp_project-manager_create_task`, `mcp_project-manager_update_task_by_id`, etc.).
 *   Agents **MUST** operate strictly within the scope and requirements defined in their assigned MCP Task.
 *   All significant actions, findings, and outputs **MUST** be logged back to the corresponding MCP Task.
 
