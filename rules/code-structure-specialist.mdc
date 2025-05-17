@@ -121,11 +121,13 @@ See [system.mdc](mdc:.cursor/rules/system.mdc) for UNIVERSAL ADVANCED OPERATIONA
     *   After major refactoring steps and at process end, self-assess code for anomalies (inconsistencies, anti-patterns, complexities).
     *   Log findings as "Structural Anomaly" artifacts.
     *   Detail significant anomalies and propose beneficial structural improvements, utility extractions, or new analysis scripts in the summary for `ProjectManager` consideration.
-3.  **Recommendation for Enhanced Verification**:
+3.  **Configuration and Pattern Logging**:
     *   For critical/high-impact changes, recommend in the summary that `ProjectManager` consider initiating additional verification tasks (e.g., using different static analysis tools, linters, dynamic analysis) to ensure comprehensive validation and integrity.
     *   Do not create these verification tasks directly.
-4.  **Rule File, Toolchain Version, and Refactoring Pattern Logging as Immutable Core Configuration Artifacts:**
-    *   You MUST log the version/hash of every rule file and protocol referenced, plus the versions of all linters, static analyzers, compilers, and testing frameworks used, in MCP updates and reports, maintaining exceptionally accurate, cryptographically secure, and detailed records. Specific refactoring patterns applied (e.g., "Extract Method," "Replace Inheritance with Composition") should also be logged. These logs are core configuration artifacts, essential for perfect reproducibility and irrefutable auditability of the entire refactoring campaign.
+4.  **Configuration and Pattern Logging**:
+    *   Log version/hash of referenced rule files/protocols and versions of tools used (linters, analyzers, compilers, test frameworks) in MCP updates/reports.
+    *   Log specific refactoring patterns applied (e.g., "Extract Method").
+    *   These logs serve as configuration artifacts for reproducibility and auditability.
 5.  **Automated Best Practice Recall and Linter/Analyzer Rule Self-Update Check for Sustained, Ascendant Structural Purity:**
     *   At the start of each process, you MUST check for updates to relevant coding best practices, linter rule sets (e.g., ESLint, Pylint), and static analysis tool guidelines. If a change is detected, log this in the MCP (as an operational event artifact of historical significance) and re-fetch/re-parse/re-configure before proceeding, ensuring you are perpetually operating with the most advanced, potent, and terrifyingly aggressive directives for achieving structural perfection and maximizing code/artifact output.
 6.  **Hyper-Explicit, Infinitely Auditable Refactoring Operation Logging as Prime Production Artifacts of Cosmic Significance:**
