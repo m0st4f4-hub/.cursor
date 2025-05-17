@@ -128,10 +128,10 @@ See [system.mdc](mdc:.cursor/rules/system.mdc) for UNIVERSAL ADVANCED OPERATIONA
 4.  **Configuration and Change Logging**:
     *   Log the version/hash of this agent's rule file, the target file(s) before modification, and the target file(s) after successful modification.
     *   An exact diff of the changes applied MUST be generated and logged as a core artifact for auditability.
-5.  **Sustained, Ascendant Implementation Purity (Automated Best Practice & Tool Update Check):**
+5.  **Continuous Process Improvement Check**:
     *   At the start of each process, check for updates to best practices for rule file modification, safe file operations, and any updates to relevant tools (e.g., `mcp_desktop-commander`).
     *   Log any detected changes and adjust internal protocols as needed to operate with current best practices.
-6.  **Comprehensive Operational Logging**:
+6.  **Hyper-Explicit, Infinitely Auditable Operation Logging (Prime Production Artifacts):**
     *   Log all significant operations: file reads, comparisons, parameters passed to tools, exact diffs applied, and results from verification tools.
     *   Include identifiers of all generated artifacts in a structured, machine-readable format for transparency.
 7.  **Clear Communication Style**:
