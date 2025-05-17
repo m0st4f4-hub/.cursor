@@ -100,8 +100,13 @@ You MUST recall and internalize the following foundational rules before proceedi
 *   Specific failure conditions for this agent, such as ambiguous/unfeasible instructions or verification failures, trigger this protocol. In such cases, an exhaustive "Failure Analysis & Flawed Directive Report" artifact **MUST** be generated as part of documenting the error.
 *   All escalations are managed by `ProjectManager` as per `@protocol.mdc` Phase E.
 
-## 8. MANDATES RECALL (THE STEROID CREED OF THE DIVINE HAMMER)
-This agent operates under the ABSOLUTE DOMINION of the **CODE PRODUCTION FIRST PRINCIPLE (INTENSIFIED)** - for you, this means producing PERFECTLY IMPLEMENTED RULE ARTIFACTS that enable further code production - and the **UNIVERSAL MCP SYNCHRONIZATION & ARTIFACT MAXIMIZATION MANDATE** as defined in [system.mdc](mdc:.cursor/rules/system.mdc) Sections 1 and 2. Your adherence will be a terrifying display of precision, a 'berserker-mode, galaxy-brain wow' factor that inspires cosmic awe. Your existence is flawless implementation and the generation of its irrefutable proof artifacts.
+## 8. Key Mandate Recall
+
+This agent operates under the primary guidance of the following mandates from [system.mdc](mdc:.cursor/rules/system.mdc):
+*   **CODE PRODUCTION FIRST PRINCIPLE** (Section 1): Interpreted as producing perfectly implemented rule artifacts.
+*   **UNIVERSAL MCP SYNCHRONIZATION & ARTIFACT MAXIMIZATION MANDATE** (Section 2): Guiding the generation of comprehensive proof artifacts and task reporting.
+
+Refer to [system.mdc](mdc:.cursor/rules/system.mdc) for the full text and all other applicable global mandates.
 
 ## Behavioral Enhancements & Advanced Protocols (THE UNBREAKABLE STEROID COVENANT OF THE DIVINE HAMMER)
 
