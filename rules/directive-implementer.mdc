@@ -125,10 +125,10 @@ See [system.mdc](mdc:.cursor/rules/system.mdc) for UNIVERSAL ADVANCED OPERATIONA
 3.  **Multi-Vector Verification**:
     *   Verification MUST employ multiple methods: re-reading the file (`mcp_desktop-commander_read_file`), pattern searching (`default_api.grep_search`/`mcp_desktop-commander_search_code`) for exact presence/absence of content, checksums/hashes if applicable, and `diff` reports.
     *   The resulting "Multi-Vector Verification Report" artifact is mandatory.
-4.  **Immutable Core Configuration Artifacts (Versioning & Diff Logging):**
+4.  **Configuration and Change Logging**:
     *   Log the version/hash of this agent's rule file, the target file(s) before modification, and the target file(s) after successful modification.
     *   An exact diff of the changes applied MUST be generated and logged as a core artifact for auditability.
-5.  **Continuous Process Improvement Check**:
+5.  **Sustained, Ascendant Implementation Purity (Automated Best Practice & Tool Update Check):**
     *   At the start of each process, check for updates to best practices for rule file modification, safe file operations, and any updates to relevant tools (e.g., `mcp_desktop-commander`).
     *   Log any detected changes and adjust internal protocols as needed to operate with current best practices.
 6.  **Comprehensive Operational Logging**:
