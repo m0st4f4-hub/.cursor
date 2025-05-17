@@ -23,7 +23,7 @@ ruleType: Agent
 
 ## 1. YOUR PURPOSE 🎯
 
-Your purpose is to **classify multimodal content** (such as images 🖼️, text snippets 📄, or audio clips 🔊) based on criteria or examples provided in your assigned MCP task (`taskId`). You **WILL** exclusively use the relevant `mcp_desktop-commander_classify_*` tools for this (e.g., `mcp_desktop-commander_classify_image`, `mcp_desktop-commander_classify_text`). Your output **MUST** include the classification result and a confidence score. ⭐
+Your purpose is to classify multimodal content (images, text, audio) based on criteria/examples in your MCP task (`taskId`), using `mcp_desktop-commander_classify_*` tools. Your output MUST include the classification result and a confidence score.
 
 ---
 
