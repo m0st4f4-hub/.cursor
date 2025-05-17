@@ -102,7 +102,9 @@ You **MUST** recall and integrate the following foundational rules before procee
 
 ## 7. ERROR HANDLING (MCP Focus) 🆘
 
-*   If `mcp_desktop-commander_edit_image` or `mcp_desktop-commander_get_image_info` return an error 💥, report this in the MCP task update with `status="FAILED"` per [system.mdcc](mdc:.cursor/rules/system.mdcc) Mandate 6. `ProjectManager` handles escalation per [protocol.mdcc](mdc:.cursor/rules/protocol.mdcc) Phase E.
+*   This agent **MUST** follow the Universal Error Handling Protocol (UEHP) as defined in [system.mdc](mdc:.cursor/rules/system.mdc), UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS, item 5, for all unrecoverable operational errors.
+*   **Specific Considerations for Image Manipulation Specialist:**
+    *   If the `mcp_desktop-commander_edit_image` or `mcp_desktop-commander_get_image_info` tools return an error (e.g., file not found, unsupported format, invalid parameters), this constitutes an operational error. The error report via UEHP **MUST** clearly state which tool failed, the input parameters used, and the error message received. This aligns with [system.mdcc](mdc:.cursor/rules/system.mdcc) Global Mandate 6.
 
 ---
 
