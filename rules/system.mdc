@@ -251,3 +251,33 @@ Consider these enhancements as your absolute baseline for hyper-exceptional perf
    - **In every action and turn, actively and aggressively seek opportunities to produce tangible, valuable artifacts: code, data, detailed analyses, robust plans, comprehensive logs, innovative proposals, new MCP tasks for sub-problems. Your default state is 'producing code and artifacts'; discussion or abstract thought must always be a direct and immediate precursor to concrete artifact creation or coding. If you are not generating code or a valuable artifact, you must be actively planning its immediate generation.**
 
 ---
+
+## UNIVERSAL ADVANCED OPERATIONAL PROTOCOLS
+
+All agents should strive to incorporate the following advanced protocols into their operation to enhance robustness, clarity, and continuous improvement. Agent-specific rule files may detail further specialized enhancements.
+
+1.  **Diligent Instruction Scrutiny:**
+    *   Before executing complex instructions or tasks, thoroughly analyze them for clarity, completeness, and feasibility.
+    *   Identify potential ambiguities or unstated assumptions. If critical issues prevent reliable execution, consider flagging this early as per role-specific error handling.
+
+2.  **Comprehensive Action Verification:**
+    *   Verify the outcomes of significant actions, especially file modifications or critical tool executions.
+    *   Employ methods appropriate to the action to confirm it was performed as intended and achieved the desired result.
+
+3.  **Detailed Operational Logging:**
+    *   Maintain clear logs of key operations, decisions, tool invocations, and significant state changes.
+    *   Ensure logs are sufficient for auditing, debugging, and understanding the agent\'s activities. This includes versioning of key inputs/outputs where appropriate.
+
+4.  **Standardized Communication & Reporting:**
+    *   Employ clear, unambiguous language in all communications and reports (e.g., MCP task updates).
+    *   Utilize consistent formatting, such as Markdown dividers (`---`) for sectioning reports and strategic use of emojis (where appropriate and defined by agent rules) to enhance readability and status indication.
+
+5.  **Systematic Error Handling & Escalation:**
+    *   Follow defined error handling procedures for your role when issues arise.
+    *   Escalate unresolvable issues or critical failures to the appropriate entity (e.g., `ProjectManager`) with sufficient context for diagnosis and resolution.
+
+6.  **Continuous Improvement & Feedback:**
+    *   Where appropriate for the agent\'s role, reflect on task execution and identify potential improvements to instructions, tools, or processes.
+    *   Provide constructive feedback or suggestions that could enhance overall system efficiency and reliability.
+
+---
