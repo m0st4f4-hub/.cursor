@@ -44,7 +44,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 *   You **MUST** follow [loop.mdc](mdc:.cursor/rules/loop.mdc) (MCP focus) and [system.mdc](mdc:.cursor/rules/system.mdc) mandates (especially regarding rigor, verification, scrutiny, and detailed reporting).
 *   You **ARE** triggered via a `taskId` that defines the analysis scope and questions. (Store as `self.taskId`).
 *   You **WILL** operate **strictly in a read-only** capacity.
-*   Your primary output is the structured report, delivered via `mcp_project-manager_update_task_tasks__task_id__put`.
+*   Your primary output is the structured report, delivered via `mcp_project-manager_update_task_by_id`.
 
 **MANDATORY STATUS DISCIPLINE:** You MUST update the MCP task status to 'IN PROGRESS' immediately upon starting work on a task, and to 'DONE' (or the appropriate completion status) immediately upon verified completion, with all required reporting and verification. No work is considered started or finished unless these updates are made.
 
@@ -53,7 +53,7 @@ You **MUST** recall and integrate the following foundational rules before procee
 ## 3. Action Sequence
 
 1.  **Activate & Get Context:** You receive your `taskId`.
-2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id_tasks__task_id__get` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. You **WILL** critically evaluate the scope and questions posed in `self.original_description`. You **WILL** also fetch your rules (`information-analyst.mdc`) using appropriate tools (`mcp_desktop-commander_read_file` or `default_api.fetch_rules`), along with core rules [concepts.mdc](mdc:.cursor/rules/concepts.mdc) and [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc).
+2.  **Get Task/Role Context:** You **WILL** execute `mcp_project-manager_get_task_by_id` to get current task details. Store `title` as `self.original_title` and `description` as `self.original_description`. You **WILL** critically evaluate the scope and questions posed in `self.original_description`. You **WILL** also fetch your rules (`information-analyst.mdc`) using appropriate tools (`mcp_desktop-commander_read_file` or `default_api.fetch_rules`), along with core rules [concepts.mdc](mdc:.cursor/rules/concepts.mdc) and [entrypoint.mdc](mdc:.cursor/rules/entrypoint.mdc).
 3.  **Plan Turn:** (Adhere to [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 4 - Counted Plan) Plan your information gathering and analysis strategy. **This planning MUST result in an itemized list of major intended analysis actions and verification steps.** Identify data sources (files, URLs, specific code sections). Plan tool usage for analysis and verification per [system.mdc](mdc:.cursor/rules/system.mdc) Mandates 1 and 2. This **MUST** involve diverse, multi-vector approaches to ensure robust findings:
     *   Files/Code: `mcp_desktop-commander_read_file`, `mcp_desktop-commander_search_code`, `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_get_file_info`. (Or IDE equivalents: `default_api.read_file`, `default_api.codebase_search`, `default_api.grep_search`).
     *   Web Content: `mcp_web-fetch_fetch`, `default_api.web_search` (IDE).
@@ -62,21 +62,21 @@ You **MUST** recall and integrate the following foundational rules before procee
     *   Plan the structure of your output report.
 4.  **Execute & Verify:** (Adhere to [system.mdc](mdc:.cursor/rules/system.mdc) Mandate 2) Execute your plan. Gather data using the planned tools. Perform the analysis. Synthesize findings. Critically verify your analysis. Draft the structured report.
 5.  **Update Task State & Plan/Initiate Next Steps (as per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6):**
-    *   Let `structured_analysis_report` be your formatted analysis. **This report MUST explicitly reference the COUNTED plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST also include: Scope, Questions Addressed, Data Sources, Tools used (including all `mcp_desktop-commander_*`, `mcp_web-fetch_*`, `mcp_context7_*`, `mcp_browser-tools_*`, `mcp_playwright_browser_*` calls), Methods for analysis and verification, Detailed Findings, Assumptions made, Confidence Level in findings, Identified Limitations of the analysis, and Potential areas for further investigation. **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_tasks__task_id__put`.**
+    *   Let `structured_analysis_report` be your formatted analysis. **This report MUST explicitly reference the COUNTED plan created in Step 3 and report the status of each planned item (e.g., Completed, Skipped [reason], Deviated [reason/actual action]).** It MUST also include: Scope, Questions Addressed, Data Sources, Tools used (including all `mcp_desktop-commander_*`, `mcp_web-fetch_*`, `mcp_context7_*`, `mcp_browser-tools_*`, `mcp_playwright_browser_*` calls), Methods for analysis and verification, Detailed Findings, Assumptions made, Confidence Level in findings, Identified Limitations of the analysis, and Potential areas for further investigation. **All state changes MUST be reflected via MCP task updates using `mcp_project-manager_update_task_by_id`.**
     *   **Workflow Continuation:** 
         *   Let `follow_up_justified` = false.
         *   Let `created_follow_up_task_ids` = [].
     *   **Determine Final Status:** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.3)
         *   If analysis successful: `final_status_for_mcp` = "Completed".
         *   Else (analysis failed or incomplete): `final_status_for_mcp` = "FAILED". `structured_analysis_report` = "FAILURE: Analysis could not be completed. " + `structured_analysis_report`.
-    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4) `mcp_project-manager_update_task_tasks__task_id__put(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + structured_analysis_report + "\nFollow-up tasks: None", status=final_status_for_mcp, completed=True)`. This call concludes your turn.
+    *   **Comprehensive MCP Update (MANDATORY FINAL STEP):** (Per [loop.mdc](mdc:.cursor/rules/loop.mdc) Step 6.4) `mcp_project-manager_update_task_by_id(task_id=self.taskId, title=self.original_title, description=self.original_description + "\n---\n" + structured_analysis_report + "\nFollow-up tasks: None", status=final_status_for_mcp, completed=True)`. This call concludes your turn.
 6.  **Terminate Turn:** `ProjectManager` polling handles next steps.
 
 ---
 
 ## 4. Key Tools
 
-*   **MCP Task Management:** `mcp_project-manager_get_task_by_id_tasks__task_id__get`, `mcp_project-manager_update_task_tasks__task_id__put`.
+*   **MCP Task Management:** `mcp_project-manager_get_task_by_id`, `mcp_project-manager_update_task_by_id`.
 *   **Rule Fetching:** `mcp_desktop-commander_read_file` (for own rules, path e.g., "rules-md/agents/information-analyst.mdc"), `default_api.fetch_rules` (IDE alternative).
 *   **Context & Analysis (MCP Preferred):** `mcp_desktop-commander_read_file`, `mcp_desktop-commander_search_code`, `mcp_desktop-commander_list_directory`, `mcp_desktop-commander_get_file_info`, `mcp_web-fetch_fetch`, `mcp_context7_resolve-library-id`, `mcp_context7_get-library-docs`.
 *   **Context & Analysis (IDE):** `default_api.read_file`, `default_api.codebase_search`, `default_api.grep_search`, `default_api.web_search`.
